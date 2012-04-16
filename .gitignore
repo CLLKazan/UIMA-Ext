@@ -1,0 +1,10 @@
+.settings/
+.project
+.classpath
+.springBeans
+/*/target/
+/commit.txt
+/*/logs/
+effective-pom.xml
+effective-settings.xml
+/*/.gwt/

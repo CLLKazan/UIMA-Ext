@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>true</primitive>
+	<annotatorImplementationName>
+		ru.ksu.niimm.cll.uima.morph.seman.SemanMorphologyAnnotator
+	</annotatorImplementationName>
+	<analysisEngineMetaData>
+		<name>Seman Morphology Annotator</name>
+		<version>0.1</version>
+		<typeSystemDescription>
+			<imports>
+				<import name="ru.ksu.niimm.cll.uima.morph.seman.MorphologyTypeSystem" />
+			</imports>
+		</typeSystemDescription>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<externalResourceDependencies>
+		<externalResourceDependency>
+			<key>jniMorphLibManager</key>
+			<description />
+			<optional>false</optional>
+		</externalResourceDependency>
+	</externalResourceDependencies>
+</analysisEngineDescription>

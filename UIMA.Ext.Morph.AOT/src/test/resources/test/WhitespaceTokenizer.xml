@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>true</primitive>
+	<annotatorImplementationName>org.apache.uima.annotator.WhitespaceTokenizer
+	</annotatorImplementationName>
+	<analysisEngineMetaData>
+		<name>WhitespaceTokenizer</name>
+		<configurationParameters>
+			<configurationParameter>
+				<name>SofaNames</name>
+				<description>The Sofa names the annotator should work on. If no
+					names are specified, the annotator works on the
+					default sofa.</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenAnnotation</name>
+				<description>Fully qualified type of token annotation that should be done.</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>SentenceAnnotation</name>
+				<description>Fully qualified type of sentence annotation that should be done.</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<configurationParameterSettings>
+			<nameValuePair>
+				<name>TokenAnnotation</name>
+				<value>
+					<string>test.Token</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>SentenceAnnotation</name>
+				<value>
+					<string>test.Sentence</string>
+				</value>
+			</nameValuePair>
+		</configurationParameterSettings>
+		<typeSystemDescription>
+			<imports>
+				<import name="test.TokenizerTypeSystem" />
+			</imports>
+		</typeSystemDescription>
+		<fsIndexCollection />
+		<capabilities>
+			<capability>
+				<inputs />
+				<outputs>
+					<type>test.Token</type>
+					<type>test.Sentence</type>
+				</outputs>
+				<languagesSupported />
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+</analysisEngineDescription>
