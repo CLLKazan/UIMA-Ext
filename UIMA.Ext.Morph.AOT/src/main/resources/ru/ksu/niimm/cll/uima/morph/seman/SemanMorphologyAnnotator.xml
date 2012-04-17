@@ -8,6 +8,22 @@
 	<analysisEngineMetaData>
 		<name>Seman Morphology Annotator</name>
 		<version>0.1</version>
+		<configurationParameters>
+			<configurationParameter>
+				<name>tokenTypeName</name>
+				<description>Name of token annotation type</description>
+				<type>String</type>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<configurationParameterSettings>
+			<nameValuePair>
+				<name>tokenTypeName</name>
+				<value>
+					<string>org.apache.uima.TokenAnnotation</string>
+				</value>
+			</nameValuePair>
+		</configurationParameterSettings>
 		<typeSystemDescription>
 			<imports>
 				<import name="ru.ksu.niimm.cll.uima.morph.seman.MorphologyTypeSystem" />
@@ -23,7 +39,6 @@
 		<externalResourceDependency>
 			<key>jniMorphLibManager</key>
 			<description />
-			<optional>false</optional>
 		</externalResourceDependency>
 	</externalResourceDependencies>
 </analysisEngineDescription>

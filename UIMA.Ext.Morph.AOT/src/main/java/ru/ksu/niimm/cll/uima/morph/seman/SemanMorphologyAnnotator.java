@@ -125,6 +125,7 @@ public class SemanMorphologyAnnotator extends JCasAnnotator_ImplBase {
 		int i = 0;
 		for (Grammem gr : grammems) {
 			result.set(i, gr.getLabel());
+			i++;
 		}
 		return result;
 	}

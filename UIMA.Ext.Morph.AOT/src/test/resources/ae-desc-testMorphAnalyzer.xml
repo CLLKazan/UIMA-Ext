@@ -5,7 +5,7 @@
 
 	<delegateAnalysisEngineSpecifiers>
 		<delegateAnalysisEngine key="tokenizer">
-			<import name="test.WhitespaceTokenizer" />
+			<import name="WhitespaceTokenizer" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="morphologyAnalyzer">
 			<import name="ru.ksu.niimm.cll.uima.morph.seman.SemanMorphologyAnnotator" />
@@ -30,11 +30,12 @@
 				<fileResourceSpecifier>
 					<fileUrl>file:${seman.jniMorphLib}</fileUrl>
 				</fileResourceSpecifier>
+				<implementationName>ru.ksu.niimm.cll.uima.morph.seman.JNIMorphLibManager</implementationName>
 			</externalResource>
 		</externalResources>
 		<externalResourceBindings>
 			<externalResourceBinding>
-				<key>jniMorphLibManager</key>
+				<key>morphologyAnalyzer/jniMorphLibManager</key>
 				<resourceName>JNIMorphLib</resourceName>
 			</externalResourceBinding>
 		</externalResourceBindings>
