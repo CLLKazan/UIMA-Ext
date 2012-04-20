@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Mon Apr 16 22:33:21 MSK 2012 */
+/* First created by JCasGen Fri Apr 20 11:23:25 MSK 2012 */
 package ru.ksu.niimm.cll.uima.morph.seman;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,7 +12,7 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** Wordform object
- * Updated by JCasGen Mon Apr 16 22:33:21 MSK 2012
+ * Updated by JCasGen Fri Apr 20 11:23:25 MSK 2012
  * XML source: D:/projects/uima-ext/UIMA.Ext.Morph.AOT/src/main/resources/ru/ksu/niimm/cll/uima/morph/seman/MorphologyTypeSystem.xml
  * @generated */
 public class Wordform extends Annotation {
@@ -120,17 +120,17 @@ public class Wordform extends Annotation {
 
   /** getter for flexionNo - gets flexion number
    * @generated */
-  public long getFlexionNo() {
+  public int getFlexionNo() {
     if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_flexionNo == null)
       jcasType.jcas.throwFeatMissing("flexionNo", "ru.ksu.niimm.cll.uima.morph.seman.Wordform");
-    return jcasType.ll_cas.ll_getLongValue(addr, ((Wordform_Type)jcasType).casFeatCode_flexionNo);}
+    return jcasType.ll_cas.ll_getIntValue(addr, ((Wordform_Type)jcasType).casFeatCode_flexionNo);}
     
   /** setter for flexionNo - sets flexion number 
    * @generated */
-  public void setFlexionNo(long v) {
+  public void setFlexionNo(int v) {
     if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_flexionNo == null)
       jcasType.jcas.throwFeatMissing("flexionNo", "ru.ksu.niimm.cll.uima.morph.seman.Wordform");
-    jcasType.ll_cas.ll_setLongValue(addr, ((Wordform_Type)jcasType).casFeatCode_flexionNo, v);}    
+    jcasType.ll_cas.ll_setIntValue(addr, ((Wordform_Type)jcasType).casFeatCode_flexionNo, v);}    
   }
 
     

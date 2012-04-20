@@ -81,7 +81,14 @@ public class SemanMorphologyAnnotator extends JCasAnnotator_ImplBase {
 					paradigm.setPos(pos.getLabel());
 					paradigm.setLemma(para.getBaseForm());
 					paradigm.setGrammems(toStringArray(jCas, para.getParadigmGrammems()));
-					paradigm.setParadigmId(para.getId() == null ? -1 : para.getId());
+					if (para.getId() == null) {
+						paradigm.setParadigmId(-1);
+					} else if (para.getId() > Integer.MAX_VALUE || para.getId() < Integer.MIN_VALUE) {
+						throw new IllegalStateException(
+								"Too big paradigm id value (not in integer range): " + para.getId());
+					} else {
+						paradigm.setParadigmId(para.getId().intValue());
+					}
 					jCas.addFsToIndexes(paradigm);
 
 					Wordform wf = new Wordform(jCas, curToken.getBegin(), curToken.getEnd());

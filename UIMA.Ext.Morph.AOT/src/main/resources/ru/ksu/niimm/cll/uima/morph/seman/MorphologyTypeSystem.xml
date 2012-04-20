@@ -98,7 +98,7 @@
 				<featureDescription>
 					<name>paradigmId</name>
 					<description>dictionary paradigm id. If paradigm is predicted value will be negative</description>
-					<rangeTypeName>uima.cas.Long</rangeTypeName>
+					<rangeTypeName>uima.cas.Integer</rangeTypeName>
 				</featureDescription>
 			</features>
 		</typeDescription>
@@ -121,7 +121,7 @@
 				<featureDescription>
 					<name>flexionNo</name>
 					<description>flexion number</description>
-					<rangeTypeName>uima.cas.Long</rangeTypeName>
+					<rangeTypeName>uima.cas.Integer</rangeTypeName>
 				</featureDescription>
 			</features>
 		</typeDescription>

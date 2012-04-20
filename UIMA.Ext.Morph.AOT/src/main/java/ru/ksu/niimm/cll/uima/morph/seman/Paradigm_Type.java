@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Mon Apr 16 22:33:21 MSK 2012 */
+/* First created by JCasGen Fri Apr 20 11:23:25 MSK 2012 */
 package ru.ksu.niimm.cll.uima.morph.seman;
 
 import org.apache.uima.jcas.JCas;
@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Wordform paradigm object
- * Updated by JCasGen Mon Apr 16 22:33:21 MSK 2012
+ * Updated by JCasGen Fri Apr 20 11:23:25 MSK 2012
  * @generated */
 public class Paradigm_Type extends Annotation_Type {
   /** @generated */
@@ -122,16 +122,16 @@ public class Paradigm_Type extends Annotation_Type {
   /** @generated */
   final int     casFeatCode_paradigmId;
   /** @generated */ 
-  public long getParadigmId(int addr) {
+  public int getParadigmId(int addr) {
         if (featOkTst && casFeat_paradigmId == null)
       jcas.throwFeatMissing("paradigmId", "ru.ksu.niimm.cll.uima.morph.seman.Paradigm");
-    return ll_cas.ll_getLongValue(addr, casFeatCode_paradigmId);
+    return ll_cas.ll_getIntValue(addr, casFeatCode_paradigmId);
   }
   /** @generated */    
-  public void setParadigmId(int addr, long v) {
+  public void setParadigmId(int addr, int v) {
         if (featOkTst && casFeat_paradigmId == null)
       jcas.throwFeatMissing("paradigmId", "ru.ksu.niimm.cll.uima.morph.seman.Paradigm");
-    ll_cas.ll_setLongValue(addr, casFeatCode_paradigmId, v);}
+    ll_cas.ll_setIntValue(addr, casFeatCode_paradigmId, v);}
     
   
 
@@ -156,7 +156,7 @@ public class Paradigm_Type extends Annotation_Type {
     casFeatCode_lemma  = (null == casFeat_lemma) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_lemma).getCode();
 
  
-    casFeat_paradigmId = jcas.getRequiredFeatureDE(casType, "paradigmId", "uima.cas.Long", featOkTst);
+    casFeat_paradigmId = jcas.getRequiredFeatureDE(casType, "paradigmId", "uima.cas.Integer", featOkTst);
     casFeatCode_paradigmId  = (null == casFeat_paradigmId) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_paradigmId).getCode();
 
   }

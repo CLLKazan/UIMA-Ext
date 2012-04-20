@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Mon Apr 16 22:33:21 MSK 2012 */
+/* First created by JCasGen Fri Apr 20 11:23:25 MSK 2012 */
 package ru.ksu.niimm.cll.uima.morph.seman;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,7 +12,7 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** Wordform paradigm object
- * Updated by JCasGen Mon Apr 16 22:33:21 MSK 2012
+ * Updated by JCasGen Fri Apr 20 11:23:25 MSK 2012
  * XML source: D:/projects/uima-ext/UIMA.Ext.Morph.AOT/src/main/resources/ru/ksu/niimm/cll/uima/morph/seman/MorphologyTypeSystem.xml
  * @generated */
 public class Paradigm extends Annotation {
@@ -136,19 +136,19 @@ public class Paradigm extends Annotation {
   //*--------------*
   //* Feature: paradigmId
 
-  /** getter for paradigmId - gets dictionary paradigm id. If paradigm is predicted value will be NULL
+  /** getter for paradigmId - gets dictionary paradigm id. If paradigm is predicted value will be negative
    * @generated */
-  public long getParadigmId() {
+  public int getParadigmId() {
     if (Paradigm_Type.featOkTst && ((Paradigm_Type)jcasType).casFeat_paradigmId == null)
       jcasType.jcas.throwFeatMissing("paradigmId", "ru.ksu.niimm.cll.uima.morph.seman.Paradigm");
-    return jcasType.ll_cas.ll_getLongValue(addr, ((Paradigm_Type)jcasType).casFeatCode_paradigmId);}
+    return jcasType.ll_cas.ll_getIntValue(addr, ((Paradigm_Type)jcasType).casFeatCode_paradigmId);}
     
-  /** setter for paradigmId - sets dictionary paradigm id. If paradigm is predicted value will be NULL 
+  /** setter for paradigmId - sets dictionary paradigm id. If paradigm is predicted value will be negative 
    * @generated */
-  public void setParadigmId(long v) {
+  public void setParadigmId(int v) {
     if (Paradigm_Type.featOkTst && ((Paradigm_Type)jcasType).casFeat_paradigmId == null)
       jcasType.jcas.throwFeatMissing("paradigmId", "ru.ksu.niimm.cll.uima.morph.seman.Paradigm");
-    jcasType.ll_cas.ll_setLongValue(addr, ((Paradigm_Type)jcasType).casFeatCode_paradigmId, v);}    
+    jcasType.ll_cas.ll_setIntValue(addr, ((Paradigm_Type)jcasType).casFeatCode_paradigmId, v);}    
   }
 
     
