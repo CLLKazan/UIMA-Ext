@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cpeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<collectionReader>
+		<collectionIterator>
+			<descriptor>
+				<import
+					name="ru.kfu.itis.cll.uima.commons.col-FileDirectoryCollectionReader" />
+			</descriptor>
+			<configurationParameterSettings>
+				<nameValuePair>
+					<name>DirectoryPath</name>
+					<value>
+						<string>:MUST_BE_OVERRIDEN</string>
+					</value>
+				</nameValuePair>
+				<nameValuePair>
+					<name>Encoding</name>
+					<value>
+						<string>UTF-8</string>
+					</value>
+				</nameValuePair>
+			</configurationParameterSettings>
+		</collectionIterator>
+	</collectionReader>
+	<casProcessors casPoolSize="3" processingUnitThreadCount="3">
+		<casProcessor deployment="integrated" name="txt-to-xmi">
+			<descriptor>
+				<import location="../aggregates/ae-txt-to-xmi.xml" />
+			</descriptor>
+			<configurationParameterSettings>
+				<nameValuePair>
+					<name>XmiOutputDir</name>
+					<value>
+						<string>SET_PROGRAMMATICALLY</string>
+					</value>
+				</nameValuePair>
+			</configurationParameterSettings>
+			<deploymentParameters />
+			<errorHandling>
+				<errorRateThreshold action="terminate" value="0/30" />
+				<maxConsecutiveRestarts action="terminate"
+					value="10" />
+				<timeout max="100000" default="-1" />
+			</errorHandling>
+			<checkpoint batch="10000" />
+		</casProcessor>
+	</casProcessors>
+	<cpeConfig>
+		<numToProcess>-1</numToProcess>
+		<deployAs>immediate</deployAs>
+		<checkpoint batch="0" time="100000ms" />
+	</cpeConfig>
+</cpeDescription>

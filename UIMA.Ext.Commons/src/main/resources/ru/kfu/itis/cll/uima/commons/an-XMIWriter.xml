@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<casConsumerDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<implementationName>ru.kfu.itis.cll.uima.consumer.XmiWriter</implementationName>
+	<processingResourceMetaData>
+		<name>XMIWriter</name>
+		<description />
+		<version>1.0</version>
+		<vendor />
+		<configurationParameters>
+			<configurationParameter>
+				<name>OutputDirectory</name>
+				<description>The path where this CAS consumer writes its output</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<typeSystemDescription>
+			<imports>
+				<import name="ru.kfu.itis.cll.uima.commons.Commons-TypeSystem" />
+			</imports>
+		</typeSystemDescription>
+		<typePriorities />
+		<fsIndexCollection />
+		<capabilities>
+			<capability>
+				<inputs>
+					<type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.DocumentMetadata</type>
+				</inputs>
+				<outputs />
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>false</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</processingResourceMetaData>
+	<resourceManagerConfiguration />
+</casConsumerDescription>

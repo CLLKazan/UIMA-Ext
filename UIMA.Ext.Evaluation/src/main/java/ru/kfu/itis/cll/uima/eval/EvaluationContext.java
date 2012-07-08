@@ -3,8 +3,9 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
-import java.util.Set;
+import java.util.SortedSet;
 
+import org.apache.commons.lang3.event.EventListenerSupport;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation;
 
@@ -14,26 +15,23 @@ import org.apache.uima.jcas.tcas.Annotation;
  */
 public class EvaluationContext {
 
-	// true positive
-	private int matchedCounter;
-	// false negative
-	private int missedCounter;
-	// false positive
-	private int spuriousCounter;
+	private EventListenerSupport<EvaluationListener> listenerSupport =
+			new EventListenerSupport<EvaluationListener>(EvaluationListener.class);
 
-	private int partiallyMatchedCounter;
-
-	public void reportMissing(Type type, Annotation goldAnno) {
-		// TODO Auto-generated method stub
-
+	public void addListener(EvaluationListener newListener) {
+		listenerSupport.addListener(newListener);
 	}
 
-	public void reportMatching(Type type, Set<Annotation> goldAnnos, Set<Annotation> sysAnnos) {
-		// TODO Auto-generated method stub
+	public void reportMissing(Type type, Annotation goldAnno) {
+		listenerSupport.fire().onMissing(type, goldAnno);
+	}
+
+	public void reportMatching(Type type, SortedSet<Annotation> goldAnnos,
+			SortedSet<Annotation> sysAnnos) {
+		listenerSupport.fire().onMatching(type, goldAnnos, sysAnnos);
 	}
 
 	public void reportSpurious(Type type, Annotation sysAnno) {
-		// TODO Auto-generated method stub
-
+		listenerSupport.fire().onSpurious(type, sysAnno);
 	}
 }

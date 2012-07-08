@@ -17,8 +17,18 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-commons</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.uima</groupId>
 				<artifactId>uimaj-core</artifactId>
+				<version>${uima.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.uima</groupId>
+				<artifactId>uimaj-cpe</artifactId>
 				<version>${uima.version}</version>
 			</dependency>
 			<dependency>

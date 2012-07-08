@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<collectionReaderDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<implementationName>ru.kfu.itis.cll.uima.cpe.FileDirectoryCollectionReader
+	</implementationName>
+	<processingResourceMetaData>
+		<name>col-FileDirectoryCollectionReader</name>
+		<description />
+		<version>1.0</version>
+		<vendor>Computational Linguistics Lab of Kazan Federal University</vendor>
+		<configurationParameters>
+			<configurationParameter>
+				<name>DirectoryPath</name>
+				<description>Path to input directory</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>Encoding</name>
+				<description>Encoding of file content</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>FileExtension</name>
+				<description>Extension of input files in specified directory. "txt" is default</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<typeSystemDescription>
+			<imports>
+				<import name="ru.kfu.itis.cll.uima.commons.Commons-TypeSystem" />
+			</imports>
+		</typeSystemDescription>
+		<capabilities>
+			<capability>
+				<outputs>
+					<type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.DocumentMetadata</type>
+				</outputs>
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>false</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</processingResourceMetaData>
+</collectionReaderDescription>

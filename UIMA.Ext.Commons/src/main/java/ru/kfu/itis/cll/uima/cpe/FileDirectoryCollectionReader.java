@@ -13,12 +13,15 @@ import java.util.NoSuchElementException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader_ImplBase;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.ConfigurationParameterSettings;
 import org.apache.uima.util.Progress;
+
+import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
 import com.google.common.collect.Lists;
 
@@ -44,9 +47,8 @@ public class FileDirectoryCollectionReader extends CollectionReader_ImplBase {
 	@Override
 	public void initialize() throws ResourceInitializationException {
 		super.initialize();
-		ConfigurationParameterSettings cfg = getProcessingResourceMetaData()
-				.getConfigurationParameterSettings();
-		String directoryPath = (String) cfg.getParameterValue(PARAM_DIRECTORY_PATH);
+		UimaContext ctx = getUimaContext();
+		String directoryPath = (String) ctx.getConfigParameterValue(PARAM_DIRECTORY_PATH);
 		if (directoryPath == null) {
 			throw new IllegalStateException("DirectoryPath param is NULL");
 		}
@@ -55,14 +57,14 @@ public class FileDirectoryCollectionReader extends CollectionReader_ImplBase {
 			throw new IllegalStateException(String.format("%s is not existing file directory",
 					directoryPath));
 		}
-		String fileExtension = (String) cfg.getParameterValue(PARAM_FILE_EXTENSION);
+		String fileExtension = (String) ctx.getConfigParameterValue(PARAM_FILE_EXTENSION);
 		if (fileExtension == null) {
 			fileExtension = DEFAULT_FILE_EXTENSION;
 		}
 		IOFileFilter fileFilter = FileFilterUtils.suffixFileFilter(fileExtension);
 		files = Lists.newArrayList(directory.listFiles((FileFilter) fileFilter));
 
-		encoding = (String) cfg.getParameterValue(PARAM_ENCODING);
+		encoding = (String) ctx.getConfigParameterValue(PARAM_ENCODING);
 		if (encoding == null) {
 			encoding = DEFAULT_ENCODING;
 		}
@@ -81,6 +83,13 @@ public class FileDirectoryCollectionReader extends CollectionReader_ImplBase {
 		File file = fileIter.next();
 		String fileContent = FileUtils.readFileToString(file, encoding);
 		aCAS.setDocumentText(fileContent);
+		try {
+			DocumentMetadata docMeta = new DocumentMetadata(aCAS.getJCas());
+			docMeta.setSourceUri(file.toURI().toString());
+			docMeta.addToIndexes();
+		} catch (CASException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**

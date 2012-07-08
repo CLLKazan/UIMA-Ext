@@ -3,13 +3,11 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.util.List;
 
-import org.apache.uima.UIMAException;
-import org.apache.uima.UIMAFramework;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
-import org.apache.uima.util.XMLInputSource;
+import com.google.common.collect.Lists;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -17,17 +15,52 @@ import org.apache.uima.util.XMLInputSource;
  */
 public class EvaluationLauncher {
 
-	private EvaluationLauncher() {
-	}
-
-	public static void main(String[] args) throws UIMAException, IOException {
-		if (args.length != 3) {
-			System.out.println("Usage: typeSystemDescFile goldStandardDir systemOutDir");
+	public static void main(String[] args) throws Exception {
+		if (args.length != 1) {
+			System.err.println("Usage: <properties-config-filepath>");
 			return;
 		}
-		String typeSystemDescPath = args[0];
-		String goldStandardDirPath = args[1];
-		String systemOutDirPath = args[2];
+		File propsFile = new File(args[0]);
+		if (!propsFile.isFile()) {
+			System.err.println("Can't find file " + propsFile);
+			return;
+		}
+		EvaluationConfig cfg = new EvaluationConfig();
+		cfg.readFromProperties(propsFile);
+
+		EvaluationContext evalCtx = new EvaluationContext();
+		LoggingEvaluationListener loggingListener = new LoggingEvaluationListener(
+				new OutputStreamWriter(System.out));
+		evalCtx.addListener(loggingListener);
+
+		List<SoftPrecisionRecallListener> metricListeners = Lists.newLinkedList();
+		for (String curType : cfg.getAnnoTypes()) {
+			SoftPrecisionRecallListener curTypeMetricListener =
+					new SoftPrecisionRecallListener(curType);
+			metricListeners.add(curTypeMetricListener);
+			evalCtx.addListener(curTypeMetricListener);
+		}
+
+		new GoldStandardBasedEvaluation(cfg).run(evalCtx);
+
+		// print results
+		for (SoftPrecisionRecallListener metrics : metricListeners) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Results for type '").append(metrics.getTargetTypeName()).append("':\n");
+			sb.append("Precision: ").append(formatAsPercentage(metrics.getPrecision()))
+					.append("\n");
+			sb.append("Recall:    ").append(formatAsPercentage(metrics.getRecall()))
+					.append("\n");
+			sb.append("F1:        ").append(formatAsPercentage(metrics.getF1()))
+					.append("\n");
+			System.out.println(sb.toString());
+		}
 	}
 
+	private static String formatAsPercentage(float value) {
+		return String.format("%.1f%%", value * 100);
+	}
+
+	private EvaluationLauncher() {
+	}
 }

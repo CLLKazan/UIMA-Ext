@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>UIMA.Ext.Commons-TypeSystem</name>
+	<description />
+	<version>1.0</version>
+	<vendor>Computational Linguistics Lab of Kazan Federal University</vendor>
+	<imports>
+		<import name="test-TypeSystem" />
+		<import name="ru.kfu.itis.cll.uima.commons.Commons-TypeSystem"/>
+	</imports>
+</typeSystemDescription>

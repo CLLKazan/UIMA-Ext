@@ -3,24 +3,21 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toList;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.ConstraintFactory;
-import org.apache.uima.cas.FSIntConstraint;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.cas.FSMatchConstraint;
 import org.apache.uima.cas.Feature;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationIndex;
@@ -84,8 +81,7 @@ public class GoldStandardBasedEvaluation {
 		}
 	}
 
-	public void run() throws Exception {
-		EvaluationContext evalCtx = new EvaluationContext();
+	public void run(EvaluationContext evalCtx) throws Exception {
 		Iterator<JCas> iter = goldStandardDir.iterator();
 		while (iter.hasNext()) {
 			JCas goldCas = iter.next();
@@ -138,7 +134,7 @@ public class GoldStandardBasedEvaluation {
 			JCasComposite otherSide) {
 		targetSide.annos.add(targetAnno);
 
-		List<Annotation> otherAnnos = toList(getIntersectable(
+		List<Annotation> otherAnnos = toList(getOverlapping(
 				otherSide.cas, otherSide.annoIndex.iterator(), targetAnno));
 		for (Annotation otherAnno : otherAnnos) {
 			if (!otherSide.annos.contains(otherAnno)) {
@@ -146,32 +142,6 @@ public class GoldStandardBasedEvaluation {
 				fillClosure(otherAnno, otherSide, targetSide);
 			}
 		}
-	}
-
-	private static FSIterator<Annotation> getIntersectable(JCas cas, FSIterator<Annotation> iter,
-			Annotation targetAnno) {
-		// sysAnno.begin = sb, sysAnno.end = se, goldAnno.begin = gb, goldAnno.end = ge
-		// intersection constraint: (sb<gb && se>gb) || (sb>=gb && sb<ge)  
-		ConstraintFactory cf = ConstraintFactory.instance();
-		FSMatchConstraint firstDisjunct;
-		{
-			FSIntConstraint beginConstraint = cf.createIntConstraint();
-			beginConstraint.lt(targetAnno.getBegin());
-			FSIntConstraint endConstraint = cf.createIntConstraint();
-			endConstraint.gt(targetAnno.getBegin());
-			firstDisjunct = cf.and(
-					cf.embedConstraint(newArrayList("begin"), beginConstraint),
-					cf.embedConstraint(newArrayList("end"), endConstraint));
-		}
-		FSMatchConstraint secondDisjunct;
-		{
-			FSIntConstraint beginConstraint = cf.createIntConstraint();
-			beginConstraint.geq(targetAnno.getBegin());
-			beginConstraint.lt(targetAnno.getEnd());
-			secondDisjunct = cf.embedConstraint(newArrayList("begin"), beginConstraint);
-		}
-		FSMatchConstraint intersectionConstraint = cf.or(firstDisjunct, secondDisjunct);
-		return cas.createFilteredIterator(iter, intersectionConstraint);
 	}
 
 	private String getDocUri(JCas cas) {
@@ -183,26 +153,16 @@ public class GoldStandardBasedEvaluation {
 			throw new IllegalStateException("CAS without meta annotation typed " + docMetaType);
 		}
 	}
-
-	private static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
-		LinkedList<FST> result = new LinkedList<FST>();
-		iter.moveToFirst();
-		while (iter.isValid()) {
-			result.add(iter.get());
-			iter.moveToNext();
-		}
-		return result;
-	}
 }
 
 class JCasComposite {
-	Set<Annotation> annos;
+	SortedSet<Annotation> annos;
 	JCas cas;
 	AnnotationIndex<Annotation> annoIndex;
 
 	public JCasComposite(JCas cas, AnnotationIndex<Annotation> annoIndex) {
 		this.cas = cas;
 		this.annoIndex = annoIndex;
-		this.annos = new HashSet<Annotation>();
+		this.annos = new TreeSet<Annotation>(AnnotationOffsetComparator.INSTANCE);
 	}
 }
