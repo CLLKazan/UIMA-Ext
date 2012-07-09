@@ -32,29 +32,32 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onMissing(Type type, Annotation goldAnno) {
-		print("%s - Missing: text='%s', offset=%s",
-				type.getShortName(), goldAnno.getCoveredText(), goldAnno.getBegin());
+	public void onMissing(String docUri, Type type, Annotation goldAnno) {
+		print("%s - Missing: text='%s', docUri=%s offset=%s",
+				type.getShortName(), goldAnno.getCoveredText(),
+				docUri, goldAnno.getBegin());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onMatching(Type type, SortedSet<Annotation> goldAnnos,
+	public void onMatching(String docUri, Type type, SortedSet<Annotation> goldAnnos,
 			SortedSet<Annotation> sysAnnos) {
 		if (goldAnnos.size() == 1 && sysAnnos.size() == 1) {
 			Annotation goldAnno = goldAnnos.iterator().next();
 			Annotation sysAnno = sysAnnos.iterator().next();
 			if (goldAnno.getBegin() == sysAnno.getBegin()
 					&& goldAnno.getEnd() == sysAnno.getEnd()) {
-				print("%s - Exact match: text='%s', offset=%s",
-						type.getShortName(), sysAnno.getCoveredText(), sysAnno.getBegin());
+				print("%s - Exact match: text='%s', doc=%s, offset=%s",
+						type.getShortName(), sysAnno.getCoveredText(),
+						docUri, sysAnno.getBegin());
 				return;
 			}
 		}
-		print("%s - Partial match:\nGold: %s\nSystem: %s",
+		print("%s - Partial match in %s:\nGold: %s\nSystem: %s",
 				type.getShortName(),
+				docUri,
 				Joiner.on(", ").join(transform(goldAnnos, annoToPrinter)),
 				Joiner.on(", ").join(transform(sysAnnos, annoToPrinter)));
 	}
@@ -63,9 +66,10 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onSpurious(Type type, Annotation sysAnno) {
-		print("%s - Spurious: text='%s', offset=%s",
-				type.getShortName(), sysAnno.getCoveredText(), sysAnno.getBegin());
+	public void onSpurious(String docUri, Type type, Annotation sysAnno) {
+		print("%s - Spurious: text='%s', doc=%s, offset=%s",
+				type.getShortName(), sysAnno.getCoveredText(),
+				docUri, sysAnno.getBegin());
 	}
 
 	private void print(String msg, Object... args) {

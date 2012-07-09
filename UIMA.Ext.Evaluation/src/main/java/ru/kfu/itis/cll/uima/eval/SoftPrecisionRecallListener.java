@@ -35,7 +35,7 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 	}
 
 	@Override
-	public void onMissing(Type type, Annotation goldAnno) {
+	public void onMissing(String docUri, Type type, Annotation goldAnno) {
 		if (!type.getName().equals(targetTypeName)) {
 			return;
 		}
@@ -43,7 +43,7 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 	}
 
 	@Override
-	public void onMatching(Type type,
+	public void onMatching(String docUri, Type type,
 			SortedSet<Annotation> goldAnnos, SortedSet<Annotation> sysAnnos) {
 		if (!type.getName().equals(targetTypeName)) {
 			return;
@@ -57,7 +57,7 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 			Annotation gold = goldList.getFirst();
 			Annotation sys = getMostOverlapping(gold, sysList);
 			if (sys == null) {
-				onMissing(type, gold);
+				onMissing(docUri, type, gold);
 			} else {
 				// legend for schemas below: s - spurious, ! - matched, m - missing
 				// Example 1.
@@ -120,7 +120,7 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 	}
 
 	@Override
-	public void onSpurious(Type type, Annotation sysAnno) {
+	public void onSpurious(String docUri, Type type, Annotation sysAnno) {
 		if (!type.getName().equals(targetTypeName)) {
 			return;
 		}

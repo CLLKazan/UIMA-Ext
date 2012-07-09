@@ -15,10 +15,10 @@ import org.apache.uima.jcas.tcas.Annotation;
  */
 public interface EvaluationListener extends EventListener {
 
-	public void onMissing(Type type, Annotation goldAnno);
+	public void onMissing(String docUri, Type type, Annotation goldAnno);
 
-	public void onMatching(Type type, SortedSet<Annotation> goldAnnos,
+	public void onMatching(String docUri, Type type, SortedSet<Annotation> goldAnnos,
 			SortedSet<Annotation> sysAnnos);
 
-	public void onSpurious(Type type, Annotation sysAnno);
+	public void onSpurious(String docUri, Type type, Annotation sysAnno);
 }

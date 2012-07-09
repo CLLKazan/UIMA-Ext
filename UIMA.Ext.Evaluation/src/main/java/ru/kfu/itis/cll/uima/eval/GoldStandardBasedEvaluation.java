@@ -90,7 +90,13 @@ public class GoldStandardBasedEvaluation {
 			if (sysCas == null) {
 				throw new IllegalStateException("No CAS from system output for doc uri: " + docUri);
 			}
-			evaluate(evalCtx, goldCas, sysCas);
+			evalCtx.setCurrentDocUri(docUri);
+			try {
+				evaluate(evalCtx, goldCas, sysCas);
+			} finally {
+				// reset uri
+				evalCtx.setCurrentDocUri(null);
+			}
 		}
 	}
 
