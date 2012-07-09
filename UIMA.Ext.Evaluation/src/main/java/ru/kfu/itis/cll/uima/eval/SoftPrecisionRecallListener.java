@@ -97,8 +97,9 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 
 			// sanity check
 			float totalAfter = spuriousCounter + missingCounter + matchingCounter;
-			if (totalAfter - totalBefore != 1) {
-				throw new IllegalStateException("Sanity check failed");
+			if (totalAfter - totalBefore - 1 > 0.01f) {
+				throw new IllegalStateException("Sanity check failed: totalAfter - totalBefore = "
+						+ (totalAfter - totalBefore));
 			}
 		}
 		// handle all remaining annotation in sysList as spurious

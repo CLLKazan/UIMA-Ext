@@ -55,6 +55,7 @@ public class GoldStandardBasedEvaluation {
 				tsDescInput);
 		CAS dumbCas = CasCreationUtils.createCas(tsDesc, null, null);
 		typeSystem = dumbCas.getTypeSystem();
+		// printAllTypes();
 		// init doc meta type
 		docMetaType = typeSystem.getType(config.getDocUriAnnotationType());
 		if (docMetaType == null) {
@@ -66,6 +67,15 @@ public class GoldStandardBasedEvaluation {
 		if (docUriFeature == null) {
 			throw new IllegalStateException(String.format("No feature %s in type %s",
 					docUriFeatureName, docMetaType));
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private void printAllTypes() {
+		Iterator<Type> iter = typeSystem.getTypeIterator();
+		System.out.println("CAS types listing:");
+		while (iter.hasNext()) {
+			System.out.println(iter.next().getName());
 		}
 	}
 

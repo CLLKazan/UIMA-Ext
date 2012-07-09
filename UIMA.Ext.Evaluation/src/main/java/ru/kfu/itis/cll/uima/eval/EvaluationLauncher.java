@@ -47,6 +47,12 @@ public class EvaluationLauncher {
 		for (SoftPrecisionRecallListener metrics : metricListeners) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Results for type '").append(metrics.getTargetTypeName()).append("':\n");
+			sb.append("Matches score:   ").append(formatAsFloating(metrics.getMatchedScore()))
+					.append("\n");
+			sb.append("Misses score:    ").append(formatAsFloating(metrics.getMissedScore()))
+					.append("\n");
+			sb.append("Spurious score:  ").append(formatAsFloating(metrics.getSpuriousScore()))
+					.append("\n");
 			sb.append("Precision: ").append(formatAsPercentage(metrics.getPrecision()))
 					.append("\n");
 			sb.append("Recall:    ").append(formatAsPercentage(metrics.getRecall()))
@@ -59,6 +65,10 @@ public class EvaluationLauncher {
 
 	private static String formatAsPercentage(float value) {
 		return String.format("%.1f%%", value * 100);
+	}
+
+	private static String formatAsFloating(float value) {
+		return String.format("%.2f", value);
 	}
 
 	private EvaluationLauncher() {
