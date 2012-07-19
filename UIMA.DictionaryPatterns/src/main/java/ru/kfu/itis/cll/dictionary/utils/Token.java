@@ -22,6 +22,9 @@ public class Token {
 	public Token(int begin, int end, String string) {
 		this.begin = begin;
 		this.end = end;
+		if (end < begin) {
+			throw new IllegalStateException();
+		}
 		this.string = string;
 	}
 
@@ -35,6 +38,10 @@ public class Token {
 
 	public String getString() {
 		return string;
+	}
+
+	public void setString(String string) {
+		this.string = string;
 	}
 
 	@Override

@@ -17,11 +17,11 @@ import org.apache.commons.io.IOUtils;
 public class CollectSingleWordNames implements LineHandler {
 
 	private PrintWriter writer;
-	private Tokenizer tokenizer;
+	private TokenizerImpl tokenizer;
 
 	public CollectSingleWordNames(File outputFile) throws IOException {
 		writer = Utils.writer(outputFile);
-		tokenizer = new Tokenizer();
+		tokenizer = new TokenizerImpl();
 	}
 
 	/**

@@ -4,28 +4,32 @@
 package ru.kfu.itis.cll.uima.dictpatterns.core;
 
 /**
- * [from, to)
+ * [begin, end)
+ * 
  * @author Rinat Gareev (Kazan Federal University)
- *
+ * 
  */
 public class PatternElementSpan {
-	
-	private int from;
-	private int to;
+
+	private int begin;
+	private int end;
 	private String patternElement;
-	
-	public PatternElementSpan(int from, int to, String patternElement) {
-		this.from = from;
-		this.to = to;
+
+	public PatternElementSpan(int begin, int end, String patternElement) {
+		this.begin = begin;
+		this.end = end;
+		if (end < begin) {
+			throw new IllegalStateException();
+		}
 		this.patternElement = patternElement;
 	}
 
-	public int getFrom() {
-		return from;
+	public int getBegin() {
+		return begin;
 	}
 
-	public int getTo() {
-		return to;
+	public int getEnd() {
+		return end;
 	}
 
 	public String getPatternElement() {

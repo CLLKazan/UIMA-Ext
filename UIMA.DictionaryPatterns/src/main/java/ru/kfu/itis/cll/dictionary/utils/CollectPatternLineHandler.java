@@ -23,7 +23,7 @@ public class CollectPatternLineHandler implements LineHandler {
 
 	private File seedNamesFile;
 	private int expectedSeenNamesNum;
-	private Tokenizer tokenizer;
+	private TokenizerImpl tokenizer;
 	private PrintWriter writer;
 	// derived
 	private Set<String> seedNames;
@@ -33,7 +33,7 @@ public class CollectPatternLineHandler implements LineHandler {
 			throws IOException {
 		this.seedNamesFile = seedNamesFile;
 		this.expectedSeenNamesNum = expectedSeenNamesNum;
-		tokenizer = new Tokenizer(true);
+		tokenizer = new TokenizerImpl(true);
 		writer = Utils.writer(outputFile);
 		initSeedNames();
 	}
