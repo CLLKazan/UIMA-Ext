@@ -47,18 +47,22 @@ public class EvaluationLauncher {
 		for (SoftPrecisionRecallListener metrics : metricListeners) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Results for type '").append(metrics.getTargetTypeName()).append("':\n");
-			sb.append("Matches score:   ").append(formatAsFloating(metrics.getMatchedScore()))
-					.append("\n");
-			sb.append("Misses score:    ").append(formatAsFloating(metrics.getMissedScore()))
-					.append("\n");
-			sb.append("Spurious score:  ").append(formatAsFloating(metrics.getSpuriousScore()))
-					.append("\n");
-			sb.append("Precision: ").append(formatAsPercentage(metrics.getPrecision()))
-					.append("\n");
-			sb.append("Recall:    ").append(formatAsPercentage(metrics.getRecall()))
-					.append("\n");
-			sb.append("F1:        ").append(formatAsPercentage(metrics.getF1()))
-					.append("\n");
+			if (metrics.getMatchedScore() == 0 && metrics.getSpuriousScore() == 0) {
+				sb.append("System did not matched any annotation of this type");
+			} else {
+				sb.append("Matches score:   ").append(formatAsFloating(metrics.getMatchedScore()))
+						.append("\n");
+				sb.append("Misses score:    ").append(formatAsFloating(metrics.getMissedScore()))
+						.append("\n");
+				sb.append("Spurious score:  ").append(formatAsFloating(metrics.getSpuriousScore()))
+						.append("\n");
+				sb.append("Precision: ").append(formatAsPercentage(metrics.getPrecision()))
+						.append("\n");
+				sb.append("Recall:    ").append(formatAsPercentage(metrics.getRecall()))
+						.append("\n");
+				sb.append("F1:        ").append(formatAsPercentage(metrics.getF1()))
+						.append("\n");
+			}
 			System.out.println(sb.toString());
 		}
 	}

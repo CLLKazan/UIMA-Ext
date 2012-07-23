@@ -58,13 +58,15 @@ public class DictPatternsMatcher {
 	private void initFromStream(InputStream in, String encoding) throws IOException {
 		List<String> patternStrings = IOUtils.readLines(in, encoding);
 		tree = new AhoCorasick<PatternSegment>();
+		int lineNumber=0;
 		for (String patternStr : patternStrings) {
+			lineNumber++;
 			if (patternStr.isEmpty()) {
 				continue;
 			}
 			List<Token> patternTokens = tokenizer.tokenize(patternStr);
 			patternTokens = handleAsteriskToken(patternTokens);
-			DictionaryPattern pattern = toPattern(patternTokens);
+			DictionaryPattern pattern = toPattern(lineNumber, patternTokens);
 			if (!pattern.prefix.isEmpty()) {
 				addToTree(pattern.prefix, pattern, PREFIX);
 			}
@@ -117,7 +119,7 @@ public class DictPatternsMatcher {
 				new PatternSegment(segmentType, pattern));
 	}
 
-	private DictionaryPattern toPattern(List<Token> patternTokens) {
+	private DictionaryPattern toPattern(int lineNumber, List<Token> patternTokens) {
 		List<String> prefixTokens = Lists.newLinkedList();
 		List<String> postfixTokens = Lists.newLinkedList();
 		List<String> currentList = prefixTokens;
@@ -134,7 +136,7 @@ public class DictPatternsMatcher {
 			throw new IllegalStateException(String.format(
 					"Asterisk count = %s in:\n%s", asteriskCounter, patternTokens));
 		}
-		return new DictionaryPattern(prefixTokens, postfixTokens);
+		return new DictionaryPattern(lineNumber, prefixTokens, postfixTokens);
 	}
 
 	public List<DictPatternMatch> match(String input) {
@@ -266,14 +268,12 @@ public class DictPatternsMatcher {
 class DictionaryPattern implements Serializable {
 	private static final long serialVersionUID = -3596144725614664668L;
 
-	private static long idCounter = 1;
-
 	final long id;
 	final List<String> prefix;
 	final List<String> postfix;
 
-	public DictionaryPattern(List<String> prefix, List<String> postfix) {
-		this.id = idCounter++;
+	public DictionaryPattern(long id, List<String> prefix, List<String> postfix) {
+		this.id = id;
 		this.prefix = ImmutableList.copyOf(prefix);
 		this.postfix = ImmutableList.copyOf(postfix);
 		if (postfix.isEmpty() && prefix.isEmpty()) {
