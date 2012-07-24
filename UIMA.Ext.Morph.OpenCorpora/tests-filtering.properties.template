@@ -1,0 +1,2 @@
+opencorpora.morph.dictionary.serialized=/write-here-path-to-serialized-dict
+#test.morphAnnotator.xmiOutputDir=/write-here-output-dir-path-for-result-xmis

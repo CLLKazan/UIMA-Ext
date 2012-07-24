@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>true</primitive>
+	<annotatorImplementationName>ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator</annotatorImplementationName>
+	<analysisEngineMetaData>
+		<name>an-ru-opencorpora-MorphAnnotator</name>
+		<description />
+		<version>0.1</version>
+		<vendor />
+		<configurationParameters>
+			<configurationParameter>
+				<name>TokenType</name>
+				<description />
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<typeSystemDescription>
+			<imports>
+				<import name="org.opencorpora.morphology-ts"/>
+			</imports>
+		</typeSystemDescription>
+		<capabilities>
+			<capability>
+				<inputs />
+				<outputs />
+				<languagesSupported />
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+</analysisEngineDescription>

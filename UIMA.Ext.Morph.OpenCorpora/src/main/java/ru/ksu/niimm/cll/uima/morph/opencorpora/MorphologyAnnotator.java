@@ -1,0 +1,138 @@
+/**
+ * 
+ */
+package ru.ksu.niimm.cll.uima.morph.opencorpora;
+
+import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
+import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.mandatoryParam;
+import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.mandatoryResourceObject;
+
+import java.util.BitSet;
+import java.util.List;
+
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.TypeSystem;
+import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceAccessException;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Logger;
+import org.opencorpora.cas.Word;
+
+import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource;
+
+import com.google.common.collect.Lists;
+
+/**
+ * @author Rinat Gareev (Kazan Federal University)
+ * 
+ */
+public class MorphologyAnnotator extends CasAnnotator_ImplBase {
+
+	private static final String PARAM_TOKEN_TYPE = "TokenType";
+
+	private static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
+
+	private String tokenTypeName;
+	private Type tokenType;
+	private MorphDictionary dict;
+	@SuppressWarnings("unused")
+	private Logger log;
+
+	@Override
+	public void typeSystemInit(TypeSystem ts) throws AnalysisEngineProcessException {
+		super.typeSystemInit(ts);
+		tokenType = ts.getType(tokenTypeName);
+		annotationTypeExist(tokenTypeName, tokenType);
+	}
+
+	@Override
+	public void initialize(UimaContext ctx) throws ResourceInitializationException {
+		super.initialize(ctx);
+		log = ctx.getLogger();
+		tokenTypeName = (String) ctx.getConfigParameterValue(PARAM_TOKEN_TYPE);
+		mandatoryParam(PARAM_TOKEN_TYPE, tokenTypeName);
+		SerializedDictionaryResource dictRes;
+		try {
+			dictRes = (SerializedDictionaryResource) ctx.getResourceObject(RESOURCE_KEY_DICTIONARY);
+			mandatoryResourceObject(RESOURCE_KEY_DICTIONARY, dictRes);
+		} catch (ResourceAccessException e) {
+			throw new ResourceInitializationException(e);
+		}
+		dict = dictRes.getDictionary();
+		if (dict == null) {
+			throw new IllegalStateException("dict is null");
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void process(CAS cas) throws AnalysisEngineProcessException {
+		try {
+			process(cas.getJCas());
+		} catch (CASException e) {
+			throw new AnalysisEngineProcessException(e);
+		}
+	}
+
+	private void process(JCas cas) throws AnalysisEngineProcessException {
+		AnnotationIndex<Annotation> tokenIdx = cas.getAnnotationIndex(tokenType);
+		for (Annotation token : tokenIdx) {
+			String tokenStr = token.getCoveredText();
+			if (proceed(tokenStr)) {
+				// TODO configuration point
+				// tokenizer should care about normalization 
+				tokenStr = WordUtils.normalizeToDictionaryForm(tokenStr);
+				List<Wordform> wfDictEntries = dict.getEntries(tokenStr);
+				// make word annotation
+				makeWordAnnotation(cas, token, wfDictEntries);
+			}
+		}
+	}
+
+	private void makeWordAnnotation(JCas cas, Annotation token, List<Wordform> wfDictEntries) {
+		Word word = new Word(cas);
+		word.setBegin(token.getBegin());
+		word.setEnd(token.getEnd());
+		List<org.opencorpora.cas.Wordform> casWfList = Lists.newLinkedList();
+		for (Wordform wf : wfDictEntries) {
+			org.opencorpora.cas.Wordform casWf = new org.opencorpora.cas.Wordform(cas);
+			Lemma lemma = dict.getLemma(wf.getLemmaId());
+			// set lemma id
+			casWf.setLemmaId(lemma.getId());
+			// set lemma norm
+			casWf.setLemma(lemma.getString());
+			// set pos
+			casWf.setPos(dict.getPos(lemma));
+			// set grammems
+			BitSet grammems = wf.getGrammems();
+			grammems.or(lemma.getGrammems());
+			grammems.andNot(dict.getPosBits());
+			List<String> gramSet = dict.toGramSet(grammems);
+			casWf.setGrammems(FSUtils.toStringArray(cas, gramSet));
+
+			casWfList.add(casWf);
+		}
+		// set wordforms
+		word.setWordforms(FSUtils.toFSArray(cas, casWfList));
+
+		word.addToIndexes();
+	}
+
+	// TODO configuration point
+	private boolean proceed(String tokenStr) {
+		return WordUtils.isRussianWord(tokenStr);
+	}
+}
