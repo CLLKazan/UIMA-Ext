@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.SortedSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation;
 
@@ -33,9 +34,9 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	 */
 	@Override
 	public void onMissing(String docUri, Type type, Annotation goldAnno) {
-		print("%s - Missing: text='%s', docUri=%s offset=%s",
-				type.getShortName(), goldAnno.getCoveredText(),
-				docUri, goldAnno.getBegin());
+		printRow(type.getShortName(), "Missing",
+				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
+				null, null, docUri);
 	}
 
 	/**
@@ -49,17 +50,19 @@ public class LoggingEvaluationListener implements EvaluationListener {
 			Annotation sysAnno = sysAnnos.iterator().next();
 			if (goldAnno.getBegin() == sysAnno.getBegin()
 					&& goldAnno.getEnd() == sysAnno.getEnd()) {
-				print("%s - Exact match: text='%s', doc=%s, offset=%s",
-						type.getShortName(), sysAnno.getCoveredText(),
-						docUri, sysAnno.getBegin());
+				printRow(type.getShortName(), "Exact",
+						goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
+						sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+						docUri);
 				return;
 			}
 		}
-		print("%s - Partial match in %s:\nGold: %s\nSystem: %s",
-				type.getShortName(),
-				docUri,
-				Joiner.on(", ").join(transform(goldAnnos, annoToPrinter)),
-				Joiner.on(", ").join(transform(sysAnnos, annoToPrinter)));
+		printRow(type.getShortName(), "Partial",
+				Joiner.on(" /// ").join(transform(goldAnnos, annoToTxt)),
+				Joiner.on(", ").join(transform(goldAnnos, annoToOffset)),
+				Joiner.on(" /// ").join(transform(sysAnnos, annoToTxt)),
+				Joiner.on(", ").join(transform(sysAnnos, annoToOffset)),
+				docUri);
 	}
 
 	/**
@@ -67,35 +70,56 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	 */
 	@Override
 	public void onSpurious(String docUri, Type type, Annotation sysAnno) {
-		print("%s - Spurious: text='%s', doc=%s, offset=%s",
-				type.getShortName(), sysAnno.getCoveredText(),
-				docUri, sysAnno.getBegin());
+		printRow(type.getShortName(), "Spurious",
+				null, null,
+				sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+				docUri);
 	}
 
+	@SuppressWarnings("unused")
 	private void print(String msg, Object... args) {
 		printer.println(String.format(msg, args));
 	}
 
-	private final AnnoToPrinter annoToPrinter = new AnnoToPrinter();
-
-	private class AnnoToPrinter implements Function<Annotation, AnnotationPrinter> {
-		@Override
-		public AnnotationPrinter apply(Annotation input) {
-			return new AnnotationPrinter(input);
+	private void printRow(String annoType, String matchType,
+			String goldTxt, String goldOffset,
+			String sysTxt, String sysOffset, String docUri) {
+		// tab-separated
+		if (goldOffset == null) {
+			goldOffset = "-1";
 		}
+		if (sysOffset == null) {
+			sysOffset = "-1";
+		}
+		if (goldTxt == null) {
+			goldTxt = "";
+		}
+		if (sysTxt == null) {
+			sysTxt = "";
+		}
+		StringBuilder sb = new StringBuilder(annoType).append('\t');
+		sb.append(matchType).append('\t');
+		sb.append(escTab(goldTxt)).append('\t').append(goldOffset).append('\t');
+		sb.append(escTab(sysTxt)).append('\t').append(sysOffset).append('\t');
+		sb.append(docUri);
+		printer.println(sb.toString());
 	}
 
-	private class AnnotationPrinter {
-		private Annotation anno;
-
-		public AnnotationPrinter(Annotation anno) {
-			this.anno = anno;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("('%s',%s)",
-					anno.getCoveredText(), anno.getBegin());
-		}
+	private String escTab(String src) {
+		return StringUtils.replace(src, "\t", "    ");
 	}
+
+	private final Function<Annotation, String> annoToTxt = new Function<Annotation, String>() {
+		@Override
+		public String apply(Annotation input) {
+			return input.getCoveredText();
+		}
+	};
+
+	private final Function<Annotation, Integer> annoToOffset = new Function<Annotation, Integer>() {
+		@Override
+		public Integer apply(Annotation input) {
+			return input.getBegin();
+		}
+	};
 }
