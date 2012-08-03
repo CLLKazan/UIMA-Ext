@@ -4,10 +4,9 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>1.0</version>
+		<version>0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>uima-ext-commons</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>UIMA.Ext.Commons</name>
 	<description>UIMA common auxiliary tools and extensions</description>
 

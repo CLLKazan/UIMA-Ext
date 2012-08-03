@@ -4,11 +4,12 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
-	<artifactId>uima-morph-opencorpora</artifactId>
-	<name>UIMA.Morph.OpenCorpora</name>
-	<description>UIMA Analyzer based on OpenCorpora Morphology dictionary.</description>
+	<artifactId>uima-REPLACE</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>UIMA.Ext.REPLACE</name>
+	<description>UIMA REPLACE</description>
 
 	<build>
 		<plugins>
@@ -30,20 +31,21 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
-		
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
-		</testResources>
-		<filters>
-			<filter>tests-filtering.properties</filter>
-		</filters>
 	</build>
 
 	<dependencies>
@@ -54,6 +56,10 @@
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.uimafit</groupId>
+			<artifactId>uimafit</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -75,12 +81,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>WhitespaceTokenizer</artifactId>
-			<version>2.3.1</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
