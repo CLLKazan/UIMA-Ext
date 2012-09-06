@@ -4,14 +4,11 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
-import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.mandatoryParam;
-import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.mandatoryResourceObject;
 
 import java.util.BitSet;
 import java.util.List;
 
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -20,10 +17,12 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Logger;
 import org.opencorpora.cas.Word;
+import org.uimafit.component.CasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.descriptor.ExternalResource;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
@@ -41,9 +40,14 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 
 	private static final String PARAM_TOKEN_TYPE = "TokenType";
 
-	private static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
+	public static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
 
+	@ConfigurationParameter(name = PARAM_TOKEN_TYPE,
+			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
 	private String tokenTypeName;
+	@ExternalResource(key = RESOURCE_KEY_DICTIONARY)
+	private SerializedDictionaryResource dictResource;
+	// derived
 	private Type tokenType;
 	private MorphDictionary dict;
 	@SuppressWarnings("unused")
@@ -60,16 +64,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
 		log = ctx.getLogger();
-		tokenTypeName = (String) ctx.getConfigParameterValue(PARAM_TOKEN_TYPE);
-		mandatoryParam(PARAM_TOKEN_TYPE, tokenTypeName);
-		SerializedDictionaryResource dictRes;
-		try {
-			dictRes = (SerializedDictionaryResource) ctx.getResourceObject(RESOURCE_KEY_DICTIONARY);
-			mandatoryResourceObject(RESOURCE_KEY_DICTIONARY, dictRes);
-		} catch (ResourceAccessException e) {
-			throw new ResourceInitializationException(e);
-		}
-		dict = dictRes.getDictionary();
+		dict = dictResource.getDictionary();
 		if (dict == null) {
 			throw new IllegalStateException("dict is null");
 		}
@@ -96,8 +91,10 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 				// tokenizer should care about normalization 
 				tokenStr = WordUtils.normalizeToDictionaryForm(tokenStr);
 				List<Wordform> wfDictEntries = dict.getEntries(tokenStr);
-				// make word annotation
-				makeWordAnnotation(cas, token, wfDictEntries);
+				if (wfDictEntries != null && !wfDictEntries.isEmpty()) {
+					// make word annotation
+					makeWordAnnotation(cas, token, wfDictEntries);
+				}
 			}
 		}
 	}

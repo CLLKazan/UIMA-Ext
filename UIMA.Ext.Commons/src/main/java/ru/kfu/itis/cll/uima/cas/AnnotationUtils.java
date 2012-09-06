@@ -12,6 +12,7 @@ import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIntConstraint;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.FSMatchConstraint;
+import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -109,6 +110,17 @@ public class AnnotationUtils {
 			iter.moveToNext();
 		}
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends FeatureStructure> T getFeatureValueSafe(
+			FeatureStructure srcFS, String featureName) {
+		Feature feat = srcFS.getType().getFeatureByBaseName(featureName);
+		if (feat != null) {
+			return (T) srcFS.getFeatureValue(feat);
+		} else {
+			return null;
+		}
 	}
 
 	private AnnotationUtils() {

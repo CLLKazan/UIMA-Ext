@@ -12,6 +12,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.FSIterator;
+import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -79,6 +80,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 		if (tokenIdx.size() == 0) {
 			return;
 		}
+		String txt = cas.getDocumentText();
 		FSIterator<Annotation> tokensIter = tokenIdx.iterator();
 		// get first sentence start
 		tokensIter.moveToFirst();
@@ -87,9 +89,15 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 
 		while (tokensIter.isValid()) {
 			Annotation token = tokensIter.get();
-			if (sentenceEndTokenTypes.contains(token.getType())
-					&& !isAbbreviationBefore(tokensIter)
-					&& !isSWAfter(tokensIter)) {
+			Annotation nextToken = lookupNext(tokensIter);
+			if (sentenceEndTokenTypes.contains(token.getType()) &&
+					(nextToken == null
+							||
+							isBreakBetween(txt, token, nextToken)
+							||
+					(distanceBetween(token, nextToken) > 0
+							&& !isAbbreviationBefore(tokensIter)
+							&& !isSWAfter(tokensIter)))) {
 				// sanity check conditions evaluation
 				if (token != tokensIter.get()) {
 					throw new IllegalStateException(String.format(
@@ -116,38 +124,20 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 	}
 
 	private boolean isAbbreviationBefore(FSIterator<Annotation> tokensIter) {
-		tokensIter.moveToPrevious();
-		if (!tokensIter.isValid()) {
-			tokensIter.moveToFirst();
+		Annotation tokenBefore = lookupPrevious(tokensIter);
+		if (tokenBefore == null) {
 			return false;
 		}
-		try {
-			Annotation tokenBefore = tokensIter.get();
-			if (tokenBefore.getTypeIndexID() == CW.type
-					&& tokenBefore.getEnd() - tokenBefore.getBegin() == 1) {
-				return true;
-			}
-			return false;
-		} finally {
-			tokensIter.moveToNext();
-		}
+		return tokenBefore.getTypeIndexID() == CW.type &&
+				tokenBefore.getEnd() - tokenBefore.getBegin() == 1;
 	}
 
 	private boolean isSWAfter(FSIterator<Annotation> tokensIter) {
-		tokensIter.moveToNext();
-		if (!tokensIter.isValid()) {
-			tokensIter.moveToLast();
+		Annotation tokenAfter = lookupNext(tokensIter);
+		if (tokenAfter == null) {
 			return false;
 		}
-		try {
-			Annotation tokenAfter = tokensIter.get();
-			if (tokenAfter.getTypeIndexID() == SW.type) {
-				return true;
-			}
-			return false;
-		} finally {
-			tokensIter.moveToPrevious();
-		}
+		return tokenAfter.getTypeIndexID() == SW.type;
 	}
 
 	private void makeSentence(JCas cas, Annotation firstToken, Annotation lastToken) {
@@ -160,5 +150,77 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 		}
 		AnnotationFS sentence = cas.getCas().createAnnotation(sentenceType, begin, end);
 		cas.addFsToIndexes(sentence);
+	}
+
+	/**
+	 * Return next element if exists. Always save iterator position.
+	 * 
+	 * @param iter
+	 *            iterator
+	 * @return next element if exists or null otherwise
+	 */
+	private static <T extends FeatureStructure> T lookupNext(FSIterator<T> iter) {
+		iter.moveToNext();
+		T result;
+		if (iter.isValid()) {
+			result = iter.get();
+			iter.moveToPrevious();
+		} else {
+			result = null;
+			iter.moveToLast();
+		}
+		return result;
+	}
+
+	/**
+	 * Return previous element if exists. Always save iterator position.
+	 * 
+	 * @param iter
+	 *            iterator
+	 * @return previous element if exists or null otherwise
+	 */
+	private static <T extends FeatureStructure> T lookupPrevious(FSIterator<T> iter) {
+		iter.moveToPrevious();
+		T result;
+		if (iter.isValid()) {
+			result = iter.get();
+			iter.moveToNext();
+		} else {
+			result = null;
+			iter.moveToFirst();
+		}
+		return result;
+	}
+
+	/**
+	 * @param anno1
+	 * @param anno2
+	 * @return 0 if given annotation overlap else return distance between the
+	 *         end of first (in text direction) annotation and the begin of
+	 *         second annotation.
+	 */
+	private static int distanceBetween(AnnotationFS anno1, AnnotationFS anno2) {
+		AnnotationFS first;
+		AnnotationFS second;
+		if (anno1.getBegin() > anno2.getBegin()) {
+			first = anno2;
+			second = anno1;
+		} else if (anno1.getBegin() < anno2.getBegin()) {
+			first = anno1;
+			second = anno2;
+		} else {
+			return 0;
+		}
+		int result = second.getBegin() - first.getEnd();
+		return result >= 0 ? result : 0;
+	}
+
+	private static boolean isBreakBetween(String txt, Annotation first, Annotation second) {
+		for (int i = first.getEnd(); i < second.getBegin(); i++) {
+			if (txt.charAt(i) == '\n') {
+				return true;
+			}
+		}
+		return false;
 	}
 }

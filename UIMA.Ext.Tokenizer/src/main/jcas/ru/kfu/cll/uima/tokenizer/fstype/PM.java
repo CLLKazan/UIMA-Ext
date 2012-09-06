@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Thu Aug 02 21:51:07 MSK 2012 */
+/* First created by JCasGen Tue Sep 04 18:38:22 MSK 2012 */
 package ru.kfu.cll.uima.tokenizer.fstype;
 
 import org.apache.uima.jcas.JCas; 
@@ -10,8 +10,8 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Thu Aug 02 21:51:07 MSK 2012
- * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/ksu/niimm/cll/uima/tokenizer/tokenizer-TypeSystem.xml
+ * Updated by JCasGen Tue Sep 04 18:38:22 MSK 2012
+ * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml
  * @generated */
 public class PM extends Token {
   /** @generated

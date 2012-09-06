@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Aug 02 21:51:08 MSK 2012 */
+/* First created by JCasGen Tue Sep 04 18:38:22 MSK 2012 */
 package ru.kfu.cll.uima.tokenizer.fstype;
 
 import org.apache.uima.jcas.JCas;
@@ -11,7 +11,7 @@ import org.apache.uima.cas.impl.TypeImpl;
 import org.apache.uima.cas.Type;
 
 /** 
- * Updated by JCasGen Thu Aug 02 21:51:08 MSK 2012
+ * Updated by JCasGen Tue Sep 04 18:38:22 MSK 2012
  * @generated */
 public class SPECIAL_Type extends Token_Type {
   /** @generated */

@@ -1,24 +1,25 @@
 
 
-/* First created by JCasGen Tue Sep 04 18:38:22 MSK 2012 */
-package ru.kfu.cll.uima.tokenizer.fstype;
+/* First created by JCasGen Thu Sep 06 21:29:01 MSK 2012 */
+package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
 
+import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Sep 04 18:38:22 MSK 2012
- * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml
+ * Updated by JCasGen Thu Sep 06 21:29:01 MSK 2012
+ * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
  * @generated */
-public class CAP extends CW {
+public class Sentence extends Annotation {
   /** @generated
    * @ordered 
    */
   @SuppressWarnings ("hiding")
-  public final static int typeIndexID = JCasRegistry.register(CAP.class);
+  public final static int typeIndexID = JCasRegistry.register(Sentence.class);
   /** @generated
    * @ordered 
    */
@@ -30,23 +31,23 @@ public class CAP extends CW {
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected CAP() {/* intentionally empty block */}
+  protected Sentence() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
    * @generated */
-  public CAP(int addr, TOP_Type type) {
+  public Sentence(int addr, TOP_Type type) {
     super(addr, type);
     readObject();
   }
   
   /** @generated */
-  public CAP(JCas jcas) {
+  public Sentence(JCas jcas) {
     super(jcas);
     readObject();   
   } 
 
   /** @generated */  
-  public CAP(JCas jcas, int begin, int end) {
+  public Sentence(JCas jcas, int begin, int end) {
     super(jcas);
     setBegin(begin);
     setEnd(end);

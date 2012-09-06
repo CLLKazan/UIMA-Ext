@@ -38,7 +38,7 @@
     <typeDescription>
       <name>ru.kfu.cll.uima.tokenizer.fstype.CAP</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.W</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.CW</supertypeName>
     </typeDescription>
     <typeDescription>
       <name>ru.kfu.cll.uima.tokenizer.fstype.PM</name>
