@@ -5,11 +5,11 @@
 
 	<delegateAnalysisEngineSpecifiers>
 		<delegateAnalysisEngine key="tokenizer">
-			<import name="WhitespaceTokenizer" />
+			<import name="ru.kfu.cll.uima.tokenizer.InitialTokenizer" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="morphAnnotator">
 			<import
-				name="ru.ksu.niimm.cll.uima.morph.opencorpora.an-ru-MorphAnnotator" />
+				name="ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="xmiWriter">
 			<import name="ru.kfu.itis.cll.uima.commons.an-XMIWriter"/>
@@ -40,7 +40,7 @@
 			<nameValuePair>
 				<name>TokenType</name>
 				<value>
-					<string>org.apache.uima.TokenAnnotation</string>
+					<string>ru.kfu.cll.uima.tokenizer.fstype.Token</string>
 				</value>
 			</nameValuePair>
 			<nameValuePair>
