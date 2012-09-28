@@ -4,6 +4,7 @@
 package ru.kfu.itis.cll.uima.util;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.resource.ResourceInitializationException;
 
@@ -38,6 +39,17 @@ public class AnnotatorUtils {
 					new IllegalStateException(String.format(
 							"Unknown type - '%s'", typeName)));
 		}
+	}
+
+	public static Feature featureExist(Type type, String featureName)
+			throws AnalysisEngineProcessException {
+		Feature result = type.getFeatureByBaseName(featureName);
+		if (result == null) {
+			throw new AnalysisEngineProcessException(
+					new IllegalStateException(String.format(
+							"Type %s doesn't have feature '%s'", type, featureName)));
+		}
+		return result;
 	}
 
 	private AnnotatorUtils() {

@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Fri Jul 06 01:31:15 MSK 2012 */
+/* First created by JCasGen Thu Sep 27 23:32:25 MSK 2012 */
 package ru.kfu.itis.cll.uima.commons;
 
 import org.apache.uima.jcas.JCas;
@@ -14,10 +14,11 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Fri Jul 06 01:31:15 MSK 2012
+ * Updated by JCasGen Thu Sep 27 23:32:25 MSK 2012
  * @generated */
 public class DocumentMetadata_Type extends Annotation_Type {
   /** @generated */
+  @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
   private final FSGenerator fsGenerator = 
@@ -36,9 +37,11 @@ public class DocumentMetadata_Type extends Annotation_Type {
   	  }
     };
   /** @generated */
+  @SuppressWarnings ("hiding")
   public final static int typeIndexID = DocumentMetadata.typeIndexID;
   /** @generated 
      @modifiable */
+  @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.itis.cll.uima.commons.DocumentMetadata");
  
   /** @generated */
@@ -76,6 +79,42 @@ public class DocumentMetadata_Type extends Annotation_Type {
     ll_cas.ll_setLongValue(addr, casFeatCode_offsetInSource, v);}
     
   
+ 
+  /** @generated */
+  final Feature casFeat_documentSize;
+  /** @generated */
+  final int     casFeatCode_documentSize;
+  /** @generated */ 
+  public long getDocumentSize(int addr) {
+        if (featOkTst && casFeat_documentSize == null)
+      jcas.throwFeatMissing("documentSize", "ru.kfu.itis.cll.uima.commons.DocumentMetadata");
+    return ll_cas.ll_getLongValue(addr, casFeatCode_documentSize);
+  }
+  /** @generated */    
+  public void setDocumentSize(int addr, long v) {
+        if (featOkTst && casFeat_documentSize == null)
+      jcas.throwFeatMissing("documentSize", "ru.kfu.itis.cll.uima.commons.DocumentMetadata");
+    ll_cas.ll_setLongValue(addr, casFeatCode_documentSize, v);}
+    
+  
+ 
+  /** @generated */
+  final Feature casFeat_startProcessingTime;
+  /** @generated */
+  final int     casFeatCode_startProcessingTime;
+  /** @generated */ 
+  public long getStartProcessingTime(int addr) {
+        if (featOkTst && casFeat_startProcessingTime == null)
+      jcas.throwFeatMissing("startProcessingTime", "ru.kfu.itis.cll.uima.commons.DocumentMetadata");
+    return ll_cas.ll_getLongValue(addr, casFeatCode_startProcessingTime);
+  }
+  /** @generated */    
+  public void setStartProcessingTime(int addr, long v) {
+        if (featOkTst && casFeat_startProcessingTime == null)
+      jcas.throwFeatMissing("startProcessingTime", "ru.kfu.itis.cll.uima.commons.DocumentMetadata");
+    ll_cas.ll_setLongValue(addr, casFeatCode_startProcessingTime, v);}
+    
+  
 
 
 
@@ -92,6 +131,14 @@ public class DocumentMetadata_Type extends Annotation_Type {
  
     casFeat_offsetInSource = jcas.getRequiredFeatureDE(casType, "offsetInSource", "uima.cas.Long", featOkTst);
     casFeatCode_offsetInSource  = (null == casFeat_offsetInSource) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_offsetInSource).getCode();
+
+ 
+    casFeat_documentSize = jcas.getRequiredFeatureDE(casType, "documentSize", "uima.cas.Long", featOkTst);
+    casFeatCode_documentSize  = (null == casFeat_documentSize) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_documentSize).getCode();
+
+ 
+    casFeat_startProcessingTime = jcas.getRequiredFeatureDE(casType, "startProcessingTime", "uima.cas.Long", featOkTst);
+    casFeatCode_startProcessingTime  = (null == casFeat_startProcessingTime) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_startProcessingTime).getCode();
 
   }
 }

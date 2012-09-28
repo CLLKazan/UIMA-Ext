@@ -20,6 +20,14 @@
 					<description />
 					<rangeTypeName>uima.cas.Long</rangeTypeName>
 				</featureDescription>
+				<featureDescription>
+					<name>documentSize</name>
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>startProcessingTime</name>
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
 			</features>
 		</typeDescription>
 	</types>

@@ -27,6 +27,8 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 import org.apache.uima.util.XMLInputSource;
 
+import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -161,13 +163,11 @@ public class GoldStandardBasedEvaluation {
 	}
 
 	private String getDocUri(JCas cas) {
-		AnnotationIndex<Annotation> metaIdx = cas.getAnnotationIndex(docMetaType);
-		if (metaIdx.size() > 0) {
-			Annotation meta = metaIdx.iterator().next();
-			return meta.getFeatureValueAsString(docUriFeature);
-		} else {
-			throw new IllegalStateException("CAS without meta annotation typed " + docMetaType);
+		String uri = AnnotationUtils.getStringValue(cas, docMetaType, docUriFeature);
+		if (uri == null) {
+			throw new IllegalStateException("CAS doesn't have annotation of type " + docMetaType);
 		}
+		return uri;
 	}
 }
 

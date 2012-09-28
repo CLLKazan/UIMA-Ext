@@ -14,6 +14,8 @@ import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.FSMatchConstraint;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
@@ -118,6 +120,24 @@ public class AnnotationUtils {
 		Feature feat = srcFS.getType().getFeatureByBaseName(featureName);
 		if (feat != null) {
 			return (T) srcFS.getFeatureValue(feat);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * @param cas
+	 * @param type
+	 * @param feature
+	 * @return feature value of the first annotation of given type from given
+	 *         CAS. E.g., it is useful to get document metadata values. If there
+	 *         is no such annotation method will return null.
+	 */
+	public static String getStringValue(JCas cas, Type type, Feature feature) {
+		AnnotationIndex<Annotation> metaIdx = cas.getAnnotationIndex(type);
+		if (metaIdx.size() > 0) {
+			Annotation meta = metaIdx.iterator().next();
+			return meta.getFeatureValueAsString(feature);
 		} else {
 			return null;
 		}
