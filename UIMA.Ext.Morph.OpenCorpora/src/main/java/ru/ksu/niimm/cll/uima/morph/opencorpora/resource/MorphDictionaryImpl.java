@@ -51,7 +51,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private Table<Integer, Integer, LemmaLinkType> lemmaLinkTable = TreeBasedTable.create();
 	// wf indexes
 	// by string
-	private transient Multimap<String, Wordform> wfByString;
+	private transient TernarySearchTree<Wordform> wfByString;
 	// grammem indexes
 	// by parent
 	private transient Multimap<String, Grammeme> gramByParent;
@@ -271,7 +271,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	private void buildIndices() {
 		long timeBefore = currentTimeMillis();
-		wfByString = HashMultimap.create(6000000, 1);
+		wfByString = new TernarySearchTree<Wordform>();
 		for (Lemma lemma : lemmaMap.values()) {
 			for (Wordform wf : lemma.getWordforms()) {
 				wfByString.put(wf.getString(), wf);
