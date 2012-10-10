@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ru.ksu.niimm.cll.uima.morph.opencorpora.model;
 
 import java.io.Serializable;
@@ -33,11 +30,6 @@ public class Wordform implements Serializable {
 			this.dict = dict;
 		}
 
-		public Builder setString(String string) {
-			instance.string = string;
-			return this;
-		}
-
 		public Builder addGrammeme(String gramId) {
 			if (instance.grammems == null) {
 				instance.grammems = new BitSet(dict.getGrammemMaxNumId() + 1);
@@ -48,18 +40,17 @@ public class Wordform implements Serializable {
 		}
 
 		public Wordform build() {
-			if (instance.string == null) {
-				throw new IllegalStateException("'string' value is mandatory");
-			}
 			if (instance.grammems == null) {
 				instance.grammems = EMPTY_BITSET;
+			} else {
+				instance.grammems = dict
+						.internWordformGrammems(instance.grammems);
 			}
 			return instance;
 		}
 	}
 
 	private int lemmaId;
-	private String string;
 	private BitSet grammems;
 
 	private Wordform() {
@@ -69,10 +60,6 @@ public class Wordform implements Serializable {
 		return lemmaId;
 	}
 
-	public String getString() {
-		return string;
-	}
-
 	public BitSet getGrammems() {
 		// !!!
 		return (BitSet) grammems.clone();
@@ -80,7 +67,8 @@ public class Wordform implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(lemmaId).append(string).append(grammems).toHashCode();
+		return new HashCodeBuilder().append(lemmaId).append(grammems)
+				.toHashCode();
 	}
 
 	@Override
@@ -90,8 +78,7 @@ public class Wordform implements Serializable {
 		}
 		Wordform that = (Wordform) obj;
 		return new EqualsBuilder().append(this.lemmaId, that.lemmaId)
-				.append(this.string, that.string)
-				.append(this.grammems, that.grammems)
-				.isEquals();
+				.append(this.grammems, that.grammems).isEquals();
 	}
+
 }

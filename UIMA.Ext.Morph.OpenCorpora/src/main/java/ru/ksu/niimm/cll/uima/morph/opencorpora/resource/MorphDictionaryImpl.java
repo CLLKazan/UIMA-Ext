@@ -49,9 +49,14 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private Map<Short, LemmaLinkType> lemmaLinkTypeMap = Maps.newHashMap();
 	// <from, to, type>
 	private Table<Integer, Integer, LemmaLinkType> lemmaLinkTable = TreeBasedTable.create();
+	
+	private transient Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
+	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
+	
+	private TernarySearchTree<Wordform> wfByString = new TernarySearchTree<Wordform>();;
 	// wf indexes
 	// by string
-	private transient Multimap<String, Wordform> wfByString;
+	
 	// grammem indexes
 	// by parent
 	private transient Multimap<String, Grammeme> gramByParent;
@@ -226,6 +231,30 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 		return rb.build();
 	}
+	
+	@Override
+	public BitSet internWordformGrammems(BitSet grammems) {
+		if (uniqWordformGrammemsMap.containsKey(grammems)) {
+			return uniqWordformGrammemsMap.get(grammems);
+		} else {
+			uniqWordformGrammemsMap.put(grammems, grammems);
+			return grammems;
+		}
+	}
+	
+	@Override
+	public BitSet internLemmaGrammems(BitSet grammems) {
+		if (uniqLemmaGrammemsMap.containsKey(grammems)) {
+			return uniqLemmaGrammemsMap.get(grammems);
+		} else {
+			uniqLemmaGrammemsMap.put(grammems, grammems);
+			return grammems;
+		}
+	}
+
+	public void addWordform(String text, Wordform wf) {
+		wfByString.put(text, wf);
+	}
 
 	void complete() {
 		if (complete) {
@@ -233,7 +262,10 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 		log.info("Completing dictionary. Valid lemma links: {}, invalid links: {}",
 				lemmaLinkTable.size(), invalidLinkCounter);
+		log.info("Unique wordform grammem bitsets count: {}", uniqWordformGrammemsMap.size());
+		log.info("Unique lemma grammem bitsets count: {}", uniqLemmaGrammemsMap.size());
 		makeUnmodifiable();
+//		uniqGrammemsMap = null;
 		complete = true;
 	}
 
@@ -270,13 +302,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	private void buildIndices() {
+		log.info("start building indices");
 		long timeBefore = currentTimeMillis();
-		wfByString = HashMultimap.create(6000000, 1);
-		for (Lemma lemma : lemmaMap.values()) {
-			for (Wordform wf : lemma.getWordforms()) {
-				wfByString.put(wf.getString(), wf);
-			}
-		}
 		gramByParent = HashMultimap.create();
 		for (Grammeme gr : gramMap.values()) {
 			gramByParent.put(gr.getParentId(), gr);

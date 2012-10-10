@@ -3,6 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
+import static com.google.common.collect.Lists.newLinkedList;
+
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +15,18 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.LemmaLinkType;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 class DictionaryXmlHandler extends DefaultHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(DictionaryXmlHandler.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(DictionaryXmlHandler.class);
 
 	private static final String ELEM_DICTIONARY = "dictionary";
 	private static final String ATTR_DICTIONARY_VERSION = "version";
@@ -85,8 +88,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 		public void characters(String str) {
 			if (!str.trim().isEmpty()) {
 				throw new IllegalStateException(String.format(
-						"characters inside of %s:\n%s",
-						qName, str));
+						"characters inside of %s:\n%s", qName, str));
 			}
 		}
 	}
@@ -151,6 +153,9 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 	private class LemmaHandler extends ElemHandlerBase {
 		private Lemma.Builder builder;
+		// index 0 - wf string
+		// index 1 - wf object
+		private List<Object[]> wordforms;
 
 		LemmaHandler() {
 			super(ELEM_LEMMA);
@@ -159,6 +164,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 		@Override
 		public void startElement(Attributes attrs) {
 			builder = Lemma.builder(dict, requiredInt(attrs, ATTR_LEMMA_ID));
+			wordforms = newLinkedList();
 		}
 
 		@Override
@@ -166,15 +172,23 @@ class DictionaryXmlHandler extends DefaultHandler {
 			Lemma lemma = builder.build();
 			if (acceptLemma(lemma)) {
 				dict.addLemma(lemma);
+				for (Object[] tuple : wordforms) {
+					dict.addWordform((String) tuple[0], (Wordform) tuple[1]);
+				}
 				acceptedLemmaCounter++;
 			} else {
 				rejectedLemmaCounter++;
 			}
 			builder = null;
+			wordforms = null;
 			lemmasParsed++;
 			if (lemmasParsed % 5000 == 0) {
 				log.info("Lemmas have been parsed: {}", lemmasParsed);
 			}
+		}
+
+		void addWordform(String text, Wordform wf) {
+			wordforms.add(new Object[] { text, wf });
 		}
 	}
 
@@ -192,6 +206,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 	private class WordformHandler extends ElemHandlerBase {
 		private Wordform.Builder builder;
+		private String text;
 
 		WordformHandler() {
 			super(ELEM_WORDFORM);
@@ -201,13 +216,13 @@ class DictionaryXmlHandler extends DefaultHandler {
 		public void startElement(Attributes attrs) {
 			int lemmaId = getLemmaBuilder().getLemmaId();
 			builder = Wordform.builder(dict, lemmaId);
-			String text = requiredAttr(attrs, ATTR_TEXT);
-			builder.setString(text);
+			text = requiredAttr(attrs, ATTR_TEXT);
 		}
 
 		@Override
 		public void endElement() {
-			getLemmaBuilder().addWordform(builder.build());
+			getHandler(ELEM_LEMMA, LemmaHandler.class).addWordform(text,
+					builder.build());
 			builder = null;
 		}
 	}
@@ -229,10 +244,12 @@ class DictionaryXmlHandler extends DefaultHandler {
 			if (insideElem(ELEM_LEMMA_NORM)) {
 				getLemmaBuilder().addGrammeme(gramId);
 			} else if (insideElem(ELEM_WORDFORM)) {
-				getHandler(ELEM_WORDFORM, WordformHandler.class).builder.addGrammeme(gramId);
+				getHandler(ELEM_WORDFORM, WordformHandler.class).builder
+						.addGrammeme(gramId);
 			} else {
 				throw new IllegalStateException(String.format(
-						"%s outside of %s OR %s", qName, ELEM_LEMMA_NORM, ELEM_WORDFORM));
+						"%s outside of %s OR %s", qName, ELEM_LEMMA_NORM,
+						ELEM_WORDFORM));
 			}
 			gramId = null;
 		}
@@ -329,9 +346,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	}
 
 	@Override
-	public void startElement(String uri, String localName,
-			String qName, Attributes attributes)
-			throws SAXException {
+	public void startElement(String uri, String localName, String qName,
+			Attributes attributes) throws SAXException {
 		String elem = localName;
 		if (elem.isEmpty()) {
 			elem = qName;
@@ -342,7 +358,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
+	public void endElement(String uri, String localName, String qName)
+			throws SAXException {
 		String elem = localName;
 		if (elem.isEmpty()) {
 			elem = qName;
@@ -358,7 +375,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 		elemHandler.endElement();
 		if (!elemStack.getFirst().equals(elem)) {
 			throw new IllegalStateException(String.format(
-					"Elem ending expected: %s, but was: %s", elemStack.getFirst(), elem));
+					"Elem ending expected: %s, but was: %s",
+					elemStack.getFirst(), elem));
 		}
 		elemStack.removeFirst();
 	}
@@ -366,7 +384,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private StringBuilder sb;
 
 	@Override
-	public void characters(char[] ch, int start, int length) throws SAXException {
+	public void characters(char[] ch, int start, int length)
+			throws SAXException {
 		if (sb == null) {
 			sb = new StringBuilder();
 		}
@@ -379,7 +398,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	public void endDocument() throws SAXException {
 		// sanity check
 		if (!elemStack.isEmpty()) {
-			throw new IllegalStateException("Elem stack is not empty at the end: " + elemStack);
+			throw new IllegalStateException(
+					"Elem stack is not empty at the end: " + elemStack);
 		}
 		log.info("Lemmas accepted: {}\nLemmas rejected: {}",
 				acceptedLemmaCounter, rejectedLemmaCounter);
@@ -423,7 +443,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private static String requiredAttr(Attributes attrs, String qName) {
 		String result = attrs.getValue(qName);
 		if (result == null) {
-			throw new IllegalStateException("attribute " + qName + " is required");
+			throw new IllegalStateException("attribute " + qName
+					+ " is required");
 		}
 		return result.trim();
 	}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>UIMA.Ext.Commons-TypeSystem</name>
+	<description />
+	<version>1.0</version>
+	<vendor>Computational Linguistics Lab of Kazan Federal University</vendor>
+	<imports>
+		<import location="../../../main/resources/org/opencorpora/morphology-ts.xml" />
+		<import
+			location="../../../../../UIMA.Ext.Commons/src/main/resources/ru/kfu/itis/cll/uima/commons/Commons-TypeSystem.xml" />
+		<import
+			location="../../../../../UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml" />
+	</imports>
+</typeSystemDescription>

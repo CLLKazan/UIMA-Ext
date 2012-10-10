@@ -54,4 +54,8 @@ public interface MorphDictionary {
 	BitSet getGrammemWithChildrenBits(String gramId, boolean includeTarget);
 
 	List<String> toGramSet(BitSet grammems);
+	
+	BitSet internWordformGrammems(BitSet src);
+	
+	BitSet internLemmaGrammems(BitSet src);
 }
