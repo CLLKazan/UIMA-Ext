@@ -23,14 +23,23 @@
 
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 
 /**
  * Implementation of ternary search tree. A Ternary Search Tree is a data
  * structure that behaves in a manner that is very similar to a HashMap.
  */
-public class TernarySearchTree<E> {
-	private TSTNode<E> rootNode;
+public class TernarySearchTree<E> implements Serializable {
+	private static final long serialVersionUID = -7594024641367446457L;
+	
+	private TSTNode rootNode;
+	
+	public TernarySearchTree() {
+	}
 
 	/**
 	 * Stores value in the TernarySearchTree. The value may be retrieved using
@@ -42,7 +51,7 @@ public class TernarySearchTree<E> {
 	 *            The object to be stored in the tree.
 	 */
 	public void put(String key, E value) {
-		getOrCreateNode(key).data.add(value);
+		getOrCreateNode(key).addData(value);
 	}
 
 	/**
@@ -52,11 +61,16 @@ public class TernarySearchTree<E> {
 	 *            A String index.
 	 * @return Object The object retrieved from the TernarySearchTree.
 	 */
+	@SuppressWarnings("unchecked")
 	public List<E> get(String key) {
-		TSTNode<E> node = getNode(key);
-		if (node == null)
-			return null;
-		return node.data;
+		TSTNode node = getNode(key);
+		if (node == null || node.data == null)
+			return ImmutableList.of();
+		Builder<E> b = ImmutableList.builder();
+		for(Object obj : node.data){
+			b.add((E) obj);
+		}
+		return b.build();
 	}
 
 	/**
@@ -68,7 +82,7 @@ public class TernarySearchTree<E> {
 	 * @return TSTNode The node object indexed by key. This object is an
 	 *         instance of an inner class named TernarySearchTree.TSTNode.
 	 */
-	protected TSTNode<E> getOrCreateNode(String key)
+	protected TSTNode getOrCreateNode(String key)
 			throws NullPointerException, IllegalArgumentException {
 		if (key == null)
 			throw new NullPointerException(
@@ -77,9 +91,9 @@ public class TernarySearchTree<E> {
 			throw new IllegalArgumentException(
 					"attempt to get or create node with key of zero length");
 		if (rootNode == null)
-			rootNode = new TSTNode<E>(key.charAt(0), null);
+			rootNode = new TSTNode(key.charAt(0), null);
 
-		TSTNode<E> currentNode = rootNode;
+		TSTNode currentNode = rootNode;
 		int charIndex = 0;
 		while (true) {
 			int charComp = compareCharsAlphabetically(key.charAt(charIndex),
@@ -90,20 +104,20 @@ public class TernarySearchTree<E> {
 				if (charIndex == key.length())
 					return currentNode;
 				if (currentNode.relatives[TSTNode.EQKID] == null)
-					currentNode.relatives[TSTNode.EQKID] = new TSTNode<E>(
+					currentNode.relatives[TSTNode.EQKID] = new TSTNode(
 							key.charAt(charIndex), currentNode);
-				currentNode = currentNode.relatives[TSTNode.EQKID];
+				currentNode = (TSTNode) currentNode.relatives[TSTNode.EQKID];
 			} else if (charComp < 0) {
 				if (currentNode.relatives[TSTNode.LOKID] == null)
-					currentNode.relatives[TSTNode.LOKID] = new TSTNode<E>(
+					currentNode.relatives[TSTNode.LOKID] = new TSTNode(
 							key.charAt(charIndex), currentNode);
-				currentNode = currentNode.relatives[TSTNode.LOKID];
+				currentNode = (TSTNode) currentNode.relatives[TSTNode.LOKID];
 			} else {
 				// charComp must be greater than zero
 				if (currentNode.relatives[TSTNode.HIKID] == null)
-					currentNode.relatives[TSTNode.HIKID] = new TSTNode<E>(
+					currentNode.relatives[TSTNode.HIKID] = new TSTNode(
 							key.charAt(charIndex), currentNode);
-				currentNode = currentNode.relatives[TSTNode.HIKID];
+				currentNode = (TSTNode) currentNode.relatives[TSTNode.HIKID];
 			}
 		}
 	}
@@ -117,7 +131,7 @@ public class TernarySearchTree<E> {
 	 * @return TSTNode The node object indexed by key. This object is an
 	 *         instance of an inner class named TernarySearchTree.TSTNode.
 	 */
-	public TSTNode<E> getNode(String key) {
+	public TSTNode getNode(String key) {
 		return getNode(key, rootNode);
 	}
 
@@ -132,10 +146,10 @@ public class TernarySearchTree<E> {
 	 * @return TSTNode The node object indexed by key. This object is an
 	 *         instance of an inner class named TernarySearchTree.TSTNode.
 	 */
-	protected TSTNode<E> getNode(String key, TSTNode<E> startNode) {
+	protected TSTNode getNode(String key, TSTNode startNode) {
 		if (key == null || startNode == null || key.length() == 0)
 			return null;
-		TSTNode<E> currentNode = startNode;
+		TSTNode currentNode = startNode;
 		int charIndex = 0;
 
 		while (true) {
@@ -148,12 +162,12 @@ public class TernarySearchTree<E> {
 				charIndex++;
 				if (charIndex == key.length())
 					return currentNode;
-				currentNode = currentNode.relatives[TSTNode.EQKID];
+				currentNode = (TSTNode) currentNode.relatives[TSTNode.EQKID];
 			} else if (charComp < 0) {
-				currentNode = currentNode.relatives[TSTNode.LOKID];
+				currentNode = (TSTNode) currentNode.relatives[TSTNode.LOKID];
 			} else {
 				// charComp must be greater than zero
-				currentNode = (TSTNode<E>) currentNode.relatives[TSTNode.HIKID];
+				currentNode = (TSTNode) currentNode.relatives[TSTNode.HIKID];
 			}
 		}
 	}
@@ -161,22 +175,34 @@ public class TernarySearchTree<E> {
 	/**
 	 * An inner class of TernarySearchTree that represents a node in the tree.
 	 */
-	private static final class TSTNode<E> {
-		protected static final int PARENT = 0, LOKID = 1, EQKID = 2, HIKID = 3; // index
-																				// values
-																				// for
-																				// accessing
-																				// relatives
-																				// array
+	private static final class TSTNode implements Serializable {
+		private static final long serialVersionUID = -7604776410768461412L;
+		
+		protected static final int LOKID = 0, EQKID = 1, HIKID = 2; // index
+																	// values
+																	// for
+																	// accessing
+																	// relatives
+																	// array
 		protected char splitchar;
 
-		@SuppressWarnings("unchecked")
-		protected TSTNode<E>[] relatives = new TSTNode[4];
-		protected ArrayList<E> data = new ArrayList<E>();
+		protected Object[] relatives = new Object[3];
+		protected Object[] data;
+//		protected ArrayList<E> data = new ArrayList<E>();
 
-		protected TSTNode(char splitchar, TSTNode<E> parent) {
+		protected TSTNode(char splitchar, TSTNode parent) {
 			this.splitchar = splitchar;
-			relatives[PARENT] = parent;
+		}
+		
+		protected void addData(Object value) {
+			if (data == null) {
+				data = new Object[1];
+			} else {
+				Object[] temp = data;
+				data = new Object[data.length + 1];
+				System.arraycopy(temp, 0, data, 0, temp.length);
+			}
+			data[data.length - 1] = value;
 		}
 	}
 

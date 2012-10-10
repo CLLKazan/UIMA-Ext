@@ -56,30 +56,17 @@ public class Lemma implements Serializable {
 			return this;
 		}
 
-		public Builder addWordform(Wordform wf) {
-			if (instance.wordforms == null) {
-				instance.wordforms = Sets.newHashSetWithExpectedSize(8);
-			}
-			if (!Objects.equal(wf.getLemmaId(), instance.id)) {
-				throw new IllegalStateException("Can't add WF with different lemma id");
-			}
-			instance.wordforms.add(wf);
-			return this;
-		}
-
 		public Lemma build() {
 			if (instance.string == null) {
 				throw new IllegalStateException("'string' is null");
 			}
 			if (instance.grammems == null) {
 				instance.grammems = EMPTY_BITSET;
+			} else {
+				instance.grammems = dict
+						.internLemmaGrammems(instance.grammems);
 			}
 
-			if (instance.wordforms == null) {
-				instance.wordforms = ImmutableSet.of();
-			} else {
-				instance.wordforms = ImmutableSet.copyOf(instance.wordforms);
-			}
 			return instance;
 		}
 	}
@@ -87,8 +74,6 @@ public class Lemma implements Serializable {
 	private int id;
 	private String string;
 	private BitSet grammems;
-	// TODO may be better to replace by list to decrease memory consumption
-	private Set<Wordform> wordforms;
 
 	public int getId() {
 		return id;
@@ -100,10 +85,6 @@ public class Lemma implements Serializable {
 
 	public BitSet getGrammems() {
 		return (BitSet) grammems.clone();
-	}
-
-	public Set<Wordform> getWordforms() {
-		return wordforms;
 	}
 
 	@Override
