@@ -21,4 +21,6 @@ public interface EvaluationListener extends EventListener {
 			SortedSet<Annotation> sysAnnos);
 
 	public void onSpurious(String docUri, Type type, Annotation sysAnno);
+
+	public void onEvaluationComplete();
 }

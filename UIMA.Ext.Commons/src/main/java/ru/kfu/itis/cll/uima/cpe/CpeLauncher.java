@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.cll.uima.util;
+package ru.kfu.itis.cll.uima.cpe;
 
 import java.io.IOException;
 
@@ -18,31 +18,18 @@ import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-// TODO rewrite using CpeLauncher
-public class TxtToXmiLauncher {
+public class CpeLauncher {
 
 	public static void main(String[] args) throws IOException, UIMAException,
 			CpeDescriptorException {
-		if (args.length != 2) {
-			System.err.println("Usage: <txtInputDir> <xmiOutputDir>");
+		if (args.length != 1) {
+			System.err.println("Usage: <cpeDescriptorPath>");
 			return;
 		}
-		String cpeDescPath = "desc/cpe/cpe-txt-to-xmi.xml";
-		String inputDirPath = args[0];
-		String outputDirPath = args[1];
+		String cpeDescPath = args[0];
 
 		XMLInputSource cpeDescSource = new XMLInputSource(cpeDescPath);
 		CpeDescription cpeDesc = UIMAFramework.getXMLParser().parseCpeDescription(cpeDescSource);
-
-		// configure reader
-		cpeDesc.getAllCollectionCollectionReaders()[0]
-				.getConfigurationParameterSettings().setParameterValue("DirectoryPath",
-						inputDirPath);
-
-		// configure writer
-		cpeDesc.getCpeCasProcessors().getAllCpeCasProcessors()[0]
-				.getConfigurationParameterSettings()
-				.setParameterValue("XmiOutputDir", outputDirPath);
 
 		// produce
 		CollectionProcessingEngine cpe = UIMAFramework

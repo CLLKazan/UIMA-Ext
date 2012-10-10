@@ -62,11 +62,9 @@ public class CAOWriter extends CasAnnotator_ImplBase {
 	@ConfigurationParameter(name = PARAM_DOC_METADATA_URI_FEATURE,
 			defaultValue = "sourceUri")
 	private String docMetaUriFeatureName;
-	@ConfigurationParameter(name = PARAM_DOC_METADATA_START_PROCESSING_TIME,
-			defaultValue = "startProcessingTime")
+	@ConfigurationParameter(name = PARAM_DOC_METADATA_START_PROCESSING_TIME)
 	private String docMetaStartProcessingTimeFeatureName;
-	@ConfigurationParameter(name = PARAM_DOC_METADATA_DOCUMENT_SIZE,
-			defaultValue = "documentSize")
+	@ConfigurationParameter(name = PARAM_DOC_METADATA_DOCUMENT_SIZE)
 	private String docMetaDocumentSizeFeatureName;
 
 	// derived

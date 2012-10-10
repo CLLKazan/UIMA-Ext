@@ -3,10 +3,16 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
+import static java.util.Arrays.asList;
+import static org.apache.uima.util.CasCreationUtils.mergeTypeSystems;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toList;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -14,8 +20,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UIMAException;
-import org.apache.uima.UIMAFramework;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
@@ -25,7 +32,6 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
-import org.apache.uima.util.XMLInputSource;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
 
@@ -41,6 +47,7 @@ public class GoldStandardBasedEvaluation {
 	private Set<Type> annoTypes;
 	private Type docMetaType;
 	private Feature docUriFeature;
+	private boolean stripDocumentUri;
 
 	public GoldStandardBasedEvaluation(EvaluationConfig config) throws UIMAException, IOException {
 		initTypeSystem(config);
@@ -49,12 +56,23 @@ public class GoldStandardBasedEvaluation {
 				typeSystem, config.getSystemOutputImpl(), config.getSystemOutputProps());
 		this.goldStandardDir = CasDirectoryFactory.createDirectory(
 				typeSystem, config.getGoldStandardImpl(), config.getGoldStandardProps());
+		this.stripDocumentUri = config.isStripDocumentUri();
 	}
 
 	private void initTypeSystem(EvaluationConfig config) throws IOException, UIMAException {
-		XMLInputSource tsDescInput = new XMLInputSource(config.getTypeSystemDescPath());
-		TypeSystemDescription tsDesc = UIMAFramework.getXMLParser().parseTypeSystemDescription(
-				tsDescInput);
+		TypeSystemDescription tsDesc = null;
+		if (config.getTypeSystemDescPaths() != null) {
+			tsDesc = createTypeSystemDescriptionFromPath(config.getTypeSystemDescPaths());
+		}
+		if (config.getTypeSystemDescNames() != null) {
+			TypeSystemDescription tsDescFromNames = createTypeSystemDescription(
+					config.getTypeSystemDescNames());
+			if (tsDesc != null) {
+				tsDesc = mergeTypeSystems(asList(tsDesc, tsDescFromNames));
+			} else {
+				tsDesc = tsDescFromNames;
+			}
+		}
 		CAS dumbCas = CasCreationUtils.createCas(tsDesc, null, null);
 		typeSystem = dumbCas.getTypeSystem();
 		// printAllTypes();
@@ -102,6 +120,7 @@ public class GoldStandardBasedEvaluation {
 			if (sysCas == null) {
 				throw new IllegalStateException("No CAS from system output for doc uri: " + docUri);
 			}
+			docUri = stripUri(docUri);
 			evalCtx.setCurrentDocUri(docUri);
 			try {
 				evaluate(evalCtx, goldCas, sysCas);
@@ -109,6 +128,23 @@ public class GoldStandardBasedEvaluation {
 				// reset uri
 				evalCtx.setCurrentDocUri(null);
 			}
+		}
+		evalCtx.reportEvaluationComplete();
+	}
+
+	private String stripUri(String srcUri) {
+		if (!stripDocumentUri) {
+			return srcUri;
+		}
+		try {
+			URI uri = new URI(srcUri);
+			String name = FilenameUtils.getName(uri.getPath());
+			if (StringUtils.isBlank(name)) {
+				name = srcUri;
+			}
+			return name;
+		} catch (URISyntaxException e) {
+			return srcUri;
 		}
 	}
 

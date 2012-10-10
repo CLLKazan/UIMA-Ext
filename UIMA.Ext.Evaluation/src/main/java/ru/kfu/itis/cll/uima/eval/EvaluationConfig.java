@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,7 +29,8 @@ public class EvaluationConfig {
 	public static final String KEY_SYSTEM_OUTPUT_IMPL = "system.casdir.impl";
 	public static final String KEY_SYSTEM_OUTPUT_PROPS = "system.casdir.properties.";
 	public static final String KEY_ANNOTATION_TYPES = "annotationTypes";
-	public static final String KEY_TYPE_SYSTEM_DESC_PATH = "typeSystem.description.path";
+	public static final String KEY_TYPE_SYSTEM_DESC_PATHS = "typeSystem.description.paths";
+	public static final String KEY_TYPE_SYSTEM_DESC_NAMES = "typeSystem.description.names";
 	public static final String KEY_DOC_URI_ANNO_TYPE = "document.meta.annotationType";
 	public static final String KEY_DOC_URI_FEATURE_NAME = "document.meta.uriFeatureName";
 
@@ -36,7 +39,9 @@ public class EvaluationConfig {
 	private Map<String, String> goldStandardProps;
 	private Map<String, String> systemOutputProps;
 	private Set<String> annoTypes;
-	private String typeSystemDescPath;
+	private String[] typeSystemDescPaths;
+	private String[] typeSystemDescNames;
+	private boolean stripDocumentUri = true;
 	//
 	private String docUriAnnotationType;
 	private String docUriFeatureName;
@@ -63,7 +68,17 @@ public class EvaluationConfig {
 		Map<String, String> sysCDProps = filterToMap(props, KEY_SYSTEM_OUTPUT_PROPS);
 		setSystemOutputProps(sysCDProps);
 
-		setTypeSystemDescPath(notNull(props, KEY_TYPE_SYSTEM_DESC_PATH));
+		if (props.getProperty(KEY_TYPE_SYSTEM_DESC_PATHS) != null) {
+			setTypeSystemDescPaths(notNull(props, KEY_TYPE_SYSTEM_DESC_PATHS).split(";"));
+		}
+		if (props.getProperty(KEY_TYPE_SYSTEM_DESC_NAMES) != null) {
+			setTypeSystemDescNames(notNull(props, KEY_TYPE_SYSTEM_DESC_NAMES).split(";"));
+		}
+		if (getTypeSystemDescNames() == null && getTypeSystemDescPaths() == null) {
+			throw new IllegalStateException(format(
+					"None of {%s,%s} properties was specified",
+					KEY_TYPE_SYSTEM_DESC_PATHS, KEY_TYPE_SYSTEM_DESC_NAMES));
+		}
 	}
 
 	private static Map<String, String> filterToMap(Properties props, String prefix) {
@@ -138,12 +153,20 @@ public class EvaluationConfig {
 		this.systemOutputProps = systemOutputProps;
 	}
 
-	public String getTypeSystemDescPath() {
-		return typeSystemDescPath;
+	public String[] getTypeSystemDescNames() {
+		return typeSystemDescNames;
 	}
 
-	public void setTypeSystemDescPath(String typeSystemDescPath) {
-		this.typeSystemDescPath = typeSystemDescPath;
+	public void setTypeSystemDescNames(String[] typeSystemDescNames) {
+		this.typeSystemDescNames = typeSystemDescNames;
+	}
+
+	public String[] getTypeSystemDescPaths() {
+		return typeSystemDescPaths;
+	}
+
+	public void setTypeSystemDescPaths(String[] typeSystemDescPaths) {
+		this.typeSystemDescPaths = typeSystemDescPaths;
 	}
 
 	public String getDocUriAnnotationType() {
@@ -160,5 +183,13 @@ public class EvaluationConfig {
 
 	public void setDocUriFeatureName(String docUriFeatureName) {
 		this.docUriFeatureName = docUriFeatureName;
+	}
+
+	public boolean isStripDocumentUri() {
+		return stripDocumentUri;
+	}
+
+	public void setStripDocumentUri(boolean stripDocumentUri) {
+		this.stripDocumentUri = stripDocumentUri;
 	}
 }

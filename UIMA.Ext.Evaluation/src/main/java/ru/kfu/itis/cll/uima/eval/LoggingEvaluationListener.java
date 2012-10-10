@@ -76,6 +76,10 @@ public class LoggingEvaluationListener implements EvaluationListener {
 				docUri);
 	}
 
+	@Override
+	public void onEvaluationComplete() {
+	}
+
 	@SuppressWarnings("unused")
 	private void print(String msg, Object... args) {
 		printer.println(String.format(msg, args));

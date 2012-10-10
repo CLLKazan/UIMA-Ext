@@ -42,13 +42,16 @@ public class GSBasedEvalTest {
 		sysCDProps.put("dir", "data/test-sysout");
 		cfg.setSystemOutputProps(sysCDProps);
 
-		cfg.setTypeSystemDescPath("desc/types/aggregate-4Runtime-TS.xml");
+		cfg.setTypeSystemDescPaths(new String[] { "desc/types/aggregate-4Runtime-TS.xml" });
+
+		OutputStreamWriter outWriter = new OutputStreamWriter(System.out);
 
 		EvaluationContext evalCtx = new EvaluationContext();
-		SoftPrecisionRecallListener metrics = new SoftPrecisionRecallListener("test.TestFirst");
+		SoftPrecisionRecallListener metrics = new SoftPrecisionRecallListener("test.TestFirst",
+				outWriter);
 		evalCtx.addListener(metrics);
-		LoggingEvaluationListener loggingListener = new LoggingEvaluationListener(
-				new OutputStreamWriter(System.out));
+
+		LoggingEvaluationListener loggingListener = new LoggingEvaluationListener(outWriter);
 		evalCtx.addListener(loggingListener);
 
 		new GoldStandardBasedEvaluation(cfg).run(evalCtx);

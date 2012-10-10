@@ -1,5 +1,7 @@
 package ru.kfu.itis.cll.uima.eval;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -17,6 +19,8 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 
 	// config
 	private String targetTypeName;
+	// derived
+	private PrintWriter printer;
 
 	// state fields
 	// false negative
@@ -26,8 +30,9 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 	// true positive
 	private float matchingCounter = 0;
 
-	public SoftPrecisionRecallListener(String targetTypeName) {
+	public SoftPrecisionRecallListener(String targetTypeName, Writer outputWriter) {
 		this.targetTypeName = targetTypeName;
+		printer = new PrintWriter(outputWriter, true);
 	}
 
 	public String getTargetTypeName() {
@@ -128,6 +133,29 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 		spuriousCounter += 1;
 	}
 
+	@Override
+	public void onEvaluationComplete() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Results for type '").append(getTargetTypeName()).append("':\n");
+		if (getMatchedScore() == 0 && getSpuriousScore() == 0) {
+			sb.append("System did not matched any annotation of this type");
+		} else {
+			sb.append("Matches score:   ").append(formatAsFloating(getMatchedScore()))
+					.append("\n");
+			sb.append("Misses score:    ").append(formatAsFloating(getMissedScore()))
+					.append("\n");
+			sb.append("Spurious score:  ").append(formatAsFloating(getSpuriousScore()))
+					.append("\n");
+			sb.append("Precision: ").append(formatAsPercentage(getPrecision()))
+					.append("\n");
+			sb.append("Recall:    ").append(formatAsPercentage(getRecall()))
+					.append("\n");
+			sb.append("F1:        ").append(formatAsPercentage(getF1()))
+					.append("\n");
+		}
+		printer.println(sb.toString());
+	}
+
 	public float getPrecision() {
 		return matchingCounter / (matchingCounter + spuriousCounter);
 	}
@@ -152,5 +180,13 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 
 	public float getMissedScore() {
 		return missingCounter;
+	}
+
+	private static String formatAsPercentage(float value) {
+		return String.format("%.1f%%", value * 100);
+	}
+
+	private static String formatAsFloating(float value) {
+		return String.format("%.2f", value);
 	}
 }

@@ -38,6 +38,10 @@ public class EvaluationContext {
 		listenerSupport.fire().onSpurious(currentDocUri, type, sysAnno);
 	}
 
+	public void reportEvaluationComplete() {
+		listenerSupport.fire().onEvaluationComplete();
+	}
+
 	public void setCurrentDocUri(String docUri) {
 		currentDocUri = docUri;
 	}
