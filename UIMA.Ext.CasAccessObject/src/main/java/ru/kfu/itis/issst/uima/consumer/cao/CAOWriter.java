@@ -247,9 +247,8 @@ public class CAOWriter extends CasAnnotator_ImplBase {
 		}
 		// sanity check
 		if (!(span.getBegin() <= target.getBegin() && span.getEnd() >= target.getEnd())) {
-			throw new IllegalStateException(
-					String.format("Span extraction is failed.\nTarget: %s\nSpan: %s",
-							target.getCoveredText(), span.getCoveredText()));
+			warn("Correct span extraction is failed.\nTarget: %s\nSpan: %s",
+					target.getCoveredText(), span.getCoveredText());
 		}
 		return span;
 	}

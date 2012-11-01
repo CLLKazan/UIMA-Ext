@@ -29,6 +29,9 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 	private float spuriousCounter = 0;
 	// true positive
 	private float matchingCounter = 0;
+	//
+	private int exactMatchingCounter;
+	private int partialMatchingCounter;
 
 	public SoftPrecisionRecallListener(String targetTypeName, Writer outputWriter) {
 		this.targetTypeName = targetTypeName;
@@ -71,21 +74,27 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 				// Example 2.
 				// golden ................sss|!!!!!!!|ssss..........
 				// system ...............|................|.........
-				int unionLength = Math.max(sys.getEnd(), gold.getEnd())
+				float unionLength = Math.max(sys.getEnd(), gold.getEnd())
 						- Math.min(sys.getBegin(), gold.getBegin());
 
-				float deltaBefore = sys.getBegin() - gold.getBegin();
+				int deltaBefore = sys.getBegin() - gold.getBegin();
 				if (deltaBefore > 0) {
 					missingCounter += deltaBefore / unionLength;
 				} else {
 					spuriousCounter += -deltaBefore / unionLength;
 				}
 
-				float deltaAfter = sys.getEnd() - gold.getEnd();
+				int deltaAfter = sys.getEnd() - gold.getEnd();
 				if (deltaAfter > 0) {
 					spuriousCounter += deltaAfter / unionLength;
 				} else {
 					missingCounter += -deltaAfter / unionLength;
+				}
+
+				if (deltaBefore == 0 && deltaAfter == 0) {
+					exactMatchingCounter++;
+				} else {
+					partialMatchingCounter++;
 				}
 
 				float overlapLength = Math.min(sys.getEnd(), gold.getEnd())
@@ -142,6 +151,8 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 		} else {
 			sb.append("Matches score:   ").append(formatAsFloating(getMatchedScore()))
 					.append("\n");
+			sb.append("where:\n\tMatched exactly: ").append(exactMatchingCounter);
+			sb.append("\n\tPartially matched: ").append(partialMatchingCounter).append("\n");
 			sb.append("Misses score:    ").append(formatAsFloating(getMissedScore()))
 					.append("\n");
 			sb.append("Spurious score:  ").append(formatAsFloating(getSpuriousScore()))

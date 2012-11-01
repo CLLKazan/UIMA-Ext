@@ -65,18 +65,6 @@
                     <string>sourceUri</string>
                 </value>
             </nameValuePair>
-            <nameValuePair>
-                <name>MetadataStartProcessingTimeFeature</name>
-                <value>
-                    <string>startProcessingTime</string>
-                </value>
-            </nameValuePair>
-            <nameValuePair>
-                <name>MetadataDocumentSizeFeature</name>
-                <value>
-                    <string>documentSize</string>
-                </value>
-            </nameValuePair>
         </configurationParameterSettings>
         <typeSystemDescription/>
         <fsIndexCollection/>
