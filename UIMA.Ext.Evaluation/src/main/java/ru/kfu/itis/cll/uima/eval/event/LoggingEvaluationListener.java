@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.cll.uima.eval;
+package ru.kfu.itis.cll.uima.eval.event;
 
 import static com.google.common.collect.Collections2.transform;
 

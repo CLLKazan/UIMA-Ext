@@ -1,0 +1,54 @@
+Only for test1.txt
+Anno type: test.TestFirst
+Gold
+- Интеграл
+- функции, обращающейся в бесконечность вдоль линии,
++ независим
+- Ортогональный определитель
+- метод последовательных приближений
++ константу
+- многомерный интеграл от функции, имеющий конечный разрыв
+- Первообразная функция
+- интеграл Дирихле
+
+System spurious:
+1
+1
+4
+1
+
+Correct: 2
+Missing: 7
+Spurious: 7
+
+Precision: 0,22
+Recall: 0,22
+F1: 0,22
+
+===================
+Anno type: test.TestSecond
+Gold
+- Первообразная функция
++ Замкнутое множество
++ Комплексное число
+
+System spurious:
+2
+
+Correct: 2
+Missing: 1
+Spurious: 2
+
+Precision: 0,5
+Recall: 0,67
+F1: 0,571
+
+====================
+Overall:
+Correct: 4
+Missing: 8
+Spurious: 9
+
+Precision: 0,3077
+Recall: 0,3333
+F1: 0,320

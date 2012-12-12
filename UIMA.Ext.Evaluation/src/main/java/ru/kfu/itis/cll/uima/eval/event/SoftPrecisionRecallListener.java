@@ -1,4 +1,4 @@
-package ru.kfu.itis.cll.uima.eval;
+package ru.kfu.itis.cll.uima.eval.event;
 
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -10,6 +10,7 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
+import ru.kfu.itis.cll.uima.eval.measure.RecognitionMeasures;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -23,19 +24,15 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 	private PrintWriter printer;
 
 	// state fields
-	// false negative
-	private float missingCounter = 0;
-	// false positive
-	private float spuriousCounter = 0;
-	// true positive
-	private float matchingCounter = 0;
+	private RecognitionMeasures measures;
 	//
 	private int exactMatchingCounter;
 	private int partialMatchingCounter;
 
 	public SoftPrecisionRecallListener(String targetTypeName, Writer outputWriter) {
 		this.targetTypeName = targetTypeName;
-		printer = new PrintWriter(outputWriter, true);
+		this.printer = new PrintWriter(outputWriter, true);
+		this.measures = new RecognitionMeasures();
 	}
 
 	public String getTargetTypeName() {
@@ -47,7 +44,7 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 		if (!type.getName().equals(targetTypeName)) {
 			return;
 		}
-		missingCounter += 1;
+		measures.incrementMissing(1);
 	}
 
 	@Override
@@ -60,7 +57,7 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 		LinkedList<Annotation> sysList = new LinkedList<Annotation>(sysAnnos);
 		while (!goldList.isEmpty()) {
 			// sanity check - one gold anno must give 1 score in total to the counters
-			float totalBefore = spuriousCounter + missingCounter + matchingCounter;
+			float totalBefore = measures.getTotatScore();
 
 			Annotation gold = goldList.getFirst();
 			Annotation sys = getMostOverlapping(gold, sysList);
@@ -79,16 +76,16 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 
 				int deltaBefore = sys.getBegin() - gold.getBegin();
 				if (deltaBefore > 0) {
-					missingCounter += deltaBefore / unionLength;
+					measures.incrementMissing(deltaBefore / unionLength);
 				} else {
-					spuriousCounter += -deltaBefore / unionLength;
+					measures.incrementSpurious(-deltaBefore / unionLength);
 				}
 
 				int deltaAfter = sys.getEnd() - gold.getEnd();
 				if (deltaAfter > 0) {
-					spuriousCounter += deltaAfter / unionLength;
+					measures.incrementSpurious(deltaAfter / unionLength);
 				} else {
-					missingCounter += -deltaAfter / unionLength;
+					measures.incrementMissing(-deltaAfter / unionLength);
 				}
 
 				if (deltaBefore == 0 && deltaAfter == 0) {
@@ -103,21 +100,21 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 				if (overlapLength <= 0) {
 					throw new IllegalStateException("Overlap length = " + overlapLength);
 				}
-				matchingCounter += overlapLength / unionLength;
+				measures.incrementMatching(overlapLength / unionLength);
 
 				sysList.remove(sys);
 			}
 			goldList.remove(gold);
 
 			// sanity check
-			float totalAfter = spuriousCounter + missingCounter + matchingCounter;
+			float totalAfter = measures.getTotatScore();
 			if (totalAfter - totalBefore - 1 > 0.01f) {
 				throw new IllegalStateException("Sanity check failed: totalAfter - totalBefore = "
 						+ (totalAfter - totalBefore));
 			}
 		}
 		// handle all remaining annotation in sysList as spurious
-		spuriousCounter += sysList.size();
+		measures.incrementSpurious(sysList.size());
 	}
 
 	private Annotation getMostOverlapping(Annotation target, List<Annotation> srcList) {
@@ -139,58 +136,36 @@ public class SoftPrecisionRecallListener implements EvaluationListener {
 		if (!type.getName().equals(targetTypeName)) {
 			return;
 		}
-		spuriousCounter += 1;
+		measures.incrementSpurious(1);
 	}
 
 	@Override
 	public void onEvaluationComplete() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Results for type '").append(getTargetTypeName()).append("':\n");
-		if (getMatchedScore() == 0 && getSpuriousScore() == 0) {
+		if (measures.getMatchedScore() == 0 && measures.getSpuriousScore() == 0) {
 			sb.append("System did not matched any annotation of this type");
 		} else {
-			sb.append("Matches score:   ").append(formatAsFloating(getMatchedScore()))
-					.append("\n");
+			sb.append("Matches score:   ").append(formatAsFloating(
+					measures.getMatchedScore())).append("\n");
 			sb.append("where:\n\tMatched exactly: ").append(exactMatchingCounter);
 			sb.append("\n\tPartially matched: ").append(partialMatchingCounter).append("\n");
-			sb.append("Misses score:    ").append(formatAsFloating(getMissedScore()))
-					.append("\n");
-			sb.append("Spurious score:  ").append(formatAsFloating(getSpuriousScore()))
-					.append("\n");
-			sb.append("Precision: ").append(formatAsPercentage(getPrecision()))
-					.append("\n");
-			sb.append("Recall:    ").append(formatAsPercentage(getRecall()))
-					.append("\n");
-			sb.append("F1:        ").append(formatAsPercentage(getF1()))
-					.append("\n");
+			sb.append("Misses score:    ").append(formatAsFloating(
+					measures.getMissedScore())).append("\n");
+			sb.append("Spurious score:  ").append(formatAsFloating(
+					measures.getSpuriousScore())).append("\n");
+			sb.append("Precision: ").append(formatAsPercentage(
+					measures.getPrecision())).append("\n");
+			sb.append("Recall:    ").append(formatAsPercentage(
+					measures.getRecall())).append("\n");
+			sb.append("F1:        ").append(formatAsPercentage(
+					measures.getF1())).append("\n");
 		}
 		printer.println(sb.toString());
 	}
 
-	public float getPrecision() {
-		return matchingCounter / (matchingCounter + spuriousCounter);
-	}
-
-	public float getRecall() {
-		return matchingCounter / (matchingCounter + missingCounter);
-	}
-
-	public float getF1() {
-		float precision = getPrecision();
-		float recall = getRecall();
-		return 2 * precision * recall / (precision + recall);
-	}
-
-	public float getMatchedScore() {
-		return matchingCounter;
-	}
-
-	public float getSpuriousScore() {
-		return spuriousCounter;
-	}
-
-	public float getMissedScore() {
-		return missingCounter;
+	public RecognitionMeasures getMeasures() {
+		return measures;
 	}
 
 	private static String formatAsPercentage(float value) {

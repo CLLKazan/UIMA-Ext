@@ -3,15 +3,18 @@
     <cas:NULL xmi:id="0"/>
     <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="# Сгенерировано на Яндекс.Весне.&#13;&#10;Тема: «Параллельный неопределенный интеграл: предпосылки и развитие»&#13;&#10;Дифференциальное уравнение, общеизвестно, стабилизирует максимум, как и предполагалось. Интеграл от функции, обращающейся в бесконечность вдоль линии, как следует из вышесказанного, независим. Ортогональный определитель изящно концентрирует метод последовательных приближений, при этом, вместо 13 можно взять любую другую константу. Вектор, как следует из вышесказанного, продуцирует многомерный интеграл от функции, имеющий конечный разрыв, при этом, вместо 13 можно взять любую другую константу. Ряд Тейлора изящно накладывает положительный интеграл Дирихле, в итоге приходим к логическому противоречию.&#13;&#10;&#13;&#10;Первообразная функция детерменирована. Однако не все знают, что функциональный анализ иррационален. Первообразная функция, очевидно, однородно охватывает интеграл Дирихле, в итоге приходим к логическому противоречию. Согласно предыдущему, доказательство последовательно.&#13;&#10;&#13;&#10;Замкнутое множество позитивно усиливает косвенный график функции, таким образом сбылась мечта идиота - утверждение полностью доказано. Комплексное число нетривиально. Скалярное поле переворачивает анормальный ряд Тейлора, что и требовалось доказать. Согласно предыдущему, подынтегральное выражение обуславливает нормальный ортогональный определитель, откуда следует доказываемое равенство."/>
     <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="1376" language="x-unspecified"/>
-    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/D:/projects/uima-ext/UIMA.Ext.Evaluation/data/test-src/test1.txt" offsetInSource="0"/>
-    <test:TestFirst xmi:id="19" sofa="1" begin="192" end="200"/>
-    <test:TestFirst xmi:id="23" sofa="1" begin="204" end="254"/>
-    <test:TestFirst xmi:id="27" sofa="1" begin="286" end="295"/>
-    <test:TestFirst xmi:id="31" sofa="1" begin="297" end="323"/>
-    <test:TestFirst xmi:id="35" sofa="1" begin="345" end="379"/>
-    <test:TestFirst xmi:id="39" sofa="1" begin="426" end="435"/>
-    <test:TestFirst xmi:id="43" sofa="1" begin="488" end="544"/>
-    <test:TestFirst xmi:id="47" sofa="1" begin="813" end="834"/>
-    <test:TestFirst xmi:id="51" sofa="1" begin="867" end="883"/>
-    <cas:View sofa="1" members="8 13 19 23 27 31 35 39 43 47 51"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/D:/projects/uima-ext/UIMA.Ext.Evaluation/data/test-src/test1.txt" offsetInSource="0" documentSize="0" startProcessingTime="0"/>
+    <test:TestFirst xmi:id="21" sofa="1" begin="192" end="200"/>
+    <test:TestFirst xmi:id="25" sofa="1" begin="204" end="254"/>
+    <test:TestFirst xmi:id="29" sofa="1" begin="286" end="295"/>
+    <test:TestFirst xmi:id="33" sofa="1" begin="297" end="323"/>
+    <test:TestFirst xmi:id="37" sofa="1" begin="345" end="379"/>
+    <test:TestFirst xmi:id="41" sofa="1" begin="426" end="435"/>
+    <test:TestFirst xmi:id="45" sofa="1" begin="488" end="544"/>
+    <test:TestFirst xmi:id="49" sofa="1" begin="813" end="834"/>
+    <test:TestFirst xmi:id="53" sofa="1" begin="867" end="883"/>
+    <test:TestSecond xmi:id="57" sofa="1" begin="713" end="734"/>
+    <test:TestSecond xmi:id="61" sofa="1" begin="987" end="1006"/>
+    <test:TestSecond xmi:id="65" sofa="1" begin="1122" end="1139"/>
+    <cas:View sofa="1" members="8 13 21 25 29 33 37 41 45 49 53 57 61 65"/>
 </xmi:XMI>

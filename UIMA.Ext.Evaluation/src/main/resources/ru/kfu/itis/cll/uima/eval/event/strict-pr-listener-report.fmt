@@ -1,0 +1,8 @@
+Results for type %s:
+Matches score:   %.1f
+Misses score:    %.1f
+Spurious score:  %.1f
+Precision: %.2f%%
+Recall:    %.2f%%
+F1:        %.2f%%
+---

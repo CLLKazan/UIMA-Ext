@@ -9,6 +9,8 @@ import org.apache.commons.lang3.event.EventListenerSupport;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation;
 
+import ru.kfu.itis.cll.uima.eval.event.EvaluationListener;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.cll.uima.eval;
+package ru.kfu.itis.cll.uima.eval.event;
 
 import java.util.EventListener;
 import java.util.SortedSet;

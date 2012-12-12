@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
+import static com.google.common.collect.Sets.newTreeSet;
 import static java.util.Arrays.asList;
 import static org.apache.uima.util.CasCreationUtils.mergeTypeSystems;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
@@ -34,8 +35,12 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
+import ru.kfu.itis.cll.uima.eval.cas.CasDirectory;
+import ru.kfu.itis.cll.uima.eval.cas.CasDirectoryFactory;
 
 /**
+ * Note! Complete annotation duplicates (by offsets & type) are ignored.
+ * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
@@ -155,10 +160,10 @@ public class GoldStandardBasedEvaluation {
 	}
 
 	private void evaluate(EvaluationContext ctx, Type type, JCas goldCas, JCas sysCas) {
-		Set<Annotation> evaluatedAnnos = new HashSet<Annotation>();
 		AnnotationIndex<Annotation> goldAnnoIndex = goldCas.getAnnotationIndex(type);
 		AnnotationIndex<Annotation> sysAnnoIndex = sysCas.getAnnotationIndex(type);
 		Set<Annotation> goldProcessed = new HashSet<Annotation>();
+		SortedSet<Annotation> sysProcessed = newTreeSet(AnnotationOffsetComparator.INSTANCE);
 		for (Annotation goldAnno : goldAnnoIndex) {
 			if (goldProcessed.contains(goldAnno)) {
 				continue;
@@ -172,13 +177,13 @@ public class GoldStandardBasedEvaluation {
 				ctx.reportMissing(type, goldAnno);
 			} else {
 				ctx.reportMatching(type, goldClosure.annos, sysClosure.annos);
-				evaluatedAnnos.addAll(sysClosure.annos);
+				sysProcessed.addAll(sysClosure.annos);
 			}
 			goldProcessed.addAll(goldClosure.annos);
 		}
 		// report spurious (false positive)
 		for (Annotation sysAnno : sysAnnoIndex) {
-			if (!evaluatedAnnos.contains(sysAnno)) {
+			if (!sysProcessed.contains(sysAnno)) {
 				ctx.reportSpurious(type, sysAnno);
 			}
 		}

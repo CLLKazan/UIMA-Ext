@@ -7,6 +7,8 @@ import java.util.Comparator;
 
 import org.apache.uima.jcas.tcas.Annotation;
 
+import com.google.common.collect.ComparisonChain;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -17,6 +19,13 @@ class AnnotationOffsetComparator implements Comparator<Annotation> {
 
 	@Override
 	public int compare(Annotation first, Annotation second) {
-		return Integer.valueOf(first.getBegin()).compareTo(second.getBegin());
+		if (first == second) {
+			return 0;
+		}
+		return ComparisonChain.start()
+				.compare(first.getBegin(), second.getBegin())
+				.compare(second.getEnd(), first.getEnd())
+				.compare(first.getType().getName(), second.getType().getName())
+				.result();
 	}
 }

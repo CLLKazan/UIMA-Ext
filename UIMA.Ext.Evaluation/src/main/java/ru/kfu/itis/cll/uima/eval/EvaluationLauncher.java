@@ -10,6 +10,9 @@ import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 
+import ru.kfu.itis.cll.uima.eval.event.LoggingEvaluationListener;
+import ru.kfu.itis.cll.uima.eval.event.StrictPrecisionRecallListener;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -51,11 +54,16 @@ public class EvaluationLauncher {
 					logWriter);
 			evalCtx.addListener(loggingListener);
 
+			// add strict listener per type
 			for (String curType : cfg.getAnnoTypes()) {
-				SoftPrecisionRecallListener curTypeMetricListener =
-						new SoftPrecisionRecallListener(curType, metricsWriter);
+				StrictPrecisionRecallListener curTypeMetricListener =
+						new StrictPrecisionRecallListener(curType, metricsWriter);
 				evalCtx.addListener(curTypeMetricListener);
 			}
+			// add strict listener for 'Overall'
+			StrictPrecisionRecallListener allTypesMetricListener =
+					new StrictPrecisionRecallListener(metricsWriter);
+			evalCtx.addListener(allTypesMetricListener);
 
 			new GoldStandardBasedEvaluation(cfg).run(evalCtx);
 		} finally {

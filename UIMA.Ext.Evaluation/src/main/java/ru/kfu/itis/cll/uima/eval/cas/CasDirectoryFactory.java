@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.cll.uima.eval;
+package ru.kfu.itis.cll.uima.eval.cas;
 
 import java.io.File;
 import java.lang.reflect.Method;
