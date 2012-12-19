@@ -4,10 +4,9 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>1.0</version>
+		<version>0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>uima-ext-eval</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<name>UIMA.Ext.Eval</name>
 	<description>Tools for UIMA CAS-based performance evaluation (like precision, recall, etc.)</description>
 

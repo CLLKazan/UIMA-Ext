@@ -13,7 +13,7 @@
 	<description></description>
 	<version>0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
+
 	<modules>
 		<module>../UIMA.Ext.Commons</module>
 		<module>../UIMA.Ext.Tokenizer</module>
@@ -23,7 +23,7 @@
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
 	</modules>
-	
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -75,6 +75,11 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-tokenizer</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-morph-opencorpora</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -140,6 +145,12 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.10</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.scalatest</groupId>
+				<artifactId>scalatest_2.9.2</artifactId>
+				<version>1.8</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
