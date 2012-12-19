@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -19,7 +18,6 @@ import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.XmlDictionaryParser;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -46,8 +44,8 @@ public class MorphLauncher {
 		File outputDir = inputFile.getParentFile();
 
 		// configure logging
-		PropertyConfigurator.configure(XmlDictionaryParser.class.getClassLoader()
-				.getResource("ru/ksu/niimm/cll/uima/morph/opencorpora/log4j.properties"));
+		System.setProperty("logback.configurationFile",
+				"ru/ksu/niimm/cll/uima/morph/opencorpora/logback.xml");
 
 		// configure AE
 		// TODO seems ugly but works and does not require to change descriptors for every

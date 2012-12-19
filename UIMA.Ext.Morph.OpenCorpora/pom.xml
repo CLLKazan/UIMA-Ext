@@ -31,7 +31,7 @@
 				</executions>
 			</plugin>
 		</plugins>
-		
+
 		<testResources>
 			<testResource>
 				<directory>src/test/resources</directory>
@@ -72,9 +72,8 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<optional>true</optional>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
