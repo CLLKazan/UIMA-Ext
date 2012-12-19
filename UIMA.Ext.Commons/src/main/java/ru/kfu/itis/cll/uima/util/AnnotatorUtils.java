@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.cll.uima.util;
 
+import java.util.Arrays;
+
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
@@ -20,6 +22,26 @@ public class AnnotatorUtils {
 			throw new ResourceInitializationException(
 					new IllegalStateException(String.format(
 							"Missing mandatory parameter '%s' value", paramName)));
+		}
+	}
+
+	public static void requireParam(boolean expr, String paramName, Object value)
+			throws ResourceInitializationException {
+		if (!expr) {
+			throw new ResourceInitializationException(
+					new IllegalStateException(String.format(
+							"Illegal value of parameter '%s': %s",
+							paramName, value)));
+		}
+	}
+
+	public static void requireParams(boolean expr, String[] paramNames, Object[] paramValues)
+			throws ResourceInitializationException {
+		if (!expr) {
+			throw new ResourceInitializationException(
+					new IllegalStateException(String.format(
+							"Illegal value of parameters '%s': %s",
+							Arrays.toString(paramNames), Arrays.toString(paramValues))));
 		}
 	}
 

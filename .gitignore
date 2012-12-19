@@ -5,6 +5,8 @@
 /*/target/
 /commit.txt
 /*/logs/
+/*/wrk/
 effective-pom.xml
 effective-settings.xml
 /*/.gwt/
+.cache
