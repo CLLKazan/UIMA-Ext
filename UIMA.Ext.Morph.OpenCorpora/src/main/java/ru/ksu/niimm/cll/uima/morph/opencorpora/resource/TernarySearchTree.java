@@ -188,7 +188,6 @@ public class TernarySearchTree<E> implements Serializable {
 
 		protected Object[] relatives = new Object[3];
 		protected Object[] data;
-//		protected ArrayList<E> data = new ArrayList<E>();
 
 		protected TSTNode(char splitchar, TSTNode parent) {
 			this.splitchar = splitchar;
