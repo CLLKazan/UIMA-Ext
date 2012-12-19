@@ -4,6 +4,7 @@
 package ru.kfu.itis.cll.uima.cas;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newArrayListWithCapacity;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 
 /**
@@ -110,6 +112,16 @@ public class AnnotationUtils {
 		while (iter.isValid()) {
 			result.add(iter.get());
 			iter.moveToNext();
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <FST extends FeatureStructure> List<FST> toList(FSArray casArray,
+			Class<FST> fstClass) {
+		List<FST> result = newArrayListWithCapacity(casArray.size());
+		for (int i = 0; i < casArray.size(); i++) {
+			result.add((FST) casArray.get(i));
 		}
 		return result;
 	}

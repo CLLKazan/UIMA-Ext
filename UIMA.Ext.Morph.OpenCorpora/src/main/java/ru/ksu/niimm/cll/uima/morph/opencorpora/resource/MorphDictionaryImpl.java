@@ -49,14 +49,14 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private Map<Short, LemmaLinkType> lemmaLinkTypeMap = Maps.newHashMap();
 	// <from, to, type>
 	private Table<Integer, Integer, LemmaLinkType> lemmaLinkTable = TreeBasedTable.create();
-	
+
 	private transient Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
 	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
-	
+
 	private TernarySearchTree<Wordform> wfByString = new TernarySearchTree<Wordform>();;
 	// wf indexes
 	// by string
-	
+
 	// grammem indexes
 	// by parent
 	private transient Multimap<String, Grammeme> gramByParent;
@@ -231,7 +231,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 		return rb.build();
 	}
-	
+
 	@Override
 	public BitSet internWordformGrammems(BitSet grammems) {
 		if (uniqWordformGrammemsMap.containsKey(grammems)) {
@@ -241,7 +241,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 			return grammems;
 		}
 	}
-	
+
 	@Override
 	public BitSet internLemmaGrammems(BitSet grammems) {
 		if (uniqLemmaGrammemsMap.containsKey(grammems)) {
@@ -250,6 +250,16 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 			uniqLemmaGrammemsMap.put(grammems, grammems);
 			return grammems;
 		}
+	}
+
+	@Override
+	public Map<Integer, LemmaLinkType> getLemmaOutlinks(int lemmaId) {
+		return lemmaLinkTable.row(lemmaId);
+	}
+
+	@Override
+	public Map<Integer, LemmaLinkType> getLemmaInlinks(int lemmaId) {
+		return lemmaLinkTable.column(lemmaId);
 	}
 
 	public void addWordform(String text, Wordform wf) {
@@ -265,7 +275,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		log.info("Unique wordform grammem bitsets count: {}", uniqWordformGrammemsMap.size());
 		log.info("Unique lemma grammem bitsets count: {}", uniqLemmaGrammemsMap.size());
 		makeUnmodifiable();
-//		uniqGrammemsMap = null;
+		//		uniqGrammemsMap = null;
 		complete = true;
 	}
 

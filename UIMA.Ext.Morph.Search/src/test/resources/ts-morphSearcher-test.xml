@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>UIMA.Ext.Commons-TypeSystem</name>
+	<description />
+	<version>1.0</version>
+	<vendor>Intelligent Search Systems and Semantic Technologies Lab of Kazan Federal University</vendor>
+	<imports>
+		<import name="org.opencorpora.morphology-ts" />
+	</imports>
+	<types>
+		<typeDescription>
+			<name>test.MorphMatch</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>wordform</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Wordform</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+	</types>
+</typeSystemDescription>

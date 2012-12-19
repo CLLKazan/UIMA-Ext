@@ -5,6 +5,7 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
@@ -45,6 +46,10 @@ public interface MorphDictionary {
 
 	Grammeme getGrammem(String id);
 
+	Map<Integer, LemmaLinkType> getLemmaOutlinks(int lemmaId);
+
+	Map<Integer, LemmaLinkType> getLemmaInlinks(int lemmaId);
+
 	/**
 	 * @param gramId
 	 * @param includeTarget
@@ -54,8 +59,8 @@ public interface MorphDictionary {
 	BitSet getGrammemWithChildrenBits(String gramId, boolean includeTarget);
 
 	List<String> toGramSet(BitSet grammems);
-	
+
 	BitSet internWordformGrammems(BitSet src);
-	
+
 	BitSet internLemmaGrammems(BitSet src);
 }
