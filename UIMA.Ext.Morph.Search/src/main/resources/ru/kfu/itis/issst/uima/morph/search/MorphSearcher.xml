@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>true</primitive>
+	<annotatorImplementationName>ru.kfu.itis.issst.uima.morph.search.MorphSearcher</annotatorImplementationName>
+	<analysisEngineMetaData>
+		<name>ru.kfu.itis.issst.uima.morph.search.MorphSearcher</name>
+		<description />
+		<version>0.1</version>
+		<vendor>Kazan Federal University</vendor>
+		<configurationParameters>
+			<configurationParameter>
+				<name>sourceWordformsUrl</name>
+				<description />
+				<type>String</type>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>targetAnnotationType</name>
+				<description />
+				<type>String</type>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>wordformFeature</name>
+				<description />
+				<type>String</type>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<externalResourceDependencies>
+		<externalResourceDependency>
+			<key>MorphologyDict</key>
+			<description />
+			<interfaceName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource</interfaceName>
+			<optional>false</optional>
+		</externalResourceDependency>
+	</externalResourceDependencies>
+</analysisEngineDescription>

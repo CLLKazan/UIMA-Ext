@@ -29,8 +29,10 @@ class MorphSearcherTest extends FunSuite with Logging {
   }
   private val morphDictDesc = {
     val dictPath = System.getProperty(SysPropMorphDictPath)
-    createExternalResourceDescription(classOf[SerializedDictionaryResource],
-      new File(dictPath))
+    if (dictPath == null) null
+    else
+      createExternalResourceDescription(classOf[SerializedDictionaryResource],
+        new File(dictPath))
   }
   private val morphAnalyzerDesc = {
     val tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts")
@@ -57,7 +59,7 @@ class MorphSearcherTest extends FunSuite with Logging {
     }
   }
 
-  test("Test MorphSearcher on test-input-1.txt") {
+  private val testFunc = () => {
     val aeDesc = createAggregateDescription(tokenizerDesc, morphAnalyzerDesc, morphSearcherDesc)
     val ae = createAggregate(aeDesc)
     val cas = ae.newCAS()
@@ -70,6 +72,11 @@ class MorphSearcherTest extends FunSuite with Logging {
     info(testIdx.map(anno => (anno.getCoveredText(), anno))
       .mkString("MorphMatch annotations cover following spans:\n", "\n", ""))
   }
+  private val testDesc = "Test MorphSearcher on test-input-1.txt"
+
+  if (morphDictDesc == null)
+    ignore(testDesc)(testFunc)
+  else test(testDesc)(testFunc)
 
 }
 

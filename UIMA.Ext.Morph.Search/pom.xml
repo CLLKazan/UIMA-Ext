@@ -6,7 +6,7 @@
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
 		<version>0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>uima-ext-morph-search</artifactId>
+	<artifactId>uima-morph-search</artifactId>
 	<name>UIMA.Ext.Morph.Search</name>
 	<description>UIMA Morphology features Search</description>
 
