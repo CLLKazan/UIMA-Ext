@@ -91,7 +91,10 @@ public class InitialTokenizer extends CasAnnotator_ImplBase {
 			}
 			i++;
 		}
-		state.createAnnotation(cas, spanBegin, str, lastStateStart, str.length());
+		// need this check because input string may be empty
+		if (state != START) {
+			state.createAnnotation(cas, spanBegin, str, lastStateStart, str.length());
+		}
 	}
 
 	private State getStateStartingWith(char ch) {
