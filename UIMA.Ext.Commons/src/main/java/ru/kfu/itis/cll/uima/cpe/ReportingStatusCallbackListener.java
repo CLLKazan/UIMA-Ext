@@ -21,7 +21,13 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 	private CollectionProcessingEngine cpe;
 
 	public ReportingStatusCallbackListener(CollectionProcessingEngine cpe) {
+		this(cpe, 0);
+	}
+
+	public ReportingStatusCallbackListener(CollectionProcessingEngine cpe,
+			int entityReportingInterval) {
 		this.cpe = cpe;
+		this.entityReportingInterval = entityReportingInterval;
 	}
 
 	/**
@@ -34,9 +40,11 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 	 */
 	private long mInitCompleteTime;
 
-	int entityCount = 0;
+	private int entityCount = 0;
 
-	long size = 0;
+	private int entityReportingInterval = 0;
+
+	private long size = 0;
 
 	/**
 	 * Called when the initialization is completed.
@@ -136,6 +144,9 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 		String docText = aCas.getDocumentText();
 		if (docText != null) {
 			size += docText.length();
+		}
+		if (entityReportingInterval != 0 && entityCount % entityReportingInterval == 0) {
+			System.out.println(String.format("% entities have been processed", entityCount));
 		}
 	}
 }

@@ -2,11 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>cll-base</artifactId>
-		<groupId>ru.ksu.niimm.cll</groupId>
-		<version>1.0</version>
-	</parent>
+
 	<groupId>ru.ksu.niimm.cll.uima</groupId>
 	<artifactId>uima-ext-parent</artifactId>
 	<name>UIMA Ext Parent POM</name>
@@ -19,6 +15,7 @@
 		<module>../UIMA.Ext.Tokenizer</module>
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
+		<module>../UIMA.Ext.Morph.Search</module>
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
@@ -155,6 +152,34 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<profiles>
+		<profile>
+			<id>use-cll-artifactory</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>cll.artifactory</id>
+					<url>http://cll.niimm.ksu.ru:8080/artifactory/repo</url>
+					<name>CLL maven repository</name>
+				</repository>
+			</repositories>
+			<distributionManagement>
+				<repository>
+					<id>cll.artifactory</id>
+					<url>http://cll.niimm.ksu.ru:8080/artifactory/libs-releases-local</url>
+					<name>CLL maven repository</name>
+				</repository>
+				<snapshotRepository>
+					<id>cll.artifactory</id>
+					<url>http://cll.niimm.ksu.ru:8080/artifactory/libs-snapshots-local</url>
+					<name>CLL maven repository</name>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 
 	<properties>
 		<uima.version>2.4.0</uima.version>
