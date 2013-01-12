@@ -4,10 +4,13 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
+import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +23,9 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.LemmaLinkType;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 class DictionaryXmlHandler extends DefaultHandler {
 
@@ -31,9 +35,15 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private static final String ELEM_DICTIONARY = "dictionary";
 	private static final String ATTR_DICTIONARY_VERSION = "version";
 	private static final String ATTR_DICTIONARY_REVISION = "revision";
-	private static final String ELEM_GRAMMEMS = "grammems";
-	private static final String ELEM_GRAMMEM = "grammem";
+	private static final String ELEM_GRAMMEMS = "grammemes";
+	private static final String ELEM_GRAMMEM = "grammeme";
 	private static final String ATTR_GRAMMEM_PARENT = "parent";
+	private static final String ELEM_GRAMMEM_NAME = "name";
+	private static final String ELEM_GRAMMEM_ALIAS = "alias";
+	private static final String ELEM_GRAMMEM_DESCRIPTION = "description";
+
+	private static final String ELEM_RESTRICTIONS = "restrictions";
+
 	private static final String ELEM_LEMMATA = "lemmata";
 	private static final String ELEM_LEMMA = "lemma";
 	private static final String ATTR_LEMMA_ID = "id";
@@ -42,7 +52,6 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private static final String ELEM_LEMMA_NORM = "l";
 	private static final String ATTR_TEXT = "t";
 	private static final String ELEM_WF_GRAMMEM = "g";
-	@SuppressWarnings("unused")
 	private static final String ELEM_LEMMA_GRAMMEM = ELEM_WF_GRAMMEM;
 	private static final String ATTR_WF_GRAMMEME_ID = "v";
 	private static final String ELEM_WORDFORM = "f";
@@ -57,101 +66,301 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private static final String ATTR_LINK_TO = "to";
 	private static final String ATTR_LINK_TYPE = "type";
 
-	private interface ElementHandler {
-		void startElement(Attributes attrs);
-
-		void endElement();
-
-		void characters(String str);
-	}
-
-	private abstract class ElemHandlerBase implements ElementHandler {
+	private abstract class ElementHandler {
 		protected final String qName;
+		private ElementHandler parentHandler;
 
-		ElemHandlerBase(String qName) {
+		protected ElementHandler(String qName) {
+			if (qName == null)
+				throw new NullPointerException(qName);
 			this.qName = qName;
-			if (elemHandlersMap.put(qName, this) != null) {
-				throw new IllegalStateException(String.format(
-						"Duplicate elem handler for %s", qName));
-			}
 		}
 
-		@Override
-		public void startElement(Attributes attrs) {
+		protected final <EH> EH getParent(Class<EH> parentClass) {
+			return parentClass.cast(parentHandler);
 		}
 
-		@Override
-		public void endElement() {
+		protected final void setParent(ElementHandler parent) {
+			this.parentHandler = parent;
 		}
 
-		@Override
-		public void characters(String str) {
-			if (!str.trim().isEmpty()) {
-				throw new IllegalStateException(String.format(
-						"characters inside of %s:\n%s", qName, str));
-			}
-		}
+		protected abstract void startElement(Attributes attrs);
+
+		protected abstract void endElement();
+
+		protected abstract void characters(String str);
+
+		/**
+		 * @param elem
+		 * @return return handler for child element elem
+		 */
+		protected abstract ElementHandler getHandler(String elem);
 	}
 
-	private class NoOpHandler extends ElemHandlerBase {
-		public NoOpHandler(String qName) {
+	private abstract class ElementHandlerBase extends ElementHandler {
+
+		private Map<String, ElementHandler> children = ImmutableMap.of();
+
+		protected ElementHandlerBase(String qName) {
 			super(qName);
 		}
+
+		@Override
+		protected final void startElement(Attributes attrs) {
+			children = declareChildren();
+			if (children != null) {
+				for (ElementHandler child : children.values()) {
+					child.setParent(this);
+				}
+			}
+			startSelf(attrs);
+		}
+
+		@Override
+		protected final void endElement() {
+			endSelf();
+			// clear children
+			this.children = null;
+		}
+
+		@Override
+		protected void characters(String str) {
+			if (!str.trim().isEmpty()) {
+				throw new UnsupportedOperationException(String.format(
+						"Unexpected characters within %s:\n%s",
+						this.qName, str));
+			}
+		}
+
+		@Override
+		protected final ElementHandler getHandler(String elem) {
+			return children == null ? null : children.get(elem);
+		}
+
+		protected abstract void startSelf(Attributes attrs);
+
+		protected abstract void endSelf();
+
+		protected abstract Map<String, ElementHandler> declareChildren();
 	}
 
-	private class DictionaryElemHandler extends ElemHandlerBase {
+	private class RootHandler extends ElementHandler {
+		private ElementHandlerBase topHandler;
+
+		RootHandler(ElementHandlerBase topHandler) {
+			super("%ROOT%");
+			this.topHandler = topHandler;
+		}
+
+		@Override
+		protected void startElement(Attributes attrs) {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		protected void endElement() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		protected void characters(String str) {
+			if (!str.trim().isEmpty()) {
+				throw new IllegalStateException();
+			}
+		}
+
+		@Override
+		protected ElementHandler getHandler(String elem) {
+			if (Objects.equal(elem, topHandler.qName)) {
+				return topHandler;
+			}
+			return null;
+		}
+	}
+
+	private abstract class NoOpHandler extends ElementHandlerBase {
+		NoOpHandler(String qName) {
+			super(qName);
+		}
+
+		@Override
+		protected void startSelf(Attributes attrs) {
+		}
+
+		@Override
+		protected void endSelf() {
+		}
+	}
+
+	private class IgnoreHandler extends ElementHandler {
+		protected IgnoreHandler(String qName) {
+			super(qName);
+		}
+
+		@Override
+		protected void startElement(Attributes attrs) {
+			// ignore
+		}
+
+		@Override
+		protected void endElement() {
+			// ignore
+		}
+
+		@Override
+		protected void characters(String str) {
+			// ignore
+		}
+
+		@Override
+		protected ElementHandler getHandler(String elem) {
+			// ignore all children
+			IgnoreHandler result = new IgnoreHandler(elem);
+			result.setParent(this);
+			return result;
+		}
+	}
+
+	private class ReadContentHandler extends NoOpHandler {
+		private String content;
+
+		ReadContentHandler(String qName) {
+			super(qName);
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return null;
+		}
+
+		@Override
+		protected void characters(String str) {
+			this.content = str.trim();
+		}
+
+		String getContent() {
+			return content;
+		}
+	}
+
+	private class DictionaryElemHandler extends ElementHandlerBase {
 		DictionaryElemHandler() {
 			super(ELEM_DICTIONARY);
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
+		protected void startSelf(Attributes attrs) {
 			String version = requiredAttr(attrs, ATTR_DICTIONARY_VERSION);
 			String revision = requiredAttr(attrs, ATTR_DICTIONARY_REVISION);
 			dict.setVersion(version);
 			dict.setRevision(revision);
 		}
+
+		@Override
+		protected void endSelf() {
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(
+					new GrammemsHandler(),
+					new IgnoreHandler(ELEM_RESTRICTIONS),
+					new LemmataHandler(),
+					new LinkTypesHandler(),
+					new LinksHandler()));
+		}
 	}
 
-	private class GrammemHandler extends ElemHandlerBase {
+	private class GrammemsHandler extends NoOpHandler {
+		GrammemsHandler() {
+			super(ELEM_GRAMMEMS);
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new GrammemHandler()));
+		}
+	}
+
+	private class LemmataHandler extends NoOpHandler {
+		LemmataHandler() {
+			super(ELEM_LEMMATA);
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new LemmaHandler()));
+		}
+	}
+
+	private class LinkTypesHandler extends NoOpHandler {
+		LinkTypesHandler() {
+			super(ELEM_LINK_TYPES);
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new LinkTypeHandler()));
+		}
+	}
+
+	private class LinksHandler extends NoOpHandler {
+		LinksHandler() {
+			super(ELEM_LINKS);
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new LinkHandler()));
+		}
+	}
+
+	private class GrammemHandler extends ElementHandlerBase {
 		// state fields
 		private String parentId;
-		private String id;
 
 		GrammemHandler() {
 			super(ELEM_GRAMMEM);
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
+		protected void startSelf(Attributes attrs) {
 			parentId = requiredAttr(attrs, ATTR_GRAMMEM_PARENT);
 		}
 
 		@Override
-		public void endElement() {
+		protected void endSelf() {
+			String id = nameHandler.getContent();
 			if (id == null) {
-				throw new IllegalStateException(String.format(
-						"Empty %s element", qName));
+				throw new IllegalStateException("Empty grammeme name");
 			}
 			if (parentId.isEmpty()) {
 				parentId = null;
 			}
-			Grammeme gram = new Grammeme(id, parentId);
+			String alias = aliasHandler.getContent();
+			String description = descHandler.getContent();
+			Grammeme gram = new Grammeme(id, parentId, alias, description);
 			dict.addGrammeme(gram);
 			id = null;
 			parentId = null;
+			// child handlers are cleared by super class
 		}
+
+		private ReadContentHandler nameHandler;
+		private ReadContentHandler aliasHandler;
+		private ReadContentHandler descHandler;
 
 		@Override
-		public void characters(String str) {
-			id = str.trim();
-			if (id.isEmpty()) {
-				throw new IllegalStateException("Empty grammem id");
-			}
+		protected Map<String, ElementHandler> declareChildren() {
+			nameHandler = new ReadContentHandler(ELEM_GRAMMEM_NAME);
+			aliasHandler = new ReadContentHandler(ELEM_GRAMMEM_ALIAS);
+			descHandler = new ReadContentHandler(ELEM_GRAMMEM_DESCRIPTION);
+			return toMap(newHashSet(nameHandler, aliasHandler, descHandler));
 		}
+
 	}
 
-	private class LemmaHandler extends ElemHandlerBase {
+	private class LemmaHandler extends ElementHandlerBase {
 		private Lemma.Builder builder;
 		// index 0 - wf string
 		// index 1 - wf object
@@ -162,13 +371,18 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
+		protected void startSelf(Attributes attrs) {
 			builder = Lemma.builder(dict, requiredInt(attrs, ATTR_LEMMA_ID));
 			wordforms = newLinkedList();
 		}
 
 		@Override
-		public void endElement() {
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new LemmaNormHandler(), new WordformHandler()));
+		}
+
+		@Override
+		protected void endSelf() {
 			Lemma lemma = builder.build();
 			if (acceptLemma(lemma)) {
 				dict.addLemma(lemma);
@@ -182,7 +396,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 			builder = null;
 			wordforms = null;
 			lemmasParsed++;
-			if (lemmasParsed % 5000 == 0) {
+			if (lemmasParsed % 10000 == 0) {
 				log.info("Lemmas have been parsed: {}", lemmasParsed);
 			}
 		}
@@ -192,19 +406,28 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 	}
 
-	private class LemmaNormHandler extends ElemHandlerBase {
+	private class LemmaNormHandler extends ElementHandlerBase {
 		LemmaNormHandler() {
 			super(ELEM_LEMMA_NORM);
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
+		protected void startSelf(Attributes attrs) {
 			String t = requiredAttr(attrs, ATTR_TEXT);
-			getHandler(ELEM_LEMMA, LemmaHandler.class).builder.setString(t);
+			getParent(LemmaHandler.class).builder.setString(t);
+		}
+
+		@Override
+		protected void endSelf() {
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new LemmaGrammemHandler()));
 		}
 	}
 
-	private class WordformHandler extends ElemHandlerBase {
+	private class WordformHandler extends ElementHandlerBase {
 		private Wordform.Builder builder;
 		private String text;
 
@@ -213,49 +436,68 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
-			int lemmaId = getLemmaBuilder().getLemmaId();
+		protected void startSelf(Attributes attrs) {
+			int lemmaId = getParent(LemmaHandler.class).builder.getLemmaId();
 			builder = Wordform.builder(dict, lemmaId);
 			text = requiredAttr(attrs, ATTR_TEXT);
 		}
 
 		@Override
-		public void endElement() {
-			getHandler(ELEM_LEMMA, LemmaHandler.class).addWordform(text,
-					builder.build());
+		protected void endSelf() {
+			getParent(LemmaHandler.class).addWordform(text, builder.build());
 			builder = null;
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return toMap(newHashSet(new WordformGrammemHandler()));
 		}
 	}
 
-	private class WordformGrammemHandler extends ElemHandlerBase {
-		private String gramId;
+	private abstract class GrammemRefHandler extends ElementHandlerBase {
+		protected String gramId;
 
+		GrammemRefHandler(String qName) {
+			super(qName);
+		}
+
+		@Override
+		protected void startSelf(Attributes attrs) {
+			gramId = requiredAttr(attrs, ATTR_WF_GRAMMEME_ID);
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return null;
+		}
+	}
+
+	private class LemmaGrammemHandler extends GrammemRefHandler {
+		LemmaGrammemHandler() {
+			super(ELEM_LEMMA_GRAMMEM);
+		}
+
+		@Override
+		protected void endSelf() {
+			getParent(LemmaNormHandler.class).getParent(LemmaHandler.class).builder
+					.addGrammeme(gramId);
+			gramId = null;
+		}
+	}
+
+	private class WordformGrammemHandler extends GrammemRefHandler {
 		WordformGrammemHandler() {
 			super(ELEM_WF_GRAMMEM);
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
-			gramId = requiredAttr(attrs, ATTR_WF_GRAMMEME_ID);
-		}
-
-		@Override
-		public void endElement() {
-			if (insideElem(ELEM_LEMMA_NORM)) {
-				getLemmaBuilder().addGrammeme(gramId);
-			} else if (insideElem(ELEM_WORDFORM)) {
-				getHandler(ELEM_WORDFORM, WordformHandler.class).builder
-						.addGrammeme(gramId);
-			} else {
-				throw new IllegalStateException(String.format(
-						"%s outside of %s OR %s", qName, ELEM_LEMMA_NORM,
-						ELEM_WORDFORM));
-			}
+		protected void endSelf() {
+			getParent(WordformHandler.class).builder.addGrammeme(gramId);
 			gramId = null;
 		}
 	}
 
-	private class LinkTypeHandler extends ElemHandlerBase {
+	private class LinkTypeHandler extends ElementHandlerBase {
 		private String name;
 		private Short id;
 
@@ -264,12 +506,12 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
+		protected void startSelf(Attributes attrs) {
 			id = requiredShort(attrs, ATTR_LINK_TYPE_ID);
 		}
 
 		@Override
-		public void endElement() {
+		protected void endSelf() {
 			if (name == null) {
 				throw new IllegalStateException("Link type element is empty");
 			}
@@ -280,26 +522,40 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 
 		@Override
-		public void characters(String str) {
+		protected void characters(String str) {
 			str = str.trim();
 			if (str.isEmpty()) {
 				throw new IllegalStateException("Empty lemma link name");
 			}
 			name = str;
 		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return null;
+		}
 	}
 
-	private class LinkHandler extends ElemHandlerBase {
+	private class LinkHandler extends ElementHandlerBase {
 		LinkHandler() {
 			super(ELEM_LINK);
 		}
 
 		@Override
-		public void startElement(Attributes attrs) {
+		protected void startSelf(Attributes attrs) {
 			int fromId = requiredInt(attrs, ATTR_LINK_FROM);
 			int toId = requiredInt(attrs, ATTR_LINK_TO);
 			short linkTypeId = requiredShort(attrs, ATTR_LINK_TYPE);
 			dict.addLemmaLink(fromId, toId, linkTypeId);
+		}
+
+		@Override
+		protected void endSelf() {
+		}
+
+		@Override
+		protected Map<String, ElementHandler> declareChildren() {
+			return null;
 		}
 	}
 
@@ -307,13 +563,14 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private List<LemmaFilter> lemmaFilters = Lists.newLinkedList();
 	// state fields
 	private MorphDictionaryImpl dict;
-	private Map<String, ElementHandler> elemHandlersMap = Maps.newHashMap();
 	private Deque<String> elemStack = Lists.newLinkedList();
+	private Deque<ElementHandler> handlerStack = Lists.newLinkedList();
 	private int lemmasParsed = 0;
 	private int acceptedLemmaCounter;
 	private int rejectedLemmaCounter;
+	private ElementHandler rootHandler;
 
-	public DictionaryXmlHandler() {
+	DictionaryXmlHandler() {
 	}
 
 	public void addLemmaFilter(LemmaFilter lemmaFilter) {
@@ -322,7 +579,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 	@Override
 	public void startDocument() throws SAXException {
-		elemHandlersMap.clear();
+		handlerStack.clear();
 		elemStack.clear();
 		lemmasParsed = 0;
 		acceptedLemmaCounter = 0;
@@ -331,18 +588,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 		dict = new MorphDictionaryImpl();
 
-		new DictionaryElemHandler();
-		new NoOpHandler(ELEM_GRAMMEMS);
-		new GrammemHandler();
-		new NoOpHandler(ELEM_LEMMATA);
-		new LemmaHandler();
-		new LemmaNormHandler();
-		new WordformHandler();
-		new WordformGrammemHandler();
-		new NoOpHandler(ELEM_LINK_TYPES);
-		new LinkTypeHandler();
-		new NoOpHandler(ELEM_LINKS);
-		new LinkHandler();
+		rootHandler = new RootHandler(new DictionaryElemHandler());
+		handlerStack.addFirst(rootHandler);
 	}
 
 	@Override
@@ -352,8 +599,16 @@ class DictionaryXmlHandler extends DefaultHandler {
 		if (elem.isEmpty()) {
 			elem = qName;
 		}
-		ElementHandler elemHandler = getHandler(elem, ElementHandler.class);
 		elemStack.addFirst(elem);
+
+		ElementHandler contextHandler = handlerStack.getFirst();
+		ElementHandler elemHandler = contextHandler.getHandler(elem);
+		if (elemHandler == null) {
+			throw new IllegalStateException(String.format(
+					"Context handler %s have not returned handler for elem %s",
+					contextHandler, elemStack));
+		}
+		handlerStack.addFirst(elemHandler);
 		elemHandler.startElement(attributes);
 	}
 
@@ -364,7 +619,14 @@ class DictionaryXmlHandler extends DefaultHandler {
 		if (elem.isEmpty()) {
 			elem = qName;
 		}
-		ElementHandler elemHandler = getHandler(elem, ElementHandler.class);
+		// check doc structure sanity
+		if (!elemStack.getFirst().equals(elem)) {
+			throw new IllegalStateException(String.format(
+					"Elem ending expected: %s, but was: %s",
+					elemStack.getFirst(), elem));
+		}
+
+		ElementHandler elemHandler = handlerStack.removeFirst();
 		if (sb != null) {
 			String txt = sb.toString();
 			// !
@@ -373,11 +635,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 			sb = null;
 		}
 		elemHandler.endElement();
-		if (!elemStack.getFirst().equals(elem)) {
-			throw new IllegalStateException(String.format(
-					"Elem ending expected: %s, but was: %s",
-					elemStack.getFirst(), elem));
-		}
+
 		elemStack.removeFirst();
 	}
 
@@ -423,21 +681,9 @@ class DictionaryXmlHandler extends DefaultHandler {
 		return true;
 	}
 
+	@SuppressWarnings("unused")
 	private boolean insideElem(String elem) {
 		return elemStack.contains(elem);
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T extends ElementHandler> T getHandler(String qName, Class<T> clazz) {
-		T result = (T) elemHandlersMap.get(qName);
-		if (result == null) {
-			throw new IllegalStateException("No handler for qName: " + qName);
-		}
-		return result;
-	}
-
-	private Lemma.Builder getLemmaBuilder() {
-		return getHandler(ELEM_LEMMA, LemmaHandler.class).builder;
 	}
 
 	private static String requiredAttr(Attributes attrs, String qName) {
@@ -469,5 +715,13 @@ class DictionaryXmlHandler extends DefaultHandler {
 					"Attribute %s value is not number: %s", qName, resultStr),
 					e);
 		}
+	}
+
+	private static Map<String, ElementHandler> toMap(Set<? extends ElementHandler> set) {
+		Map<String, ElementHandler> result = newHashMapWithExpectedSize(set.size());
+		for (ElementHandler handler : set) {
+			result.put(handler.qName, handler);
+		}
+		return result;
 	}
 }

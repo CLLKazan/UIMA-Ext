@@ -16,12 +16,17 @@ public class Grammeme implements Serializable {
 
 	private String id;
 	private String parentId;
+	private String alias;
+	private String description;
 	private int numId;
 
-	public Grammeme(String id, String parentId) {
+	public Grammeme(String id, String parentId, String alias, String description) {
 		this.id = id;
 		this.parentId = parentId;
 		this.numId = idCounter++;
+
+		this.alias = alias;
+		this.description = description;
 	}
 
 	public String getId() {
@@ -34,5 +39,13 @@ public class Grammeme implements Serializable {
 
 	public int getNumId() {
 		return numId;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public String getDescription() {
+		return description;
 	}
 }
