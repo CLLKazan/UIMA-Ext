@@ -35,7 +35,8 @@ public class MorphLauncher {
 			System.err.println("Usage: <input-file> <encoding>");
 			return;
 		}
-		File inputFile = new File(args[0]);
+		String datapath = UIMAFramework.newDefaultResourceManager().getDataPath();
+		File inputFile = new File(datapath + "/" + args[0]);
 		if (!inputFile.isFile()) {
 			System.err.println("Specified file does not exist");
 			return;
