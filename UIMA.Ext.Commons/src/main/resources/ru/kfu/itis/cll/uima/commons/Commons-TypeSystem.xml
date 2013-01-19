@@ -30,5 +30,29 @@
 				</featureDescription>
 			</features>
 		</typeDescription>
+		
+		<typeDescription>
+			<name>ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</name>
+			<description />
+			<supertypeName>ru.kfu.itis.cll.uima.commons.DocumentMetadata</supertypeName>
+			<features>
+				<featureDescription>
+					<name>language</name>
+					<description />
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>format</name>
+					<description>MIME-type of document: Plaintext, DOC, XLS, PDF.</description>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>documentRawText</name>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				
+			</features>
+		</typeDescription>
+		
 	</types>
 </typeSystemDescription>
