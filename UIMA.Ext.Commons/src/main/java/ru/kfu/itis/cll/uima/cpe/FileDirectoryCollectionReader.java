@@ -21,7 +21,9 @@ import org.apache.uima.collection.CollectionReader_ImplBase;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 
+// todo add misis type import
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+
 
 import com.google.common.collect.Lists;
 
@@ -84,8 +86,18 @@ public class FileDirectoryCollectionReader extends CollectionReader_ImplBase {
 		String fileContent = FileUtils.readFileToString(file, encoding);
 		aCAS.setDocumentText(fileContent);
 		try {
+			// todo use misis type instead
 			DocumentMetadata docMeta = new DocumentMetadata(aCAS.getJCas());
+			
+			// TODO call Tika: 
+			//   language ID, 
+			//   extract MainText and 
+			//   format detection
+			
+			// todo call misis-specific methods filling CAS			
 			docMeta.setSourceUri(file.toURI().toString());
+			
+			
 			docMeta.addToIndexes();
 		} catch (CASException e) {
 			throw new IllegalStateException(e);
