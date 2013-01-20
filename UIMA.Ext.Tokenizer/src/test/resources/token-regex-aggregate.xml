@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+    <primitive>false</primitive>
+    <delegateAnalysisEngineSpecifiers>
+        <delegateAnalysisEngine key="org.apache.uima.annotator.regex.impl.RegExAnnotator-1">
+            <analysisEngineDescription>
+                <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+                <primitive>true</primitive>
+                <annotatorImplementationName>org.apache.uima.annotator.regex.impl.RegExAnnotator</annotatorImplementationName>
+                <analysisEngineMetaData>
+                    <name>RegExAnnotator</name>
+                    <description>Matches regular expressions in document text.</description>
+                    <configurationParameters>
+                        
+                        <configurationParameter>
+                            <name>ConceptFiles</name>
+                            <description>list of concept files to configure the annotator</description>
+                            <type>String</type>
+                            <multiValued>true</multiValued>
+                            <mandatory>true</mandatory>
+                        </configurationParameter>
+                        
+                    </configurationParameters>
+                    
+                    <configurationParameterSettings>
+                        
+                        <nameValuePair>
+                            <name>ConceptFiles</name>
+                            <value>
+                                <array>
+                                    <string>concepts.xml</string> 
+                                </array>
+                            </value>
+                        </nameValuePair>      
+                        
+                    </configurationParameterSettings>
+                    <typeSystemDescription>
+                        <imports>
+                            <import name="org.apache.uima.examples.SourceDocumentInformation"/>                                                     
+                            <import location="../src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem-complexTypes.xml"/>                            
+                        </imports>
+                        <types>
+                            <typeDescription>
+                                <name>org.apache.uima.EmailAddress</name>
+                                <description/>
+                                <supertypeName>uima.tcas.Annotation</supertypeName>
+                                <features>
+                                    <featureDescription>
+                                        <name>localPart</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                    </featureDescription>
+                                    <featureDescription>
+                                        <name>domainPart</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                    </featureDescription>
+                                    <featureDescription>
+                                        <name>normalizedEmail</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                    </featureDescription>
+                                </features>
+                            </typeDescription>
+                            
+                            <typeDescription>
+                                <name>org.apache.uima.ISBNNumber</name>
+                                <description/>
+                                <supertypeName>uima.tcas.Annotation</supertypeName>
+                                <features>
+                                    <featureDescription>
+                                        <name>confidence</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.Float</rangeTypeName>
+                                    </featureDescription>            
+                                </features>
+                            </typeDescription>
+                            
+                            <typeDescription>
+                                <name>org.apache.uima.MoneyAmount</name>
+                                <description/>
+                                <supertypeName>uima.tcas.Annotation</supertypeName>
+                                <features>
+                                    <featureDescription>
+                                        <name>amount</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.Float</rangeTypeName>
+                                    </featureDescription>
+                                    <featureDescription>
+                                        <name>amountText</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                    </featureDescription>
+                                    <featureDescription>
+                                        <name>currency</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                    </featureDescription>
+                                </features>
+                            </typeDescription>
+                            
+                            <typeDescription>
+                                <name>org.apache.uima.CreditCardNumber</name>
+                                <description/>
+                                <supertypeName>uima.tcas.Annotation</supertypeName>
+                                <features>
+                                    <featureDescription>
+                                        <name>confidence</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.Float</rangeTypeName>
+                                    </featureDescription>
+                                    <featureDescription>
+                                        <name>cardType</name>
+                                        <description/>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                    </featureDescription>
+                                </features>
+                            </typeDescription>
+                            
+                        </types>
+                    </typeSystemDescription>
+                    <capabilities>
+                        <capability>
+                            <inputs>
+                                <type>ru.kfu.cll.uima.tokenizer.fstype.Token</type>
+                            </inputs>
+                            <outputs>
+                       <!--         <type>org.apache.uima.EmailAddress</type>
+                                <feature>org.apache.uima.EmailAddress:localPart</feature>
+                                <feature>org.apache.uima.EmailAddress:domainPart</feature>
+                                <feature>org.apache.uima.EmailAddress:normalizedEmail</feature>
+                                <type>org.apache.uima.ISBNNumber</type>-->
+                              <!--  <type>ru.kfu.cll.uima.tokenizer.fstype.Token</type>-->
+                              
+                            </outputs>
+                            <languagesSupported/>
+                        </capability>
+                    </capabilities>
+                    <operationalProperties>
+                        <modifiesCas>true</modifiesCas>
+                        <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+                        <outputsNewCASes>false</outputsNewCASes>
+                    </operationalProperties>
+                </analysisEngineMetaData>
+            </analysisEngineDescription>
+        </delegateAnalysisEngine>
+        <delegateAnalysisEngine key="ru.kfu.cll.uima.tokenizer.InitialTokenizer-0">
+            <analysisEngineDescription>
+                <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+                <primitive>true</primitive>
+                <annotatorImplementationName>ru.kfu.cll.uima.tokenizer.InitialTokenizer</annotatorImplementationName>
+                <analysisEngineMetaData>
+                    <name>ru.kfu.cll.uima.tokenizer.InitialTokenizer</name>
+                    <description>Descriptor automatically generated by uimaFIT</description>
+                    <version>unknown</version>
+                    <vendor>ru.kfu.cll.uima.tokenizer</vendor>
+                    <configurationParameters>
+                        <configurationParameter>
+                            <name>spanType</name>
+                            <description/>
+                            <type>String</type>
+                            <multiValued>false</multiValued>
+                            <mandatory>false</mandatory>
+                        </configurationParameter>
+                    </configurationParameters>
+                    <configurationParameterSettings/>
+                    <typeSystemDescription>
+                        <imports>
+                            <import name="org.apache.uima.examples.SourceDocumentInformation"/>                                                     
+<!--                             <import location="/home/vladimir/workspace-u-2.3.1/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem-complexTypes.xml"/>                             -->
+                            <import location="../src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem-complexTypes.xml"/>
+                        </imports>
+                    </typeSystemDescription>
+                    <fsIndexCollection/>
+                    <capabilities>
+                        <capability>
+                            <inputs />
+                            <!--<outputs>
+                                <type>ru.kfu.cll.uima.tokenizer.fstype.Token</type>
+                               
+                                
+                            </outputs>-->
+                            <languagesSupported/>
+                                
+                            
+                        </capability>
+                    </capabilities>
+                    <operationalProperties>
+                        <modifiesCas>true</modifiesCas>
+                        <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+                        <outputsNewCASes>false</outputsNewCASes>
+                    </operationalProperties>
+                </analysisEngineMetaData>
+            </analysisEngineDescription>
+        </delegateAnalysisEngine>
+    </delegateAnalysisEngineSpecifiers>
+    <analysisEngineMetaData>
+        <name/>
+        <configurationParameters/>
+        <configurationParameterSettings/>
+        <flowConstraints>
+            <fixedFlow>
+                <node>ru.kfu.cll.uima.tokenizer.InitialTokenizer-0</node>
+                <node>org.apache.uima.annotator.regex.impl.RegExAnnotator-1</node>
+               
+            </fixedFlow>
+        </flowConstraints>
+        <capabilities>
+            <capability>
+                <inputs />
+                <outputs>
+                    <type>ru.kfu.cll.uima.tokenizer.fstype.Token</type>
+                    <!--<type>ru.kfu.cll.uima.tokenizer.fstype.Word</type>--> 
+                    
+                </outputs>
+                <languagesSupported/>
+                
+                
+            </capability>
+        </capabilities>
+        <operationalProperties>
+            <modifiesCas>true</modifiesCas>
+            <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+            <outputsNewCASes>false</outputsNewCASes>
+        </operationalProperties>
+    </analysisEngineMetaData>
+</analysisEngineDescription>

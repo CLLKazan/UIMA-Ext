@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>org.apache.uima.annotator.regex.impl.RegExAnnotator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>RegExAnnotator</name>
+    <description>Matches regular expressions in document text.</description>
+    <configurationParameters>
+       
+       <configurationParameter>
+          <name>ConceptFiles</name>
+          <description>list of concept files to configure the annotator</description>
+          <type>String</type>
+          <multiValued>true</multiValued>
+          <mandatory>true</mandatory>
+       </configurationParameter>
+	
+    </configurationParameters>
+    
+    <configurationParameterSettings>
+    
+       <nameValuePair>
+          <name>ConceptFiles</name>
+          <value>
+          	<array>
+          	   <string>concepts.xml</string> 
+          	</array>
+          </value>
+       </nameValuePair>      
+    
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="org.apache.uima.examples.SourceDocumentInformation"/>
+        
+        <!-- <import location="/home/vladimir/workspace-u-2.3.1/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml"/> -->
+        <import location="/home/vladimir/workspace-u-2.3.1/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem-complexTypes.xml"/>
+        
+      </imports>
+      <types>
+        <typeDescription>
+          <name>org.apache.uima.EmailAddress</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>localPart</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>domainPart</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>normalizedEmail</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+
+        <typeDescription>
+          <name>org.apache.uima.ISBNNumber</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>confidence</name>
+              <description/>
+              <rangeTypeName>uima.cas.Float</rangeTypeName>
+            </featureDescription>            
+          </features>
+        </typeDescription>
+
+        <typeDescription>
+          <name>org.apache.uima.MoneyAmount</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>amount</name>
+              <description/>
+              <rangeTypeName>uima.cas.Float</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>amountText</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>currency</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+
+        <typeDescription>
+          <name>org.apache.uima.CreditCardNumber</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>confidence</name>
+              <description/>
+              <rangeTypeName>uima.cas.Float</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>cardType</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+         
+       </types>
+    </typeSystemDescription>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+         <type>org.apache.uima.EmailAddress</type>
+		 <feature>org.apache.uima.EmailAddress:localPart</feature>
+		 <feature>org.apache.uima.EmailAddress:domainPart</feature>
+		 <feature>org.apache.uima.EmailAddress:normalizedEmail</feature>
+		 <type>org.apache.uima.ISBNNumber</type>
+          <type>org.apache.uima.Token</type>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+   
+</analysisEngineDescription>

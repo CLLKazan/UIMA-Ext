@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document>
+    <uima.tcas.DocumentAnnotation sofa="Sofa" begin="0" end="181" language="en">
+        <ru.kfu.cll.uima.segmentation.fstype.Sentence sofa="Sofa" begin="0" end="56">
+            <ru.kfu.cll.uima.segmentation.fstype.Locution sofa="Sofa" begin="0" end="18" contentBegin="0" contentEnd="0">
+                <ru.kfu.cll.uima.tokenizer.fstype.CW sofa="Sofa" begin="0" end="1">
+                    <org.apache.uima.examples.SourceDocumentInformation sofa="Sofa" begin="0" end="0" uri="file:/home/vladimir/workspace-u-2.3.1/uima-ext/UIMA.Ext.Tokenize..." offsetInSource="0" documentSize="314" lastSegment="true"/>В</ru.kfu.cll.uima.tokenizer.fstype.CW>
+                <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="1" end="2"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="2" end="11">противном</ru.kfu.cll.uima.tokenizer.fstype.SW>
+                <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="11" end="12"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="12" end="18">случае</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            </ru.kfu.cll.uima.segmentation.fstype.Locution>
+            <ru.kfu.cll.uima.tokenizer.fstype.COMMA sofa="Sofa" begin="18" end="19">,</ru.kfu.cll.uima.tokenizer.fstype.COMMA>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="19" end="20"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="20" end="23">все</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="23" end="24"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="24" end="29">могло</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="29" end="30"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="30" end="34">быть</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="34" end="35"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="35" end="37">не</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="37" end="38"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="38" end="43">иначе</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.COMMA sofa="Sofa" begin="43" end="44">,</ru.kfu.cll.uima.tokenizer.fstype.COMMA>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="44" end="45"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="45" end="48">как</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="48" end="49"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="49" end="55">теперь</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.PERIOD sofa="Sofa" begin="55" end="56">.</ru.kfu.cll.uima.tokenizer.fstype.PERIOD>
+        </ru.kfu.cll.uima.segmentation.fstype.Sentence>
+        <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="56" end="58"> 
+</ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+        <ru.kfu.cll.uima.segmentation.fstype.Sentence sofa="Sofa" begin="58" end="97">
+            <ru.kfu.cll.uima.tokenizer.fstype.CW sofa="Sofa" begin="58" end="60">Ты</ru.kfu.cll.uima.tokenizer.fstype.CW>
+            <ru.kfu.cll.uima.tokenizer.fstype.COMMA sofa="Sofa" begin="60" end="61">,</ru.kfu.cll.uima.tokenizer.fstype.COMMA>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="61" end="62"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.segmentation.fstype.Locution sofa="Sofa" begin="62" end="71" contentBegin="0" contentEnd="0">
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="62" end="65">чем</ru.kfu.cll.uima.tokenizer.fstype.SW>
+                <ru.kfu.cll.uima.tokenizer.fstype.PM sofa="Sofa" begin="65" end="66">-</ru.kfu.cll.uima.tokenizer.fstype.PM>
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="66" end="69">чем</ru.kfu.cll.uima.tokenizer.fstype.SW>
+                <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="69" end="70"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="70" end="71">а</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            </ru.kfu.cll.uima.segmentation.fstype.Locution>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="71" end="72"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="72" end="76">этим</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="76" end="77"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="77" end="79">не</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="79" end="80"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="80" end="89">нравишься</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="89" end="90"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="90" end="96">многим</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.PERIOD sofa="Sofa" begin="96" end="97">.</ru.kfu.cll.uima.tokenizer.fstype.PERIOD>
+        </ru.kfu.cll.uima.segmentation.fstype.Sentence>
+        <ru.kfu.cll.uima.tokenizer.fstype.BREAK sofa="Sofa" begin="97" end="100">
+
+
+</ru.kfu.cll.uima.tokenizer.fstype.BREAK>
+        <ru.kfu.cll.uima.segmentation.fstype.Sentence sofa="Sofa" begin="100" end="139">
+            <ru.kfu.cll.uima.tokenizer.fstype.CW sofa="Sofa" begin="100" end="101">Я</ru.kfu.cll.uima.tokenizer.fstype.CW>
+            <ru.kfu.cll.uima.tokenizer.fstype.COMMA sofa="Sofa" begin="101" end="102">,</ru.kfu.cll.uima.tokenizer.fstype.COMMA>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="102" end="103"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="103" end="106">чем</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.PM sofa="Sofa" begin="106" end="107">-</ru.kfu.cll.uima.tokenizer.fstype.PM>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="107" end="110">чем</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.COMMA sofa="Sofa" begin="110" end="111">,</ru.kfu.cll.uima.tokenizer.fstype.COMMA>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="111" end="112"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="112" end="113">а</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="113" end="114"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="114" end="118">этим</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="118" end="119"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="119" end="121">не</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="121" end="122"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="122" end="131">нравишься</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="131" end="132"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="132" end="138">многим</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.PERIOD sofa="Sofa" begin="138" end="139">.</ru.kfu.cll.uima.tokenizer.fstype.PERIOD>
+        </ru.kfu.cll.uima.segmentation.fstype.Sentence>
+        <ru.kfu.cll.uima.tokenizer.fstype.BREAK sofa="Sofa" begin="139" end="141">
+
+</ru.kfu.cll.uima.tokenizer.fstype.BREAK>
+        <ru.kfu.cll.uima.segmentation.fstype.Sentence sofa="Sofa" begin="141" end="180">
+            <ru.kfu.cll.uima.tokenizer.fstype.CW sofa="Sofa" begin="141" end="143">Уж</ru.kfu.cll.uima.tokenizer.fstype.CW>
+            <ru.kfu.cll.uima.tokenizer.fstype.COMMA sofa="Sofa" begin="143" end="144">,</ru.kfu.cll.uima.tokenizer.fstype.COMMA>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="144" end="145"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.segmentation.fstype.Locution sofa="Sofa" begin="145" end="154" contentBegin="0" contentEnd="0">
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="145" end="148">чем</ru.kfu.cll.uima.tokenizer.fstype.SW>
+                <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="148" end="149"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="149" end="152">чем</ru.kfu.cll.uima.tokenizer.fstype.SW>
+                <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="152" end="153"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+                <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="153" end="154">а</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            </ru.kfu.cll.uima.segmentation.fstype.Locution>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="154" end="155"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="155" end="159">этим</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="159" end="160"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="160" end="162">не</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="162" end="163"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="163" end="172">нравишься</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.SPACE sofa="Sofa" begin="172" end="173"> </ru.kfu.cll.uima.tokenizer.fstype.SPACE>
+            <ru.kfu.cll.uima.tokenizer.fstype.SW sofa="Sofa" begin="173" end="179">многим</ru.kfu.cll.uima.tokenizer.fstype.SW>
+            <ru.kfu.cll.uima.tokenizer.fstype.PERIOD sofa="Sofa" begin="179" end="180">.</ru.kfu.cll.uima.tokenizer.fstype.PERIOD>
+        </ru.kfu.cll.uima.segmentation.fstype.Sentence>
+        <ru.kfu.cll.uima.tokenizer.fstype.BREAK sofa="Sofa" begin="180" end="181">
+</ru.kfu.cll.uima.tokenizer.fstype.BREAK>
+    </uima.tcas.DocumentAnnotation>
+</Document>
