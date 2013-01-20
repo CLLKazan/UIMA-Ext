@@ -12,8 +12,8 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-/*import org.apache.uima.annotator.WhitespaceTokenizer;
-import org.apache.uima.annotator.regex.impl.RegExAnnotator;*/
+
+import org.apache.uima.annotator.regex.impl.RegExAnnotator;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -73,18 +73,18 @@ public class GenerateBasicAggregateDescriptor {
 		
 		else
 		{
-			//tokenizer WS+Regex
+			//initialtokenizer WS+Regex
 			
-		/*	TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
+			TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
 			AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
-					WhitespaceTokenizer.class, tokenizerTsDesc);
+					InitialTokenizer.class, tokenizerTsDesc);
 				
 			TypeSystemDescription pmTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
 			AnalysisEngineDescription pmDesc = createPrimitiveDescription(RegExAnnotator.class,
 					pmTsDesc);
 			
 			
-			String outputPath = "src/test/resources/token-ws_regex-aggregate.xml";
+			String outputPath = "src/test/resources/token-itok_regex-aggregate.xml";
 			AnalysisEngineDescription desc = AnalysisEngineFactory.createAggregateDescription(
 					tokenizerDesc, pmDesc);
 			FileOutputStream out = new FileOutputStream(outputPath);
@@ -92,7 +92,7 @@ public class GenerateBasicAggregateDescriptor {
 				desc.toXML(out);
 			} finally {
 				IOUtils.closeQuietly(out);
-			}*/
+			}
 			
 		}
 		
