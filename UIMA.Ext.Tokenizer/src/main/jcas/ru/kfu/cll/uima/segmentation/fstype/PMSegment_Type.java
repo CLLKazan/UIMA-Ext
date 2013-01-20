@@ -16,30 +16,30 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 /** 
  * Updated by JCasGen Sun Jan 20 15:26:39 SAMT 2013
  * @generated */
-public class QSegment_Type extends Annotation_Type {
+public class PMSegment_Type extends Annotation_Type {
   /** @generated */
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
   private final FSGenerator fsGenerator = 
     new FSGenerator() {
       public FeatureStructure createFS(int addr, CASImpl cas) {
-  			 if (QSegment_Type.this.useExistingInstance) {
+  			 if (PMSegment_Type.this.useExistingInstance) {
   			   // Return eq fs instance if already created
-  		     FeatureStructure fs = QSegment_Type.this.jcas.getJfsFromCaddr(addr);
+  		     FeatureStructure fs = PMSegment_Type.this.jcas.getJfsFromCaddr(addr);
   		     if (null == fs) {
-  		       fs = new QSegment(addr, QSegment_Type.this);
-  			   QSegment_Type.this.jcas.putJfsFromCaddr(addr, fs);
+  		       fs = new PMSegment(addr, PMSegment_Type.this);
+  			   PMSegment_Type.this.jcas.putJfsFromCaddr(addr, fs);
   			   return fs;
   		     }
   		     return fs;
-        } else return new QSegment(addr, QSegment_Type.this);
+        } else return new PMSegment(addr, PMSegment_Type.this);
   	  }
     };
   /** @generated */
-  public final static int typeIndexID = QSegment.typeIndexID;
+  public final static int typeIndexID = PMSegment.typeIndexID;
   /** @generated 
      @modifiable */
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.segmentation.fstype.QSegment");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.segmentation.fstype.PMSegment");
  
   /** @generated */
   final Feature casFeat_contentBegin;
@@ -48,13 +48,13 @@ public class QSegment_Type extends Annotation_Type {
   /** @generated */ 
   public int getContentBegin(int addr) {
         if (featOkTst && casFeat_contentBegin == null)
-      jcas.throwFeatMissing("contentBegin", "ru.kfu.cll.uima.segmentation.fstype.QSegment");
+      jcas.throwFeatMissing("contentBegin", "ru.kfu.cll.uima.segmentation.fstype.PMSegment");
     return ll_cas.ll_getIntValue(addr, casFeatCode_contentBegin);
   }
   /** @generated */    
   public void setContentBegin(int addr, int v) {
         if (featOkTst && casFeat_contentBegin == null)
-      jcas.throwFeatMissing("contentBegin", "ru.kfu.cll.uima.segmentation.fstype.QSegment");
+      jcas.throwFeatMissing("contentBegin", "ru.kfu.cll.uima.segmentation.fstype.PMSegment");
     ll_cas.ll_setIntValue(addr, casFeatCode_contentBegin, v);}
     
   
@@ -66,32 +66,14 @@ public class QSegment_Type extends Annotation_Type {
   /** @generated */ 
   public int getContentEnd(int addr) {
         if (featOkTst && casFeat_contentEnd == null)
-      jcas.throwFeatMissing("contentEnd", "ru.kfu.cll.uima.segmentation.fstype.QSegment");
+      jcas.throwFeatMissing("contentEnd", "ru.kfu.cll.uima.segmentation.fstype.PMSegment");
     return ll_cas.ll_getIntValue(addr, casFeatCode_contentEnd);
   }
   /** @generated */    
   public void setContentEnd(int addr, int v) {
         if (featOkTst && casFeat_contentEnd == null)
-      jcas.throwFeatMissing("contentEnd", "ru.kfu.cll.uima.segmentation.fstype.QSegment");
+      jcas.throwFeatMissing("contentEnd", "ru.kfu.cll.uima.segmentation.fstype.PMSegment");
     ll_cas.ll_setIntValue(addr, casFeatCode_contentEnd, v);}
-    
-  
- 
-  /** @generated */
-  final Feature casFeat_parentSegment;
-  /** @generated */
-  final int     casFeatCode_parentSegment;
-  /** @generated */ 
-  public int getParentSegment(int addr) {
-        if (featOkTst && casFeat_parentSegment == null)
-      jcas.throwFeatMissing("parentSegment", "ru.kfu.cll.uima.segmentation.fstype.QSegment");
-    return ll_cas.ll_getRefValue(addr, casFeatCode_parentSegment);
-  }
-  /** @generated */    
-  public void setParentSegment(int addr, int v) {
-        if (featOkTst && casFeat_parentSegment == null)
-      jcas.throwFeatMissing("parentSegment", "ru.kfu.cll.uima.segmentation.fstype.QSegment");
-    ll_cas.ll_setRefValue(addr, casFeatCode_parentSegment, v);}
     
   
 
@@ -99,7 +81,7 @@ public class QSegment_Type extends Annotation_Type {
 
   /** initialize variables to correspond with Cas Type and Features
 	* @generated */
-  public QSegment_Type(JCas jcas, Type casType) {
+  public PMSegment_Type(JCas jcas, Type casType) {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
 
@@ -110,10 +92,6 @@ public class QSegment_Type extends Annotation_Type {
  
     casFeat_contentEnd = jcas.getRequiredFeatureDE(casType, "contentEnd", "uima.cas.Integer", featOkTst);
     casFeatCode_contentEnd  = (null == casFeat_contentEnd) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_contentEnd).getCode();
-
- 
-    casFeat_parentSegment = jcas.getRequiredFeatureDE(casType, "parentSegment", "uima.tcas.Annotation", featOkTst);
-    casFeatCode_parentSegment  = (null == casFeat_parentSegment) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_parentSegment).getCode();
 
   }
 }

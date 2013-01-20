@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Thu Sep 06 21:29:00 MSK 2012 */
+/* First created by JCasGen Sun Jan 20 15:26:39 SAMT 2013 */
 package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,27 +11,24 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Thu Sep 06 21:29:00 MSK 2012
- * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
+ * Updated by JCasGen Sun Jan 20 15:26:39 SAMT 2013
+ * XML source: /home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
  * @generated */
 public class QSegment extends Annotation {
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(QSegment.class);
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
-  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected QSegment() {/* intentionally empty block */}
+  protected QSegment() {}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -58,7 +55,7 @@ public class QSegment extends Annotation {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {/*default - does nothing empty block */}
+  private void readObject() {}
      
  
     

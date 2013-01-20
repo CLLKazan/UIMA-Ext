@@ -12,8 +12,8 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.annotator.WhitespaceTokenizer;
-import org.apache.uima.annotator.regex.impl.RegExAnnotator;
+/*import org.apache.uima.annotator.WhitespaceTokenizer;
+import org.apache.uima.annotator.regex.impl.RegExAnnotator;*/
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -75,7 +75,7 @@ public class GenerateBasicAggregateDescriptor {
 		{
 			//tokenizer WS+Regex
 			
-			TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
+		/*	TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
 			AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
 					WhitespaceTokenizer.class, tokenizerTsDesc);
 				
@@ -92,7 +92,7 @@ public class GenerateBasicAggregateDescriptor {
 				desc.toXML(out);
 			} finally {
 				IOUtils.closeQuietly(out);
-			}
+			}*/
 			
 		}
 		

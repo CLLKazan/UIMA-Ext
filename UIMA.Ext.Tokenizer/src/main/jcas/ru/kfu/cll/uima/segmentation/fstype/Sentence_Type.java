@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Sep 06 21:29:01 MSK 2012 */
+/* First created by JCasGen Sun Jan 20 15:26:39 SAMT 2013 */
 package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas;
@@ -12,11 +12,10 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Thu Sep 06 21:29:01 MSK 2012
+ * Updated by JCasGen Sun Jan 20 15:26:39 SAMT 2013
  * @generated */
 public class Sentence_Type extends Annotation_Type {
   /** @generated */
-  @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
   private final FSGenerator fsGenerator = 
@@ -35,11 +34,9 @@ public class Sentence_Type extends Annotation_Type {
   	  }
     };
   /** @generated */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = Sentence.typeIndexID;
   /** @generated 
      @modifiable */
-  @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.segmentation.fstype.Sentence");
 
 
