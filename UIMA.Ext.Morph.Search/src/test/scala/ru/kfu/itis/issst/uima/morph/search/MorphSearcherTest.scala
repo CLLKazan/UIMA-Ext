@@ -76,7 +76,7 @@ class MorphSearcherTest extends FunSuite with Logging {
 
   if (morphDictDesc == null)
     ignore(testDesc)(testFunc)
-  else test(testDesc)(testFunc)
+  else test(testDesc){testFunc()}
 
 }
 
