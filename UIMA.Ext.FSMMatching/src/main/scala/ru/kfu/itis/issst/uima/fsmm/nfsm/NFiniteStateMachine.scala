@@ -3,13 +3,20 @@
  */
 package ru.kfu.itis.issst.uima.fsmm.nfsm
 
+import ru.kfu.itis.issst.uima.fsmm.input.InputGraph
+
 /**
  * Represents a non-deterministic finite state machine
+ * @tparam A input annotation type
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
-class NFiniteStateMachine(val initialState: State) {
+class NFiniteStateMachine[A](val initialState: State) {
   require(initialState.isBuilt, "Can't construct NDFSM from non-finished initial state")
+
+  def process(input: InputGraph[A]) {
+    // TODO implement
+  }
 }
 
 /*
