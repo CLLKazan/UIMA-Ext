@@ -7,7 +7,7 @@ package ru.kfu.itis.issst.uima.fsmm.pattern
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
-sealed trait PatternTerm
+sealed abstract class PatternTerm
 
 case class AtomicRestriction[T, E](
   attribute: AttributeExtractor[T], matcher: ValueMatcher[T, E], value: E) extends PatternTerm
