@@ -9,5 +9,5 @@ import nfsm.AnnotationMatcher
  *
  */
 package object nfsm {
-  private[nfsm] type InputMatcher = AnnotationMatcher
+  private[nfsm] type InputMatcher[A] = AnnotationMatcher[A]
 }

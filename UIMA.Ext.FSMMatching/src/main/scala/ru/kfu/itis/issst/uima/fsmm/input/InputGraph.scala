@@ -19,4 +19,5 @@ trait InputGraph[A] {
    */
   def next(from: Int): (Set[A], Int)
 
+  def next(anno: A): (Set[A], Int)
 }
