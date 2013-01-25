@@ -42,10 +42,10 @@ class SimpleNdfsmBuilder[A] {
       this
     }
 
-  def addTransition(from: String, to: String, im: InputMatcher[A]): this.type = {
+  def addTransition(from: String, to: String, am: AnnotationMatcher[A]): this.type = {
     val fromState = getState(from)
     val toState = getState(to)
-    fromState.addTransition(toState, im)
+    fromState.addTransition(toState, am)
     this
   }
 
@@ -56,10 +56,9 @@ class SimpleNdfsmBuilder[A] {
     this
   }
 
-  def build(initialStateLabel: String): NFiniteStateMachine[A] = {
+  def build(): NFiniteStateMachine[A] = {
     // finish all states
     states.values.foreach(_.finishBuild())
-    val initialState = getState(initialStateLabel)
     fsm.setInitialState(initialState)
     // clean the state fields to allow GC do its work (?)
     states.clear()

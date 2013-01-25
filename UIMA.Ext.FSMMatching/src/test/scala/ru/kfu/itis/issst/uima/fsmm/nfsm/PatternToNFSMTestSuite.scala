@@ -14,7 +14,7 @@ import org.mockito.Mockito._
  */
 class PatternToNFSMTestSuite extends FunSuite {
 
-  private val fsmBuilder = new NFSMBuilder()
+  private val fsmBuilder = new PatternToNFSM()
 
   test("Passing null pattern returns null") {
     assert(fsmBuilder.fromPattern(null) === null)

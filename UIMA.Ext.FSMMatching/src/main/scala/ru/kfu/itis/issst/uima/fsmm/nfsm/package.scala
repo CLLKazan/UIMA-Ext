@@ -9,5 +9,6 @@ import nfsm.AnnotationMatcher
  *
  */
 package object nfsm {
-  private[nfsm] type InputMatcher[A] = AnnotationMatcher[A]
+  // private[nfsm] type InputMatcher[A] = AnnotationMatcher[A]
+  type Action[A] = (List[A], Map[String, List[A]]) => Unit
 }

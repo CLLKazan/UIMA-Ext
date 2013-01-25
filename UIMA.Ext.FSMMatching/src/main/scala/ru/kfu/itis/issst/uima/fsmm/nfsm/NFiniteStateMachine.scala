@@ -8,10 +8,12 @@ import ru.kfu.itis.issst.uima.fsmm.util
 import input.InputGraph
 import scala.collection.mutable.{ Queue => MutableQueue }
 import scala.collection.mutable.{ Map => MutableMap }
+import scala.collection.mutable.{ Set => MutableSet }
 import scala.collection.mutable.ListBuffer
 import util.Buildable
 import ru.kfu.itis.issst.uima.fsmm.util.Buildable
 import scala.collection.mutable.MultiMap
+import scala.collection.mutable.HashMap
 
 /**
  * Represents a non-deterministic finite state machine
@@ -27,10 +29,14 @@ class NFiniteStateMachine[A] extends Buildable {
 
   def setInitialState(initialState: State) {
     require(!isBuilt, "Can't change initial state in built NDFSM")
-    require(initialState.isBuilt, "Can't construct NDFSM from non-finished initial state")
     require(initialState.initial, "Given state is not initial")
     this.initialState = initialState
-    finishBuild()
+  }
+
+  override def finishBuild() {
+    // TODO invoke in builders
+    // TODO implement
+    throw new UnsupportedOperationException
   }
 
   def process(input: InputGraph[A]) {
@@ -52,25 +58,20 @@ class NFiniteStateMachine[A] extends Buildable {
     val currentStates = MutableQueue.empty[StateTuple]
 
     currentStates += ((initialState, track, varCtx))
-    val finishedMachines = new MutableMap[FinalState, Set[Track]] with MultiMap[FinalState, Track]
+    val finishedMachines = new HashMap[FinalState, MutableSet[Track]] with MultiMap[FinalState, Track]
     // consume epsilons
     handleStateTuples(currentStates, proceedEpsilon(finishedMachines))
     // recursively consume input
     process(input, anno, currentStates, finishedMachines)
-    // TODO implement 'match all' strategy, i.e. not only the longest
-    for((fs, matchedTracks) <- finishedMachines; if fs.action != null) {
-      val maxLength = matchedTracks.maxBy(_.length).length
-      val maxAll = matchedTracks.filter(_.length == maxLength)
-      for(maxTrack <- matchedTracks; (aList, labelBindings) = maxTrack.toExternalRepresentation)
-        fs.action(aList, labelBindings)
-    }
+    // trigger actions
+    triggerActions(finishedMachines)
   }
 
   /*
    * PRECONDITION: epsilon transition should be proceeded
    */
-  private def process(input: InputGraph[A], anno: A, currentStates: MutableQueue[StateTuple], 
-      finishedMachines: MultiMap[FinalState, Track]) {
+  private def process(input: InputGraph[A], anno: A, currentStates: MutableQueue[StateTuple],
+    finishedMachines: MultiMap[FinalState, Track]) {
     // consume anno
     handleStateTuples(currentStates, proceedAnnotation(anno, finishedMachines))
     // final states are checked immediately after transitions
@@ -108,9 +109,11 @@ class NFiniteStateMachine[A] extends Buildable {
     for (targetState <- state.matchEpsilonTransitions) {
       val track = accept(targetState, _track)
       targetState match {
-        case fs:FinalState => finishedMachines.addBinding(fs, track)
-        case os => resultStateTuples += ((targetState, track, varContext)) 
+        case fs: FinalState => finishedMachines.addBinding(fs, track)
+        case os => resultStateTuples += ((targetState, track, varContext))
       }
+      // looks like following https://issues.scala-lang.org/browse/SI-4938
+      doNothing()
     }
     resultStateTuples
   }
@@ -121,12 +124,11 @@ class NFiniteStateMachine[A] extends Buildable {
     for ((targetState, newVarCtx) <- state.matchTransitions(anno, varContext)) {
       val track = accept(targetState, _track.prepend(new ConsumedInputElement(anno)))
       targetState match {
-        case fs:FinalState => finishedMachines.addBinding(fs, track)
-        case os => resultStateTuples += ((
-          targetState,
-          track,
-          newVarCtx)) 
+        case fs: FinalState => finishedMachines.addBinding(fs, track)
+        case os => resultStateTuples += ((targetState, track, newVarCtx))
       }
+      // looks like following https://issues.scala-lang.org/browse/SI-4938
+      doNothing()
     }
     resultStateTuples
   }
@@ -142,6 +144,20 @@ class NFiniteStateMachine[A] extends Buildable {
     newTrack
   }
 
+  private def triggerActions(finishedMachines: MultiMap[FinalState, Track]) {
+    // TODO implement 'match all' strategy, i.e. not only the longest
+    for ((fs, matchedTracks) <- finishedMachines; if fs.action != null) {
+      val maxLength = matchedTracks.maxBy(_.length).length
+      val maxAll = matchedTracks.filter(_.length == maxLength)
+      matchedTracks.foreach(maxTrack => {
+        val (aList, labelBindings) = maxTrack.toExternalRepresentation
+        fs.action(aList, labelBindings)
+      })
+    }
+  }
+
+  private def doNothing() {}
+
   /**
    * Immutable state of matching
    */
@@ -149,9 +165,9 @@ class NFiniteStateMachine[A] extends Buildable {
     def this() = this(Nil)
 
     lazy val length = consumedInput.length
-    
+
     def prepend(head: TrackElement): Track = new Track(head :: consumedInput)
-    
+
     def toExternalRepresentation: (List[A], Map[String, List[A]]) = {
       val resultList = ListBuffer.empty[A]
       var closedLabelBindings = Map.empty[String, List[A]]
@@ -190,7 +206,7 @@ class NFiniteStateMachine[A] extends Buildable {
     private var labelBorders = List.empty[LabelBorder]
 
     // build methods
-    private[nfsm] def addTransition(to: State, input: InputMatcher[A]) {
+    private[nfsm] def addTransition(to: State, input: AnnotationMatcher[A]) {
       checkTransitionSanity(to)
       transitions ::= new Transition(this, to, input)
     }
@@ -225,11 +241,11 @@ class NFiniteStateMachine[A] extends Buildable {
     private[nfsm] def getLabelBorders = labelBorders
   }
 
-  private[nfsm] class FinalState(val action: (List[A], Map[String, List[A]]) => Unit) extends State(false) {
+  private[nfsm] class FinalState(val action: Action[A]) extends State(false) {
     override def isFinal = true
   }
 
-  private[nfsm] class Transition(val from: State, val to: State, val inputMatcher: InputMatcher[A]) {
+  private[nfsm] class Transition(val from: State, val to: State, val inputMatcher: AnnotationMatcher[A]) {
     def matches(anno: A, varCtx: VariableContext): (Boolean, VariableContext) =
       inputMatcher.matches(anno, varCtx)
   }

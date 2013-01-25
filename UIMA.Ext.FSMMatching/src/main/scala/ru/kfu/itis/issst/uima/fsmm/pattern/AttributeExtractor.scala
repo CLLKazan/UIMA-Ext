@@ -8,8 +8,8 @@ import org.apache.uima.cas.text.AnnotationFS
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
-trait AttributeExtractor[A] {
+trait AttributeExtractor[Anno] {
 
-  def getValue(anno: AnnotationFS):A
+  def getValue(anno: Anno): Any
 
 }
