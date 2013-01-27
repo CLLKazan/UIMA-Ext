@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 import ru.kfu.cll.uima.segmentation.PunctuationSegmentAnnotator;
 import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
+import ru.kfu.cll.uima.tokenizer.JFlexTokenizer;
 //import org.apache.uima.annotator.regex.impl.*;
 
 /**
@@ -73,20 +74,15 @@ public class GenerateBasicAggregateDescriptor {
 		
 		else
 		{
-			//initialtokenizer WS+Regex
+			// JFlex tokenizer
 			
 			TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
 			AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
-					InitialTokenizer.class, tokenizerTsDesc);
-				
-			TypeSystemDescription pmTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
-			AnalysisEngineDescription pmDesc = createPrimitiveDescription(RegExAnnotator.class,
-					pmTsDesc);
-			
-			
-			String outputPath = "src/test/resources/token-itok_regex-aggregate.xml";
+					JFlexTokenizer.class, tokenizerTsDesc);
+
+			String outputPath = "src/test/resources/token-jflex-aggregate.xml";
 			AnalysisEngineDescription desc = AnalysisEngineFactory.createAggregateDescription(
-					tokenizerDesc, pmDesc);
+					tokenizerDesc);
 			FileOutputStream out = new FileOutputStream(outputPath);
 			try {
 				desc.toXML(out);

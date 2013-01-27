@@ -14,6 +14,17 @@
       <name>ru.kfu.cll.uima.tokenizer.fstype.Token</name>
       <description/>
       <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.TokenBase</supertypeName>
+      <features>
+				<featureDescription>
+					<name>TypeName</name>
+					<description></description>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+					<!-- <elementType>[Name]</elementType> -->
+					<!-- <multipleReferencesAllowed>true</multipleReferencesAllowed> -->
+				</featureDescription>
+       </features>
+      
+      
     </typeDescription>
     <typeDescription>
       <name>ru.kfu.cll.uima.tokenizer.fstype.WhiteSpace</name>

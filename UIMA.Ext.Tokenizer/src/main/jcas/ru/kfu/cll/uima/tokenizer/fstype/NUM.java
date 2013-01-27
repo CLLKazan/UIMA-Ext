@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Tue Sep 04 18:38:22 MSK 2012 */
+/* First created by JCasGen Sun Jan 27 16:27:14 SAMT 2013 */
 package ru.kfu.cll.uima.tokenizer.fstype;
 
 import org.apache.uima.jcas.JCas; 
@@ -10,27 +10,24 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Tue Sep 04 18:38:22 MSK 2012
- * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml
+ * Updated by JCasGen Sun Jan 27 16:27:14 SAMT 2013
+ * XML source: /home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml
  * @generated */
 public class NUM extends Token {
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(NUM.class);
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
-  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected NUM() {/* intentionally empty block */}
+  protected NUM() {}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -57,7 +54,7 @@ public class NUM extends Token {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {/*default - does nothing empty block */}
+  private void readObject() {}
      
 }
 

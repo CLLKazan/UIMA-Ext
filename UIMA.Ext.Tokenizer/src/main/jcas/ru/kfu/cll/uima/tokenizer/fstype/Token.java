@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Tue Sep 04 18:38:22 MSK 2012 */
+/* First created by JCasGen Sun Jan 27 16:27:14 SAMT 2013 */
 package ru.kfu.cll.uima.tokenizer.fstype;
 
 import org.apache.uima.jcas.JCas; 
@@ -10,27 +10,24 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Tue Sep 04 18:38:22 MSK 2012
- * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml
+ * Updated by JCasGen Sun Jan 27 16:27:14 SAMT 2013
+ * XML source: /home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem.xml
  * @generated */
 public class Token extends TokenBase {
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(Token.class);
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
-  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected Token() {/* intentionally empty block */}
+  protected Token() {}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -57,8 +54,26 @@ public class Token extends TokenBase {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {/*default - does nothing empty block */}
+  private void readObject() {}
      
-}
+ 
+    
+  //*--------------*
+  //* Feature: TypeName
+
+  /** getter for TypeName - gets 
+   * @generated */
+  public String getTypeName() {
+    if (Token_Type.featOkTst && ((Token_Type)jcasType).casFeat_TypeName == null)
+      jcasType.jcas.throwFeatMissing("TypeName", "ru.kfu.cll.uima.tokenizer.fstype.Token");
+    return jcasType.ll_cas.ll_getStringValue(addr, ((Token_Type)jcasType).casFeatCode_TypeName);}
+    
+  /** setter for TypeName - sets  
+   * @generated */
+  public void setTypeName(String v) {
+    if (Token_Type.featOkTst && ((Token_Type)jcasType).casFeat_TypeName == null)
+      jcasType.jcas.throwFeatMissing("TypeName", "ru.kfu.cll.uima.tokenizer.fstype.Token");
+    jcasType.ll_cas.ll_setStringValue(addr, ((Token_Type)jcasType).casFeatCode_TypeName, v);}    
+  }
 
     
