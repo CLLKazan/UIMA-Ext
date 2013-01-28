@@ -99,15 +99,17 @@ class NFiniteStateMachine[A] extends Buildable {
     recHandleStateTuples(states, handler)
   }
 
+  // FIXME
   // TODO handle chains of eps-transitions - all eps-chains MUST be optimized after NDFSM construction!
   private def proceedEpsilon(finishedMachines: MultiMap[FinalState, Track])(stateTuple: StateTuple): TraversableOnce[StateTuple] = {
-    val (state, _track, varContext) = stateTuple
+    val (state, _, varContext) = stateTuple
+    var track = stateTuple._2
     val resultStateTuples = new ListBuffer[StateTuple]
-    // add itself
-    resultStateTuples += stateTuple
+    // add itself only if there are other non-epsilon matchers
+    if (state.hasNonEpsilonTransitions) resultStateTuples += stateTuple
     // add states linked by epsilon-transitions
     for (targetState <- state.matchEpsilonTransitions) {
-      val track = accept(targetState, _track)
+      track = accept(targetState, track)
       targetState match {
         case fs: FinalState => finishedMachines.addBinding(fs, track)
         case os => resultStateTuples += ((targetState, track, varContext))
@@ -231,6 +233,8 @@ class NFiniteStateMachine[A] extends Buildable {
     protected[nfsm] def isFinal = false
 
     private[nfsm] def matchEpsilonTransitions = epsilonTransitions
+
+    private[nfsm] def hasNonEpsilonTransitions: Boolean = !transitions.isEmpty
 
     private[nfsm] def matchTransitions(anno: A, varCtx: VariableContext): TraversableOnce[(State, VariableContext)] = {
       // TODO optimization point
