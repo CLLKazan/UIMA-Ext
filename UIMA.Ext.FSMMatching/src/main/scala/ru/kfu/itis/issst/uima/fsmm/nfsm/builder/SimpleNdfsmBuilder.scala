@@ -1,8 +1,9 @@
 /**
  *
  */
-package ru.kfu.itis.issst.uima.fsmm.nfsm
+package ru.kfu.itis.issst.uima.fsmm.nfsm.builder
 
+import ru.kfu.itis.issst.uima.fsmm.nfsm._
 import scala.collection.{ mutable => cm }
 
 /**
@@ -13,8 +14,7 @@ import scala.collection.{ mutable => cm }
 class SimpleNdfsmBuilder[A] {
 
   private val fsm = new NFiniteStateMachine[A]
-  import fsm.State
-  import fsm.FinalState
+  import fsm.{ State, FinalState, TransitionAcceptor }
 
   // state label => state object 
   private val states = cm.Map.empty[String, State]
@@ -42,24 +42,18 @@ class SimpleNdfsmBuilder[A] {
       this
     }
 
-  def addTransition(from: String, to: String, am: AnnotationMatcher[A]): this.type = {
+  /*def addTransition(from: String, to: String,
+    am: AnnotationMatcher[A], acceptor: TransitionAcceptor): this.type = {
     val fromState = getState(from)
     val toState = getState(to)
-    fromState.addTransition(toState, am)
+    fromState.addTransition(toState, am, acceptor)
     this
-  }
-
-  def addEpsilonTransition(from: String, to: String): this.type = {
-    val fromState = getState(from)
-    val toState = getState(to)
-    fromState.addEpsilonTransition(toState)
-    this
-  }
+  }*/
 
   def build(): NFiniteStateMachine[A] = {
     // finish all states
     states.values.foreach(_.finishBuild())
-    fsm.setInitialState(initialState)
+    fsm.setInitialStates(Set(initialState))
     // clean the state fields to allow GC do its work (?)
     states.clear()
     fsm

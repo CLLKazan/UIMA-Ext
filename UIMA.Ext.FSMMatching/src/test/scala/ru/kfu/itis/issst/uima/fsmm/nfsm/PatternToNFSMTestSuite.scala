@@ -14,7 +14,7 @@ import org.mockito.Mockito._
  */
 class PatternToNFSMTestSuite extends FunSuite {
 
-  private val fsmBuilder = new PatternToNFSM()
+  /*private val fsmBuilder = new PatternToNFSM()
 
   test("Passing null pattern returns null") {
     assert(fsmBuilder.fromPattern(null) === null)
@@ -23,10 +23,6 @@ class PatternToNFSMTestSuite extends FunSuite {
   test("Passing atomic restriction returns single-transition-machine") {
     val pattern = mock(classOf[AtomicRestriction[_,_]])
     val fsm = fsmBuilder.fromPattern(pattern)
-    // TODO implement final states:
-    // 1) no outgoing transitions are allowed
-    // 2) arriving to final state should fire event
-    // ? TODO Event should contain matched input ? How to implement this ?
     assert(fsm === new SimpleNdfsmBuilder().addState("initial").addState("final"))
-  }
+  }*/
 }
