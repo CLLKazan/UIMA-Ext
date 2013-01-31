@@ -3,7 +3,8 @@
 	<name>UIMA.Ext.Commons-TypeSystem</name>
 	<description />
 	<version>1.0</version>
-	<vendor>Computational Linguistics Lab of Kazan Federal University</vendor>
+	<vendor>Computational Linguistics Lab of Kazan Federal University
+	</vendor>
 	<types>
 		<typeDescription>
 			<name>ru.kfu.itis.cll.uima.commons.DocumentMetadata</name>
@@ -30,11 +31,12 @@
 				</featureDescription>
 			</features>
 		</typeDescription>
-		
+
 		<typeDescription>
 			<name>ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</name>
 			<description />
-			<supertypeName>ru.kfu.itis.cll.uima.commons.DocumentMetadata</supertypeName>
+			<supertypeName>ru.kfu.itis.cll.uima.commons.DocumentMetadata
+			</supertypeName>
 			<features>
 				<featureDescription>
 					<name>language</name>
@@ -43,16 +45,17 @@
 				</featureDescription>
 				<featureDescription>
 					<name>format</name>
-					<description>MIME-type of document: Plaintext, DOC, XLS, PDF.</description>
+					<description>MIME-type of document: Plaintext, DOC, XLS, PDF.
+					</description>
 					<rangeTypeName>uima.cas.String</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
 					<name>documentRawText</name>
 					<rangeTypeName>uima.cas.String</rangeTypeName>
 				</featureDescription>
-				
+
 			</features>
 		</typeDescription>
-		
+
 	</types>
 </typeSystemDescription>
