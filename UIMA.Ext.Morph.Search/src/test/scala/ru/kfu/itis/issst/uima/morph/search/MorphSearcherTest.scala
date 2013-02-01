@@ -75,8 +75,8 @@ class MorphSearcherTest extends FunSuite with Logging {
   private val testDesc = "Test MorphSearcher on test-input-1.txt"
 
   if (morphDictDesc == null)
-    ignore(testDesc)(testFunc)
-  else test(testDesc)(testFunc)
+    ignore(testDesc)(testFunc())
+  else test(testDesc)(testFunc())
 
 }
 
