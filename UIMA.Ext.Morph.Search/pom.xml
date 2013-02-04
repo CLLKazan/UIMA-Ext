@@ -5,6 +5,7 @@
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
 		<version>0.1-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-morph-search</artifactId>
 	<name>UIMA.Ext.Morph.Search</name>
