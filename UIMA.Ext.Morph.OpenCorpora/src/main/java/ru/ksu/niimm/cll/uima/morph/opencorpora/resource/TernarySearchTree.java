@@ -192,7 +192,7 @@ public class TernarySearchTree<E> implements Serializable {
 		protected TSTNode(char splitchar, TSTNode parent) {
 			this.splitchar = splitchar;
 		}
-		
+
 		protected void addData(Object value) {
 			if (data == null) {
 				data = new Object[1];
