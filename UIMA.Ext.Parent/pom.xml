@@ -108,6 +108,12 @@
 				<groupId>org.uimafit</groupId>
 				<artifactId>uimafit</artifactId>
 				<version>1.4.0</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-core</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -123,6 +129,27 @@
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>2.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jdbc</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -193,6 +220,7 @@
 	<properties>
 		<uima.version>2.4.0</uima.version>
 		<scala.version>2.9.2</scala.version>
+		<spring.version>3.2.1.RELEASE</spring.version>
 	</properties>
 
 	<scm>

@@ -41,7 +41,6 @@ public class EvaluationConfig {
 	private Set<String> annoTypes;
 	private String[] typeSystemDescPaths;
 	private String[] typeSystemDescNames;
-	private boolean stripDocumentUri = true;
 	//
 	private String docUriAnnotationType;
 	private String docUriFeatureName;
@@ -183,13 +182,5 @@ public class EvaluationConfig {
 
 	public void setDocUriFeatureName(String docUriFeatureName) {
 		this.docUriFeatureName = docUriFeatureName;
-	}
-
-	public boolean isStripDocumentUri() {
-		return stripDocumentUri;
-	}
-
-	public void setStripDocumentUri(boolean stripDocumentUri) {
-		this.stripDocumentUri = stripDocumentUri;
 	}
 }

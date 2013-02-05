@@ -7,8 +7,11 @@ import static com.google.common.collect.Collections2.transform;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.SortedSet;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -22,11 +25,17 @@ import com.google.common.base.Joiner;
  */
 public class LoggingEvaluationListener implements EvaluationListener {
 
+	private boolean stripDocumentUri;
 	// derived
 	private PrintWriter printer;
 
-	public LoggingEvaluationListener(Writer writer) {
+	public LoggingEvaluationListener(Writer writer, boolean stripDocumentUri) {
+		this.stripDocumentUri = stripDocumentUri;
 		printer = new PrintWriter(writer, true);
+	}
+
+	public LoggingEvaluationListener(Writer writer) {
+		this(writer, false);
 	}
 
 	/**
@@ -34,6 +43,7 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	 */
 	@Override
 	public void onMissing(String docUri, Type type, Annotation goldAnno) {
+		docUri = prepareUri(docUri);
 		printRow(type.getShortName(), "Missing",
 				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
 				null, null, docUri);
@@ -45,6 +55,7 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	@Override
 	public void onMatching(String docUri, Type type, SortedSet<Annotation> goldAnnos,
 			SortedSet<Annotation> sysAnnos) {
+		docUri = prepareUri(docUri);
 		if (goldAnnos.size() == 1 && sysAnnos.size() == 1) {
 			Annotation goldAnno = goldAnnos.iterator().next();
 			Annotation sysAnno = sysAnnos.iterator().next();
@@ -70,6 +81,7 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	 */
 	@Override
 	public void onSpurious(String docUri, Type type, Annotation sysAnno) {
+		docUri = prepareUri(docUri);
 		printRow(type.getShortName(), "Spurious",
 				null, null,
 				sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
@@ -78,6 +90,22 @@ public class LoggingEvaluationListener implements EvaluationListener {
 
 	@Override
 	public void onEvaluationComplete() {
+	}
+
+	private String prepareUri(String srcUri) {
+		if (!stripDocumentUri) {
+			return srcUri;
+		}
+		try {
+			URI uri = new URI(srcUri);
+			String name = FilenameUtils.getName(uri.getPath());
+			if (StringUtils.isBlank(name)) {
+				name = srcUri;
+			}
+			return name;
+		} catch (URISyntaxException e) {
+			return srcUri;
+		}
 	}
 
 	@SuppressWarnings("unused")

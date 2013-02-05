@@ -12,8 +12,6 @@ import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toList;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,8 +19,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
@@ -52,7 +48,6 @@ public class GoldStandardBasedEvaluation {
 	private Set<Type> annoTypes;
 	private Type docMetaType;
 	private Feature docUriFeature;
-	private boolean stripDocumentUri;
 
 	public GoldStandardBasedEvaluation(EvaluationConfig config) throws UIMAException, IOException {
 		initTypeSystem(config);
@@ -61,7 +56,6 @@ public class GoldStandardBasedEvaluation {
 				typeSystem, config.getSystemOutputImpl(), config.getSystemOutputProps());
 		this.goldStandardDir = CasDirectoryFactory.createDirectory(
 				typeSystem, config.getGoldStandardImpl(), config.getGoldStandardProps());
-		this.stripDocumentUri = config.isStripDocumentUri();
 	}
 
 	private void initTypeSystem(EvaluationConfig config) throws IOException, UIMAException {
@@ -125,7 +119,6 @@ public class GoldStandardBasedEvaluation {
 			if (sysCas == null) {
 				throw new IllegalStateException("No CAS from system output for doc uri: " + docUri);
 			}
-			docUri = stripUri(docUri);
 			evalCtx.setCurrentDocUri(docUri);
 			try {
 				evaluate(evalCtx, goldCas, sysCas);
@@ -135,22 +128,6 @@ public class GoldStandardBasedEvaluation {
 			}
 		}
 		evalCtx.reportEvaluationComplete();
-	}
-
-	private String stripUri(String srcUri) {
-		if (!stripDocumentUri) {
-			return srcUri;
-		}
-		try {
-			URI uri = new URI(srcUri);
-			String name = FilenameUtils.getName(uri.getPath());
-			if (StringUtils.isBlank(name)) {
-				name = srcUri;
-			}
-			return name;
-		} catch (URISyntaxException e) {
-			return srcUri;
-		}
 	}
 
 	private void evaluate(EvaluationContext ctx, JCas goldCas, JCas sysCas) {
