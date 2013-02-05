@@ -7,30 +7,30 @@ import java.io.Serializable;
 public class WordformTST implements Serializable {
     private Node rootNode;
 
+    private static int compareChars(char first, char second) {
+        return first - second;
+    }
+
     public void put(String key, Wordform wf) {
         getOrCreateNode(key).addData(wf);
     }
 
-    protected Node getOrCreateNode(String key)
-            throws NullPointerException, IllegalArgumentException {
+    private Node getOrCreateNode(String key) throws NullPointerException, IllegalArgumentException {
         if (key == null)
-            throw new NullPointerException(
-                    "attempt to get or create node with null key");
+            throw new NullPointerException("attempt to get or create node with null key");
         if (key.length() == 0)
-            throw new IllegalArgumentException(
-                    "attempt to get or create node with key of zero length");
+            throw new IllegalArgumentException("attempt to get or create node with key of zero length");
         if (rootNode == null)
             rootNode = new Node(key.charAt(key.length() - 1));
 
         Node currentNode = rootNode;
         int charIndex = key.length() - 1;
         while (true) {
-            int charComp = compareChars(key.charAt(charIndex),
-                    currentNode.splitchar);
+            int charComp = compareChars(key.charAt(charIndex), currentNode.splitchar);
 
             if (charComp == 0) {
                 charIndex--;
-                if (charIndex == -1)
+                if (charIndex < 0)
                     return currentNode;
                 if (currentNode.getEqKid() == null)
                     currentNode.setEqKid(new Node(key.charAt(charIndex)));
@@ -48,10 +48,45 @@ public class WordformTST implements Serializable {
         }
     }
 
+    private getNodeLongestPrefixMatchResult getNodeLongestPrefixMatch(String key) {
+        if (key == null || rootNode == null || key.length() == 0)
+            return null;
+        Node currentNode = rootNode;
+        Node resultNode = null;
+        int matchLength = 0;
+        int charIndex = key.length() - 1;
+
+        while (true) {
+            if (currentNode == null)
+                return new getNodeLongestPrefixMatchResult(matchLength, resultNode);
+            int charComp = compareChars(key.charAt(charIndex), currentNode.splitchar);
+
+            if (charComp == 0) {
+                charIndex--;
+                if (charIndex < 0)
+                    return new getNodeLongestPrefixMatchResult(key.length(), currentNode);
+                resultNode = currentNode;
+                matchLength = key.length() - charIndex - 1;
+                currentNode = (Node) currentNode.getEqKid();
+            } else if (charComp < 0) {
+                currentNode = (Node) currentNode.getLoKid();
+            } else {
+                // charComp must be greater than zero
+                currentNode = (Node) currentNode.getHiKid();
+            }
+        }
+    }
+
     private static class Node implements Serializable {
         private char splitchar;
-
         private Wordform[] data;
+        private Node LoKid;
+        private Node EqKid;
+        private Node HiKid;
+
+        public Node(char splitchar) {
+            this.splitchar = splitchar;
+        }
 
         void addData(Wordform wf) {
             if (data == null) {
@@ -64,22 +99,54 @@ public class WordformTST implements Serializable {
             data[data.length - 1] = wf;
         }
 
-        public Node(char splitchar) {
-            this.splitchar = splitchar;
+        Node getLoKid() {
+            return LoKid;
         }
 
-        private Node LoKid;
-        private Node EqKid;
-        private Node HiKid;
-        Node getLoKid() { return LoKid; }
-        void setLoKid(Node loKid) { LoKid = loKid; }
-        Node getEqKid() { return EqKid; }
-        void setEqKid(Node eqKid) { EqKid = eqKid; }
-        Node getHiKid() { return HiKid; }
-        void setHiKid(Node hiKid) { HiKid = hiKid; }
+        void setLoKid(Node loKid) {
+            LoKid = loKid;
+        }
+
+        Node getEqKid() {
+            return EqKid;
+        }
+
+        void setEqKid(Node eqKid) {
+            EqKid = eqKid;
+        }
+
+        Node getHiKid() {
+            return HiKid;
+        }
+
+        void setHiKid(Node hiKid) {
+            HiKid = hiKid;
+        }
     }
 
-    private static int compareChars(char first, char second) {
-        return first - second;
+    public class getNodeLongestPrefixMatchResult {
+        private int matchLength;
+        private Node resultNode;
+
+        public getNodeLongestPrefixMatchResult(int matchLength, Node resultNode) {
+            this.matchLength = matchLength;
+            this.resultNode = resultNode;
+        }
+
+        public Node getResultNode() {
+            return resultNode;
+        }
+
+        public void setResultNode(Node resultNode) {
+            this.resultNode = resultNode;
+        }
+
+        public int getMatchLength() {
+            return matchLength;
+        }
+
+        public void setMatchLength(int matchLength) {
+            this.matchLength = matchLength;
+        }
     }
 }
