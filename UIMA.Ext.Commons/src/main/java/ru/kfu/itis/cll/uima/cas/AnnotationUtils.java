@@ -9,6 +9,7 @@ import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIntConstraint;
 import org.apache.uima.cas.FSIterator;
@@ -16,6 +17,7 @@ import org.apache.uima.cas.FSMatchConstraint;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
@@ -146,9 +148,21 @@ public class AnnotationUtils {
 	 *         is no such annotation method will return null.
 	 */
 	public static String getStringValue(JCas cas, Type type, Feature feature) {
-		AnnotationIndex<Annotation> metaIdx = cas.getAnnotationIndex(type);
+		return getStringValue(cas.getCas(), type, feature);
+	}
+
+	/**
+	 * @param cas
+	 * @param type
+	 * @param feature
+	 * @return feature value of the first annotation of given type from given
+	 *         CAS. E.g., it is useful to get document metadata values. If there
+	 *         is no such annotation method will return null.
+	 */
+	public static String getStringValue(CAS cas, Type type, Feature feature) {
+		AnnotationIndex<AnnotationFS> metaIdx = cas.getAnnotationIndex(type);
 		if (metaIdx.size() > 0) {
-			Annotation meta = metaIdx.iterator().next();
+			AnnotationFS meta = metaIdx.iterator().next();
 			return meta.getFeatureValueAsString(feature);
 		} else {
 			return null;

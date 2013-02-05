@@ -21,9 +21,11 @@ import java.util.TreeSet;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -31,6 +33,8 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
+import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
+import ru.kfu.itis.cll.uima.eval.anno.DocumentMetaExtractor;
 import ru.kfu.itis.cll.uima.eval.cas.CasDirectory;
 import ru.kfu.itis.cll.uima.eval.cas.CasDirectoryFactory;
 
@@ -42,80 +46,29 @@ import ru.kfu.itis.cll.uima.eval.cas.CasDirectoryFactory;
  */
 public class GoldStandardBasedEvaluation {
 
+	// TODO inject
 	private TypeSystem typeSystem;
 	private CasDirectory systemOutputDir;
 	private CasDirectory goldStandardDir;
-	private Set<Type> annoTypes;
-	private Type docMetaType;
-	private Feature docUriFeature;
+	private AnnotationExtractor annotationExtractor;
+	private DocumentMetaExtractor docMetaExtractor;
 
+	// TODO replace configuration object passing by IOC injections 
 	public GoldStandardBasedEvaluation(EvaluationConfig config) throws UIMAException, IOException {
-		initTypeSystem(config);
-		initTypes(config);
+		// TODO inject by IOC container
 		this.systemOutputDir = CasDirectoryFactory.createDirectory(
 				typeSystem, config.getSystemOutputImpl(), config.getSystemOutputProps());
+		// TODO inject by IOC container
 		this.goldStandardDir = CasDirectoryFactory.createDirectory(
 				typeSystem, config.getGoldStandardImpl(), config.getGoldStandardProps());
 	}
 
-	private void initTypeSystem(EvaluationConfig config) throws IOException, UIMAException {
-		TypeSystemDescription tsDesc = null;
-		if (config.getTypeSystemDescPaths() != null) {
-			tsDesc = createTypeSystemDescriptionFromPath(config.getTypeSystemDescPaths());
-		}
-		if (config.getTypeSystemDescNames() != null) {
-			TypeSystemDescription tsDescFromNames = createTypeSystemDescription(
-					config.getTypeSystemDescNames());
-			if (tsDesc != null) {
-				tsDesc = mergeTypeSystems(asList(tsDesc, tsDescFromNames));
-			} else {
-				tsDesc = tsDescFromNames;
-			}
-		}
-		CAS dumbCas = CasCreationUtils.createCas(tsDesc, null, null);
-		typeSystem = dumbCas.getTypeSystem();
-		// printAllTypes();
-		// init doc meta type
-		docMetaType = typeSystem.getType(config.getDocUriAnnotationType());
-		if (docMetaType == null) {
-			throw new IllegalStateException("Can't find annotation type '"
-					+ config.getDocUriAnnotationType() + "'");
-		}
-		String docUriFeatureName = config.getDocUriFeatureName();
-		docUriFeature = docMetaType.getFeatureByBaseName(docUriFeatureName);
-		if (docUriFeature == null) {
-			throw new IllegalStateException(String.format("No feature %s in type %s",
-					docUriFeatureName, docMetaType));
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private void printAllTypes() {
-		Iterator<Type> iter = typeSystem.getTypeIterator();
-		System.out.println("CAS types listing:");
-		while (iter.hasNext()) {
-			System.out.println(iter.next().getName());
-		}
-	}
-
-	private void initTypes(EvaluationConfig config) {
-		Set<String> annoTypeNames = config.getAnnoTypes();
-		annoTypes = new HashSet<Type>();
-		for (String curTypeName : annoTypeNames) {
-			Type curType = typeSystem.getType(curTypeName);
-			if (curType == null) {
-				throw new IllegalStateException("Can't find type " + curTypeName);
-			}
-			annoTypes.add(curType);
-		}
-	}
-
 	public void run(EvaluationContext evalCtx) throws Exception {
-		Iterator<JCas> iter = goldStandardDir.iterator();
+		Iterator<CAS> iter = goldStandardDir.iterator();
 		while (iter.hasNext()) {
-			JCas goldCas = iter.next();
-			String docUri = getDocUri(goldCas);
-			JCas sysCas = systemOutputDir.getCas(docUri);
+			CAS goldCas = iter.next();
+			String docUri = docMetaExtractor.getDocumentUri(goldCas);
+			CAS sysCas = systemOutputDir.getCas(docUri);
 			if (sysCas == null) {
 				throw new IllegalStateException("No CAS from system output for doc uri: " + docUri);
 			}
@@ -130,24 +83,18 @@ public class GoldStandardBasedEvaluation {
 		evalCtx.reportEvaluationComplete();
 	}
 
-	private void evaluate(EvaluationContext ctx, JCas goldCas, JCas sysCas) {
-		for (Type curType : annoTypes) {
-			evaluate(ctx, curType, goldCas, sysCas);
-		}
-	}
-
-	private void evaluate(EvaluationContext ctx, Type type, JCas goldCas, JCas sysCas) {
-		AnnotationIndex<Annotation> goldAnnoIndex = goldCas.getAnnotationIndex(type);
-		AnnotationIndex<Annotation> sysAnnoIndex = sysCas.getAnnotationIndex(type);
-		Set<Annotation> goldProcessed = new HashSet<Annotation>();
-		SortedSet<Annotation> sysProcessed = newTreeSet(AnnotationOffsetComparator.INSTANCE);
-		for (Annotation goldAnno : goldAnnoIndex) {
+	private void evaluate(EvaluationContext ctx, CAS goldCas, CAS sysCas) {
+		FSIterator<AnnotationFS> goldAnnoIter = annotationExtractor.extract(goldCas);
+		Set<AnnotationFS> goldProcessed = new HashSet<AnnotationFS>();
+		SortedSet<AnnotationFS> sysProcessed = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+		while (goldAnnoIter.hasNext()) {
+			AnnotationFS goldAnno = goldAnnoIter.next();
 			if (goldProcessed.contains(goldAnno)) {
 				continue;
 			}
 
-			JCasComposite goldClosure = new JCasComposite(goldCas, goldAnnoIndex);
-			JCasComposite sysClosure = new JCasComposite(sysCas, sysAnnoIndex);
+			JCasComposite goldClosure = new JCasComposite(goldCas);
+			JCasComposite sysClosure = new JCasComposite(sysCas);
 			fillClosure(goldAnno, goldClosure, sysClosure);
 
 			if (sysClosure.annos.isEmpty()) {
@@ -158,20 +105,23 @@ public class GoldStandardBasedEvaluation {
 			}
 			goldProcessed.addAll(goldClosure.annos);
 		}
+
 		// report spurious (false positive)
-		for (Annotation sysAnno : sysAnnoIndex) {
+		FSIterator<AnnotationFS> sysAnnoIter = annotationExtractor.extract(sysCas);
+		while (sysAnnoIter.hasNext()) {
+			AnnotationFS sysAnno = sysAnnoIter.next();
 			if (!sysProcessed.contains(sysAnno)) {
 				ctx.reportSpurious(type, sysAnno);
 			}
 		}
 	}
 
-	private void fillClosure(Annotation targetAnno, JCasComposite targetSide,
+	private void fillClosure(AnnotationFS targetAnno, JCasComposite targetSide,
 			JCasComposite otherSide) {
 		targetSide.annos.add(targetAnno);
 
 		List<Annotation> otherAnnos = toList(getOverlapping(
-				otherSide.cas, otherSide.annoIndex.iterator(), targetAnno));
+				otherSide.cas, annotationExtractor.extract(otherSide.cas), targetAnno));
 		for (Annotation otherAnno : otherAnnos) {
 			if (!otherSide.annos.contains(otherAnno)) {
 				// swap sides
@@ -179,24 +129,14 @@ public class GoldStandardBasedEvaluation {
 			}
 		}
 	}
-
-	private String getDocUri(JCas cas) {
-		String uri = AnnotationUtils.getStringValue(cas, docMetaType, docUriFeature);
-		if (uri == null) {
-			throw new IllegalStateException("CAS doesn't have annotation of type " + docMetaType);
-		}
-		return uri;
-	}
 }
 
 class JCasComposite {
-	SortedSet<Annotation> annos;
-	JCas cas;
-	AnnotationIndex<Annotation> annoIndex;
+	SortedSet<AnnotationFS> annos;
+	CAS cas;
 
-	public JCasComposite(JCas cas, AnnotationIndex<Annotation> annoIndex) {
+	public JCasComposite(CAS cas) {
 		this.cas = cas;
-		this.annoIndex = annoIndex;
-		this.annos = new TreeSet<Annotation>(AnnotationOffsetComparator.INSTANCE);
+		this.annos = new TreeSet<AnnotationFS>(AnnotationOffsetComparator.INSTANCE);
 	}
 }

@@ -5,7 +5,7 @@ package ru.kfu.itis.cll.uima.eval;
 
 import java.util.Comparator;
 
-import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.cas.text.AnnotationFS;
 
 import com.google.common.collect.ComparisonChain;
 
@@ -13,12 +13,12 @@ import com.google.common.collect.ComparisonChain;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-class AnnotationOffsetComparator implements Comparator<Annotation> {
+class AnnotationOffsetComparator implements Comparator<AnnotationFS> {
 
 	public static final AnnotationOffsetComparator INSTANCE = new AnnotationOffsetComparator();
 
 	@Override
-	public int compare(Annotation first, Annotation second) {
+	public int compare(AnnotationFS first, AnnotationFS second) {
 		if (first == second) {
 			return 0;
 		}

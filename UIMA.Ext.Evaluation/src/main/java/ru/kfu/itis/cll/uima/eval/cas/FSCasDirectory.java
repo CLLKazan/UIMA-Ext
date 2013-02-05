@@ -18,7 +18,6 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCreationUtils;
 import org.xml.sax.SAXException;
@@ -55,7 +54,7 @@ public class FSCasDirectory implements CasDirectory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JCas getCas(String docUriStr) throws Exception {
+	public CAS getCas(String docUriStr) throws Exception {
 		URI docUri = new URI(docUriStr);
 		File docFile = new File(docUri);
 		String docFileName = docFile.getName();
@@ -71,16 +70,16 @@ public class FSCasDirectory implements CasDirectory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Iterator<JCas> iterator() {
+	public Iterator<CAS> iterator() {
 		IOFileFilter xmiFileFilter = FileFilterUtils.suffixFileFilter(".xmi");
 		Iterator<File> xmiFileIter = Iterators.forArray(dir.listFiles((FileFilter) xmiFileFilter));
 		return Iterators.transform(xmiFileIter, deserializeFunc());
 	}
 
-	private Function<File, JCas> deserializeFunc() {
-		return new Function<File, JCas>() {
+	private Function<File, CAS> deserializeFunc() {
+		return new Function<File, CAS>() {
 			@Override
-			public JCas apply(File input) {
+			public CAS apply(File input) {
 				try {
 					return deserialize(input);
 				} catch (Exception e) {
@@ -90,10 +89,10 @@ public class FSCasDirectory implements CasDirectory {
 		};
 	}
 
-	private JCas deserialize(File xmiFile) throws UIMAException, SAXException, IOException {
+	private CAS deserialize(File xmiFile) throws UIMAException, SAXException, IOException {
 		CAS cas = createCas();
 		XmiCasDeserializer.deserialize(openStream(xmiFile), cas);
-		return cas.getJCas();
+		return cas;
 	}
 
 	private CAS createCas() throws ResourceInitializationException {
