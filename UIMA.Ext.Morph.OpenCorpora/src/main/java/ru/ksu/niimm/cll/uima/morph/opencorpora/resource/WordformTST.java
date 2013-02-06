@@ -1,8 +1,11 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
+import com.google.common.collect.AbstractIterator;
 import org.opencorpora.cas.Wordform;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Stack;
 
 public class WordformTST implements Serializable {
     private Node rootNode;
@@ -49,7 +52,7 @@ public class WordformTST implements Serializable {
     }
 
     private getNodeLongestPrefixMatchResult getNodeLongestPrefixMatch(String key) {
-        if (key == null || rootNode == null || key.length() == 0)
+        if (key == null || key.length() == 0)
             return null;
         Node currentNode = rootNode;
         Node resultNode = null;
@@ -67,24 +70,33 @@ public class WordformTST implements Serializable {
                     return new getNodeLongestPrefixMatchResult(key.length(), currentNode);
                 resultNode = currentNode;
                 matchLength = key.length() - charIndex - 1;
-                currentNode = (Node) currentNode.getEqKid();
+                currentNode = currentNode.getEqKid();
             } else if (charComp < 0) {
-                currentNode = (Node) currentNode.getLoKid();
+                currentNode = currentNode.getLoKid();
             } else {
                 // charComp must be greater than zero
-                currentNode = (Node) currentNode.getHiKid();
+                currentNode = currentNode.getHiKid();
             }
         }
     }
 
-    private static class Node implements Serializable {
+    public WordformTSTSearchResult getLongestPrefixMatch(String key) {
+        getNodeLongestPrefixMatchResult nodeLongestPrefixMatchResult = getNodeLongestPrefixMatch(key);
+        if (nodeLongestPrefixMatchResult == null)
+            return null;
+        return new WordformTSTSearchResult(nodeLongestPrefixMatchResult.getMatchLength(),
+                new SubtreeIterator(nodeLongestPrefixMatchResult.getResultNode()));
+    }
+
+    private static class Node implements Serializable, Iterable<Wordform> {
         private char splitchar;
+
         private Wordform[] data;
+
         private Node LoKid;
         private Node EqKid;
         private Node HiKid;
-
-        public Node(char splitchar) {
+        private Node(char splitchar) {
             this.splitchar = splitchar;
         }
 
@@ -97,6 +109,31 @@ public class WordformTST implements Serializable {
                 System.arraycopy(temp, 0, data, 0, temp.length);
             }
             data[data.length - 1] = wf;
+        }
+
+        @Override
+        public Iterator<Wordform> iterator() {
+            return new Iterator<Wordform>() {
+                private int i = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return (i < data.length);
+                }
+
+                @Override
+                public Wordform next() {
+                    return data[i++];
+                }
+
+                @Override
+                public void remove() {
+                    Wordform[] n = new Wordform[data.length - 1];
+                    System.arraycopy(data, 0, n, 0, i );
+                    System.arraycopy(data, i + 1, n, i, data.length - i - 1);
+                    data = n;
+                }
+            };
         }
 
         Node getLoKid() {
@@ -124,11 +161,50 @@ public class WordformTST implements Serializable {
         }
     }
 
-    public class getNodeLongestPrefixMatchResult {
+    private class SubtreeIterator extends AbstractIterator<Wordform> {
+        private Node rootNode;
+        private Iterator<Wordform> currentNodeIterator;
+        private Stack<Node> nodeStack = new Stack<Node>();
+
+        private SubtreeIterator(Node rootNode) {
+            this.rootNode = rootNode;
+            nodeStack.push(rootNode);
+        }
+
+        @Override
+        protected Wordform computeNext() {
+            if (rootNode == null)
+                return endOfData();
+            while (!currentNodeIterator.hasNext()) {
+                boolean hasNextNode = goToNextNode();
+                if (!hasNextNode) {
+                    return endOfData();
+                }
+            }
+            return currentNodeIterator.next();
+        }
+
+        boolean goToNextNode() {
+            if (nodeStack.empty())
+                return false;
+            Node nextNode = nodeStack.pop();
+            currentNodeIterator = nextNode.iterator();
+            // We don't need side nodes for root node because they overwrite it, because of TST structure.
+            if (nextNode.getLoKid() != null && nextNode != rootNode)
+                nodeStack.push(nextNode.getLoKid());
+            if (nextNode.getEqKid() != null)
+                nodeStack.push(nextNode.getEqKid());
+            if (nextNode.getHiKid() != null && nextNode != rootNode)
+                nodeStack.push(nextNode.getHiKid());
+            return true;
+        }
+    }
+
+    private class getNodeLongestPrefixMatchResult {
         private int matchLength;
         private Node resultNode;
 
-        public getNodeLongestPrefixMatchResult(int matchLength, Node resultNode) {
+        private getNodeLongestPrefixMatchResult(int matchLength, Node resultNode) {
             this.matchLength = matchLength;
             this.resultNode = resultNode;
         }
@@ -137,16 +213,8 @@ public class WordformTST implements Serializable {
             return resultNode;
         }
 
-        public void setResultNode(Node resultNode) {
-            this.resultNode = resultNode;
-        }
-
         public int getMatchLength() {
             return matchLength;
-        }
-
-        public void setMatchLength(int matchLength) {
-            this.matchLength = matchLength;
         }
     }
 }
