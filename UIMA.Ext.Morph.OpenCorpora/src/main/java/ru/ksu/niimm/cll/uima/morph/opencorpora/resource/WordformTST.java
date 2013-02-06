@@ -1,7 +1,7 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import com.google.common.collect.AbstractIterator;
-import org.opencorpora.cas.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -86,7 +86,12 @@ public class WordformTST implements Serializable {
         getNodeLongestPrefixMatchResult nodeLongestPrefixMatchResult = getNodeLongestPrefixMatch(key);
         if (nodeLongestPrefixMatchResult == null)
             return null;
-        return new WordformTSTSearchResult(nodeLongestPrefixMatchResult.getMatchLength(),
+        // if match exact return iterator over wordforms in just result node
+        if (nodeLongestPrefixMatchResult.getMatchLength() == key.length())
+            return new WordformTSTSearchResult(key.length(), nodeLongestPrefixMatchResult.getResultNode().iterator());
+        // otherwise, iterate over wordforms in subtree with root in result node
+        else
+            return new WordformTSTSearchResult(nodeLongestPrefixMatchResult.getMatchLength(),
                 new SubtreeIterator(nodeLongestPrefixMatchResult.getResultNode()));
     }
 

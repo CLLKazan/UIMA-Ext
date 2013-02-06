@@ -1,23 +1,25 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
-import org.opencorpora.cas.Wordform;
+
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 import java.util.Iterator;
 
-public class WordformTSTSearchResult {
+public class WordformTSTSearchResult implements Iterable<Wordform>{
     private int matchedLength;
-    private Iterator<Wordform> wordforms;
+    private Iterator<Wordform> wordformIterator;
 
-    public WordformTSTSearchResult(int matchedLength, Iterator<Wordform> wordforms) {
+    public WordformTSTSearchResult(int matchedLength, Iterator<Wordform> wordformIterator) {
         this.matchedLength = matchedLength;
-        this.wordforms = wordforms;
+        this.wordformIterator = wordformIterator;
     }
 
     public int getMatchedLength() {
         return matchedLength;
     }
 
-    public Iterator<Wordform> getWordforms() {
-        return wordforms;
+    @Override
+    public Iterator<Wordform> iterator() {
+        return wordformIterator;
     }
 }

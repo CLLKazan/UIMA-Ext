@@ -53,9 +53,10 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private transient Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
 	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
 
-	private TernarySearchTree<Wordform> wfByString = new TernarySearchTree<Wordform>();;
+	private WordformTST wfByString = new WordformTST();
 	// wf indexes
 	// by string
+    private transient WordformPredictor wfPredictor = new StrictWordformPredictor();
 
 	// grammem indexes
 	// by parent
@@ -66,7 +67,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public List<Wordform> getEntries(String str) {
-		return ImmutableList.copyOf(wfByString.get(str));
+        WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
+		return ImmutableList.copyOf(wfPredictor.predict(str, result));
 	}
 
 	/**
