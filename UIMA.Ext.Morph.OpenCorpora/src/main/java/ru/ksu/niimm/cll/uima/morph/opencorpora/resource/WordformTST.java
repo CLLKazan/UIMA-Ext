@@ -4,8 +4,10 @@ import com.google.common.collect.AbstractIterator;
 import org.opencorpora.cas.Wordform;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.Stack;
+import java.util.NoSuchElementException;
 
 public class WordformTST implements Serializable {
     private Node rootNode;
@@ -164,11 +166,11 @@ public class WordformTST implements Serializable {
     private class SubtreeIterator extends AbstractIterator<Wordform> {
         private Node rootNode;
         private Iterator<Wordform> currentNodeIterator;
-        private Stack<Node> nodeStack = new Stack<Node>();
+        private Deque<Node> nodeStack = new ArrayDeque<Node>();
 
         private SubtreeIterator(Node rootNode) {
             this.rootNode = rootNode;
-            nodeStack.push(rootNode);
+            nodeStack.addFirst(rootNode);
         }
 
         @Override
@@ -185,17 +187,20 @@ public class WordformTST implements Serializable {
         }
 
         boolean goToNextNode() {
-            if (nodeStack.empty())
+            Node nextNode;
+            try {
+                nextNode = nodeStack.removeFirst();
+            } catch (NoSuchElementException e) {
                 return false;
-            Node nextNode = nodeStack.pop();
+            }
             currentNodeIterator = nextNode.iterator();
             // We don't need side nodes for root node because they overwrite it, because of TST structure.
             if (nextNode.getLoKid() != null && nextNode != rootNode)
-                nodeStack.push(nextNode.getLoKid());
+                nodeStack.addFirst(nextNode.getLoKid());
             if (nextNode.getEqKid() != null)
-                nodeStack.push(nextNode.getEqKid());
+                nodeStack.addFirst(nextNode.getEqKid());
             if (nextNode.getHiKid() != null && nextNode != rootNode)
-                nodeStack.push(nextNode.getHiKid());
+                nodeStack.addFirst(nextNode.getHiKid());
             return true;
         }
     }

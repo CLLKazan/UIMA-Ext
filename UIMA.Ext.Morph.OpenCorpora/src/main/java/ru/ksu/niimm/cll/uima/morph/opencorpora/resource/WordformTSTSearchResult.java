@@ -17,15 +17,7 @@ public class WordformTSTSearchResult {
         return matchedLength;
     }
 
-    public void setMatchedLength(int matchedLength) {
-        this.matchedLength = matchedLength;
-    }
-
     public Iterator<Wordform> getWordforms() {
         return wordforms;
-    }
-
-    public void setWordforms(Iterator<Wordform> wordforms) {
-        this.wordforms = wordforms;
     }
 }
