@@ -106,17 +106,25 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 		List<org.opencorpora.cas.Wordform> casWfList = Lists.newLinkedList();
 		for (Wordform wf : wfDictEntries) {
 			org.opencorpora.cas.Wordform casWf = new org.opencorpora.cas.Wordform(cas);
-			Lemma lemma = dict.getLemma(wf.getLemmaId());
-			// set lemma id
-			casWf.setLemmaId(lemma.getId());
-			// set lemma norm
-			casWf.setLemma(lemma.getString());
-			// set pos
-			casWf.setPos(dict.getPos(lemma));
-			// set grammems
-			BitSet grammems = wf.getGrammems();
-			grammems.or(lemma.getGrammems());
-			grammems.andNot(dict.getPosBits());
+
+            BitSet grammems = wf.getGrammems();
+            int lemmaId = wf.getLemmaId();
+            if (lemmaId > 0) {
+                Lemma lemma = dict.getLemma(wf.getLemmaId());
+                // set lemma id
+                casWf.setLemmaId(lemma.getId());
+                // set lemma norm
+                casWf.setLemma(lemma.getString());
+                // set pos
+                casWf.setPos(dict.getPos(lemma));
+                // set grammems
+                grammems.or(lemma.getGrammems());
+                grammems.andNot(dict.getPosBits());
+            } else {
+                casWf.setLemmaId(0);
+                casWf.setLemma("");
+                casWf.setPos("TODO");
+            }
 			List<String> gramSet = dict.toGramSet(grammems);
 			casWf.setGrammems(FSUtils.toStringArray(cas, gramSet));
 

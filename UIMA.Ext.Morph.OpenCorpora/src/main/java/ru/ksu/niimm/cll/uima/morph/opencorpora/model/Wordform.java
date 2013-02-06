@@ -56,9 +56,18 @@ public class Wordform implements Serializable {
 	private Wordform() {
 	}
 
-	public int getLemmaId() {
+    public Wordform(int lemmaId, BitSet grammems) {
+        this.lemmaId = lemmaId;
+        this.grammems = grammems;
+    }
+
+    public int getLemmaId() {
 		return lemmaId;
 	}
+
+    public Wordform cloneWithoutLemmaId() {
+        return new Wordform(0, grammems);
+    }
 
 	public BitSet getGrammems() {
 		// !!!

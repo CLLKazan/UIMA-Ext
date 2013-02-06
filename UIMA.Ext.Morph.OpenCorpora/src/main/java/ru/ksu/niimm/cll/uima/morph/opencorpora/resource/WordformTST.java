@@ -182,7 +182,7 @@ public class WordformTST implements Serializable {
         protected Wordform computeNext() {
             if (rootNode == null)
                 return endOfData();
-            while (!currentNodeIterator.hasNext()) {
+            while (currentNodeIterator == null || !currentNodeIterator.hasNext()) {
                 boolean hasNextNode = goToNextNode();
                 if (!hasNextNode) {
                     return endOfData();
