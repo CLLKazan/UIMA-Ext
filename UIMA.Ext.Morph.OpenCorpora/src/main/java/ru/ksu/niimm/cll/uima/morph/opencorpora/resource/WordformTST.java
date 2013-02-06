@@ -125,7 +125,7 @@ public class WordformTST implements Serializable {
 
                 @Override
                 public boolean hasNext() {
-                    return (i < data.length);
+                    return data != null && i < data.length;
                 }
 
                 @Override

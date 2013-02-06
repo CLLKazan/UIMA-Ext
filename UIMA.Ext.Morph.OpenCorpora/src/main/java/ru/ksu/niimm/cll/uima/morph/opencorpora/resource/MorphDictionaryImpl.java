@@ -54,9 +54,14 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
 
 	private WordformTST wfByString = new WordformTST();
-	// wf indexes
+
+    public void setWfPredictor(WordformPredictor wfPredictor) {
+        this.wfPredictor = wfPredictor;
+    }
+
+    // wf indexes
 	// by string
-    private transient WordformPredictor wfPredictor = new StrictWordformPredictor();
+    private transient WordformPredictor wfPredictor;
 
 	// grammem indexes
 	// by parent

@@ -18,6 +18,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
  */
 public interface MorphDictionary {
 
+    void setWfPredictor(WordformPredictor wfPredictor);
+
 	List<Wordform> getEntries(String str);
 
 	String getVersion();
