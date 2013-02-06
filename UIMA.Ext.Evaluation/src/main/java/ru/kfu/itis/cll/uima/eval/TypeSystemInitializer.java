@@ -41,6 +41,7 @@ public class TypeSystemInitializer {
 		CAS dumbCas = CasCreationUtils.createCas(tsDesc, null, null);
 		TypeSystem typeSystem = dumbCas.getTypeSystem();
 		// printAllTypes();
+		return typeSystem;
 	}
 
 }

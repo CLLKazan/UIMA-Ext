@@ -5,9 +5,14 @@ package ru.kfu.itis.cll.uima.cas;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Sets.newHashSet;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.ConstraintFactory;
@@ -84,8 +89,8 @@ public class AnnotationUtils {
 	 * @return iterator over annotations overlapping with targetAnno from source
 	 *         iterator
 	 */
-	public static FSIterator<Annotation> getOverlapping(JCas cas, FSIterator<Annotation> iter,
-			Annotation targetAnno) {
+	public static FSIterator<AnnotationFS> getOverlapping(CAS cas, FSIterator<AnnotationFS> iter,
+			AnnotationFS targetAnno) {
 		ConstraintFactory cf = ConstraintFactory.instance();
 		FSMatchConstraint firstDisjunct;
 		{
@@ -108,13 +113,24 @@ public class AnnotationUtils {
 		return cas.createFilteredIterator(iter, overlapConstraint);
 	}
 
-	public static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
-		LinkedList<FST> result = new LinkedList<FST>();
-		iter.moveToFirst();
-		while (iter.isValid()) {
-			result.add(iter.get());
-			iter.moveToNext();
+	public static <FST extends FeatureStructure> void fill(FSIterator<FST> srcIter,
+			Collection<FST> destCol) {
+		srcIter.moveToFirst();
+		while (srcIter.isValid()) {
+			destCol.add(srcIter.get());
+			srcIter.moveToNext();
 		}
+	}
+
+	public static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
+		LinkedList<FST> result = newLinkedList();
+		fill(iter, result);
+		return result;
+	}
+
+	public static <FST extends FeatureStructure> Set<FST> toSet(FSIterator<FST> iter) {
+		HashSet<FST> result = newHashSet();
+		fill(iter, result);
 		return result;
 	}
 

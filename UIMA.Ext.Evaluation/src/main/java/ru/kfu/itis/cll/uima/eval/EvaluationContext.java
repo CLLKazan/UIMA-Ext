@@ -3,11 +3,8 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
-import java.util.SortedSet;
-
 import org.apache.commons.lang3.event.EventListenerSupport;
-import org.apache.uima.cas.Type;
-import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.cas.text.AnnotationFS;
 
 import ru.kfu.itis.cll.uima.eval.event.EvaluationListener;
 
@@ -27,17 +24,22 @@ public class EvaluationContext {
 		listenerSupport.addListener(newListener);
 	}
 
-	public void reportMissing(Type type, Annotation goldAnno) {
-		listenerSupport.fire().onMissing(currentDocUri, type, goldAnno);
+	public void reportMissing(AnnotationFS goldAnno) {
+		listenerSupport.fire().onMissing(currentDocUri, goldAnno);
 	}
 
-	public void reportMatching(Type type, SortedSet<Annotation> goldAnnos,
-			SortedSet<Annotation> sysAnnos) {
-		listenerSupport.fire().onMatching(currentDocUri, type, goldAnnos, sysAnnos);
+	public void reportExactMatch(AnnotationFS goldAnno,
+			AnnotationFS sysAnno) {
+		listenerSupport.fire().onExactMatch(currentDocUri, goldAnno, sysAnno);
 	}
 
-	public void reportSpurious(Type type, Annotation sysAnno) {
-		listenerSupport.fire().onSpurious(currentDocUri, type, sysAnno);
+	public void reportPartialMatch(AnnotationFS goldAnno,
+			AnnotationFS sysAnno) {
+		listenerSupport.fire().onPartialMatch(currentDocUri, goldAnno, sysAnno);
+	}
+
+	public void reportSpurious(AnnotationFS sysAnno) {
+		listenerSupport.fire().onSpurious(currentDocUri, sysAnno);
 	}
 
 	public void reportEvaluationComplete() {

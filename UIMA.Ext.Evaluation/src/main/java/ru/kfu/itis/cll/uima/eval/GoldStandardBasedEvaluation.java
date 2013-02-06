@@ -3,38 +3,26 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
+import static com.google.common.collect.Maps.newTreeMap;
 import static com.google.common.collect.Sets.newTreeSet;
-import static java.util.Arrays.asList;
-import static org.apache.uima.util.CasCreationUtils.mergeTypeSystems;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath;
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toList;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FSIterator;
-import org.apache.uima.cas.Feature;
-import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.cas.text.AnnotationIndex;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.CasCreationUtils;
 
-import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
 import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
 import ru.kfu.itis.cll.uima.eval.anno.DocumentMetaExtractor;
+import ru.kfu.itis.cll.uima.eval.anno.MatchingStrategy;
 import ru.kfu.itis.cll.uima.eval.cas.CasDirectory;
 import ru.kfu.itis.cll.uima.eval.cas.CasDirectoryFactory;
 
@@ -52,6 +40,7 @@ public class GoldStandardBasedEvaluation {
 	private CasDirectory goldStandardDir;
 	private AnnotationExtractor annotationExtractor;
 	private DocumentMetaExtractor docMetaExtractor;
+	private MatchingStrategy matchingStrategy;
 
 	// TODO replace configuration object passing by IOC injections 
 	public GoldStandardBasedEvaluation(EvaluationConfig config) throws UIMAException, IOException {
@@ -86,57 +75,68 @@ public class GoldStandardBasedEvaluation {
 	private void evaluate(EvaluationContext ctx, CAS goldCas, CAS sysCas) {
 		FSIterator<AnnotationFS> goldAnnoIter = annotationExtractor.extract(goldCas);
 		Set<AnnotationFS> goldProcessed = new HashSet<AnnotationFS>();
-		SortedSet<AnnotationFS> sysProcessed = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+		// system annotations that exactly match a gold one
+		SortedSet<AnnotationFS> sysMatched = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+		// matches
+		TreeMap<AnnotationFS, MatchInfo> matchesMap = newTreeMap(AnnotationOffsetComparator.INSTANCE);
 		while (goldAnnoIter.hasNext()) {
 			AnnotationFS goldAnno = goldAnnoIter.next();
 			if (goldProcessed.contains(goldAnno)) {
 				continue;
 			}
+			MatchInfo mi = new MatchInfo();
+			matchesMap.put(goldAnno, mi);
 
-			JCasComposite goldClosure = new JCasComposite(goldCas);
-			JCasComposite sysClosure = new JCasComposite(sysCas);
-			fillClosure(goldAnno, goldClosure, sysClosure);
+			Set<AnnotationFS> candidatesRaw = matchingStrategy.searchCandidates(goldAnno, sysCas);
+			Set<AnnotationFS> candidates = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+			candidates.addAll(candidatesRaw);
 
-			if (sysClosure.annos.isEmpty()) {
-				ctx.reportMissing(type, goldAnno);
-			} else {
-				ctx.reportMatching(type, goldClosure.annos, sysClosure.annos);
-				sysProcessed.addAll(sysClosure.annos);
+			candidates.removeAll(sysMatched);
+			AnnotationFS exactSys = matchingStrategy.searchExactMatch(goldAnno, candidates);
+			if (exactSys != null) {
+				mi.exact = exactSys;
+				sysMatched.add(exactSys);
 			}
-			goldProcessed.addAll(goldClosure.annos);
+			mi.partialSet.addAll(candidates);
+
+			goldProcessed.add(goldAnno);
 		}
 
-		// report spurious (false positive)
+		// filter partials that match a next gold
+		for (MatchInfo mi : matchesMap.values()) {
+			mi.partialSet.removeAll(sysMatched);
+		}
+
+		// sysProcessed = sysMatched + system annotations that match partially
+		Set<AnnotationFS> sysProcessed = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+		sysProcessed.addAll(sysMatched);
+		// report for each gold anno
+		for (AnnotationFS goldAnno : matchesMap.keySet()) {
+			MatchInfo mi = matchesMap.get(goldAnno);
+			if (mi.exact != null) {
+				ctx.reportExactMatch(goldAnno, mi.exact);
+			} else {
+				ctx.reportMissing(goldAnno);
+			}
+			for (AnnotationFS partialSys : mi.partialSet) {
+				ctx.reportPartialMatch(goldAnno, partialSys);
+			}
+			sysProcessed.addAll(mi.partialSet);
+		}
+
+		// report spurious (false positive) that do not match partially
 		FSIterator<AnnotationFS> sysAnnoIter = annotationExtractor.extract(sysCas);
 		while (sysAnnoIter.hasNext()) {
 			AnnotationFS sysAnno = sysAnnoIter.next();
 			if (!sysProcessed.contains(sysAnno)) {
-				ctx.reportSpurious(type, sysAnno);
-			}
-		}
-	}
-
-	private void fillClosure(AnnotationFS targetAnno, JCasComposite targetSide,
-			JCasComposite otherSide) {
-		targetSide.annos.add(targetAnno);
-
-		List<Annotation> otherAnnos = toList(getOverlapping(
-				otherSide.cas, annotationExtractor.extract(otherSide.cas), targetAnno));
-		for (Annotation otherAnno : otherAnnos) {
-			if (!otherSide.annos.contains(otherAnno)) {
-				// swap sides
-				fillClosure(otherAnno, otherSide, targetSide);
+				ctx.reportSpurious(sysAnno);
 			}
 		}
 	}
 }
 
-class JCasComposite {
-	SortedSet<AnnotationFS> annos;
-	CAS cas;
+class MatchInfo {
 
-	public JCasComposite(CAS cas) {
-		this.cas = cas;
-		this.annos = new TreeSet<AnnotationFS>(AnnotationOffsetComparator.INSTANCE);
-	}
+	AnnotationFS exact;
+	TreeSet<AnnotationFS> partialSet = newTreeSet(AnnotationOffsetComparator.INSTANCE);
 }
