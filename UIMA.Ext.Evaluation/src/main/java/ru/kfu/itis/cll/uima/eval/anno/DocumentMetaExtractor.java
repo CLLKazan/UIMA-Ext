@@ -3,10 +3,14 @@
  */
 package ru.kfu.itis.cll.uima.eval.anno;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
 
@@ -16,15 +20,18 @@ import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
  */
 public class DocumentMetaExtractor {
 
-	// TODO inject
+	@Autowired
 	private TypeSystem typeSystem;
+	@Value("${document.meta.annotationType}")
 	private String docUriAnnotationType;
+	@Value("${document.meta.uriFeatureName}")
 	private String docUriFeatureName;
 	// derived
 	private Type docMetaType;
 	private Feature docUriFeature;
 
-	// TODO invoke
+	@SuppressWarnings("unused")
+	@PostConstruct
 	private void init() {
 		docMetaType = typeSystem.getType(docUriAnnotationType);
 		if (docMetaType == null) {

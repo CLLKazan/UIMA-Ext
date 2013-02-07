@@ -3,93 +3,88 @@
  */
 package ru.kfu.itis.cll.uima.eval.event;
 
-import static com.google.common.collect.Collections2.transform;
-
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.SortedSet;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.uima.cas.Type;
-import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.cas.text.AnnotationFS;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class LoggingEvaluationListener implements EvaluationListener {
+public class LoggingEvaluationListener extends PrintingEvaluationListener {
 
+	// config
 	private boolean stripDocumentUri;
-	// derived
-	private PrintWriter printer;
 
-	public LoggingEvaluationListener(Writer writer, boolean stripDocumentUri) {
+	// state
+	private String currentDocUri;
+	// collect system annotations that partially match gold ones
+	// this is necessary to avoid their duplications as Spurious
+	private Set<AnnotationFS> partiallyMatched;
+
+	public void setStripDocumentUri(boolean stripDocumentUri) {
 		this.stripDocumentUri = stripDocumentUri;
-		printer = new PrintWriter(writer, true);
 	}
 
-	public LoggingEvaluationListener(Writer writer) {
-		this(writer, false);
+	@Override
+	public void onDocumentChange(String docUri) {
+		this.currentDocUri = prepareUri(docUri);
+		partiallyMatched = Sets.newHashSet();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onMissing(String docUri, Type type, Annotation goldAnno) {
-		docUri = prepareUri(docUri);
-		printRow(type.getShortName(), "Missing",
+	public void onMissing(AnnotationFS goldAnno) {
+		printRow(goldAnno.getType().getShortName(), "Missing",
 				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
-				null, null, docUri);
+				null, null, currentDocUri);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onMatching(String docUri, Type type, SortedSet<Annotation> goldAnnos,
-			SortedSet<Annotation> sysAnnos) {
-		docUri = prepareUri(docUri);
-		if (goldAnnos.size() == 1 && sysAnnos.size() == 1) {
-			Annotation goldAnno = goldAnnos.iterator().next();
-			Annotation sysAnno = sysAnnos.iterator().next();
-			if (goldAnno.getBegin() == sysAnno.getBegin()
-					&& goldAnno.getEnd() == sysAnno.getEnd()) {
-				printRow(type.getShortName(), "Exact",
-						goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
-						sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
-						docUri);
-				return;
-			}
-		}
-		printRow(type.getShortName(), "Partial",
-				Joiner.on(" /// ").join(transform(goldAnnos, annoToTxt)),
-				Joiner.on(", ").join(transform(goldAnnos, annoToOffset)),
-				Joiner.on(" /// ").join(transform(sysAnnos, annoToTxt)),
-				Joiner.on(", ").join(transform(sysAnnos, annoToOffset)),
-				docUri);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onSpurious(String docUri, Type type, Annotation sysAnno) {
-		docUri = prepareUri(docUri);
-		printRow(type.getShortName(), "Spurious",
-				null, null,
+	public void onExactMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
+		printRow(goldAnno.getType().getShortName(), "Exact",
+				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
 				sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
-				docUri);
+				currentDocUri);
+	}
+
+	@Override
+	public void onPartialMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
+		partiallyMatched.add(sysAnno);
+		printRow(goldAnno.getType().getShortName(), "Partial",
+				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
+				sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+				currentDocUri);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onSpurious(AnnotationFS sysAnno) {
+		if (!partiallyMatched.contains(sysAnno)) {
+			printRow(sysAnno.getType().getShortName(), "Spurious",
+					null, null,
+					sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+					currentDocUri);
+		}
 	}
 
 	@Override
 	public void onEvaluationComplete() {
+		partiallyMatched = null;
+
 	}
 
 	private String prepareUri(String srcUri) {
@@ -140,18 +135,4 @@ public class LoggingEvaluationListener implements EvaluationListener {
 	private String escTab(String src) {
 		return StringUtils.replace(src, "\t", "    ");
 	}
-
-	private final Function<Annotation, String> annoToTxt = new Function<Annotation, String>() {
-		@Override
-		public String apply(Annotation input) {
-			return input.getCoveredText();
-		}
-	};
-
-	private final Function<Annotation, Integer> annoToOffset = new Function<Annotation, Integer>() {
-		@Override
-		public Integer apply(Annotation input) {
-			return input.getBegin();
-		}
-	};
 }

@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Iterator;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.uima.UIMAException;
@@ -20,6 +22,9 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCreationUtils;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Function;
@@ -29,10 +34,14 @@ import com.google.common.collect.Iterators;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class FSCasDirectory implements CasDirectory {
+public class FSCasDirectory implements CasDirectory, BeanNameAware {
 
+	private String beanName;
 	private File dir;
+	@Autowired
 	private TypeSystem ts;
+	@Autowired
+	private Environment env;
 
 	@Override
 	public void setTypeSystem(TypeSystem ts) {
@@ -47,7 +56,18 @@ public class FSCasDirectory implements CasDirectory {
 	}
 
 	@Override
+	public void setBeanName(String beanName) {
+		this.beanName = beanName;
+	}
+
+	@PostConstruct
+	@Override
 	public void init() {
+		this.dir = env.getProperty(beanName + ".dir", File.class);
+		if (dir == null) {
+			throw new IllegalStateException(String.format(
+					"'dir' value is not specified for %s", beanName));
+		}
 	}
 
 	/**

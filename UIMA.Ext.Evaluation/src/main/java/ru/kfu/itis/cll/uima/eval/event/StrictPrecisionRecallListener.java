@@ -7,52 +7,39 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.SortedSet;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.uima.cas.Type;
-import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.cas.text.AnnotationFS;
 
 import ru.kfu.itis.cll.uima.eval.measure.RecognitionMeasures;
-
-import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class StrictPrecisionRecallListener implements EvaluationListener {
-
-	// config
-	private String targetTypeName;
-	// derived
-	private PrintWriter printer;
+public class StrictPrecisionRecallListener extends TypedPrintingEvaluationListener {
 
 	// state fields
-	private RecognitionMeasures measures;
+	private RecognitionMeasures measures = new RecognitionMeasures();
 
-	public StrictPrecisionRecallListener(Writer writer) {
-		this(null, writer);
+	@Override
+	@PostConstruct
+	protected void init() throws Exception {
+		super.init();
 	}
 
-	public StrictPrecisionRecallListener(String targetTypeName, Writer writer) {
-		this();
-		this.targetTypeName = targetTypeName;
-		this.printer = new PrintWriter(writer, true);
-	}
-
-	private StrictPrecisionRecallListener() {
-		this.measures = new RecognitionMeasures();
+	@Override
+	public void onDocumentChange(String docUri) {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onMissing(String docUri, Type type, Annotation goldAnno) {
-		if (!checkType(type)) {
+	public void onMissing(AnnotationFS goldAnno) {
+		if (!checkType(goldAnno)) {
 			return;
 		}
 		measures.incrementMissing(1);
@@ -62,37 +49,23 @@ public class StrictPrecisionRecallListener implements EvaluationListener {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onMatching(String docUri, Type type, SortedSet<Annotation> goldAnnos,
-			SortedSet<Annotation> sysAnnos) {
-		if (!checkType(type)) {
+	public void onExactMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
+		if (!checkType(goldAnno)) {
 			return;
 		}
-		int matchedNum = 0;
-		SortedSet<Annotation> handledSysAnnos = Sets.newTreeSet(sysAnnos.comparator());
-		for (Annotation gAnno : goldAnnos) {
-			if (sysAnnos.contains(gAnno)) {
-				// matched
-				measures.incrementMatching(1);
-				handledSysAnnos.add(gAnno);
-				matchedNum++;
-			} else {
-				// missed
-				measures.incrementMissing(1);
-			}
-		}
-		int spuriousNum = Sets.difference(sysAnnos, handledSysAnnos).size();
-		if (spuriousNum != sysAnnos.size() - matchedNum) {
-			throw new IllegalStateException("Assertion failed");
-		}
-		measures.incrementSpurious(spuriousNum);
+		measures.incrementMatching(1);
+	}
+
+	@Override
+	public void onPartialMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onSpurious(String docUri, Type type, Annotation sysAnno) {
-		if (!checkType(type)) {
+	public void onSpurious(AnnotationFS sysAnno) {
+		if (!checkType(sysAnno)) {
 			return;
 		}
 		measures.incrementSpurious(1);
@@ -104,7 +77,7 @@ public class StrictPrecisionRecallListener implements EvaluationListener {
 	@Override
 	public void onEvaluationComplete() {
 		String report = String.format(REPORT_FMT,
-				targetTypeName == null ? "Overall" : targetTypeName,
+				targetType == null ? "Overall" : targetType.getName(),
 				measures.getMatchedScore(),
 				measures.getMissedScore(),
 				measures.getSpuriousScore(),
@@ -112,17 +85,18 @@ public class StrictPrecisionRecallListener implements EvaluationListener {
 				measures.getRecall() * 100,
 				measures.getF1() * 100);
 		printer.println(report);
+		clean();
 	}
 
 	public RecognitionMeasures getMeasures() {
 		return measures;
 	}
 
-	private boolean checkType(Type type) {
-		if (targetTypeName == null) {
+	private boolean checkType(AnnotationFS anno) {
+		if (targetType == null) {
 			return true;
 		}
-		return type.getName().equals(targetTypeName);
+		return ts.subsumes(targetType, anno.getType());
 	}
 
 	private static final String PATH_REPORT_FMT = "ru/kfu/itis/cll/uima/eval/event/strict-pr-listener-report.fmt";

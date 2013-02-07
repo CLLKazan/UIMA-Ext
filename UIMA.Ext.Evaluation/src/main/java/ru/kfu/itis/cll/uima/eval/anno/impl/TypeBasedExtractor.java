@@ -3,17 +3,25 @@
  */
 package ru.kfu.itis.cll.uima.eval.anno.impl;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static org.apache.commons.lang3.StringUtils.split;
+
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIterator;
+import org.apache.uima.cas.FSMatchConstraint;
+import org.apache.uima.cas.FSTypeConstraint;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-import ru.kfu.itis.cll.uima.eval.EvaluationConfig;
 import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
 
 /**
@@ -22,12 +30,20 @@ import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
  */
 public class TypeBasedExtractor implements AnnotationExtractor {
 
+	@Autowired
 	private TypeSystem typeSystem;
 
-	private Set<Type> annoTypes;
+	@Value("${annotationTypes}")
+	private String annoTypeNamesString;
 
-	private void initTypes(EvaluationConfig config) {
-		Set<String> annoTypeNames = config.getAnnoTypes();
+	// derived
+	private Set<Type> annoTypes;
+	private FSMatchConstraint annoMatchConstraint;
+
+	@SuppressWarnings("unused")
+	@PostConstruct
+	private void init() {
+		Set<String> annoTypeNames = newHashSet(split(annoTypeNamesString, " ,;"));
 		annoTypes = new HashSet<Type>();
 		for (String curTypeName : annoTypeNames) {
 			Type curType = typeSystem.getType(curTypeName);
@@ -36,6 +52,13 @@ public class TypeBasedExtractor implements AnnotationExtractor {
 			}
 			annoTypes.add(curType);
 		}
+		// prepare FS constraint
+		ConstraintFactory cf = ConstraintFactory.instance();
+		FSTypeConstraint typeConstr = cf.createTypeConstraint();
+		for (Type curType : annoTypes) {
+			typeConstr.add(curType);
+		}
+		annoMatchConstraint = typeConstr;
 	}
 
 	/**
@@ -43,8 +66,9 @@ public class TypeBasedExtractor implements AnnotationExtractor {
 	 */
 	@Override
 	public FSIterator<AnnotationFS> extract(CAS cas) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO optimization point - get common ancestor type if any
+		FSIterator<AnnotationFS> allAnnoIter = cas.getAnnotationIndex().iterator();
+		return cas.createFilteredIterator(allAnnoIter, annoMatchConstraint);
 	}
 
 }
