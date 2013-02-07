@@ -4,10 +4,10 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.2-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-dictionary-patterns</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>UIMA.DictionaryPatterns</name>
 	<description>UIMA Mixed Dictionary&amp;Patterns-based matching components</description>
 
@@ -16,7 +16,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.7</version>
 				<executions>
 					<execution>
 						<id>add-jcasgen-sources</id>
@@ -39,10 +38,6 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

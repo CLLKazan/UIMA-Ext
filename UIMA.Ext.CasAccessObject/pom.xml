@@ -4,7 +4,8 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.2-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-ext-cao</artifactId>
 	<name>UIMA.Ext.CASAccessObject</name>
@@ -18,10 +19,6 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

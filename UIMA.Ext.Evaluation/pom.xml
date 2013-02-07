@@ -4,12 +4,27 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.2-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-ext-eval</artifactId>
 	<name>UIMA.Ext.Eval</name>
 	<description>Tools for UIMA CAS-based performance evaluation (like precision, recall, etc.)</description>
-
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
 	<dependencies>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
