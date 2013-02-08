@@ -6,7 +6,6 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 import static com.google.common.collect.ImmutableMap.copyOf;
 import static com.google.common.collect.Tables.unmodifiableTable;
 import static java.lang.System.currentTimeMillis;
-import static java.util.Collections.unmodifiableMap;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -71,7 +70,10 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	@Override
 	public List<Wordform> getEntries(String str) {
         WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
-		return ImmutableList.copyOf(wfPredictor.predict(str, result));
+        if (result.isMatchExact())
+            return Lists.newArrayList(result);
+        else
+	    	return ImmutableList.copyOf(wfPredictor.predict(str, result));
 	}
 
 	/**

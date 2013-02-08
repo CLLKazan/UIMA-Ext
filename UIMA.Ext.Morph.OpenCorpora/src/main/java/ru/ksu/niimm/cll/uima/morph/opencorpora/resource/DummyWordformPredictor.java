@@ -33,11 +33,6 @@ public class DummyWordformPredictor implements WordformPredictor{
 
     @Override
     public List<Wordform> predict(String str, WordformTSTSearchResult result) {
-        // if match exact
-        if (result.getMatchedLength() == str.length())
-            return Lists.newArrayList(result);
-
-        // otherwise
         Set<Wordform> wfSet = new HashSet<Wordform>();
         for (Wordform wf : result) {
             Lemma lemma = dict.getLemma(wf.getLemmaId()).cloneWithoutIdAndString();
