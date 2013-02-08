@@ -19,6 +19,8 @@
 
 	<bean class="ru.kfu.itis.cll.uima.eval.anno.DocumentMetaExtractor" />
 
+	<bean class="ru.kfu.itis.cll.uima.eval.anno.impl.ConfigurableOverlapMatchingStrategy" />
+
 	<bean class="ru.kfu.itis.cll.uima.eval.EvaluationContext" />
 
 	<bean class="ru.kfu.itis.cll.uima.eval.GoldStandardBasedEvaluation" />

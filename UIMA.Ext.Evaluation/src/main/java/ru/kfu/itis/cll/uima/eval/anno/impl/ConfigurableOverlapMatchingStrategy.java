@@ -4,6 +4,7 @@
 package ru.kfu.itis.cll.uima.eval.anno.impl;
 
 import org.apache.uima.cas.text.AnnotationFS;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.matching.Matcher;
 import ru.kfu.itis.cll.uima.eval.matching.MatchingConfiguration;
@@ -14,7 +15,7 @@ import ru.kfu.itis.cll.uima.eval.matching.MatchingConfiguration;
  */
 public class ConfigurableOverlapMatchingStrategy extends OverlapMatchingStrategy {
 
-	// TODO inject
+	@Autowired
 	private MatchingConfiguration config;
 
 	/**

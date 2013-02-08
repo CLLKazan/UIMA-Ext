@@ -22,6 +22,7 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import ru.kfu.itis.cll.uima.eval.ConfigurationKeys;
 import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
 
 /**
@@ -33,7 +34,7 @@ public class TypeBasedExtractor implements AnnotationExtractor {
 	@Autowired
 	private TypeSystem typeSystem;
 
-	@Value("${annotationTypes}")
+	@Value("${" + ConfigurationKeys.KEY_ANNOTATION_TYPES + "}")
 	private String annoTypeNamesString;
 
 	// derived

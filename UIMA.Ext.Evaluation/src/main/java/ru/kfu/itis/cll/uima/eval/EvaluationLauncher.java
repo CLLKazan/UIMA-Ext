@@ -4,6 +4,8 @@
 package ru.kfu.itis.cll.uima.eval;
 
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
+import static ru.kfu.itis.cll.uima.eval.ConfigurationKeys.PREFIX_LISTENER_ID;
+import static ru.kfu.itis.cll.uima.eval.ConfigurationKeys.PREFIX_LISTENER_PROPERTY;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,12 +56,13 @@ public class EvaluationLauncher {
 		xmlBDReader.loadBeanDefinitions(APP_CONTEXT_LOCATION);
 
 		// register listeners
-		Map<String, String> listenerImpls = getPrefixedKeyPairs(configProperties, "listener.");
+		Map<String, String> listenerImpls = getPrefixedKeyPairs(configProperties,
+				PREFIX_LISTENER_ID);
 		for (String listenerId : listenerImpls.keySet()) {
 			String listenerClass = listenerImpls.get(listenerId);
 			BeanDefinitionBuilder bb = genericBeanDefinition(listenerClass);
 			Map<String, String> listenerProperties = getPrefixedKeyPairs(configProperties,
-					"listenerProperties." + listenerId + ".");
+					PREFIX_LISTENER_PROPERTY + listenerId + ".");
 			for (String propName : listenerProperties.keySet()) {
 				bb.addPropertyValue(propName, listenerProperties.get(propName));
 			}
