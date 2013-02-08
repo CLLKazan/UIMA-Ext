@@ -6,8 +6,7 @@ package ru.kfu.itis.cll.uima.eval.anno.impl;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.kfu.itis.cll.uima.eval.matching.Matcher;
-import ru.kfu.itis.cll.uima.eval.matching.MatchingConfiguration;
+import ru.kfu.itis.cll.uima.eval.matching.CompositeMatcher;
 
 /**
  * @author Rinat Gareev
@@ -16,19 +15,14 @@ import ru.kfu.itis.cll.uima.eval.matching.MatchingConfiguration;
 public class ConfigurableOverlapMatchingStrategy extends OverlapMatchingStrategy {
 
 	@Autowired
-	private MatchingConfiguration config;
+	private CompositeMatcher<AnnotationFS> topMatcher;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected boolean match(AnnotationFS goldAnno, AnnotationFS candAnno) {
-		for (Matcher<AnnotationFS> m : config.getMatchers()) {
-			if (!m.match(goldAnno, candAnno)) {
-				return false;
-			}
-		}
-		return true;
+		return topMatcher.match(goldAnno, candAnno);
 	}
 
 }

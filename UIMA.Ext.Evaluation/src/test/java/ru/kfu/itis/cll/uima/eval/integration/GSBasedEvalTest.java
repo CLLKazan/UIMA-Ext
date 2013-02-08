@@ -3,75 +3,85 @@
  */
 package ru.kfu.itis.cll.uima.eval.integration;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
-import java.io.OutputStreamWriter;
-import java.util.Map;
+import javax.annotation.Resource;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-import ru.kfu.itis.cll.uima.eval.EvaluationContext;
 import ru.kfu.itis.cll.uima.eval.GoldStandardBasedEvaluation;
+import ru.kfu.itis.cll.uima.eval.event.EvaluationListener;
 import ru.kfu.itis.cll.uima.eval.event.LoggingEvaluationListener;
 import ru.kfu.itis.cll.uima.eval.event.SoftPrecisionRecallListener;
 import ru.kfu.itis.cll.uima.eval.event.StrictPrecisionRecallListener;
 import ru.kfu.itis.cll.uima.eval.measure.RecognitionMeasures;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * @author Rinat Gareev
  * 
  */
-public class GSBasedEvalTest {
+@ContextConfiguration(classes = GSBasedEvalTest.AppContext.class)
+public class GSBasedEvalTest extends AbstractJUnit4SpringContextTests {
 
-	/*
+	@PropertySource("classpath:GSBasedEvalTest.properties")
+	@Configuration
+	@ImportResource("classpath:ru/kfu/itis/cll/uima/eval/app-context.xml")
+	public static class AppContext {
+		@Bean
+		public EvaluationListener softEvalListener() {
+			SoftPrecisionRecallListener listener = new SoftPrecisionRecallListener();
+			listener.setTargetTypeName("test.TestFirst");
+			return listener;
+		}
+
+		@Bean
+		public EvaluationListener strictEvalListener1() {
+			StrictPrecisionRecallListener listener = new StrictPrecisionRecallListener();
+			listener.setTargetTypeName("test.TestFirst");
+			return listener;
+		}
+
+		@Bean
+		public EvaluationListener strictEvalListener2() {
+			StrictPrecisionRecallListener listener = new StrictPrecisionRecallListener();
+			listener.setTargetTypeName("test.TestSecond");
+			return listener;
+		}
+
+		@Bean
+		public EvaluationListener strictEvalListenerOverall() {
+			return new StrictPrecisionRecallListener();
+		}
+
+		@Bean
+		public EvaluationListener loggingListener() {
+			return new LoggingEvaluationListener();
+		}
+	}
+
+	@Autowired
+	private GoldStandardBasedEvaluation evaluator;
+	@Resource(name = "softEvalListener")
+	private SoftPrecisionRecallListener softEvalListener;
+	@Resource(name = "strictEvalListener1")
+	private StrictPrecisionRecallListener strictEvalListener1;
+	@Resource(name = "strictEvalListener2")
+	private StrictPrecisionRecallListener strictEvalListener2;
+	@Resource(name = "strictEvalListenerOverall")
+	private StrictPrecisionRecallListener strictEvalListenerOverall;
+
 	@Test
+	@DirtiesContext
 	public void test() throws Exception {
-		EvaluationConfig cfg = new EvaluationConfig();
-		cfg.setAnnoTypes(Sets.newHashSet("test.TestFirst", "test.TestSecond"));
-		cfg.setDocUriAnnotationType("ru.kfu.itis.cll.uima.commons.DocumentMetadata");
-		cfg.setDocUriFeatureName("sourceUri");
-
-		cfg.setGoldStandardImpl("ru.kfu.itis.cll.uima.eval.cas.FSCasDirectory");
-		Map<String, String> goldCDProps = Maps.newHashMap();
-		goldCDProps.put("dir", "data/test-gold");
-		cfg.setGoldStandardProps(goldCDProps);
-
-		cfg.setSystemOutputImpl("ru.kfu.itis.cll.uima.eval.cas.FSCasDirectory");
-		Map<String, String> sysCDProps = Maps.newHashMap();
-		sysCDProps.put("dir", "data/test-sysout");
-		cfg.setSystemOutputProps(sysCDProps);
-
-		cfg.setTypeSystemDescPaths(new String[] { "desc/types/aggregate-4Runtime-TS.xml" });
-
-		OutputStreamWriter outWriter = new OutputStreamWriter(System.out);
-
-		EvaluationContext evalCtx = new EvaluationContext();
-		SoftPrecisionRecallListener softEvalListener = new SoftPrecisionRecallListener(
-				"test.TestFirst",
-				outWriter);
-		evalCtx.addListener(softEvalListener);
-
-		StrictPrecisionRecallListener strictEvalListener1 = new StrictPrecisionRecallListener(
-				"test.TestFirst",
-				outWriter);
-		evalCtx.addListener(strictEvalListener1);
-
-		StrictPrecisionRecallListener strictEvalListener2 = new StrictPrecisionRecallListener(
-				"test.TestSecond",
-				outWriter);
-		evalCtx.addListener(strictEvalListener2);
-
-		StrictPrecisionRecallListener strictEvalListenerOverall = new StrictPrecisionRecallListener(
-				outWriter);
-		evalCtx.addListener(strictEvalListenerOverall);
-
-		LoggingEvaluationListener loggingListener = new LoggingEvaluationListener(outWriter);
-		evalCtx.addListener(loggingListener);
-
-		new GoldStandardBasedEvaluation(cfg).run(evalCtx);
+		evaluator.run();
 
 		{
 			RecognitionMeasures softMetrics = softEvalListener.getMeasures();
@@ -94,7 +104,7 @@ public class GSBasedEvalTest {
 			assertEquals(0.22f, strictMeasures.getRecall(), 0.01f);
 			assertEquals(0.222f, strictMeasures.getF1(), 0.001f);
 		}
-		
+
 		{
 			RecognitionMeasures strictMeasures = strictEvalListener2.getMeasures();
 			assertEquals(2f, strictMeasures.getMatchedScore(), 0.001f);
@@ -105,7 +115,7 @@ public class GSBasedEvalTest {
 			assertEquals(0.67f, strictMeasures.getRecall(), 0.01f);
 			assertEquals(0.571f, strictMeasures.getF1(), 0.001f);
 		}
-		
+
 		{
 			RecognitionMeasures strictMeasures = strictEvalListenerOverall.getMeasures();
 			assertEquals(4f, strictMeasures.getMatchedScore(), 0.001f);
@@ -117,5 +127,4 @@ public class GSBasedEvalTest {
 			assertEquals(0.320f, strictMeasures.getF1(), 0.001f);
 		}
 	}
-	*/
 }

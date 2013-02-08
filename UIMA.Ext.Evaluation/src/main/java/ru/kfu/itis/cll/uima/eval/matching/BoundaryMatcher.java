@@ -11,6 +11,11 @@ import org.apache.uima.cas.text.AnnotationFS;
  */
 public class BoundaryMatcher implements Matcher<AnnotationFS> {
 
+	public static final BoundaryMatcher INSTANCE = new BoundaryMatcher();
+
+	private BoundaryMatcher() {
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -19,4 +24,8 @@ public class BoundaryMatcher implements Matcher<AnnotationFS> {
 		return ref.getBegin() == cand.getBegin() && ref.getEnd() == cand.getEnd();
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 }

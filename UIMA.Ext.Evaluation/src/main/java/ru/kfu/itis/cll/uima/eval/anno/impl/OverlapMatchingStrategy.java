@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
 import ru.kfu.itis.cll.uima.eval.anno.MatchingStrategy;
@@ -20,7 +21,7 @@ import ru.kfu.itis.cll.uima.eval.anno.MatchingStrategy;
  */
 public abstract class OverlapMatchingStrategy implements MatchingStrategy {
 
-	// TODO inject
+	@Autowired
 	private AnnotationExtractor annotationExtractor;
 
 	@Override

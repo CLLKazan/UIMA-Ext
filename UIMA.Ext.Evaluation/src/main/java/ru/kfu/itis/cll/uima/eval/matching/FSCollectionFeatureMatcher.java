@@ -9,6 +9,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
@@ -19,8 +23,8 @@ import org.uimafit.util.FSCollectionFactory;
  * @author Rinat Gareev
  * 
  */
-public class FSCollectionFeatureMatcher<E extends FeatureStructure> implements
-		Matcher<FeatureStructure> {
+public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends FeatureStructure>
+		implements Matcher<FST> {
 
 	private Feature feature;
 	private Matcher<E> elemMatcher;
@@ -47,7 +51,7 @@ public class FSCollectionFeatureMatcher<E extends FeatureStructure> implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean match(FeatureStructure ref, FeatureStructure cand) {
+	public boolean match(FST ref, FST cand) {
 		Collection<E> refCol = getCollection(ref);
 		Collection<E> candCol = getCollection(cand);
 		if (refCol == null) {
@@ -79,6 +83,31 @@ public class FSCollectionFeatureMatcher<E extends FeatureStructure> implements
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(feature).append(elemMatcher).append(ignoreOrder)
+				.toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof FSCollectionFeatureMatcher)) {
+			return false;
+		}
+		FSCollectionFeatureMatcher<?, ?> that = (FSCollectionFeatureMatcher<?, ?>) obj;
+		return new EqualsBuilder().append(this.feature, that.feature)
+				.append(this.elemMatcher, that.elemMatcher)
+				.append(this.ignoreOrder, that.ignoreOrder).isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("feature", feature)
+				.append("elemMatcher", elemMatcher)
+				.append("ignoreOrder", ignoreOrder).toString();
 	}
 
 	private int search(E refElem, List<E> candidatesList) {

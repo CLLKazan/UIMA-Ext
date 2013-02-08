@@ -3,6 +3,10 @@
  */
 package ru.kfu.itis.cll.uima.eval.matching;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 
@@ -37,6 +41,29 @@ public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStruc
 			return false;
 		}
 		return valueMatcher.match(refValue, candValue);
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(feature).append(valueMatcher).toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof FSFeatureMatcher)) {
+			return false;
+		}
+		FSFeatureMatcher<?, ?> that = (FSFeatureMatcher<?, ?>) obj;
+		return new EqualsBuilder().append(this.feature, that.feature)
+				.append(this.valueMatcher, that.valueMatcher)
+				.isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("feature", feature)
+				.append("valueMatcher", valueMatcher).toString();
 	}
 
 	private E getValue(FeatureStructure fs) {

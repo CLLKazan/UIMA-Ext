@@ -7,6 +7,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -27,6 +29,12 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	// collect system annotations that partially match gold ones
 	// this is necessary to avoid their duplications as Spurious
 	private Set<AnnotationFS> partiallyMatched;
+
+	@PostConstruct
+	@Override
+	protected void init() throws Exception {
+		super.init();
+	}
 
 	public void setStripDocumentUri(boolean stripDocumentUri) {
 		this.stripDocumentUri = stripDocumentUri;

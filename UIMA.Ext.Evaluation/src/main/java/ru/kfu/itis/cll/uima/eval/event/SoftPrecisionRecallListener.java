@@ -2,6 +2,8 @@ package ru.kfu.itis.cll.uima.eval.event;
 
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.uima.cas.text.AnnotationFS;
 
 import ru.kfu.itis.cll.uima.eval.measure.RecognitionMeasures;
@@ -17,7 +19,7 @@ import com.google.common.collect.Sets;
 public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener {
 
 	// state fields
-	private RecognitionMeasures measures;
+	private RecognitionMeasures measures = new RecognitionMeasures();
 	//
 	private int exactMatchingCounter;
 	private int partialMatchingCounter;
@@ -26,6 +28,12 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 
 	public SoftPrecisionRecallListener() {
 		typeRequired = true;
+	}
+
+	@PostConstruct
+	@Override
+	protected void init() throws Exception {
+		super.init();
 	}
 
 	@Override

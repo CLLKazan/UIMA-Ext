@@ -20,8 +20,8 @@ public class ConfigurationKeys {
 	public static final String KEY_DOCUMENT_META_URI_FEATURE = DOCUMENT_META + ".uriFeatureName";
 	public static final String PREFIX_LISTENER_ID = "listener.";
 	public static final String PREFIX_LISTENER_PROPERTY = "listenerProperty.";
-	public static final String MATCHING_STRATEGY = "matchingStrategy";
-	public static final String KEY_MATCHING_STRATEGY_TARGET_TYPE = "matchingStrategy.targetType";
+	public static final String KEY_MATCHING_CONFIGURATION_TARGET_TYPE = "check.targetType";
+	public static final String PREFIX_MATCHING_CONFIGURATION = "check.";
 
 	// public static final String 
 
