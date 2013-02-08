@@ -10,10 +10,7 @@ import static java.util.Collections.unmodifiableMap;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +52,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	private WordformTST wfByString = new WordformTST();
 
+    @Override
     public void setWfPredictor(WordformPredictor wfPredictor) {
         this.wfPredictor = wfPredictor;
     }
@@ -123,6 +121,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 	}
 
+    @Override
 	public void addLemma(Lemma l) {
 		if (lemmaMap.put(l.getId(), l) != null) {
 			throw new IllegalStateException(String.format(
@@ -313,7 +312,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private void makeUnmodifiable() {
 		gramMap = copyOf(gramMap);
 		numToGram = ImmutableSortedMap.copyOf(numToGram);
-		lemmaMap = unmodifiableMap(lemmaMap);
+//		lemmaMap = unmodifiableMap(lemmaMap);
 		lemmaLinkTypeMap = copyOf(lemmaLinkTypeMap);
 		lemmaLinkTable = unmodifiableTable(lemmaLinkTable);
 	}

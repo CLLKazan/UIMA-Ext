@@ -51,7 +51,7 @@ public class SerializedDictionaryResource implements SharedResourceObject {
 	}
 
 	public MorphDictionary getDictionary() {
-        dict.setWfPredictor(new DummyWordformPredictor());
+        dict.setWfPredictor(new DummyWordformPredictor(dict));
 		return dict;
 	}
 }

@@ -109,22 +109,16 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 
             BitSet grammems = wf.getGrammems();
             int lemmaId = wf.getLemmaId();
-            if (lemmaId > 0) {
-                Lemma lemma = dict.getLemma(wf.getLemmaId());
-                // set lemma id
-                casWf.setLemmaId(lemma.getId());
-                // set lemma norm
-                casWf.setLemma(lemma.getString());
-                // set pos
-                casWf.setPos(dict.getPos(lemma));
-                // set grammems
-                grammems.or(lemma.getGrammems());
-                grammems.andNot(dict.getPosBits());
-            } else {
-                casWf.setLemmaId(0);
-                casWf.setLemma("");
-                casWf.setPos("TODO");
-            }
+            Lemma lemma = dict.getLemma(wf.getLemmaId());
+            // set lemma id
+            casWf.setLemmaId(lemma.getId());
+            // set lemma norm
+            casWf.setLemma(lemma.getString());
+            // set pos
+            casWf.setPos(dict.getPos(lemma));
+            // set grammems
+            grammems.or(lemma.getGrammems());
+            grammems.andNot(dict.getPosBits());
 			List<String> gramSet = dict.toGramSet(grammems);
 			casWf.setGrammems(FSUtils.toStringArray(cas, gramSet));
 
