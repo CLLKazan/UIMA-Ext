@@ -58,18 +58,20 @@ public class WordformTST implements Serializable {
             return null;
         Node currentNode = rootNode;
         Node resultNode = null;
+        int matchLength = 0;
         int charIndex = key.length() - 1;
 
         while (true) {
             if (currentNode == null)
-                return new getNodeLongestPrefixMatchResult(false, resultNode);
+                return new getNodeLongestPrefixMatchResult(matchLength, resultNode);
             int charComp = compareChars(key.charAt(charIndex), currentNode.splitchar);
 
             if (charComp == 0) {
                 charIndex--;
                 if (charIndex < 0)
-                    return new getNodeLongestPrefixMatchResult(true, currentNode);
+                    return new getNodeLongestPrefixMatchResult(key.length(), currentNode);
                 resultNode = currentNode;
+                matchLength = key.length() - charIndex - 1;
                 currentNode = currentNode.getEqKid();
             } else if (charComp < 0) {
                 currentNode = currentNode.getLoKid();
@@ -85,13 +87,14 @@ public class WordformTST implements Serializable {
         if (nodeLongestPrefixMatchResult == null)
             return null;
         // if match exact return iterator over wordforms in just result node
-        if (nodeLongestPrefixMatchResult.isMatchExact() &&
-                nodeLongestPrefixMatchResult.getResultNode().iterator().hasNext())
-            return new WordformTSTSearchResult(true, nodeLongestPrefixMatchResult.getResultNode().iterator());
+        if (nodeLongestPrefixMatchResult.getMatchLength() == key.length() &&
+                    nodeLongestPrefixMatchResult.getResultNode().iterator().hasNext())
+            return new WordformTSTSearchResult(true, key.length(),
+                    nodeLongestPrefixMatchResult.getResultNode().iterator());
         // otherwise, iterate over wordforms in subtree with root in result node
         else
-            return new WordformTSTSearchResult(false,
-                new SubtreeIterator(nodeLongestPrefixMatchResult.getResultNode()));
+            return new WordformTSTSearchResult(false, nodeLongestPrefixMatchResult.getMatchLength(),
+                    new SubtreeIterator(nodeLongestPrefixMatchResult.getResultNode()));
     }
 
     private static class Node implements Serializable, Iterable<Wordform> {
@@ -210,20 +213,20 @@ public class WordformTST implements Serializable {
     }
 
     private class getNodeLongestPrefixMatchResult {
-        private boolean isMatchExact;
+        private int matchLength;
         private Node resultNode;
 
-        private getNodeLongestPrefixMatchResult(boolean isMatchExact, Node resultNode) {
-            this.isMatchExact = isMatchExact;
+        private getNodeLongestPrefixMatchResult(int matchLength, Node resultNode) {
+            this.matchLength = matchLength;
             this.resultNode = resultNode;
+        }
+
+        public int getMatchLength() {
+            return matchLength;
         }
 
         public Node getResultNode() {
             return resultNode;
-        }
-
-        public boolean isMatchExact() {
-            return isMatchExact;
         }
     }
 }
