@@ -69,15 +69,15 @@
             </features>
         </typeDescription>
         <typeDescription>
-            <name>ru.kfu.itis.issst.uima.chunking.cas.Chunk</name>
+            <name>ru.kfu.itis.issst.uima.chunker.cas.Chunk</name>
             <description>Represents typed 'chunk', i.e. a head word with its dependents.
 				Chunk annotation should have the same borders with its head word.</description>
             <supertypeName>uima.tcas.Annotation</supertypeName>
             <features>
                 <featureDescription>
-                    <name>type</name>
+                    <name>chunkType</name>
                     <description/>
-                    <rangeTypeName>ru.kfu.itis.issst.uima.chunking.cas.ChunkType</rangeTypeName>
+                    <rangeTypeName>ru.kfu.itis.issst.uima.chunker.cas.ChunkType</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
                     <name>head</name>
@@ -93,7 +93,7 @@
             </features>
         </typeDescription>
         <typeDescription>
-            <name>ru.kfu.itis.issst.uima.chunking.cas.ChunkType</name>
+            <name>ru.kfu.itis.issst.uima.chunker.cas.ChunkType</name>
             <description/>
             <supertypeName>uima.cas.String</supertypeName>
             <allowedValues>

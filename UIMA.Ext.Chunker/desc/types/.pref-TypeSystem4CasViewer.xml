@@ -1,0 +1,7 @@
+#
+#Mon Feb 11 01:02:15 MSK 2013
+ru.kfu.itis.issst.uima.chunker.cas.Chunk.style=color\=-256;layer\=0;strategy\=BACKGROUND;
+org.opencorpora.cas.Word.style=color\=-16711681;layer\=0;strategy\=BACKGROUND;
+uima.tcas.DocumentAnnotation.style=color\=-856650;layer\=0;strategy\=BACKGROUND;
+ru.kfu.itis.cll.uima.commons.DocumentMetadata.style=color\=-4795150;layer\=0;strategy\=BACKGROUND;
+ru.kfu.itis.issst.uima.chunking.cas.Chunk.style=color\=-4787530;layer\=0;strategy\=BACKGROUND;

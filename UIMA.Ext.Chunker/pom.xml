@@ -4,10 +4,10 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.2-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-ext-chunker</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<name>UIMA.Ext.Chunker</name>
 	<description>UIMA Ext Chunker</description>
 
@@ -110,6 +110,10 @@
 			<artifactId>uimafit</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -127,4 +131,61 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>make-jcas</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-jcas-sources</id>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<phase>generate-sources</phase>
+								<configuration>
+									<executable>java</executable>
+									<arguments>
+										<argument>-classpath</argument>
+										<classpath />
+										<argument>-Duima.datapath=src/main/resources</argument>
+										<argument>org.apache.uima.tools.jcasgen.Jg</argument>
+										<argument>-jcasgeninput</argument>
+										<argument>src/main/resources/ru/kfu/itis/issst/uima/chunker/ts-chunking.xml</argument>
+										<argument>-jcasgenoutput</argument>
+										<argument>src/main/jcas</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>remove-imported-jcas</id>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<phase>process-sources</phase>
+								<configuration>
+									<target>
+										<delete includeemptydirs="true" verbose="true">
+											<fileset dir="src/main/jcas">
+												<exclude name="ru/kfu/itis/issst/uima/chunker/**/*.java"/>
+											</fileset>
+										</delete>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
