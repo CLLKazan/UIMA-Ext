@@ -4,7 +4,7 @@
 package ru.kfu.itis.cll.uima.eval.anno.impl;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toSet;
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toLinkedHashSet;
 
 import java.util.Set;
 
@@ -26,7 +26,8 @@ public abstract class OverlapMatchingStrategy implements MatchingStrategy {
 
 	@Override
 	public Set<AnnotationFS> searchCandidates(AnnotationFS goldAnno, CAS sysCas) {
-		Set<AnnotationFS> result = toSet(getOverlapping(
+		// We return here LinkedHashSet because an appropriate comparator is unknown here
+		Set<AnnotationFS> result = toLinkedHashSet(getOverlapping(
 				sysCas, annotationExtractor.extract(sysCas), goldAnno));
 		return result;
 	}

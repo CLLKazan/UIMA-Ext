@@ -14,6 +14,14 @@ import org.apache.uima.cas.text.AnnotationFS;
  * invoked
  * <li>'Missing', 'ExactMatch', 'PartialMatch' events are raised in order that
  * corresponds to the default ordering of gold annotations in a text
+ * <li>for each gold annotation corresponding events are raised in the following
+ * order:
+ * <ul>
+ * <li>ExactMatch
+ * <li>PartialMatch
+ * <li>Missing
+ * </ul>
+ * <li>Missing and ExactMatch events are mutually exclusive per gold annotation
  * <li>'Spurious' events are raised last per document
  * </ul>
  * 

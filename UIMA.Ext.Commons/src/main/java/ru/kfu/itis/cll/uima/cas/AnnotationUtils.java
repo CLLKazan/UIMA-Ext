@@ -7,6 +7,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -130,6 +131,16 @@ public class AnnotationUtils {
 
 	public static <FST extends FeatureStructure> Set<FST> toSet(FSIterator<FST> iter) {
 		HashSet<FST> result = newHashSet();
+		fill(iter, result);
+		return result;
+	}
+
+	/**
+	 * @param iter
+	 * @return linked hashset to preserve iteration order
+	 */
+	public static <FST extends FeatureStructure> Set<FST> toLinkedHashSet(FSIterator<FST> iter) {
+		HashSet<FST> result = newLinkedHashSet();
 		fill(iter, result);
 		return result;
 	}

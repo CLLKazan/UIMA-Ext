@@ -108,23 +108,23 @@ public class GSBasedEvalTest extends AbstractJUnit4SpringContextTests {
 		{
 			RecognitionMeasures strictMeasures = strictEvalListener2.getMeasures();
 			assertEquals(2f, strictMeasures.getMatchedScore(), 0.001f);
-			assertEquals(2f, strictMeasures.getSpuriousScore(), 0.001f);
+			assertEquals(3f, strictMeasures.getSpuriousScore(), 0.001f);
 			assertEquals(1f, strictMeasures.getMissedScore(), 0.001f);
 
-			assertEquals(0.5f, strictMeasures.getPrecision(), 0.01f);
+			assertEquals(0.4f, strictMeasures.getPrecision(), 0.01f);
 			assertEquals(0.67f, strictMeasures.getRecall(), 0.01f);
-			assertEquals(0.571f, strictMeasures.getF1(), 0.001f);
+			assertEquals(0.501f, strictMeasures.getF1(), 0.001f);
 		}
 
 		{
 			RecognitionMeasures strictMeasures = strictEvalListenerOverall.getMeasures();
 			assertEquals(4f, strictMeasures.getMatchedScore(), 0.001f);
-			assertEquals(9f, strictMeasures.getSpuriousScore(), 0.001f);
+			assertEquals(10f, strictMeasures.getSpuriousScore(), 0.001f);
 			assertEquals(8f, strictMeasures.getMissedScore(), 0.001f);
 
-			assertEquals(0.31f, strictMeasures.getPrecision(), 0.01f);
-			assertEquals(0.33f, strictMeasures.getRecall(), 0.01f);
-			assertEquals(0.320f, strictMeasures.getF1(), 0.001f);
+			assertEquals(0.286f, strictMeasures.getPrecision(), 0.001f);
+			assertEquals(0.333f, strictMeasures.getRecall(), 0.001f);
+			assertEquals(0.308f, strictMeasures.getF1(), 0.001f);
 		}
 	}
 }

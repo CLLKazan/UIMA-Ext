@@ -1,5 +1,7 @@
 package ru.kfu.itis.cll.uima.eval.event;
 
+import static com.google.common.collect.Sets.newHashSet;
+
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -7,8 +9,6 @@ import javax.annotation.PostConstruct;
 import org.apache.uima.cas.text.AnnotationFS;
 
 import ru.kfu.itis.cll.uima.eval.measure.RecognitionMeasures;
-
-import com.google.common.collect.Sets;
 
 /**
  * TODO rename to softPRListener based on overlap length
@@ -24,7 +24,8 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 	private int exactMatchingCounter;
 	private int partialMatchingCounter;
 	// per document state
-	private Set<AnnotationFS> partiallyMatched;
+	private Set<AnnotationFS> sysPartiallyMatched = newHashSet();
+	private Set<AnnotationFS> goldPartiallyMatched = newHashSet();
 
 	public SoftPrecisionRecallListener() {
 		typeRequired = true;
@@ -38,7 +39,8 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 
 	@Override
 	public void onDocumentChange(String docUri) {
-		partiallyMatched = Sets.newHashSet();
+		sysPartiallyMatched.clear();
+		goldPartiallyMatched.clear();
 	}
 
 	@Override
@@ -46,7 +48,10 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 		if (!checkType(goldAnno)) {
 			return;
 		}
-		measures.incrementMissing(1);
+		// Here goldAnno will be considered missing only if it is not partially matched  
+		if (!goldPartiallyMatched.contains(goldAnno)) {
+			measures.incrementMissing(1);
+		}
 	}
 
 	@Override
@@ -62,9 +67,10 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 		if (!checkType(goldAnno)) {
 			return;
 		}
-		if (!partiallyMatched.contains(sysAnno)) {
+		if (!goldPartiallyMatched.contains(goldAnno) && !sysPartiallyMatched.contains(sysAnno)) {
 			onMatch(goldAnno, sysAnno);
-			partiallyMatched.add(sysAnno);
+			sysPartiallyMatched.add(sysAnno);
+			goldPartiallyMatched.add(goldAnno);
 		}
 	}
 
@@ -123,7 +129,9 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 		if (!checkType(sysAnno)) {
 			return;
 		}
-		measures.incrementSpurious(1);
+		if (!sysPartiallyMatched.contains(sysAnno)) {
+			measures.incrementSpurious(1);
+		}
 	}
 
 	@Override
@@ -149,6 +157,7 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 					measures.getF1())).append("\n");
 		}
 		printer.println(sb.toString());
+		clean();
 	}
 
 	public RecognitionMeasures getMeasures() {

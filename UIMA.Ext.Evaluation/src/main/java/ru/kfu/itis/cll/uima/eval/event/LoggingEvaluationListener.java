@@ -92,7 +92,7 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	@Override
 	public void onEvaluationComplete() {
 		partiallyMatched = null;
-
+		clean();
 	}
 
 	private String prepareUri(String srcUri) {

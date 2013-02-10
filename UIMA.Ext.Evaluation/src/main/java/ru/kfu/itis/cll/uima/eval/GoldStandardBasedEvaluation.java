@@ -3,15 +3,14 @@
  */
 package ru.kfu.itis.cll.uima.eval;
 
-import static com.google.common.collect.Maps.newTreeMap;
-import static com.google.common.collect.Sets.newTreeSet;
+import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
@@ -26,7 +25,8 @@ import ru.kfu.itis.cll.uima.eval.anno.MatchingStrategy;
 import ru.kfu.itis.cll.uima.eval.cas.CasDirectory;
 
 /**
- * Note! Complete annotation duplicates (by offsets & type) are ignored.
+ * TODO Complete annotation duplicates (by offsets & type) are ignored. Check
+ * consistency.
  * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -70,9 +70,9 @@ public class GoldStandardBasedEvaluation {
 		FSIterator<AnnotationFS> goldAnnoIter = annotationExtractor.extract(goldCas);
 		Set<AnnotationFS> goldProcessed = new HashSet<AnnotationFS>();
 		// system annotations that exactly match a gold one
-		SortedSet<AnnotationFS> sysMatched = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+		Set<AnnotationFS> sysMatched = newHashSet();
 		// matches
-		TreeMap<AnnotationFS, MatchInfo> matchesMap = newTreeMap(AnnotationOffsetComparator.INSTANCE);
+		LinkedHashMap<AnnotationFS, MatchInfo> matchesMap = newLinkedHashMap();
 		while (goldAnnoIter.hasNext()) {
 			AnnotationFS goldAnno = goldAnnoIter.next();
 			if (goldProcessed.contains(goldAnno)) {
@@ -81,13 +81,14 @@ public class GoldStandardBasedEvaluation {
 			MatchInfo mi = new MatchInfo();
 			matchesMap.put(goldAnno, mi);
 
-			Set<AnnotationFS> candidatesRaw = matchingStrategy.searchCandidates(goldAnno, sysCas);
-			Set<AnnotationFS> candidates = newTreeSet(AnnotationOffsetComparator.INSTANCE);
-			candidates.addAll(candidatesRaw);
+			Set<AnnotationFS> candidates = newLinkedHashSet(
+					matchingStrategy.searchCandidates(goldAnno, sysCas));
 
 			candidates.removeAll(sysMatched);
 			AnnotationFS exactSys = matchingStrategy.searchExactMatch(goldAnno, candidates);
 			if (exactSys != null) {
+				// sanity check
+				assert candidates.contains(exactSys);
 				mi.exact = exactSys;
 				sysMatched.add(exactSys);
 			}
@@ -103,14 +104,17 @@ public class GoldStandardBasedEvaluation {
 
 		// report for each gold anno
 		for (AnnotationFS goldAnno : matchesMap.keySet()) {
+			// assert order declared in EvaluationListener javadoc
 			MatchInfo mi = matchesMap.get(goldAnno);
-			if (mi.exact != null) {
+			boolean matchedExactly = mi.exact != null;
+			if (matchedExactly) {
 				evalCtx.reportExactMatch(goldAnno, mi.exact);
-			} else {
-				evalCtx.reportMissing(goldAnno);
 			}
 			for (AnnotationFS partialSys : mi.partialSet) {
 				evalCtx.reportPartialMatch(goldAnno, partialSys);
+			}
+			if (!matchedExactly) {
+				evalCtx.reportMissing(goldAnno);
 			}
 		}
 
@@ -127,5 +131,5 @@ public class GoldStandardBasedEvaluation {
 
 class MatchInfo {
 	AnnotationFS exact;
-	TreeSet<AnnotationFS> partialSet = newTreeSet(AnnotationOffsetComparator.INSTANCE);
+	Set<AnnotationFS> partialSet = newLinkedHashSet();
 }

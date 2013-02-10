@@ -108,12 +108,6 @@
 				<groupId>org.uimafit</groupId>
 				<artifactId>uimafit</artifactId>
 				<version>1.4.0</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.springframework</groupId>
-						<artifactId>spring-core</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>

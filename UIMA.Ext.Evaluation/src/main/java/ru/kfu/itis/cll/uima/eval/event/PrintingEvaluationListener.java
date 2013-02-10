@@ -42,6 +42,10 @@ public abstract class PrintingEvaluationListener implements EvaluationListener {
 
 	@PreDestroy
 	protected void clean() {
-		printer.close();
+		// do not close stdout!
+		if (outputFile != null && printer != null) {
+			printer.close();
+			printer = null;
+		}
 	}
 }
