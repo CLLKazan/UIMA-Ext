@@ -5,10 +5,17 @@ package ru.kfu.itis.cll.uima.cas;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIntConstraint;
 import org.apache.uima.cas.FSIterator;
@@ -16,6 +23,7 @@ import org.apache.uima.cas.FSMatchConstraint;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
@@ -82,8 +90,8 @@ public class AnnotationUtils {
 	 * @return iterator over annotations overlapping with targetAnno from source
 	 *         iterator
 	 */
-	public static FSIterator<Annotation> getOverlapping(JCas cas, FSIterator<Annotation> iter,
-			Annotation targetAnno) {
+	public static FSIterator<AnnotationFS> getOverlapping(CAS cas, FSIterator<AnnotationFS> iter,
+			AnnotationFS targetAnno) {
 		ConstraintFactory cf = ConstraintFactory.instance();
 		FSMatchConstraint firstDisjunct;
 		{
@@ -106,13 +114,34 @@ public class AnnotationUtils {
 		return cas.createFilteredIterator(iter, overlapConstraint);
 	}
 
-	public static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
-		LinkedList<FST> result = new LinkedList<FST>();
-		iter.moveToFirst();
-		while (iter.isValid()) {
-			result.add(iter.get());
-			iter.moveToNext();
+	public static <FST extends FeatureStructure> void fill(FSIterator<FST> srcIter,
+			Collection<FST> destCol) {
+		srcIter.moveToFirst();
+		while (srcIter.isValid()) {
+			destCol.add(srcIter.get());
+			srcIter.moveToNext();
 		}
+	}
+
+	public static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
+		LinkedList<FST> result = newLinkedList();
+		fill(iter, result);
+		return result;
+	}
+
+	public static <FST extends FeatureStructure> Set<FST> toSet(FSIterator<FST> iter) {
+		HashSet<FST> result = newHashSet();
+		fill(iter, result);
+		return result;
+	}
+
+	/**
+	 * @param iter
+	 * @return linked hashset to preserve iteration order
+	 */
+	public static <FST extends FeatureStructure> Set<FST> toLinkedHashSet(FSIterator<FST> iter) {
+		HashSet<FST> result = newLinkedHashSet();
+		fill(iter, result);
 		return result;
 	}
 
@@ -146,9 +175,21 @@ public class AnnotationUtils {
 	 *         is no such annotation method will return null.
 	 */
 	public static String getStringValue(JCas cas, Type type, Feature feature) {
-		AnnotationIndex<Annotation> metaIdx = cas.getAnnotationIndex(type);
+		return getStringValue(cas.getCas(), type, feature);
+	}
+
+	/**
+	 * @param cas
+	 * @param type
+	 * @param feature
+	 * @return feature value of the first annotation of given type from given
+	 *         CAS. E.g., it is useful to get document metadata values. If there
+	 *         is no such annotation method will return null.
+	 */
+	public static String getStringValue(CAS cas, Type type, Feature feature) {
+		AnnotationIndex<AnnotationFS> metaIdx = cas.getAnnotationIndex(type);
 		if (metaIdx.size() > 0) {
-			Annotation meta = metaIdx.iterator().next();
+			AnnotationFS meta = metaIdx.iterator().next();
 			return meta.getFeatureValueAsString(feature);
 		} else {
 			return null;

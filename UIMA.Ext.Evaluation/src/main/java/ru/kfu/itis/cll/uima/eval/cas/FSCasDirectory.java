@@ -12,15 +12,19 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Iterator;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCreationUtils;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Function;
@@ -30,10 +34,14 @@ import com.google.common.collect.Iterators;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class FSCasDirectory implements CasDirectory {
+public class FSCasDirectory implements CasDirectory, BeanNameAware {
 
+	private String beanName;
 	private File dir;
+	@Autowired
 	private TypeSystem ts;
+	@Autowired
+	private Environment env;
 
 	@Override
 	public void setTypeSystem(TypeSystem ts) {
@@ -48,14 +56,25 @@ public class FSCasDirectory implements CasDirectory {
 	}
 
 	@Override
+	public void setBeanName(String beanName) {
+		this.beanName = beanName;
+	}
+
+	@PostConstruct
+	@Override
 	public void init() {
+		this.dir = env.getProperty(beanName + ".dir", File.class);
+		if (dir == null) {
+			throw new IllegalStateException(String.format(
+					"'dir' value is not specified for %s", beanName));
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JCas getCas(String docUriStr) throws Exception {
+	public CAS getCas(String docUriStr) throws Exception {
 		URI docUri = new URI(docUriStr);
 		File docFile = new File(docUri);
 		String docFileName = docFile.getName();
@@ -71,16 +90,16 @@ public class FSCasDirectory implements CasDirectory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Iterator<JCas> iterator() {
+	public Iterator<CAS> iterator() {
 		IOFileFilter xmiFileFilter = FileFilterUtils.suffixFileFilter(".xmi");
 		Iterator<File> xmiFileIter = Iterators.forArray(dir.listFiles((FileFilter) xmiFileFilter));
 		return Iterators.transform(xmiFileIter, deserializeFunc());
 	}
 
-	private Function<File, JCas> deserializeFunc() {
-		return new Function<File, JCas>() {
+	private Function<File, CAS> deserializeFunc() {
+		return new Function<File, CAS>() {
 			@Override
-			public JCas apply(File input) {
+			public CAS apply(File input) {
 				try {
 					return deserialize(input);
 				} catch (Exception e) {
@@ -90,10 +109,10 @@ public class FSCasDirectory implements CasDirectory {
 		};
 	}
 
-	private JCas deserialize(File xmiFile) throws UIMAException, SAXException, IOException {
+	private CAS deserialize(File xmiFile) throws UIMAException, SAXException, IOException {
 		CAS cas = createCas();
 		XmiCasDeserializer.deserialize(openStream(xmiFile), cas);
-		return cas.getJCas();
+		return cas;
 	}
 
 	private CAS createCas() throws ResourceInitializationException {
