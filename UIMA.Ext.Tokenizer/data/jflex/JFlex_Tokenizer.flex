@@ -7,6 +7,8 @@ import tokenization.types.Letters;
 import tokenization.types.Number;
 import tokenization.types.Range;
 import tokenization.types.TokenSeparator;
+import tokenization.types.Percents;
+import tokenization.types.Brackets;
 %%
 
 %public
@@ -63,6 +65,21 @@ return null;
 		token.setTypeOfSeparator(typeValue);
 		return token;
 	}
+
+	Percents createPercentsToken(Number value) {
+		Percents token = new Percents(UIMA_JCas);
+		token.setBegin(yy_currentPos);
+		token.setEnd(yy_currentPos+yylength());
+		token.setValue(value);
+		return token;
+	}
+
+	Brackets createBracketToken() {
+		Brackets token = new Brackets(UIMA_JCas);
+		token.setBegin(yy_currentPos);
+		token.setEnd(yy_currentPos+yylength());
+		return token;
+	}
 		 
 %}
 // -----------------------------------------------
@@ -82,7 +99,7 @@ return null;
 
 	CURRENCY_SYMBOL = [$£¥₣€] // final
 
-//BRACKETS = [\[\]\(\)\{\}
+	BRACKETS = [\[\]\(\)\{\}]
 
 	NUMBER_REAL_POSITIVE = "+"?{DIGITS}{DEC_SEPARATOR}{DIGITS} // final
 	NUMBER_REAL_NEGATIVE = "-"|"−"{DIGITS}{DEC_SEPARATOR}{DIGITS} // final
@@ -103,7 +120,8 @@ return null;
 
 
 	RANGE = {NUMBER}("-"|"—"){NUMBER} // final
-
+	
+	
 
 
 //DATES_DD_MM_YY = 
@@ -112,7 +130,7 @@ return null;
 
 	EMAIL = ([a-zA-Z0-9!#$%*+'/=\?\^_\x2D`{|}~.\x26]+)@([a-zA-Z0-9\._-]+[a-zA-Z]{2,4})
 
-	PERCENTS_1 = {NUMBER}" ""%" // without type-system
+	PERCENTS_1 = {NUMBER_REAL_POSITIVE}" ""%" // without type-system
 	PERCENTS_2 = {NUMBER}"%" // without type-system
 
 	CURRENSY_1 = {NUMBER}{CURRENCY_SIMBOL}
@@ -204,23 +222,35 @@ return null;
 
 // ELSE --------------------------------------------------------------
 
+{BRACKETS}
+	{
+		return createBracketToken();
+	}
 {RANGE}
 	{
 		return createRangeToken();
 	}
-
-//--------------------------------------------------------------------
-/*
 {PERCENTS_1}
 	{
 		int separatorPosition = yytext().indexOf(' ');
-		String attributeValue = yytext().substring(0, separatorPosition);
-		return getNextToken("PERCENTS",attributeValue);
+		String value = yytext().substring(0, separatorPosition);
+		Number tokenNum = new Number(UIMA_JCas);
+		tokenNum.setBegin(yy_currentPos);
+		tokenNum.setEnd(yy_currentPos+separatorPosition);
+		tokenNum.setKind("Real");
+		tokenNum.setSign("Positive");
+		return createPercentsToken(tokenNum);
+		
 	}
 {PERCENTS_2}
 	{
-		int percentsSymbolPosition = yytext().indexOf('%');
-		String attributeValue = yytext().substring(0, percentsSymbolPosition);
-		return getNextToken("PERCENTS",attributeValue);
-	}*/
+		/*int percentsSymbolPosition = yytext().indexOf('%');
+		String value = yytext().substring(0, percentsSymbolPosition);
+		return createPercentsToken(value);*/
+	}
+
+//--------------------------------------------------------------------
+
+
+
 		

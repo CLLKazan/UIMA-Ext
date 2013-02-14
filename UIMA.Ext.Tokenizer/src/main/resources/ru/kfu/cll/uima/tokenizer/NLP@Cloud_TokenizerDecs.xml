@@ -97,6 +97,23 @@
             </featureDescription>
           </features>
         </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Percents</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>Value</name>
+              <description/>
+              <rangeTypeName>tokenization.types.Number</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Brackets</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
       </types>
     </typeSystemDescription>
     <typePriorities/>
