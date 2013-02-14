@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>tokenization.Annotator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>NLP@Cloud_TokenizerDecs</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters/>
+    <configurationParameterSettings/>
+    <typeSystemDescription>
+      <types>
+        <typeDescription>
+          <name>tokenization.types.Letters</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>Language</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>LetterCase</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Number</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>Sign</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
+              <name>Kind</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Range</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Phone</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.IP</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Domain</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.EMail</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Abbreviation</name>
+          <description/>
+          <supertypeName>tokenization.types.Letters</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.Punctuation</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.ComplexWord</name>
+          <description/>
+          <supertypeName>tokenization.types.Letters</supertypeName>
+        </typeDescription>
+        <typeDescription>
+          <name>tokenization.types.TokenSeparator</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+            <featureDescription>
+              <name>TypeOfSeparator</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+          </features>
+        </typeDescription>
+      </types>
+    </typeSystemDescription>
+    <typePriorities/>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">tokenization.types.Range</type>
+          <type allAnnotatorFeatures="true">tokenization.types.Punctuation</type>
+          <type allAnnotatorFeatures="true">tokenization.types.Phone</type>
+          <type allAnnotatorFeatures="true">tokenization.types.Number</type>
+          <type allAnnotatorFeatures="true">tokenization.types.Letters</type>
+          <type allAnnotatorFeatures="true">tokenization.types.IP</type>
+          <type allAnnotatorFeatures="true">tokenization.types.EMail</type>
+          <type allAnnotatorFeatures="true">tokenization.types.Domain</type>
+          <type allAnnotatorFeatures="true">uima.tcas.DocumentAnnotation</type>
+          <type allAnnotatorFeatures="true">tokenization.types.ComplexWord</type>
+          <type allAnnotatorFeatures="true">uima.cas.AnnotationBase</type>
+          <type allAnnotatorFeatures="true">uima.tcas.Annotation</type>
+          <type allAnnotatorFeatures="true">tokenization.types.Abbreviation</type>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>
