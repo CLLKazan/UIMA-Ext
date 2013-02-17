@@ -16,6 +16,7 @@
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.Search</module>
+		<module>../UIMA.Ext.Chunker</module>
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>

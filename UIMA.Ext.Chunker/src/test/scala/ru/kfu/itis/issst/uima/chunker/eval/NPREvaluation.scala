@@ -14,6 +14,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.FileInputStream
 import ru.kfu.itis.cll.uima.eval.EvaluationLauncher
+import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -28,7 +29,6 @@ object NPREvaluation {
     val outputDirPath = args(1)
 
     runNPR(inputDirPath, outputDirPath)
-    evaluateNPR(inputDirPath, outputDirPath)
   }
 
   private def runNPR(inputDirPath: String, outputDirPath: String) {
@@ -55,6 +55,11 @@ object NPREvaluation {
     cpeBuilder.setMaxProcessingUnitThreatCount(1)
     val cpe = cpeBuilder.createCpe()
     cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(cpe))
+    cpe.addStatusCallbackListener(new StatusCallbackListenerAdapter {
+      override def collectionProcessComplete() {
+        evaluateNPR(inputDirPath, outputDirPath)
+      }
+    })
     println("About to start CPE...")
     cpe.process()
   }
