@@ -16,12 +16,12 @@ import org.xml.sax.SAXException;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class GenerateSentenceSplitterDescriptor {
+public class GenerateParagraphSplitterDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		String outputPath = "src/main/resources/ru/kfu/cll/uima/segmentation/ParagraphSplitter.xml";
+		String outputPath = "src/main/resources/ru/kfu/cll/uima/segmentation/SentenceSplitter.xml";
 		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
-		AnalysisEngineDescription desc = createPrimitiveDescription(ParagraphSplitter.class, tsDesc);
+		AnalysisEngineDescription desc = createPrimitiveDescription(SentenceSplitter.class, tsDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
 			desc.toXML(out);

@@ -8,6 +8,10 @@ import ru.kfu.itis.cll.uima.consumer.XmiWriter
 import org.uimafit.factory.AnalysisEngineFactory._
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener
+import ru.kfu.itis.cll.uima.cpe.FileDirectoryCollectionReader
+import ru.kfu.cll.uima.tokenizer.InitialTokenizer
+import ru.kfu.cll.uima.segmentation.ParagraphSplitter
+import ru.kfu.cll.uima.tokenizer.PostTokenizer
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -23,16 +27,38 @@ object StandoffAnnotationsToXmi {
     val inputDir = args(0)
     val outputDir = args(1)
 
-    val tsDesc = createTypeSystemDescription(
-      "ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-      "org.opencorpora.morphology-ts",
-      "ru.kfu.itis.issst.uima.chunker.ts-chunking")
-
     val colReaderDesc = {
-      import StandoffAnnotationsCollectionReader._
-      CollectionReaderFactory.createDescription(classOf[StandoffAnnotationsCollectionReader],
+      import FileDirectoryCollectionReader._
+      val tsDesc = createTypeSystemDescription(
+        "ru.kfu.itis.cll.uima.commons.Commons-TypeSystem")
+      CollectionReaderFactory.createDescription(classOf[FileDirectoryCollectionReader],
         tsDesc,
-        ParamInputDir, inputDir)
+        PARAM_DIRECTORY_PATH, inputDir)
+    }
+
+    val tokenizerDesc = {
+      val tsDesc = createTypeSystemDescription(
+        "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem")
+      createPrimitiveDescription(classOf[InitialTokenizer], tsDesc)
+    }
+
+    val postTokenizerDesc = {
+      val tsDesc = createTypeSystemDescription(
+        "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem")
+      createPrimitiveDescription(classOf[PostTokenizer], tsDesc)
+    }
+
+    val paraSplitterDesc = {
+      val tsDesc = createTypeSystemDescription(
+        "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
+      createPrimitiveDescription(classOf[ParagraphSplitter], tsDesc)
+    }
+
+    val standoffParserDesc = {
+      val tsDesc = createTypeSystemDescription(
+        "org.opencorpora.morphology-ts",
+        "ru.kfu.itis.issst.uima.chunker.ts-chunking")
+      createPrimitiveDescription(classOf[StandoffAnnotationsProcessor], tsDesc)
     }
 
     val xmiWriterDesc = {
@@ -44,7 +70,7 @@ object StandoffAnnotationsToXmi {
     // build cpe
     val cpeBuilder = new CpeBuilder
     cpeBuilder.setReader(colReaderDesc)
-    val aeList = xmiWriterDesc :: Nil
+    val aeList = tokenizerDesc :: postTokenizerDesc :: paraSplitterDesc :: standoffParserDesc :: xmiWriterDesc :: Nil
     aeList.foreach(cpeBuilder.addAnalysisEngine(_))
     cpeBuilder.setMaxProcessingUnitThreatCount(1)
     val cpe = cpeBuilder.createCpe()

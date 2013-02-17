@@ -57,4 +57,8 @@ public class FSTypeMatcher<FST extends FeatureStructure> implements Matcher<FST>
 				subtypeMatch).toString();
 	}
 
+	@Override
+	public void print(StringBuilder out, FST value) {
+		out.append("type=").append(value.getType().getShortName());
+	}
 }

@@ -103,6 +103,11 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-eval</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-morph-opencorpora</artifactId>
 				<version>${project.version}</version>
 			</dependency>

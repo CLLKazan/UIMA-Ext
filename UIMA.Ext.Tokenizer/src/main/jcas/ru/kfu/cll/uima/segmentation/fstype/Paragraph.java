@@ -10,16 +10,16 @@ import org.apache.uima.jcas.cas.TOP_Type;
 import org.apache.uima.jcas.tcas.Annotation;
 
 
-/** 
+/** Annotate content between two line separators
  * Updated by JCasGen Sat Feb 16 15:24:33 MSK 2013
  * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
  * @generated */
-public class Sentence extends Annotation {
+public class Paragraph extends Annotation {
   /** @generated
    * @ordered 
    */
   @SuppressWarnings ("hiding")
-  public final static int typeIndexID = JCasRegistry.register(Sentence.class);
+  public final static int typeIndexID = JCasRegistry.register(Paragraph.class);
   /** @generated
    * @ordered 
    */
@@ -31,23 +31,23 @@ public class Sentence extends Annotation {
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected Sentence() {/* intentionally empty block */}
+  protected Paragraph() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
    * @generated */
-  public Sentence(int addr, TOP_Type type) {
+  public Paragraph(int addr, TOP_Type type) {
     super(addr, type);
     readObject();
   }
   
   /** @generated */
-  public Sentence(JCas jcas) {
+  public Paragraph(JCas jcas) {
     super(jcas);
     readObject();   
   } 
 
   /** @generated */  
-  public Sentence(JCas jcas, int begin, int end) {
+  public Paragraph(JCas jcas, int begin, int end) {
     super(jcas);
     setBegin(begin);
     setEnd(end);

@@ -1,4 +1,4 @@
-package ru.kfu.cll.uima.segmentation;
+package ru.kfu.cll.uima.tokenizer;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
@@ -16,12 +16,12 @@ import org.xml.sax.SAXException;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class GenerateSentenceSplitterDescriptor {
+public class GeneratePostTokenizerDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		String outputPath = "src/main/resources/ru/kfu/cll/uima/segmentation/ParagraphSplitter.xml";
-		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
-		AnalysisEngineDescription desc = createPrimitiveDescription(ParagraphSplitter.class, tsDesc);
+		String outputPath = "src/main/resources/ru/kfu/cll/uima/tokenizer/PostTokenizer.xml";
+		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
+		AnalysisEngineDescription desc = createPrimitiveDescription(PostTokenizer.class, tsDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
 			desc.toXML(out);

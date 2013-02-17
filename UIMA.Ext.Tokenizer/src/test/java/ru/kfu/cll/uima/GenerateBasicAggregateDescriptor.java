@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 
 import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
+import ru.kfu.cll.uima.tokenizer.PostTokenizer;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -35,13 +36,16 @@ public class GenerateBasicAggregateDescriptor {
 		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
 				InitialTokenizer.class, tokenizerTsDesc);
 
+		AnalysisEngineDescription postTokenizerDesc = createPrimitiveDescription(
+				PostTokenizer.class, tokenizerTsDesc);
+
 		TypeSystemDescription ssTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
 		AnalysisEngineDescription ssDesc = createPrimitiveDescription(SentenceSplitter.class,
 				ssTsDesc);
 
 		String outputPath = "src/test/resources/basic-aggregate.xml";
 		AnalysisEngineDescription desc = AnalysisEngineFactory.createAggregateDescription(
-				tokenizerDesc, ssDesc);
+				tokenizerDesc, postTokenizerDesc, ssDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
 			desc.toXML(out);

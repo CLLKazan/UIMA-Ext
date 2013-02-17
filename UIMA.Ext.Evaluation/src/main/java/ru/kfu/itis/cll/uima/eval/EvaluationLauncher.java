@@ -47,6 +47,10 @@ public class EvaluationLauncher {
 		}
 		Properties configProperties = readProperties(propsFile);
 
+		runUsingProperties(configProperties);
+	}
+
+	public static void runUsingProperties(Properties configProperties) throws Exception {
 		GenericApplicationContext appCtx = new GenericApplicationContext();
 
 		appCtx.getEnvironment().getPropertySources().addLast(

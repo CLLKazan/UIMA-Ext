@@ -29,4 +29,9 @@ public class EqualityMatcher<T> implements Matcher<T> {
 	public String toString() {
 		return getClass().getSimpleName();
 	}
+
+	@Override
+	public void print(StringBuilder out, T value) {
+		out.append(value);
+	}
 }

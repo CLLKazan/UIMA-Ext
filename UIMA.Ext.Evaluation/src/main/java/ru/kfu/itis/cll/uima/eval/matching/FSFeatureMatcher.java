@@ -66,6 +66,17 @@ public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStruc
 				.append("valueMatcher", valueMatcher).toString();
 	}
 
+	@Override
+	public void print(StringBuilder out, S value) {
+		out.append(feature.getShortName()).append("=");
+		E featValue = getValue(value);
+		if (featValue == null) {
+			out.append((Object) null);
+		} else {
+			valueMatcher.print(out, featValue);
+		}
+	}
+
 	private E getValue(FeatureStructure fs) {
 		E featureValue = (E) fs.getFeatureValue(feature);
 		return featureValue;

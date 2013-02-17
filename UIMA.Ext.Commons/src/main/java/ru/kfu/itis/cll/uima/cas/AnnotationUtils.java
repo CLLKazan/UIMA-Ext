@@ -28,6 +28,7 @@ import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.uimafit.util.CasUtil;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -193,6 +194,20 @@ public class AnnotationUtils {
 			return meta.getFeatureValueAsString(feature);
 		} else {
 			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A extends AnnotationFS> A getSingleAnnotation(JCas cas, Class<A> typeJCasClass) {
+		Type annoType = CasUtil.getAnnotationType(cas.getCas(), typeJCasClass);
+		AnnotationIndex<Annotation> annoIdx = cas.getAnnotationIndex(annoType);
+		if (annoIdx.size() == 0) {
+			return null;
+		} else if (annoIdx.size() == 1) {
+			return (A) annoIdx.iterator().next();
+		} else {
+			throw new IllegalStateException(String.format(
+					"Too much (>1) annotations of type %s", annoType));
 		}
 	}
 

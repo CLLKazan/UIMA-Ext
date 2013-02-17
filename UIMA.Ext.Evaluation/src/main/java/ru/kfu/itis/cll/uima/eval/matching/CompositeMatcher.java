@@ -5,6 +5,7 @@ package ru.kfu.itis.cll.uima.eval.matching;
 
 import static ru.kfu.itis.cll.uima.cas.FSTypeUtils.getFeature;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -57,6 +58,23 @@ public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<F
 		return topMatchers == null ? "null-list" : topMatchers.toString();
 	}
 
+	@Override
+	public void print(StringBuilder out, FST value) {
+		boolean printExtBrackets = out.length() > 0;
+		if (printExtBrackets)
+			out.append("[");
+		Iterator<Matcher<FST>> iter = topMatchers.iterator();
+		if (iter.hasNext()) {
+			iter.next().print(out, value);
+		}
+		while (iter.hasNext()) {
+			out.append("|");
+			iter.next().print(out, value);
+		}
+		if (printExtBrackets)
+			out.append("]");
+	}
+
 	public static <FST extends FeatureStructure> Builder<FST> builderForFS(Type targetType) {
 		return new Builder<FST>(targetType);
 	}
@@ -100,7 +118,7 @@ public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<F
 					ignoreOrder));
 			return this;
 		}
-		
+
 		public Type getTargetType() {
 			return targetType;
 		}

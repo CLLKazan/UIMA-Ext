@@ -63,7 +63,9 @@ public class GSBasedEvalTest extends AbstractJUnit4SpringContextTests {
 
 		@Bean
 		public EvaluationListener loggingListener() {
-			return new LoggingEvaluationListener();
+			LoggingEvaluationListener list = new LoggingEvaluationListener();
+			list.setStripDocumentUri(true);
+			return list;
 		}
 	}
 

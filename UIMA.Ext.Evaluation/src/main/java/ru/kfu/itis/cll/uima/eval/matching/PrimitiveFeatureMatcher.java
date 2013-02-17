@@ -59,4 +59,10 @@ public class PrimitiveFeatureMatcher<FST extends FeatureStructure> implements Ma
 		return new ToStringBuilder(ToStringStyle.SHORT_PREFIX_STYLE).append("feature", feature)
 				.toString();
 	}
+
+	@Override
+	public void print(StringBuilder out, FST fs) {
+		String featValue = fs.getFeatureValueAsString(feature);
+		out.append(feature.getShortName()).append("=").append(featValue);
+	}
 }

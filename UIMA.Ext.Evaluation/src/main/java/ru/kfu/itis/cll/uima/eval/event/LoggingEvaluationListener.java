@@ -11,7 +11,12 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.kfu.itis.cll.uima.eval.event.logging.AnnotationPrinter;
+import ru.kfu.itis.cll.uima.eval.matching.CompositeMatcher;
 
 import com.google.common.collect.Sets;
 
@@ -21,9 +26,17 @@ import com.google.common.collect.Sets;
  */
 public class LoggingEvaluationListener extends PrintingEvaluationListener {
 
+	@Autowired
+	private TypeSystem ts;
+	@Autowired
+	private CompositeMatcher<AnnotationFS> matcher;
+
 	// config
 	private boolean stripDocumentUri;
+	private Class<? extends AnnotationPrinter> annoPrinterClass;
 
+	// derived
+	private AnnotationPrinter annoPrinter;
 	// state
 	private String currentDocUri;
 	// collect system annotations that partially match gold ones
@@ -34,10 +47,20 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	@Override
 	protected void init() throws Exception {
 		super.init();
+		if (annoPrinterClass == null) {
+			annoPrinter = new MatcherPrinter();
+		} else {
+			annoPrinter = annoPrinterClass.newInstance();
+			annoPrinter.init(ts);
+		}
 	}
 
 	public void setStripDocumentUri(boolean stripDocumentUri) {
 		this.stripDocumentUri = stripDocumentUri;
+	}
+
+	public void setAnnotationPrinterClass(Class<? extends AnnotationPrinter> annoPrinterClass) {
+		this.annoPrinterClass = annoPrinterClass;
 	}
 
 	@Override
@@ -52,7 +75,7 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	@Override
 	public void onMissing(AnnotationFS goldAnno) {
 		printRow(goldAnno.getType().getShortName(), "Missing",
-				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
+				annoPrinter.getString(goldAnno), String.valueOf(goldAnno.getBegin()),
 				null, null, currentDocUri);
 	}
 
@@ -62,8 +85,8 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	@Override
 	public void onExactMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
 		printRow(goldAnno.getType().getShortName(), "Exact",
-				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
-				sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+				annoPrinter.getString(goldAnno), String.valueOf(goldAnno.getBegin()),
+				annoPrinter.getString(sysAnno), String.valueOf(sysAnno.getBegin()),
 				currentDocUri);
 	}
 
@@ -71,8 +94,8 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	public void onPartialMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
 		partiallyMatched.add(sysAnno);
 		printRow(goldAnno.getType().getShortName(), "Partial",
-				goldAnno.getCoveredText(), String.valueOf(goldAnno.getBegin()),
-				sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+				annoPrinter.getString(goldAnno), String.valueOf(goldAnno.getBegin()),
+				annoPrinter.getString(sysAnno), String.valueOf(sysAnno.getBegin()),
 				currentDocUri);
 	}
 
@@ -84,7 +107,7 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 		if (!partiallyMatched.contains(sysAnno)) {
 			printRow(sysAnno.getType().getShortName(), "Spurious",
 					null, null,
-					sysAnno.getCoveredText(), String.valueOf(sysAnno.getBegin()),
+					annoPrinter.getString(sysAnno), String.valueOf(sysAnno.getBegin()),
 					currentDocUri);
 		}
 	}
@@ -96,7 +119,7 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	}
 
 	private String prepareUri(String srcUri) {
-		if (!stripDocumentUri) {
+		if (!stripDocumentUri || srcUri == null) {
 			return srcUri;
 		}
 		try {
@@ -142,5 +165,19 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 
 	private String escTab(String src) {
 		return StringUtils.replace(src, "\t", "    ");
+	}
+
+	private class MatcherPrinter implements AnnotationPrinter {
+
+		@Override
+		public void init(TypeSystem ts) {
+		}
+
+		@Override
+		public String getString(AnnotationFS anno) {
+			StringBuilder sb = new StringBuilder();
+			matcher.print(sb, anno);
+			return sb.toString();
+		}
 	}
 }

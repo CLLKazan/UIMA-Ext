@@ -130,6 +130,11 @@
 			<artifactId>uima-tokenizer</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-eval</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>

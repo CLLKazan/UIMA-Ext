@@ -19,7 +19,9 @@ object GenerateTypeDescForCasEditor {
     val outPath = "desc/types/TypeSystem4CasViewer.xml";
     var tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(
       "ru.kfu.itis.issst.uima.chunker.ts-chunking",
-      "ru.kfu.itis.cll.uima.commons.Commons-TypeSystem");
+      "ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
+      "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
+      "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
     tsDesc = CasCreationUtils.mergeTypeSystems(Arrays.asList(tsDesc));
     val fos = new FileOutputStream(outPath);
     try {

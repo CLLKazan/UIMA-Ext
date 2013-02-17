@@ -28,4 +28,9 @@ public class BoundaryMatcher implements Matcher<AnnotationFS> {
 	public String toString() {
 		return getClass().getSimpleName();
 	}
+
+	@Override
+	public void print(StringBuilder out, AnnotationFS value) {
+		out.append(value.getCoveredText());
+	}
 }

@@ -13,10 +13,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.uima.cas.ArrayFS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
-import org.apache.uima.jcas.cas.FSArray;
 import org.uimafit.util.FSCollectionFactory;
 
 /**
@@ -110,6 +110,28 @@ public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends 
 				.append("ignoreOrder", ignoreOrder).toString();
 	}
 
+	@Override
+	public void print(StringBuilder out, FST value) {
+		Collection<E> col = getCollection(value);
+		out.append(feature.getShortName());
+		out.append("=");
+
+		if (col == null) {
+			out.append((Object) null);
+		} else {
+			out.append("{");
+			Iterator<E> iter = col.iterator();
+			if (iter.hasNext()) {
+				elemMatcher.print(out, iter.next());
+			}
+			while (iter.hasNext()) {
+				out.append(",");
+				elemMatcher.print(out, iter.next());
+			}
+			out.append("}");
+		}
+	}
+
 	private int search(E refElem, List<E> candidatesList) {
 		for (int i = 0; i < candidatesList.size(); i++) {
 			E cand = candidatesList.get(i);
@@ -121,7 +143,7 @@ public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends 
 	}
 
 	private Collection<E> getCollection(FeatureStructure anno) {
-		FSArray fsArray = (FSArray) anno.getFeatureValue(feature);
+		ArrayFS fsArray = (ArrayFS) anno.getFeatureValue(feature);
 		if (fsArray == null) {
 			return null;
 		}
