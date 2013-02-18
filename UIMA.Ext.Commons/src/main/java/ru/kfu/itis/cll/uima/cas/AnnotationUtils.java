@@ -5,13 +5,10 @@ package ru.kfu.itis.cll.uima.cas;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
-import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -115,25 +112,29 @@ public class AnnotationUtils {
 		return cas.createFilteredIterator(iter, overlapConstraint);
 	}
 
+	/**
+	 * @deprecated use {@link FSUtils#fill(FSIterator, Collection)} instead
+	 */
+	@Deprecated
 	public static <FST extends FeatureStructure> void fill(FSIterator<FST> srcIter,
 			Collection<FST> destCol) {
-		srcIter.moveToFirst();
-		while (srcIter.isValid()) {
-			destCol.add(srcIter.get());
-			srcIter.moveToNext();
-		}
+		FSUtils.fill(srcIter, destCol);
 	}
 
+	/**
+	 * @deprecated use {@link FSUtils#toList(FSIterator)} instead
+	 */
+	@Deprecated
 	public static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
-		LinkedList<FST> result = newLinkedList();
-		fill(iter, result);
-		return result;
+		return FSUtils.toList(iter);
 	}
 
+	/**
+	 * @deprecated use {@link FSUtils#toSet(FSIterator)} instead
+	 */
+	@Deprecated
 	public static <FST extends FeatureStructure> Set<FST> toSet(FSIterator<FST> iter) {
-		HashSet<FST> result = newHashSet();
-		fill(iter, result);
-		return result;
+		return FSUtils.toSet(iter);
 	}
 
 	/**
@@ -211,7 +212,20 @@ public class AnnotationUtils {
 		}
 	}
 
-	private AnnotationUtils() {
+	// TODO test
+	public static FSMatchConstraint getCoveredConstraint(AnnotationFS coveringAnnotation) {
+		ConstraintFactory cf = ConstraintFactory.instance();
+
+		FSIntConstraint beginConstraint = cf.createIntConstraint();
+		beginConstraint.geq(coveringAnnotation.getBegin());
+
+		FSIntConstraint endConstraint = cf.createIntConstraint();
+		endConstraint.leq(coveringAnnotation.getEnd());
+
+		return cf.and(cf.embedConstraint(newArrayList("begin"), beginConstraint),
+				cf.embedConstraint(newArrayList("end"), endConstraint));
 	}
 
+	private AnnotationUtils() {
+	}
 }

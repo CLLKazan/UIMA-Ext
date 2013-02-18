@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Tue Jul 24 17:36:26 MSK 2012 */
+/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -14,10 +14,11 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Tue Jul 24 17:36:26 MSK 2012
+ * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
  * @generated */
 public class Word_Type extends Annotation_Type {
   /** @generated */
+  @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
   private final FSGenerator fsGenerator = 
@@ -36,9 +37,11 @@ public class Word_Type extends Annotation_Type {
   	  }
     };
   /** @generated */
+  @SuppressWarnings ("hiding")
   public final static int typeIndexID = Word.typeIndexID;
   /** @generated 
      @modifiable */
+  @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("org.opencorpora.cas.Word");
  
   /** @generated */
@@ -77,6 +80,24 @@ public class Word_Type extends Annotation_Type {
     ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_wordforms), i, v);
   }
  
+ 
+  /** @generated */
+  final Feature casFeat_token;
+  /** @generated */
+  final int     casFeatCode_token;
+  /** @generated */ 
+  public int getToken(int addr) {
+        if (featOkTst && casFeat_token == null)
+      jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
+    return ll_cas.ll_getRefValue(addr, casFeatCode_token);
+  }
+  /** @generated */    
+  public void setToken(int addr, int v) {
+        if (featOkTst && casFeat_token == null)
+      jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
+    ll_cas.ll_setRefValue(addr, casFeatCode_token, v);}
+    
+  
 
 
 
@@ -89,6 +110,10 @@ public class Word_Type extends Annotation_Type {
  
     casFeat_wordforms = jcas.getRequiredFeatureDE(casType, "wordforms", "uima.cas.FSArray", featOkTst);
     casFeatCode_wordforms  = (null == casFeat_wordforms) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_wordforms).getCode();
+
+ 
+    casFeat_token = jcas.getRequiredFeatureDE(casType, "token", "uima.tcas.Annotation", featOkTst);
+    casFeatCode_token  = (null == casFeat_token) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_token).getCode();
 
   }
 }

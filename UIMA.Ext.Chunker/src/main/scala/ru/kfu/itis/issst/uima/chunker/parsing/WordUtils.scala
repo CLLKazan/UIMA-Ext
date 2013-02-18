@@ -8,7 +8,7 @@ import org.opencorpora.cas.Wordform
 import scala.collection.JavaConversions._
 import org.uimafit.util.CasUtil
 import org.uimafit.util.FSCollectionFactory
-import ru.kfu.itis.cll.uima.cas.FSUtils
+import ru.kfu.itis.cll.uima.cas.FSUtils._
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -16,11 +16,21 @@ import ru.kfu.itis.cll.uima.cas.FSUtils
  */
 object WordUtils {
 
-  def checkGrammems(w: Word, pos: String, grs: String*): Boolean = {
+  def checkGrammems(w: Word, pos: String, grms: GrammemeMatcher*): Boolean = {
     require(w != null, "word annotation is null")
-    FSCollectionFactory.create(w.getWordforms(), classOf[Wordform]).exists(wf =>
+    if (w.getWordforms() == null) false
+    else FSCollectionFactory.create(w.getWordforms(), classOf[Wordform]).exists(wf =>
       pos == wf.getPos()
-        && grs.forall(gr => FSUtils.toSet(wf.getGrammems()).contains(gr)))
+        && grms.forall(_ match {
+          case GrammemeRequired(gr) => toSet(wf.getGrammems()).contains(gr)
+          case GrammemeProhibited(gr) => !toSet(wf.getGrammems()).contains(gr)
+        }))
   }
 
+  def has(gr: String) = new GrammemeRequired(gr)
+  def hasNot(gr: String) = new GrammemeProhibited(gr)
 }
+
+sealed abstract class GrammemeMatcher
+case class GrammemeRequired(gr: String) extends GrammemeMatcher
+case class GrammemeProhibited(gr: String) extends GrammemeMatcher

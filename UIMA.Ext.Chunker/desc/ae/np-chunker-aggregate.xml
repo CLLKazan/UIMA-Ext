@@ -13,6 +13,9 @@
 		<delegateAnalysisEngine key="morphTagger">
 			<import name="ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator" />
 		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="numProcessor">
+			<import name="ru.kfu.itis.issst.uima.morph.NumProcessor" />
+		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="npChunker">
 			<import name="ru.kfu.itis.issst.uima.chunker.NPRecognizer" />
 		</delegateAnalysisEngine>
@@ -26,6 +29,7 @@
 				<node>tokenizer</node>
 				<node>sentenceSplitter</node>
 				<node>morphTagger</node>
+				<node>numProcessor</node>
 				<node>npChunker</node>
 			</fixedFlow>
 		</flowConstraints>
