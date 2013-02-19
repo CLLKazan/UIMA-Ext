@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>com.hp.hpl.events.uima.consumers.CAOWriter</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>MySQL_JDBC_Writer</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+      <configurationParameter>
+        <name>TypesToPersist</name>
+        <description>Annotation types to persist</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+      	<name>SpanAnnotationType</name>
+      	<description>Span annotation type, e.g. sentence</description>
+      	<type>String</type>
+      	<mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>TypesToPersist</name>
+        <value>
+          <array>
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.HL_CompanyAnnouncement</string>
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.HL_PersonAnnouncement</string>
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.HL_Resignation</string>
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.HL_PositionChange</string>
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.HL_Acquisition</string>
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.Announcement</string>
+          	<!-- indicators -->
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.EventIndicator</string>
+          	<!-- experimental -->
+          	<string>com.hp.hplabs.lim2.ie.text.typesystem.TargetGPE</string>
+          </array>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+      	<name>SpanAnnotationType</name>
+      	<value>
+      		<string>com.hp.hplabs.lim2.ie.text.typesystem.Sentence</string>
+      	</value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import location="../../types/hp-text-ru-TypeSystem.xml"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities/>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs/>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>false</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <externalResourceDependencies>
+  	<externalResourceDependency>
+  		<key>CasAccessObject</key>
+  		<description/>
+  		<interfaceName>com.hp.hpl.events.uima.consumers.CasAccessObject</interfaceName>
+  		<optional>false</optional>
+  	</externalResourceDependency>
+  </externalResourceDependencies>
+</taeDescription>

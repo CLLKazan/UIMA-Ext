@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cpeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<collectionReader>
+		<collectionIterator>
+			<descriptor>
+				<import
+					location="../../collections/kfu/col-ru-CollectionReader.xml" />
+			</descriptor>
+			<configurationParameterSettings>
+				<nameValuePair>
+					<name>DocumentsSource</name>
+					<value>
+						<string>/home/rgareev/data/news-corpora-for-ner</string>
+					</value>
+				</nameValuePair>
+				<nameValuePair>
+					<name>SourceEncoding</name>
+					<value>
+						<string>UTF-8</string>
+					</value>
+				</nameValuePair>
+			</configurationParameterSettings>
+		</collectionIterator>
+	</collectionReader>
+	<casProcessors casPoolSize="3" processingUnitThreadCount="3">
+		<casProcessor deployment="integrated" name="ae-desc-ner">
+			<descriptor>
+				<import
+					location="../../analysis-engines/ae-ru-NER-preprocessing.xml" />
+			</descriptor>
+			<deploymentParameters />
+			<errorHandling>
+				<errorRateThreshold action="terminate" value="0/30" />
+				<maxConsecutiveRestarts action="terminate" value="10"/>
+				<timeout max="100000" default="-1" />
+			</errorHandling>
+			<checkpoint batch="10000" />
+		</casProcessor>
+	</casProcessors>
+	<cpeConfig>
+		<numToProcess>-1</numToProcess>
+		<deployAs>immediate</deployAs>
+		<checkpoint batch="0" time="100000ms" />
+	</cpeConfig>
+</cpeDescription>

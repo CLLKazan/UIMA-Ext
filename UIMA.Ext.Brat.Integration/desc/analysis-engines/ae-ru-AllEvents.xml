@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="WhitespaceTokenizer">
+			<import location="../annotators/uima/an-ru-WhitespaceTokenizer.xml" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="ConceptMapper-CaseSensitive-WithStemmer">
+			<import location="../annotators/uima/an-ru-ConceptMapper-sens+stem.xml" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="ConceptMapper-CaseSensitive">
+			<import location="../annotators/uima/an-ru-ConceptMapper-sens.xml" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="ConceptMapper-IgnoreCase">
+			<import location="../annotators/uima/an-ru-ConceptMapper-insens.xml" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="HL">
+			<import location="../annotators/hplabs/an-ru-HL.xml" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="InnerRemover">
+			<import location="../annotators/hplabs/an-ru-InnerRemover.xml" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="TextMarker">
+			<import location="../annotators/TextMARKER/an-ru-TextMarker-AllEvents.xml" />
+		</delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+	<analysisEngineMetaData>
+		<name>ae-ru-AllEvents</name>
+		<description />
+		<version>1.0</version>
+		<vendor />
+		<configurationParameters searchStrategy="language_fallback" />
+		<configurationParameterSettings />
+		<flowConstraints>
+			<fixedFlow>
+				<node>WhitespaceTokenizer</node>
+				<node>ConceptMapper-CaseSensitive</node>
+				<node>ConceptMapper-CaseSensitive-WithStemmer</node>
+				<node>ConceptMapper-IgnoreCase</node>
+				<node>HL</node>
+				<node>InnerRemover</node>
+				<node>TextMarker</node>
+			</fixedFlow>
+		</flowConstraints>
+		<fsIndexCollection />
+		<capabilities>
+			<capability>
+				<inputs />
+				<outputs />
+				<languagesSupported />
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<resourceManagerConfiguration />
+</analysisEngineDescription>

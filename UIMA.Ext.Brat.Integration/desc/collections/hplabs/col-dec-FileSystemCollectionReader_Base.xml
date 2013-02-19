@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<collectionReaderDescription  xmlns="http://uima.apache.org/resourceSpecifier">
+    <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+    <implementationName>com.hp.hplabs.lim2.ie.text.uima.collections.base.FileSystemCollectionReader_Base</implementationName>
+    <processingResourceMetaData>
+        <name>col-desc-collection-reader-base</name>
+        <description/>
+        <version>1.0</version>
+        <vendor/>
+        <configurationParameters>
+            <configurationParameter>
+                <name>InputDirectory</name>
+                <description>Directory containing input files</description>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>true</mandatory>
+            </configurationParameter>
+            <configurationParameter>
+                <name>FileEncoding</name>
+                <description>Character encoding for the documents.  If not specified,
+                   the default system encoding will be used.  Note that this parameter
+                   only applies if there is no CAS Initializer provided; otherwise,
+                   it is the CAS Initializer's responsibility to deal with character
+                   encoding issues. </description>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
+            <configurationParameter>
+                <name>TextLanguage</name>
+                <description>ISO language code for the documents</description>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
+            <configurationParameter>
+                <name>BrowseSubdirectories</name>
+                <description>True means include files of subdirectories, recursively, of the input directory.</description>
+                <type>Boolean</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
+        </configurationParameters>
+		<configurationParameterSettings>
+		    <nameValuePair>
+		        <name>InputDirectory</name>
+		        <value>
+		            <string>data/experiments/data_sets/set1</string>
+		        </value>
+		    </nameValuePair>
+            <nameValuePair>
+                <name>BrowseSubdirectories</name>
+                <value>
+                    <boolean>false</boolean>
+                </value>
+            </nameValuePair>
+		</configurationParameterSettings>
+        <typeSystemDescription>
+          <imports>
+             <import location="../../types/hp-text-TypeSystem.xml"/>
+          </imports>
+        </typeSystemDescription>
+        <capabilities/>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>false</multipleDeploymentAllowed>
+			<outputsNewCASes>true</outputsNewCASes>
+		</operationalProperties>		
+    </processingResourceMetaData>
+</collectionReaderDescription>
