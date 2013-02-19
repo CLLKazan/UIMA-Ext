@@ -150,11 +150,11 @@ class NP(val noun: Word, val deps: List[Word]) {
 }
 
 object NPParsers {
-  private val gentPrepositions = Set("без", "до", "из", "от", "у", "для", "ради", "между", "с")
-  private val datPrepositions = Set("к", "по")
-  private val accPrepositions = Set("про", "через", "сквозь", "в", "на", "о", "за", "под", "по", "с")
-  private val ablPrepositions = Set("над", "перед", "между", "за", "под", "с")
-  private val locPrepositions = Set("при", "в", "на", "о", "по")
+  private val gentPrepositions = generateCommonWordsSet("без", "до", "из", "от", "у", "для", "ради", "между", "с")
+  private val datPrepositions = generateCommonWordsSet("к", "по")
+  private val accPrepositions = generateCommonWordsSet("про", "через", "сквозь", "в", "на", "о", "за", "под", "по", "с")
+  private val ablPrepositions = generateCommonWordsSet("над", "перед", "между", "за", "под", "с")
+  private val locPrepositions = generateCommonWordsSet("при", "в", "на", "о", "по")
 
   private[parsing] def flatten(nps: TraversableOnce[NP]): List[Word] = {
     val result = new ListBuffer[Word]
@@ -164,4 +164,7 @@ object NPParsers {
     }
     result.toList
   }
+
+  private def generateCommonWordsSet(words: String*): Set[String] =
+    Set() ++ words ++ words.map(_.capitalize)
 }

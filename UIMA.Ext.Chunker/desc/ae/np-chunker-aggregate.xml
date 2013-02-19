@@ -7,6 +7,9 @@
 		<delegateAnalysisEngine key="tokenizer">
 			<import name="ru.kfu.cll.uima.tokenizer.InitialTokenizer" />
 		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="postTokenizer">
+			<import name="ru.kfu.cll.uima.tokenizer.PostTokenizer" />
+		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="sentenceSplitter">
 			<import name="ru.kfu.cll.uima.segmentation.SentenceSplitter" />
 		</delegateAnalysisEngine>
@@ -27,6 +30,7 @@
 		<flowConstraints>
 			<fixedFlow>
 				<node>tokenizer</node>
+				<node>postTokenizer</node>
 				<node>sentenceSplitter</node>
 				<node>morphTagger</node>
 				<node>numProcessor</node>

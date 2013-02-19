@@ -160,6 +160,7 @@ public class PostTokenizer extends JCasAnnotator_ImplBase {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isHyphen(Token tkn) {
 		return "-".equals(tkn.getCoveredText());
 	}
