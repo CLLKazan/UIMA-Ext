@@ -54,7 +54,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	// Brat Annotation types
 	// Brat Output directory
 
-	public final static String BRAT_OUTPUTDIR = "data/bratOutPutDir";
+	public final static String BRAT_OUTPUTDIR = "data/bratOutPutDir/";
 	public final static String TYPES_TO_BRAT  = "TypesToBrat";
 	public final static String ENCODING       = "UTF-8";	
 	public final static String CONF_FILE      = "annotation.conf";
@@ -77,7 +77,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	@Override
 	public void process(CAS casObj) throws AnalysisEngineProcessException {
 
-		System.out.println("Saving text to file in brat output directory.");
+		System.out.println("Saving text to file into brat output directory.");
 		String txt = "";
 		JCas jcas = null;
 		try {
@@ -102,8 +102,8 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		iterator = annotationIndex.iterator();
 
 		Feature dmTypeFeature = dmEntityType.getFeatureByBaseName(DM_ENTITY_TYPE_FEATURE_BASE_NAME);
-		File annFile = null;
-		String   ann = null;
+		File annFile, af = null;
+		String   ann, fileName = null;
 		
 		while (iterator.isValid()) {
 			AnnotationFS fs = iterator.get();
@@ -113,7 +113,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				// Identify Annotaion type
 				
 				System.out.println( 
-						            fs+" : " + 
+						            fs+" : "+ 
 				                    entities.get( fs.getType().getName() )
 				                   );
 				
@@ -128,7 +128,9 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			                   
 					 System.out.println(ann);
 					try {
-						FileUtils.write(annFile,ann,ENCODING);
+						FileUtils.writeStringToFile(af, ann, true);
+						FileUtils.writeStringToFile(af, "\n", true);
+						
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -141,12 +143,13 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 					&& !fs.getFeatureValueAsString(dmTypeFeature).equals("x-unspecified") ) {
 				
 				try {
-					System.out.println("Opening the new file ... " + fs.getFeatureValueAsString(dmTypeFeature) + dmTypeFeature);
 					uri = new URI(fs.getFeatureValueAsString(dmTypeFeature));
 					sourceUri = uri.getPath();
-					//String sannFile = new File(sourceUri).getName();
-					annFile = new File(sourceUri+".ann");
-					System.out.println("Writing brat annotations to file: "+sourceUri+".ann");
+					annFile = new File(sourceUri);
+					fileName = annFile.getName();					
+					
+					af = new File(BRAT_OUTPUTDIR+"ann/"+fileName+".ann");
+					System.out.println("Writing brat annotations to file: "+fileName+".ann");
 					
 				} catch (CASRuntimeException e) {
 					e.printStackTrace();
@@ -164,7 +167,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		
 		if (sourceUri != null) {
 			System.out.println(sourceUri + " is text file name. Writing ...");
-			File f = new File(BRAT_OUTPUTDIR, sourceUri);
+			File f = new File(BRAT_OUTPUTDIR+"txt/", fileName+".txt");
 			try {
 				FileUtils.write(f, txt, ENCODING);
 			} catch (IOException e) {
@@ -172,6 +175,8 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			}
 		} else
 			System.out.println("TEXT FILE NAME IS EMPTY");
+		
+		tCounter = 0;
 
 	}
 
