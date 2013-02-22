@@ -57,7 +57,7 @@ class VPRecognizer extends JCasAnnotator_ImplBase with Logging {
     for (vwCoord <- verbalWfs.reverse; if !attached.contains(vwCoord)) {
       val chunkWfs = wordforms(vwCoord._1)(vwCoord._2).getPos() match {
         case M.VERB => handleFiniteVerb(wordforms, vwCoord)
-        case M.PRTS => List(vwCoord) // TODO handleShortPerfective(words, wIndex, wfIndex)
+        case M.PRTS => handleShortPerfective(wordforms, vwCoord)
         case M.PRTF => List(vwCoord) // TODO handleFullPerfective(words, wIndex, wfIndex)
         case M.GRND => List(vwCoord) // TODO handleGerund(words, wIndex, wfIndex)
         case M.INFN => handleInfinitive(wordforms, vwCoord)
@@ -71,10 +71,23 @@ class VPRecognizer extends JCasAnnotator_ImplBase with Logging {
     }
   }
 
-  // return chunk words; first wf of iter is a head of chunk
+  // returns chunk words; first wf of iter is a head of chunk
   private def handleFiniteVerb(wordforms: Buffer[IndexedSeq[Wordform]],
     verbCoord: WordformPointer): Iterable[WordformPointer] =
     List(verbCoord)
+
+  private def handleShortPerfective(wordforms: Buffer[IndexedSeq[Wordform]],
+    spCoord: WordformPointer): Iterable[WordformPointer] = {
+    val (spWordIndex, spWfIndex) = spCoord
+    if (spWordIndex > 0) {
+      val toBeWordIdx = spWordIndex - 1
+      val toBeWfIdx = wordforms(spWordIndex - 1).indexWhere(hasLemma("есть", M.VERB))
+      if (toBeWfIdx >= 0)
+        (toBeWordIdx, toBeWfIdx) :: spCoord :: Nil
+      else List(spCoord)
+    } else
+      List(spCoord)
+  }
 
   private def handleInfinitive(wordforms: Buffer[IndexedSeq[Wordform]],
     infCoord: WordformPointer): Iterable[WordformPointer] = {
@@ -103,9 +116,12 @@ class VPRecognizer extends JCasAnnotator_ImplBase with Logging {
   }
 
   private def isVerb(wf: Wordform): Boolean = {
-    trace("Checking whether wf is verb: %s".format(wf))
+    // trace("Checking whether wf is verb: %s".format(wf))
     M.VERB == wf.getPos()
   }
+
+  private def hasLemma(lemmaString: String, pos: String)(wf: Wordform): Boolean =
+    pos == wf.getPos() && lemmaString == wf.getLemma()
 
   private def createChunkAnnotation(jCas: JCas, chunkWords: Iterable[Word]) {
     val iter = chunkWords.iterator
