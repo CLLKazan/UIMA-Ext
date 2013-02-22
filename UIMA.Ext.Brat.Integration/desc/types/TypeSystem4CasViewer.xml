@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
-  <name>hp-text-TypeSystem</name>
-  <version>1.0</version>
-  <imports>
-  	<import location="TextMARKER/BasicTypeSystem.xml"/>
-    <import location="hp-text-ru-TypeSystem.xml"/>
-  </imports>
-</typeSystemDescription>
