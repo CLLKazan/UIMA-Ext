@@ -20,10 +20,10 @@ import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
-object NPREvaluation extends Evaluation {
+object VPREvaluation extends Evaluation {
 
-  protected override val pipelineDescName = "desc.ae.np-chunker-aggregate"
-  protected override val evaluationConfigPath = "desc/npr-evaluation.properties"
+  protected override val pipelineDescName = "desc.ae.vp-chunker-aggregate"
+  protected override val evaluationConfigPath = "desc/vpr-evaluation.properties"
 
   def main(args: Array[String]) {
     if (args.length != 2)

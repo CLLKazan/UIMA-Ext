@@ -120,7 +120,10 @@ public class PostTokenizer extends JCasAnnotator_ImplBase {
 			while (!cleaned.isEmpty() && isPMOrSpecial(cleaned.getLast())) {
 				cleaned.removeLast();
 			}
-			return handle(cas, cleaned);
+			// to avoid infinite recursion
+			if (tokens.size() != cleaned.size()) {
+				return handle(cas, cleaned);
+			}
 		}
 		return false;
 	}
