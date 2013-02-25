@@ -16,7 +16,7 @@
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.Search</module>
-		<module>../UIMA.Ext.Chunker</module>
+		<module>../UIMA.Ext.PhraseRecognizer</module>
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
@@ -128,6 +128,11 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-morph-opencorpora</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-phrase-recognizer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
