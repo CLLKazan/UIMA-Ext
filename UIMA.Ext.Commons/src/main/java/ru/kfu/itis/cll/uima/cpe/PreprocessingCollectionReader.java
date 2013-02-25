@@ -55,27 +55,27 @@ public class PreprocessingCollectionReader extends CollectionReader_ImplBase {
 	public void initialize() throws ResourceInitializationException {
 		super.initialize();
 		UimaContext ctx = getUimaContext();
-		String directoryPath = (String) ctx.getConfigParameterValue(PARAM_DIRECTORY_PATH);
-		if (directoryPath == null) {
-			throw new IllegalStateException("DirectoryPath param is NULL");
-		}
-		directory = new File(directoryPath);
-		if (!directory.isDirectory()) {
-			throw new IllegalStateException(String.format("%s is not existing file directory",
-					directoryPath));
-		}
+//		String directoryPath = (String) ctx.getConfigParameterValue(PARAM_DIRECTORY_PATH);
+//		if (directoryPath == null) {
+//			throw new IllegalStateException("DirectoryPath param is NULL");
+//		}
+//		directory = new File(directoryPath);
+//		if (!directory.isDirectory()) {
+//			throw new IllegalStateException(String.format("%s is not existing file directory",
+//					directoryPath));
+//		}
 		/*String fileExtension = (String) ctx.getConfigParameterValue(PARAM_FILE_EXTENSION);
 		if (fileExtension == null) {
 			fileExtension = DEFAULT_FILE_EXTENSION;
 		}*/
 		/*IOFileFilter fileFilter = FileFilterUtils.suffixFileFilter(fileExtension);*/
-		files = Lists.newArrayList(directory.listFiles(/*(FileFilter) fileFilter)*/));
+//		files = Lists.newArrayList(directory.listFiles(/*(FileFilter) fileFilter)*/));
 		encoding = (String) ctx.getConfigParameterValue(PARAM_ENCODING);
 		if (encoding == null) {
 			encoding = DEFAULT_ENCODING;
 		}
 
-		fileIter = files.iterator();
+//		fileIter = files.iterator();
 	}
 
 	/**
@@ -86,30 +86,32 @@ public class PreprocessingCollectionReader extends CollectionReader_ImplBase {
 		if (!hasNext()) {
 			throw new CollectionException(new NoSuchElementException());
 		}
+		
+		
 		File file = fileIter.next();
 		if(! file.isDirectory())
 		{
 		try {
-			DocumentParser.analyse(file);
-		} catch (SAXException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (TikaException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String fileContent = DocumentParser.MainText;
+			DocumentParser dp = new DocumentParser();
+			
+			dp.analyse(file);
+		System.out.println(dp.Format);
+		String fileContent = dp.MainText;
 		aCAS.setDocumentText(fileContent);
 		try {
 			MisisDocumentMetadata docMeta = new MisisDocumentMetadata(aCAS.getJCas());
 			docMeta.setSourceUri(file.toURI().toString());
-			docMeta.setDocumentRawText(DocumentParser.MainText);
-			docMeta.setLanguage(DocumentParser.Language);
-			docMeta.setFormat(DocumentParser.Format);
+			docMeta.setDocumentRawText(dp.MainText);
+			docMeta.setLanguage(dp.Language);
+			docMeta.setFormat(dp.Format);
 			docMeta.addToIndexes();
 			System.out.println(docMeta.getSourceUri() +" " + docMeta.getLanguage()+" " + docMeta.getFormat() );
 		} catch (CASException e) {
 			throw new IllegalStateException(e);
+		}
+		} catch (SAXException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		}
 	}
@@ -137,11 +139,11 @@ public class PreprocessingCollectionReader extends CollectionReader_ImplBase {
 	public void close() throws IOException {
 	}
 	// class for parsing documents
-	private static class DocumentParser {
-		private static String Language = "";
-		private static String MainText = "";
-		private static String Format = "";
-		public static void analyse(File file) throws IOException, SAXException, TikaException
+	private  class DocumentParser {
+		private  String Language = "";
+		private  String MainText = "";
+		private  String Format = "";
+		public  void analyse(File file) throws IOException, SAXException
 		{
 			
 			if (file.getName().endsWith(".pdf"))
@@ -179,15 +181,18 @@ public class PreprocessingCollectionReader extends CollectionReader_ImplBase {
 			LanguageIdentifier langid = new LanguageIdentifier(MainText);
 			Language = langid.getLanguage();		
 		}	
-		private static void parsing(AbstractParser parser, File file) throws IOException,  TikaException, SAXException
+		private  void parsing(AbstractParser parser, File file) throws IOException, SAXException
 		{
 			FileInputStream stream = new FileInputStream(file);
-			ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-			BodyContentHandler handler = new BodyContentHandler(outstream);
+			BodyContentHandler handler = new BodyContentHandler();
 			Metadata metadata = new Metadata();
-			parser.parse(stream, handler, metadata);
-			outstream.close();
-			MainText = new String(outstream.toByteArray());
+			try {
+				parser.parse(stream, handler, metadata);
+			} catch (TikaException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//			MainText = new String(outstream.toByteArray());
 		}
 	}
 }

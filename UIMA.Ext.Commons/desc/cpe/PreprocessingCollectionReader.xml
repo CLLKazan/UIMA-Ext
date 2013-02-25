@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><collectionReaderDescription xmlns="http://uima.apache.org/resourceSpecifier">
+<?xml version="1.0" encoding="UTF-8"?>
+<collectionReaderDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
   <implementationName>ru.kfu.itis.cll.uima.cpe.PreprocessingCollectionReader</implementationName>
   <processingResourceMetaData>
@@ -6,7 +7,7 @@
     <description/>
     <version>1.0</version>
     <vendor/>
-    <configurationParameters>
+    <!-- <configurationParameters>
       <configurationParameter>
         <name>DirectoryPath</name>
         <type>String</type>
@@ -14,19 +15,32 @@
         <mandatory>true</mandatory>
       </configurationParameter>
     </configurationParameters>
-    <configurationParameterSettings/>
-    <typeSystemDescription/>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>DirectoryPath</name>
+        <value>
+          <string>data</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings> -->
+    <typeSystemDescription>
+      <imports>
+      <import name="resources/Commons-TypeSystem"/>
+      </imports>
+    </typeSystemDescription>
     <typePriorities/>
     <fsIndexCollection/>
     <capabilities>
       <capability>
         <inputs/>
-        <outputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</type>
+        </outputs>
         <languagesSupported/>
       </capability>
     </capabilities>
     <operationalProperties>
-      <modifiesCas>false</modifiesCas>
+      <modifiesCas>true</modifiesCas>
       <multipleDeploymentAllowed>false</multipleDeploymentAllowed>
       <outputsNewCASes>true</outputsNewCASes>
     </operationalProperties>

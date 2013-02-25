@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Thu Sep 27 23:32:25 MSK 2012 */
+/* First created by JCasGen Sun Feb 24 14:06:58 SAMT 2013 */
 package ru.kfu.itis.cll.uima.commons;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,27 +11,24 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Thu Sep 27 23:32:25 MSK 2012
- * XML source: resources/ru/kfu/itis/cll/uima/commons/Commons-TypeSystem.xml
+ * Updated by JCasGen Sun Feb 24 14:06:58 SAMT 2013
+ * XML source: /home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Commons/src/main/resources/ru/kfu/itis/cll/uima/commons/Commons-TypeSystem.xml
  * @generated */
 public class DocumentMetadata extends Annotation {
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(DocumentMetadata.class);
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
-  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected DocumentMetadata() {/* intentionally empty block */}
+  protected DocumentMetadata() {}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -58,7 +55,7 @@ public class DocumentMetadata extends Annotation {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {/*default - does nothing empty block */}
+  private void readObject() {}
      
  
     

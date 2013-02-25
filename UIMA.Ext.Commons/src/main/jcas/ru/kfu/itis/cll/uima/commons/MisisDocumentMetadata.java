@@ -1,37 +1,34 @@
 
 
-/* First created by JCasGen Sat Jan 19 17:59:32 MSK 2013 */
+/* First created by JCasGen Sun Feb 24 14:06:58 SAMT 2013 */
 package ru.kfu.itis.cll.uima.commons;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
 
-
+import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Sat Jan 19 17:59:32 MSK 2013
- * XML source: C:/Documents and Settings/����/UIMA-Ext/UIMA.Ext.Preprocessing/src/resources/ru/kfu/itis/cll/uima/commons/Commons-TypeSystem.xml
+ * Updated by JCasGen Sun Feb 24 14:06:58 SAMT 2013
+ * XML source: /home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Commons/src/main/resources/ru/kfu/itis/cll/uima/commons/Commons-TypeSystem.xml
  * @generated */
-public class MisisDocumentMetadata extends DocumentMetadata {
+public class MisisDocumentMetadata extends Annotation {
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(MisisDocumentMetadata.class);
   /** @generated
    * @ordered 
    */
-  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
-  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected MisisDocumentMetadata() {/* intentionally empty block */}
+  protected MisisDocumentMetadata() {}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -58,9 +55,81 @@ public class MisisDocumentMetadata extends DocumentMetadata {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {/*default - does nothing empty block */}
+  private void readObject() {}
      
  
+    
+  //*--------------*
+  //* Feature: sourceUri
+
+  /** getter for sourceUri - gets 
+   * @generated */
+  public String getSourceUri() {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_sourceUri == null)
+      jcasType.jcas.throwFeatMissing("sourceUri", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    return jcasType.ll_cas.ll_getStringValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_sourceUri);}
+    
+  /** setter for sourceUri - sets  
+   * @generated */
+  public void setSourceUri(String v) {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_sourceUri == null)
+      jcasType.jcas.throwFeatMissing("sourceUri", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    jcasType.ll_cas.ll_setStringValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_sourceUri, v);}    
+   
+    
+  //*--------------*
+  //* Feature: offsetInSource
+
+  /** getter for offsetInSource - gets 
+   * @generated */
+  public long getOffsetInSource() {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_offsetInSource == null)
+      jcasType.jcas.throwFeatMissing("offsetInSource", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    return jcasType.ll_cas.ll_getLongValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_offsetInSource);}
+    
+  /** setter for offsetInSource - sets  
+   * @generated */
+  public void setOffsetInSource(long v) {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_offsetInSource == null)
+      jcasType.jcas.throwFeatMissing("offsetInSource", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    jcasType.ll_cas.ll_setLongValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_offsetInSource, v);}    
+   
+    
+  //*--------------*
+  //* Feature: documentSize
+
+  /** getter for documentSize - gets 
+   * @generated */
+  public long getDocumentSize() {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_documentSize == null)
+      jcasType.jcas.throwFeatMissing("documentSize", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    return jcasType.ll_cas.ll_getLongValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_documentSize);}
+    
+  /** setter for documentSize - sets  
+   * @generated */
+  public void setDocumentSize(long v) {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_documentSize == null)
+      jcasType.jcas.throwFeatMissing("documentSize", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    jcasType.ll_cas.ll_setLongValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_documentSize, v);}    
+   
+    
+  //*--------------*
+  //* Feature: startProcessingTime
+
+  /** getter for startProcessingTime - gets 
+   * @generated */
+  public long getStartProcessingTime() {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_startProcessingTime == null)
+      jcasType.jcas.throwFeatMissing("startProcessingTime", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    return jcasType.ll_cas.ll_getLongValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_startProcessingTime);}
+    
+  /** setter for startProcessingTime - sets  
+   * @generated */
+  public void setStartProcessingTime(long v) {
+    if (MisisDocumentMetadata_Type.featOkTst && ((MisisDocumentMetadata_Type)jcasType).casFeat_startProcessingTime == null)
+      jcasType.jcas.throwFeatMissing("startProcessingTime", "ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata");
+    jcasType.ll_cas.ll_setLongValue(addr, ((MisisDocumentMetadata_Type)jcasType).casFeatCode_startProcessingTime, v);}    
+   
     
   //*--------------*
   //* Feature: language
