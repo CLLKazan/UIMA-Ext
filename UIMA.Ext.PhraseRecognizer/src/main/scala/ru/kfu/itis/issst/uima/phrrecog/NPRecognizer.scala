@@ -62,6 +62,7 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
     val phrase = new Phrase(jCas)
     phrase.setBegin(head.getBegin())
     phrase.setEnd(head.getEnd())
+    phrase.setPhraseType(PhraseTypeNP)
 
     phrase.setHead(head)
 

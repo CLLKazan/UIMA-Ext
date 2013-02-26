@@ -103,6 +103,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 		Word word = new Word(cas);
 		word.setBegin(token.getBegin());
 		word.setEnd(token.getEnd());
+		word.setToken(token);
 		List<org.opencorpora.cas.Wordform> casWfList = Lists.newLinkedList();
 		for (Wordform wf : wfDictEntries) {
 			org.opencorpora.cas.Wordform casWf = new org.opencorpora.cas.Wordform(cas);
