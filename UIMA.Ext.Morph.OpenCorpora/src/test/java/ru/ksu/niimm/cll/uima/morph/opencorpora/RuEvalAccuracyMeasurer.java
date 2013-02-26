@@ -63,6 +63,7 @@ public class RuEvalAccuracyMeasurer {
         AnalysisEngine ae = UIMAFramework.produceAnalysisEngine(aeDesc);
 
         // prepare input
+        System.out.println(documentText);
         String inputText = documentText;
         JCas cas = ae.newJCas();
         cas.setDocumentText(inputText);
@@ -81,21 +82,36 @@ public class RuEvalAccuracyMeasurer {
             }
         }
 
-        System.out.println("Accuracy: " + t / ruEvalPOS.size());
+        System.out.println("Accuracy: " + (double)t / ruEvalPOS.size());
     }
 
     private static boolean isCorrect(Word word) {
-        return true;
+        String wordStr = word.getCoveredText();
+        System.out.println("------------------------------");
+        for (int i = 0; i < word.getWordforms().size(); ++i) {
+            org.opencorpora.cas.Wordform casWf = word.getWordforms(i);
+            String pos = casWf.getPos();
+            String[] grammemsArray = new String[casWf.getGrammems().size()];
+            casWf.getGrammems().copyFromArray(grammemsArray, 0, 0, grammemsArray.length);
+            Set<String> grammems = new HashSet<String>(Arrays.asList(grammemsArray));
+
+            System.out.println(wordStr);
+            System.out.println(ruEvalPOS.get(wordStr));
+            System.out.println(pos);
+            System.out.println(opCorporaPOStoRuEval(pos, grammems));
+            System.out.println();
+            if (opCorporaPOStoRuEval(pos, grammems).equals(ruEvalPOS.get(wordStr)))
+                return true;
+        }
+        return false;
     }
 
     private static void processLine(String line) {
         if (line.isEmpty())
             return;
-        String[] parts = line.split("\t", -1);
+        String[] parts = line.split("\\t", -1);
         String word = parts[0];
-        System.out.println(word);
         String pos = parts[2];
-        System.out.println(pos);
         String[] gram = parts[3].split(",");
 
         documentText += word + "\n";
@@ -103,4 +119,22 @@ public class RuEvalAccuracyMeasurer {
         ruEvalGram.put(word, new HashSet<String>(Arrays.asList(gram)));
     }
 
+    private static String opCorporaPOStoRuEval(String ocPOS, Set<String> ocGrammems) {
+        if (ocPOS.equals("NOUN")) {
+            return "S";
+        } else if (ocPOS.equals("ADJF") || ocPOS.equals("ADJS")) {
+            return "A";
+        } else if (ocPOS.equals("VERB") || ocPOS.equals("INFN") || ocPOS.equals("PRTF") ||
+                   ocPOS.equals("PRTS") || ocPOS.equals("GRND")) {
+            return "V";
+        } else if (ocPOS.equals("PREP")) {
+            return "PR";
+        } else if (ocPOS.equals("CONJ")) {
+            return "CONJ";
+        } else if (ocPOS.equals("ADVB") || ocGrammems.contains("Prnt") || ocPOS.equals("PRCL") ||
+                   ocPOS.equals("INTJ")) {
+            return "ADV";
+        }
+        return ocPOS;
+    }
 }
