@@ -1,0 +1,7 @@
+/home/vladimir/workspace-u-2.3.1/uima-ext/UIMA.Ext.Tokenizer/data/dictionaries
+
+/home/vladimir/workspace-u-2.3.1/uima-addons-libs/apache-uima/addons/annotator/DictionaryAnnotator/lib
+
+
+java -classpath /home/vladimir/workspace-u-2.3.1/uima-addons-2.3.1/DictionaryAnnotator/target/classes:/home/vladimir/workspace-u-2.3.1/apache-uima-2.3.1/lib/uima-core.jar:uima-core.jar org.apache.uima.annotator.dict_annot.dictionary.impl.DictionaryCreator -input /home/vladimir/workspace-u-2.3.1/uima-ext/UIMA.Ext.Tokenizer/data/dictionaries/ru-conj-list.txt -encoding utf-8
+

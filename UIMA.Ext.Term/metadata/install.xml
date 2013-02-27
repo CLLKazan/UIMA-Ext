@@ -1,13 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <COMPONENT_INSTALLATION_DESCRIPTOR>
 	<OS>
+		<NAME>Linux</NAME>
 	</OS>
 	<TOOLKITS>
+		<JDK_VERSION>1.6.0</JDK_VERSION>
 	</TOOLKITS>
 	<UIMA_FRAMEWORK>
 	</UIMA_FRAMEWORK>
 	<SUBMITTED_COMPONENT>
+		<ID>uima-tokenizer</ID>
+		<NAME></NAME>
+		<DESC>$main_root/desc/token-regex-aggregate.xml</DESC>
+		<DEPLOYMENT>standard</DEPLOYMENT>
 	</SUBMITTED_COMPONENT>
 	<INSTALLATION>
+		<PROCESS>
+			<ACTION>set_env_variable</ACTION>
+			<PARAMETERS>
+				<COMMENTS></COMMENTS>
+				<VAR_VALUE>$main_root/target/classes;$main_root/lib;$main_root/bin/classes;$main_root/bin;$main_root/lib/aopalliance-1.0.jar;$main_root/lib/commons-io-1.4.jar;$main_root/lib/commons-lang-2.4.jar;$main_root/lib/commons-logging-1.1.1.jar;$main_root/lib/geronimo-stax-api_1.0_spec-1.0.1.jar;$main_root/lib/guava-12.0.jar;$main_root/lib/spring-beans-3.1.0.RELEASE.jar;$main_root/lib/spring-context-3.1.0.RELEASE.jar;$main_root/lib/spring-core-3.1.0.RELEASE.jar;$main_root/lib/uima-an-regex-javadoc.jar;$main_root/lib/uima-an-regex.jar;$main_root/lib/uima-ext-commons-0.1-SNAPSHOT.jar;$main_root/lib/uimafit-1.4.0-sources.jar;$main_root/lib/uimafit-1.4.0.jar;$main_root/lib/xmlbeans-2.4.0.jar;</VAR_VALUE>
+				<VAR_NAME>CLASSPATH</VAR_NAME>
+			</PARAMETERS>
+		</PROCESS>
+		<PROCESS>
+			<ACTION>set_env_variable</ACTION>
+			<PARAMETERS>
+				<COMMENTS></COMMENTS>
+				<VAR_VALUE>$main_root/resources</VAR_VALUE>
+				<VAR_NAME>uima.datapath</VAR_NAME>
+			</PARAMETERS>
+		</PROCESS>
 	</INSTALLATION>
 </COMPONENT_INSTALLATION_DESCRIPTOR>

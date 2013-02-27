@@ -12,6 +12,25 @@
 
 	<build>
 		<plugins>
+		
+	<!-- 	<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <version>2.4</version>
+    <executions>
+        <execution>
+            <id>copy</id>
+            <phase>install</phase>
+            <goals>
+                <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>target/classes</outputDirectory>
+            </configuration>
+        </execution>
+    </executions>
+</plugin> -->
+
 			<!-- <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
