@@ -18,7 +18,7 @@ import ru.kfu.itis.issst.uima.phrrecog.parsing.NP
 import scala.util.parsing.input.Reader
 import org.uimafit.util.FSCollectionFactory
 import org.apache.uima.jcas.cas.FSArray
-import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
+import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -59,10 +59,9 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
     val head = np.noun
     val jCas = head.getCAS().getJCas()
 
-    val phrase = new Phrase(jCas)
+    val phrase = new NounPhrase(jCas)
     phrase.setBegin(head.getBegin())
     phrase.setEnd(head.getEnd())
-    phrase.setPhraseType(PhraseTypeNP)
 
     phrase.setHead(head)
 

@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Mon Feb 25 23:35:47 MSK 2013 */
+/* First created by JCasGen Fri Mar 01 17:08:28 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -14,7 +14,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 /** Represents typed 'phrase', i.e. a head word with its dependents.
 				Phrase annotation should have the same borders with its head word.
- * Updated by JCasGen Mon Feb 25 23:35:47 MSK 2013
+ * Updated by JCasGen Fri Mar 01 17:08:28 MSK 2013
  * XML source: src/main/resources/ru/kfu/itis/issst/uima/phrrecog/ts-phrase-recognizer.xml
  * @generated */
 public class Phrase extends Annotation {
@@ -64,24 +64,6 @@ public class Phrase extends Annotation {
   private void readObject() {/*default - does nothing empty block */}
      
  
-    
-  //*--------------*
-  //* Feature: phraseType
-
-  /** getter for phraseType - gets 
-   * @generated */
-  public String getPhraseType() {
-    if (Phrase_Type.featOkTst && ((Phrase_Type)jcasType).casFeat_phraseType == null)
-      jcasType.jcas.throwFeatMissing("phraseType", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    return jcasType.ll_cas.ll_getStringValue(addr, ((Phrase_Type)jcasType).casFeatCode_phraseType);}
-    
-  /** setter for phraseType - sets  
-   * @generated */
-  public void setPhraseType(String v) {
-    if (Phrase_Type.featOkTst && ((Phrase_Type)jcasType).casFeat_phraseType == null)
-      jcasType.jcas.throwFeatMissing("phraseType", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    jcasType.ll_cas.ll_setStringValue(addr, ((Phrase_Type)jcasType).casFeatCode_phraseType, v);}    
-   
     
   //*--------------*
   //* Feature: head

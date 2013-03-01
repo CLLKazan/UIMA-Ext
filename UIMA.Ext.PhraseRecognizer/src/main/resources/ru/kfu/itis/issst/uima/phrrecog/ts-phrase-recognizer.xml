@@ -17,12 +17,6 @@
 			<supertypeName>uima.tcas.Annotation</supertypeName>
 			<features>
 				<featureDescription>
-				<!-- 'type' is reserved by UIMA model-->
-					<name>phraseType</name>
-					<description />
-					<rangeTypeName>ru.kfu.itis.issst.uima.phrrecog.cas.PhraseType</rangeTypeName>
-				</featureDescription>
-				<featureDescription>
 					<name>head</name>
 					<description />
 					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
@@ -36,16 +30,26 @@
 			</features>
 		</typeDescription>
 		<typeDescription>
-			<name>ru.kfu.itis.issst.uima.phrrecog.cas.PhraseType</name>
-			<supertypeName>uima.cas.String</supertypeName>
-			<allowedValues>
-				<value>
-					<string>VP</string>
-				</value>
-				<value>
-					<string>NP</string>
-				</value>
-			</allowedValues>
+			<name>ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase</name>
+			<description>Represents Noun Phrase</description>
+			<supertypeName>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</supertypeName>
+			<features>
+				<featureDescription>
+					<name>preposition</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>particle</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		<typeDescription>
+			<name>ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase</name>
+			<description>Represents Verb Phrase</description>
+			<supertypeName>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</supertypeName>
 		</typeDescription>
 	</types>
 </typeSystemDescription>

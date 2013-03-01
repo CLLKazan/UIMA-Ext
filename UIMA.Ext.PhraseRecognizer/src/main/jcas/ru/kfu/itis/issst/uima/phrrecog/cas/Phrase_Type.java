@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Mon Feb 25 23:35:47 MSK 2013 */
+/* First created by JCasGen Fri Mar 01 17:08:28 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -15,7 +15,7 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Represents typed 'phrase', i.e. a head word with its dependents.
 				Phrase annotation should have the same borders with its head word.
- * Updated by JCasGen Mon Feb 25 23:35:47 MSK 2013
+ * Updated by JCasGen Fri Mar 01 17:08:28 MSK 2013
  * @generated */
 public class Phrase_Type extends Annotation_Type {
   /** @generated */
@@ -44,24 +44,6 @@ public class Phrase_Type extends Annotation_Type {
      @modifiable */
   @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
- 
-  /** @generated */
-  final Feature casFeat_phraseType;
-  /** @generated */
-  final int     casFeatCode_phraseType;
-  /** @generated */ 
-  public String getPhraseType(int addr) {
-        if (featOkTst && casFeat_phraseType == null)
-      jcas.throwFeatMissing("phraseType", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    return ll_cas.ll_getStringValue(addr, casFeatCode_phraseType);
-  }
-  /** @generated */    
-  public void setPhraseType(int addr, String v) {
-        if (featOkTst && casFeat_phraseType == null)
-      jcas.throwFeatMissing("phraseType", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    ll_cas.ll_setStringValue(addr, casFeatCode_phraseType, v);}
-    
-  
  
   /** @generated */
   final Feature casFeat_head;
@@ -125,10 +107,6 @@ public class Phrase_Type extends Annotation_Type {
   public Phrase_Type(JCas jcas, Type casType) {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
-
- 
-    casFeat_phraseType = jcas.getRequiredFeatureDE(casType, "phraseType", "ru.kfu.itis.issst.uima.phrrecog.cas.PhraseType", featOkTst);
-    casFeatCode_phraseType  = (null == casFeat_phraseType) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_phraseType).getCode();
 
  
     casFeat_head = jcas.getRequiredFeatureDE(casType, "head", "org.opencorpora.cas.Word", featOkTst);
