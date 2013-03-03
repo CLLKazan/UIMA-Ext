@@ -82,14 +82,25 @@ public class PunctuationSegmentAnnotator extends CasAnnotator_ImplBase {
 				span.getCoveredText());
 		
 		while (pmIter.hasNext()) {
-			Annotation pm = pmIter.next();
-			// TODO handle other quotation marks! See TODO in the class header
+			Annotation pm = pmIter.next();			
 			if (pm != null && pm.getCoveredText() != null) {
 				if (pm.getCoveredText().matches("[:;,]")) 
 				{
 					pmList.add(pm);
+					info("PM instance:\n%s", pm.getCoveredText());
 				}
 			}
+			else
+			{
+				// sentence = PMSegment ?
+				info("sentence = PMSegment :\n%s", pm.getCoveredText());
+				PMSegment seg1 = new PMSegment(cas);
+				seg1.setBegin(span.getBegin());
+				seg1.setEnd(span.getEnd());
+				seg1.addToIndexes();
+				return;
+			}
+			
 		}
 		
 		if (pmList.isEmpty()) 
@@ -131,7 +142,7 @@ public class PunctuationSegmentAnnotator extends CasAnnotator_ImplBase {
 		{
 			createPMSegment(cas, cur, pmList.get(i + 1));
 			cur = pmList.get(i + 1);
-			i++;
+		
 		}
 
 		// 2 boundary segments
@@ -162,6 +173,7 @@ public class PunctuationSegmentAnnotator extends CasAnnotator_ImplBase {
 		seg.setBegin(pm1.getEnd());
 		seg.setEnd(pm2.getBegin());
 		seg.addToIndexes();
+		info("new Seg :\n%s", pm1.getEnd() + " " + pm1.getCoveredText()   + " - " + pm2.getBegin()+ " " + pm2.getCoveredText());
 		return seg;
 	}
 	

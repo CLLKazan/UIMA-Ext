@@ -27,7 +27,8 @@
         </configurationParameterSettings>
         <typeSystemDescription>
             <imports>
-                <import name="ru.kfu.cll.uima.segmentation.segmentation-TypeSystem"/>
+<!--                 <import name="ru.kfu.cll.uima.segmentation.segmentation-TypeSystem"/> -->
+                <import location="/home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml"/>
             </imports>
         </typeSystemDescription>
         <fsIndexCollection/>
