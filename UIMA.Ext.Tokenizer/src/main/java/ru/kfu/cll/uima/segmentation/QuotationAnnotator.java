@@ -29,7 +29,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.PM;
 import com.google.common.collect.Lists;
 
 /**
- * TODO handle "«" and "»" (and other) quotation marks!
+ * TODO handle "«" and "»" (and other) quotation marks! Use SegmentationUtils
  * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -128,7 +128,7 @@ public class QuotationAnnotator extends CasAnnotator_ImplBase {
 		char charBefore = cas.getDocumentText().charAt(anno.getBegin() - 1);
 		return Character.isWhitespace(charBefore);
 	}
-	
+
 	private QSegment createQSegment(JCas cas, Annotation openingQM, Annotation closingQM,
 			Annotation parentSegment) {
 		return createQSegment(cas, openingQM, closingQM, parentSegment, true);
@@ -148,7 +148,7 @@ public class QuotationAnnotator extends CasAnnotator_ImplBase {
 		if (parentSegment != null) {
 			seg.setParentSegment(parentSegment);
 		}
-		if(addToIndex){
+		if (addToIndex) {
 			seg.addToIndexes();
 		}
 		return seg;

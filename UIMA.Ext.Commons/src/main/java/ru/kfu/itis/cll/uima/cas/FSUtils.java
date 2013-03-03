@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.FSMatchConstraint;
@@ -36,7 +37,15 @@ import com.google.common.collect.Lists;
  */
 public class FSUtils {
 
-	public static final FSArray toFSArray(JCas cas, Collection<? extends FeatureStructure> srcCol) {
+	public static JCas getJCas(FeatureStructure fs) {
+		try {
+			return fs.getCAS().getJCas();
+		} catch (CASException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static FSArray toFSArray(JCas cas, Collection<? extends FeatureStructure> srcCol) {
 		FSArray result = new FSArray(cas, srcCol.size());
 		int i = 0;
 		for (FeatureStructure fs : srcCol) {
@@ -46,7 +55,7 @@ public class FSUtils {
 		return result;
 	}
 
-	public static final StringArray toStringArray(JCas cas, Collection<String> srcCol) {
+	public static StringArray toStringArray(JCas cas, Collection<String> srcCol) {
 		StringArray result = new StringArray(cas, srcCol.size());
 		int i = 0;
 		for (String gr : srcCol) {
@@ -56,7 +65,7 @@ public class FSUtils {
 		return result;
 	}
 
-	public static final Set<String> toSet(StringArrayFS fsArr) {
+	public static Set<String> toSet(StringArrayFS fsArr) {
 		if (fsArr == null)
 			return ImmutableSet.of();
 		ImmutableSet.Builder<String> resultBuilder = ImmutableSet.builder();
@@ -66,7 +75,7 @@ public class FSUtils {
 		return resultBuilder.build();
 	}
 
-	public static final FSTypeConstraint getTypeConstraint(Type firstType, Type... otherTypes) {
+	public static FSTypeConstraint getTypeConstraint(Type firstType, Type... otherTypes) {
 		FSTypeConstraint constr = ConstraintFactory.instance().createTypeConstraint();
 		constr.add(firstType);
 		for (Type t : otherTypes) {
@@ -75,7 +84,7 @@ public class FSUtils {
 		return constr;
 	}
 
-	public static final FSTypeConstraint getTypeConstraint(String firstType, String... otherTypes) {
+	public static FSTypeConstraint getTypeConstraint(String firstType, String... otherTypes) {
 		FSTypeConstraint constr = ConstraintFactory.instance().createTypeConstraint();
 		constr.add(firstType);
 		for (String t : otherTypes) {

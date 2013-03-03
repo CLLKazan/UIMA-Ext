@@ -23,6 +23,12 @@ import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import org.apache.uima.cas.text.AnnotationFS
 import org.apache.uima.cas.text.AnnotationIndex
 import org.apache.uima.cas.FSIterator
+import ru.kfu.cll.uima.tokenizer.fstype.NUM
+import org.apache.uima.cas.text.AnnotationFS
+import ru.kfu.cll.uima.segmentation.SegmentationUtils._
+import ru.kfu.cll.uima.tokenizer.TokenUtils._
+import ru.kfu.itis.issst.uima.ner.cas.PossibleNE
+import ru.kfu.itis.cll.uima.cas.FSUtils
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -31,17 +37,29 @@ import org.apache.uima.cas.FSIterator
 class PossibleNEAnnotator extends JCasAnnotator_ImplBase {
 
   private var cwType: Type = _
+  private var numType: Type = _
+  private var tokenType: Type = _
 
   override def process(jCas: JCas) {
     val ts = jCas.getTypeSystem
     cwType = jCas.getCasType(CW.typeIndexID)
+    numType = jCas.getCasType(NUM.typeIndexID)
+    tokenType = jCas.getCasType(Token.typeIndexID)
+
     val candidates = HashSet.empty[PossibleNEWrapper]
     // search among NPs
     // TODO in NPR put an initial preposition into separate feature
     // TODO NPR must ensure that a dependents array feature value is ordered by words appearance in a text
-    for (phrase <- jCas.getAnnotationIndex(NounPhrase.typeIndexID).asInstanceOf[jl.Iterable[NounPhrase]])
-      if (ts.subsumes(cwType, getFirstWord(phrase, true).getType()))
-        candidates += PossibleNEWrapper.of(phrase); // this semicolon is required
+    // TODO search among inner NPs
+    for (phrase <- jCas.getAnnotationIndex(NounPhrase.typeIndexID).asInstanceOf[jl.Iterable[NounPhrase]]) {
+      val firstToken = getFirstWord(phrase, true) match {
+        case null => null
+        case firstWord => firstWord.getToken
+      }
+      if (ts.subsumes(cwType, firstToken.getType) // NP starting with Capitalized Word
+        || (ts.subsumes(numType, firstToken.getType) && quoted(phrase))) // NP starting with NUM and wrapped in quotation markes
+        candidates += PossibleNEWrapper.of(phrase) // this semicolon is required
+    }
     // apply enrichment by adding adjacent prepositional phrases to candidates
     {
       val newCandidates = HashSet.empty[PossibleNEWrapper]
@@ -49,13 +67,20 @@ class PossibleNEAnnotator extends JCasAnnotator_ImplBase {
         newCandidates ++= addAdjacentNP(jCas, cand)
       candidates ++= newCandidates
     }
-    // TODO apply enrichment by adding candidates that consist of consecutive CWs
-
-    // apply enrichment by adding full content of a QSegment if it does not wrap direct speech 
-    for (qs <- jCas.getAnnotationIndex(QSegment.typeIndexID).asInstanceOf[jl.Iterable[QSegment]]) {
-      // TODO
-    }
     // make annotations
+    for (cand <- candidates) makeAnnotation(jCas, cand)
+  }
+
+  private def makeAnnotation(jCas: JCas, pneWrapper: PossibleNEWrapper) {
+    val pne = new PossibleNE(jCas)
+    val pneTokens = pneWrapper.tokens
+    pne.setBegin(pneTokens.firstKey.getBegin)
+    pne.setEnd(pneTokens.lastKey.getEnd)
+    // set head
+    if (pneWrapper.head != null) pne.setHead(pneWrapper.head)
+    // set tokens(words)
+    pne.setWords(FSUtils.toFSArray(jCas, pneWrapper.tokens))
+    pne.addToIndexes()
   }
 
   private def addAdjacentNP(jCas: JCas, pne: PossibleNEWrapper): TraversableOnce[PossibleNEWrapper] = {
@@ -74,18 +99,12 @@ class PossibleNEAnnotator extends JCasAnnotator_ImplBase {
     addAdjacentNP(pne)
   }
 
-  // TODO move to utilities object
-  private def adjoin(w1: Word, w2: Word): Boolean = adjoin(w1.getToken, w2.getToken)
+  private def adjoin(w1: Word, w2: Word): Boolean =
+    areAdjoining(w1.getToken.asInstanceOf[Token], w2.getToken.asInstanceOf[Token])
 
-  // TODO test
-  private def adjoin(t1: AnnotationFS, t2: AnnotationFS): Boolean = {
-    val jCas = t1.getCAS.getJCas
-    val tokenIter = jCas.getAnnotationIndex(Token.typeIndexID).asInstanceOf[AnnotationIndex[Token]].iterator()
-    tokenIter.moveTo(t1)
-    assert(t1 == tokenIter.get)
-    tokenIter.moveToNext()
-    tokenIter.isValid && tokenIter.get == t2
-  }
+  private def quoted(np: NounPhrase): Boolean =
+    isLeftQuoted(getFirstWord(np, false).getToken.asInstanceOf[Token]) &&
+      isRightQuoted(getLastWord(np, false).getToken.asInstanceOf[Token])
 }
 
 private[ner] class PossibleNEWrapper private (val tokens: SortedSet[Word], val head: Word) {

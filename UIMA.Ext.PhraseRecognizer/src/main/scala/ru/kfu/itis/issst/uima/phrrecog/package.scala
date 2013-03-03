@@ -27,7 +27,6 @@ package object phrrecog {
   /**
    * Returns the first word of NP.
    * If ignoreAux is true then leading preposition or particle is ignored.
-   * Note! If NP is prepositional then a preposition is ignored.
    */
   def getFirstWord(np: NounPhrase, ignoreAux: Boolean): Word = {
     var candidates = np.getHead() :: Nil
@@ -36,9 +35,25 @@ package object phrrecog {
     np.getDependents() match {
       case null =>
       case depsFS if depsFS.size == 0 =>
-      case depsFS => FSCollectionFactory.create(depsFS, classOf[Word]).head :: candidates
+      case depsFS => FSCollectionFactory.create(depsFS, classOf[Word]).head +: candidates
     }
     candidates.minBy(_.getBegin)
+  }
+
+  /**
+   * Returns the last word of NP.
+   * If ignoreAux is true then leading preposition or particle is ignored.
+   */
+  def getLastWord(np: NounPhrase, ignoreAux: Boolean): Word = {
+    var candidates = np.getHead() :: Nil
+    if (!ignoreAux && np.getPreposition != null) np.getPreposition :: candidates
+    if (!ignoreAux && np.getParticle != null) np.getParticle :: candidates
+    np.getDependents() match {
+      case null =>
+      case depsFS if depsFS.size == 0 =>
+      case depsFS => FSCollectionFactory.create(depsFS, classOf[Word]).last +: candidates
+    }
+    candidates.maxBy(_.getBegin)
   }
 
   def getWords(np: NounPhrase, ignoreAux: Boolean): SortedSet[Word] = {
@@ -49,4 +64,8 @@ package object phrrecog {
     if (!ignoreAux && np.getParticle != null) result += np.getParticle
     result
   }
+
+  def getOffsets(np: NounPhrase): (Int, Int) = (
+    getFirstWord(np, false).getBegin(),
+    getLastWord(np, false).getEnd())
 }
