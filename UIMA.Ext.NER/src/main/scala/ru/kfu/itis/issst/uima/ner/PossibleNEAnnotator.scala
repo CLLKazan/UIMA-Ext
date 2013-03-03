@@ -48,8 +48,6 @@ class PossibleNEAnnotator extends JCasAnnotator_ImplBase {
 
     val candidates = HashSet.empty[PossibleNEWrapper]
     // search among NPs
-    // TODO in NPR put an initial preposition into separate feature
-    // TODO NPR must ensure that a dependents array feature value is ordered by words appearance in a text
     // TODO search among inner NPs
     for (phrase <- jCas.getAnnotationIndex(NounPhrase.typeIndexID).asInstanceOf[jl.Iterable[NounPhrase]]) {
       val firstToken = getFirstWord(phrase, true) match {

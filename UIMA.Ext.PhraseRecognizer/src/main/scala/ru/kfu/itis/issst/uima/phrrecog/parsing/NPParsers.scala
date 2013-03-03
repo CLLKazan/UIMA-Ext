@@ -64,29 +64,29 @@ trait NPParsers extends Parsers {
   // Prepositional CAN
   def pCANNom = nUNom | cANNom()
   def pCANGen = opt(gentPrep) ~ (nUGen | cANGen()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, prep :: np.deps)
+    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
     case None ~ np => np
   }
   def pCANDat = opt(datPrep) ~ (nUDat | cANDat()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, prep :: np.deps)
+    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
     case None ~ np => np
   }
   def pCANAcc = opt(accPrep) ~ (nUAcc | cANAcc()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, prep :: np.deps)
+    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
     case None ~ np => np
   }
   def pCANAbl = opt(ablPrep) ~ (nUAbl | cANAbl()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, prep :: np.deps)
+    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
     case None ~ np => np
   }
   def pCANLoc = opt(locPrep) ~ (nULoc | cANLoc()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, prep :: np.deps)
+    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
     case None ~ np => np
   }
 
   // NP = pCAN + genitives
   def np = (pCANNom | pCANGen | pCANDat | pCANAcc | pCANAbl | pCANLoc) ~ rep(cANGen()) ^^ {
-    case headNP ~ depNPList => new NP(headNP.noun, headNP.deps ::: flatten(depNPList))
+    case headNP ~ depNPList => new NP(headNP.noun, headNP.prepOpt, headNP.deps ::: flatten(depNPList))
   }
 
   // atomic
@@ -145,8 +145,9 @@ trait NPParsers extends Parsers {
     has(grString)
 }
 
-class NP(val noun: Word, val deps: List[Word]) {
-  def this(noun: Word, nps: NP*) = this(noun, flatten(nps))
+class NP(val noun: Word, val prepOpt: Option[Word], val deps: List[Word]) {
+  def this(noun: Word, nps: NP*) = this(noun, None, flatten(nps))
+  def this(noun: Word, deps: List[Word]) = this(noun, None, deps)
 }
 
 object NPParsers {

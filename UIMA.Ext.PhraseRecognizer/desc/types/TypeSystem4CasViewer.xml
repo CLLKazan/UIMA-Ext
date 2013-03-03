@@ -201,16 +201,28 @@
             </features>
         </typeDescription>
         <typeDescription>
+            <name>ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase</name>
+            <description>Represents Noun Phrase</description>
+            <supertypeName>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>preposition</name>
+                    <description/>
+                    <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>particle</name>
+                    <description/>
+                    <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
             <name>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</name>
             <description>Represents typed 'phrase', i.e. a head word with its dependents.
 				Phrase annotation should have the same borders with its head word.</description>
             <supertypeName>uima.tcas.Annotation</supertypeName>
             <features>
-                <featureDescription>
-                    <name>phraseType</name>
-                    <description/>
-                    <rangeTypeName>ru.kfu.itis.issst.uima.phrrecog.cas.PhraseType</rangeTypeName>
-                </featureDescription>
                 <featureDescription>
                     <name>head</name>
                     <description/>
@@ -225,19 +237,9 @@
             </features>
         </typeDescription>
         <typeDescription>
-            <name>ru.kfu.itis.issst.uima.phrrecog.cas.PhraseType</name>
-            <description/>
-            <supertypeName>uima.cas.String</supertypeName>
-            <allowedValues>
-                <value>
-                    <string>VP</string>
-                    <description/>
-                </value>
-                <value>
-                    <string>NP</string>
-                    <description/>
-                </value>
-            </allowedValues>
+            <name>ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase</name>
+            <description>Represents Verb Phrase</description>
+            <supertypeName>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</supertypeName>
         </typeDescription>
     </types>
 </typeSystemDescription>

@@ -19,6 +19,7 @@ import scala.util.parsing.input.Reader
 import org.uimafit.util.FSCollectionFactory
 import org.apache.uima.jcas.cas.FSArray
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
+import scala.collection.immutable.TreeSet
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -64,9 +65,13 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
     phrase.setEnd(head.getEnd())
 
     phrase.setHead(head)
+    np.prepOpt match {
+      case Some(prep) => phrase.setPreposition(prep)
+      case None =>
+    }
 
     val depsFsArray = new FSArray(jCas, np.deps.size)
-    FSCollectionFactory.fillArrayFS(depsFsArray, np.deps)
+    FSCollectionFactory.fillArrayFS(depsFsArray, TreeSet.empty[Word](annOffsetComp) ++ np.deps)
     phrase.setDependents(depsFsArray)
     phrase.addToIndexes()
   }

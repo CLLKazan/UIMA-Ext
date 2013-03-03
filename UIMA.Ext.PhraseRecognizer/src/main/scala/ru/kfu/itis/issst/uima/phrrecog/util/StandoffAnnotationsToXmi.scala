@@ -20,12 +20,13 @@ import ru.kfu.cll.uima.tokenizer.PostTokenizer
 object StandoffAnnotationsToXmi {
 
   def main(args: Array[String]) {
-    if (args.length != 2) {
-      println("Usage: <inputDir> <outputDir>")
+    if (args.length != 3) {
+      println("Usage: <annoStrParserClass> <inputDir> <outputDir>")
       exit(1)
     }
-    val inputDir = args(0)
-    val outputDir = args(1)
+    val annoStrParserClsName = args(0)
+    val inputDir = args(1)
+    val outputDir = args(2)
 
     val colReaderDesc = {
       import FileDirectoryCollectionReader._
@@ -55,10 +56,12 @@ object StandoffAnnotationsToXmi {
     }
 
     val standoffParserDesc = {
+      import StandoffAnnotationsProcessor._
       val tsDesc = createTypeSystemDescription(
         "org.opencorpora.morphology-ts",
         "ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer")
-      createPrimitiveDescription(classOf[StandoffAnnotationsProcessor], tsDesc)
+      createPrimitiveDescription(classOf[StandoffAnnotationsProcessor], tsDesc,
+        ParamAnnotationStringParserClass, annoStrParserClsName)
     }
 
     val xmiWriterDesc = {

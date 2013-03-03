@@ -26,9 +26,11 @@ import java.util.regex.Pattern
 import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
 
 /**
+ * Deprecated. Do not use it!
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
+@Deprecated
 class StandoffAnnotationsCollectionReader extends JCasCollectionReader_ImplBase {
 
   // config

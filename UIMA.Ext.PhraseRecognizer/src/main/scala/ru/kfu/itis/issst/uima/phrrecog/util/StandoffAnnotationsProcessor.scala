@@ -22,6 +22,9 @@ import org.uimafit.util.CasUtil
 import ru.kfu.cll.uima.tokenizer.fstype.Token
 import org.apache.uima.cas.Type
 import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
+import org.apache.uima.UimaContext
+import ru.kfu.itis.cll.uima.util.AnnotatorUtils._
+import scala.collection.mutable.HashMap
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -31,6 +34,15 @@ class StandoffAnnotationsProcessor extends JCasAnnotator_ImplBase {
 
   // state
   private var tokenType: Type = _
+  private var annoStrParser: AnnotationStringParser = _
+
+  override def initialize(ctx: UimaContext) {
+    super.initialize(ctx)
+    val annoStrParserClassName = ctx.getConfigParameterValue(ParamAnnotationStringParserClass).asInstanceOf[String]
+    mandatoryParam(ParamAnnotationStringParserClass, annoStrParserClassName)
+    val annoStrParserClass = Class.forName(annoStrParserClassName)
+    annoStrParser = annoStrParserClass.newInstance().asInstanceOf[AnnotationStringParser]
+  }
 
   override def process(jCas: JCas) {
     val annFile = getAnnFile(jCas)
@@ -47,52 +59,32 @@ class StandoffAnnotationsProcessor extends JCasAnnotator_ImplBase {
     val jCas = paraAnno.getCAS().getJCas()
     val paraOffset = paraAnno.getBegin
     val phraseStrings = annLine.split("\\|")
-    val resultList = ListBuffer.empty[Annotation]
     val paraTokens = getParagraphTokens(paraAnno)
     for (phrStr <- phraseStrings) {
-      val rawWords = tokenize(phrStr);
-      val wordAnnos = for (rawWord <- rawWords) yield {
-        val (wordStr, wordNum) = parseWordString(rawWord)
+      val prefixWordMap = HashMap.empty[String, ListBuffer[Word]]
+      val rawWords = tokenize(phrStr)
+      for (rawWord <- rawWords) {
+        val (wordPrefix, wordStr, wordNum) = parseWordString(rawWord)
         val (wordBegin, wordEnd) = getOffsets(paraTokens, wordStr, wordNum)
         val word = new Word(jCas)
         word.setBegin(wordBegin)
         word.setEnd(wordEnd)
-        word
-      }
-      if (!wordAnnos.isEmpty) {
-        val headWord = wordAnnos.head
-        val dependentWordAnnos = wordAnnos.tail
-
-        val dependentsFsArray = new FSArray(jCas, dependentWordAnnos.size)
-        var fsArrayIndex = 0
-        for (dwAnno <- dependentWordAnnos) {
-          dependentsFsArray.set(fsArrayIndex, dwAnno)
-          fsArrayIndex += 1
+        prefixWordMap.get(wordPrefix) match {
+          case None => prefixWordMap(wordPrefix) = {
+            val list = ListBuffer.empty[Word]
+            list += word
+            list
+          }
+          case Some(list) => list += word
         }
-
-        val phrase = new Phrase(jCas)
-        phrase.setBegin(headWord.getBegin())
-        phrase.setEnd(headWord.getEnd())
-        phrase.setHead(headWord)
-        phrase.setDependents(dependentsFsArray)
-
-        phrase.addToIndexes()
       }
+      if (!prefixWordMap.isEmpty) annoStrParser.parseTokens(jCas, prefixWordMap)
     }
   }
 
   private def getParagraphTokens(paraAnno: AnnotationFS): Array[AnnotationFS] = {
     val tokensList = CasUtil.selectCovered(paraAnno.getCAS(), tokenType, paraAnno)
     tokensList.toArray(new Array[AnnotationFS](tokensList.size()))
-  }
-
-  private def tokenize(str: String): List[String] =
-    str.split("\\s+").toList.dropWhile(_.isEmpty)
-
-  private def parseWordString(str: String): (String, Option[Int]) = {
-    val matcher = numberedWordPattern.matcher(str)
-    if (!matcher.matches()) (str, None)
-    else (matcher.group(2), Option(matcher.group(1).toInt))
   }
 
   private def getOffsets(txtTokens: Array[AnnotationFS], word: String, numberOpt: Option[Int]): (Int, Int) = {
@@ -130,5 +122,31 @@ class StandoffAnnotationsProcessor extends JCasAnnotator_ImplBase {
 }
 
 object StandoffAnnotationsProcessor {
-  private val numberedWordPattern = Pattern.compile("(\\d+):(.+)")
+  val ParamAnnotationStringParserClass = "AnnotationStringParserClass"
+
+  private val WordPattern = Pattern.compile("([\\p{Alnum}_]+=)?(\\d+:)?(.+)")
+
+  private def tokenize(str: String): List[String] =
+    str.split("\\s+").toList.dropWhile(_.isEmpty)
+
+  private def parseWordString(str: String): (String, String, Option[Int]) = {
+    val matcher = WordPattern.matcher(str)
+    if (!matcher.matches()) throw new IllegalStateException("Illegal word string: %s".format(str))
+    val prefix = matcher.group(1) match {
+      case null => null
+      case "" => null
+      case prefix => prefix.substring(0, prefix.length() - 1)
+    }
+    val numberOpt = matcher.group(2) match {
+      case null => None
+      case "" => None
+      case num => Some(num.substring(0, num.length() - 1).toInt)
+    }
+    val wordTxt = matcher.group(3)
+    (prefix, wordTxt, numberOpt)
+  }
+}
+
+trait AnnotationStringParser {
+  def parseTokens(jCas: JCas, prefixedTokensMap: scala.collection.Map[String, Seq[Word]])
 }

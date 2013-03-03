@@ -21,7 +21,7 @@ package object phrrecog {
   val PhraseTypeNP = "NP"
   val PhraseTypeVP = "VP"
 
-  private val annOffsetComp = Ordering.comparatorToOrdering(
+  val annOffsetComp = Ordering.comparatorToOrdering(
     AnnotationOffsetComparator.instance(classOf[Word]))
 
   /**
