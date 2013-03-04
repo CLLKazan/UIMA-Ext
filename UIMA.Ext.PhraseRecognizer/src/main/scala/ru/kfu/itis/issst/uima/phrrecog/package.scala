@@ -15,6 +15,7 @@ import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import scala.collection.immutable.SortedSet
 import scala.math.Ordering
 import ru.kfu.itis.cll.uima.cas.AnnotationOffsetComparator
+import scala.collection.mutable.ListBuffer
 
 package object phrrecog {
 
@@ -29,13 +30,14 @@ package object phrrecog {
    * If ignoreAux is true then leading preposition or particle is ignored.
    */
   def getFirstWord(np: NounPhrase, ignoreAux: Boolean): Word = {
-    var candidates = np.getHead() :: Nil
-    if (!ignoreAux && np.getPreposition != null) np.getPreposition :: candidates
-    if (!ignoreAux && np.getParticle != null) np.getParticle :: candidates
+    val candidates = ListBuffer.empty[Word]
+    candidates += np.getHead
+    if (!ignoreAux && np.getPreposition != null) candidates += np.getPreposition
+    if (!ignoreAux && np.getParticle != null) candidates += np.getParticle
     np.getDependents() match {
       case null =>
       case depsFS if depsFS.size == 0 =>
-      case depsFS => FSCollectionFactory.create(depsFS, classOf[Word]).head +: candidates
+      case depsFS => candidates += FSCollectionFactory.create(depsFS, classOf[Word]).head
     }
     candidates.minBy(_.getBegin)
   }
@@ -45,13 +47,14 @@ package object phrrecog {
    * If ignoreAux is true then leading preposition or particle is ignored.
    */
   def getLastWord(np: NounPhrase, ignoreAux: Boolean): Word = {
-    var candidates = np.getHead() :: Nil
-    if (!ignoreAux && np.getPreposition != null) np.getPreposition :: candidates
-    if (!ignoreAux && np.getParticle != null) np.getParticle :: candidates
+    val candidates = ListBuffer.empty[Word]
+    candidates += np.getHead
+    if (!ignoreAux && np.getPreposition != null) candidates += np.getPreposition
+    if (!ignoreAux && np.getParticle != null) candidates += np.getParticle
     np.getDependents() match {
       case null =>
       case depsFS if depsFS.size == 0 =>
-      case depsFS => FSCollectionFactory.create(depsFS, classOf[Word]).last +: candidates
+      case depsFS => candidates += FSCollectionFactory.create(depsFS, classOf[Word]).last
     }
     candidates.maxBy(_.getBegin)
   }
@@ -65,7 +68,5 @@ package object phrrecog {
     result
   }
 
-  def getOffsets(np: NounPhrase): (Int, Int) = (
-    getFirstWord(np, false).getBegin(),
-    getLastWord(np, false).getEnd())
+  def getOffsets(np: NounPhrase): (Int, Int) = (getFirstWord(np, false).getBegin(), getLastWord(np, false).getEnd())
 }

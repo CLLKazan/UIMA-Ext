@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="tokenizer">
+			<import name="ru.kfu.cll.uima.tokenizer.InitialTokenizer" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="postTokenizer">
+			<import name="ru.kfu.cll.uima.tokenizer.PostTokenizer" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="sentenceSplitter">
+			<import name="ru.kfu.cll.uima.segmentation.SentenceSplitter" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="morphTagger">
+			<import name="ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="numProcessor">
+			<import name="ru.kfu.itis.issst.uima.morph.NumProcessor" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="npRecognizer">
+			<import name="ru.kfu.itis.issst.uima.phrrecog.NPRecognizer" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="possibleNEAntr">
+			<import name="ru.kfu.itis.issst.uima.ner.PossibleNEAnnotator" />
+		</delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+
+	<analysisEngineMetaData>
+		<name>NER-aggregate</name>
+
+		<flowConstraints>
+			<fixedFlow>
+				<node>tokenizer</node>
+				<node>postTokenizer</node>
+				<node>sentenceSplitter</node>
+				<node>morphTagger</node>
+				<node>numProcessor</node>
+				<node>npRecognizer</node>
+				<node>possibleNEAntr</node>
+			</fixedFlow>
+		</flowConstraints>
+	</analysisEngineMetaData>
+
+	<resourceManagerConfiguration>
+		<externalResources>
+			<externalResource>
+				<name>morphDictionary</name>
+				<description />
+				<fileResourceSpecifier>
+					<fileUrl>dict.opcorpora.ser</fileUrl>
+				</fileResourceSpecifier>
+				<implementationName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource</implementationName>
+			</externalResource>
+		</externalResources>
+		<externalResourceBindings>
+			<externalResourceBinding>
+				<key>morphTagger/MorphDictionary</key>
+				<resourceName>morphDictionary</resourceName>
+			</externalResourceBinding>
+		</externalResourceBindings>
+	</resourceManagerConfiguration>
+</analysisEngineDescription>

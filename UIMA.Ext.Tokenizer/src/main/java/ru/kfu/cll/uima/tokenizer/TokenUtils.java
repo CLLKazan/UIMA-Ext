@@ -4,6 +4,7 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.util.CasUtil;
 import static ru.kfu.itis.cll.uima.cas.FSUtils.*;
 
@@ -23,8 +24,7 @@ public class TokenUtils {
 		CAS cas = refToken.getCAS();
 		Type tokenType = cas.getTypeSystem().getType(Token.class.getName());
 		try {
-			return (Token) CasUtil.selectSingleRelative(cas, tokenType,
-					refToken, index);
+			return (Token) CasUtil.selectSingleRelative(cas, tokenType, refToken, index);
 		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
@@ -33,9 +33,7 @@ public class TokenUtils {
 	// TODO test
 	public static boolean areAdjoining(Token t1, Token t2) {
 		JCas jCas = getJCas(t1);
-		@SuppressWarnings("unchecked")
-		FSIterator<Token> tokenIter = (FSIterator<Token>) jCas
-				.getAnnotationIndex(Token.typeIndexID);
+		FSIterator<Annotation> tokenIter = jCas.getAnnotationIndex(Token.typeIndexID).iterator();
 		tokenIter.moveTo(t1);
 		assert (t1.equals(tokenIter.get()));
 		tokenIter.moveToNext();

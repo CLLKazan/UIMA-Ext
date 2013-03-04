@@ -15,7 +15,6 @@ import org.apache.uima.cas.Type
 import ru.kfu.cll.uima.tokenizer.fstype.CW
 import org.uimafit.util.FSCollectionFactory
 import scala.collection.immutable.SortedSet
-import ru.kfu.cll.uima.segmentation.fstype.QSegment
 import org.uimafit.util.CasUtil
 import ru.kfu.itis.cll.uima.cas.AnnotationOffsetComparator
 import scala.math.Ordering._
