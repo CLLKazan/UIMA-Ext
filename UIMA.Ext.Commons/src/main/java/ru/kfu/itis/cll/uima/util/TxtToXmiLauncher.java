@@ -1,5 +1,8 @@
 /**
  * 
+ * 
+ * 
+ * 
  */
 package ru.kfu.itis.cll.uima.util;
 
@@ -27,7 +30,9 @@ public class TxtToXmiLauncher {
 			System.err.println("Usage: <txtInputDir> <xmiOutputDir>");
 			return;
 		}
-		String cpeDescPath = "desc/cpe/cpe-txt-to-xmi.xml";
+		String datapath = UIMAFramework.newDefaultResourceManager().getDataPath();
+		
+		String cpeDescPath = datapath + "/desc/cpe/cpe-files-to-xmi.xml";
 		String inputDirPath = args[0];
 		String outputDirPath = args[1];
 
