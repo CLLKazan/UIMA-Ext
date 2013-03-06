@@ -55,7 +55,7 @@ public class RuEvalAccuracyMeasurer {
 
 
         XMLInputSource aeDescInput = new XMLInputSource(
-                "target/test-classes/opencorpora/ae-ru-test-MorphAnnotator.xml");
+                "target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
         AnalysisEngineDescription aeDesc = UIMAFramework.getXMLParser()
                 .parseAnalysisEngineDescription(aeDescInput);
 
@@ -67,9 +67,6 @@ public class RuEvalAccuracyMeasurer {
         String inputText = documentText;
         JCas cas = ae.newJCas();
         cas.setDocumentText(inputText);
-        DocumentMetadata inputMeta = new DocumentMetadata(cas);
-        inputMeta.setSourceUri(inputFile.toURI().toString());
-        inputMeta.addToIndexes();
 
         ae.process(cas);
         AnnotationIndex<Annotation> wordIdx = cas.getAnnotationIndex(Word.type);
