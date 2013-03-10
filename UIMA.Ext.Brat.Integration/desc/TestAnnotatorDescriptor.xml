@@ -38,37 +38,22 @@
         <name>TypesToBrat</name>
         <value>
           <array>
-           <string>City;com.hp.hplabs.lim2.ie.text.typesystem.HL_City;entity</string>
+            <string>City;com.hp.hplabs.lim2.ie.text.typesystem.HL_City;entity</string>
             <string>Company;com.hp.hplabs.lim2.ie.text.typesystem.HL_Company;entity</string>
             <string>Country;com.hp.hplabs.lim2.ie.text.typesystem.HL_Country;entity</string>
-            <string>FirstName;com.hp.hplabs.lim2.ie.text.typesystem.HL_FirstName;entity</string>
             <string>Position;com.hp.hplabs.lim2.ie.text.typesystem.HL_Position</string>
-            <string>CompanyIndicator;com.hp.hplabs.lim2.ie.text.typesystem.HL_CompanyIndicator;entity</string>
-            <string>CityPlace;com.hp.hplabs.lim2.ie.text.typesystem.HL_CityPlace;entity</string>
-            <string>AcquisitionIndicator;com.hp.hplabs.lim2.ie.text.typesystem.HL_AcquisitionIndicator;entity</string>
-            <string>EntityReference;com.hp.hplabs.lim2.ie.text.typesystem.HL_EntityReference;entity</string>
-            <string>PositionChangeIndicator;com.hp.hplabs.lim2.ie.text.typesystem.HL_PositionChangeIndicato;entityr</string>
             <string>Person;com.hp.hplabs.lim2.ie.text.typesystem.HL_Person;entity</string>
-            <string>Misc;com.hp.hplabs.lim2.ie.text.typesystem.HL_Misc;entity</string>
-            <string>Location;com.hp.hplabs.lim2.ie.text.typesystem.HL_Location;entity</string>
-            <string>AnnouncementIndicator;com.hp.hplabs.lim2.ie.text.typesystem.HL_AnnouncementIndicator;entity</string>
-            <string>Business;com.hp.hplabs.lim2.ie.text.typesystem.HL_Business;entity</string>
-            <string>Prefix;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Prefix;entity</string>
-            <string>DayIndicator;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_DayIndicator;entity</string>
-            <string>Month;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Month;entity</string>
-            <string>Duration;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Duration;entity</string>
-            <string>Season;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Season;entity</string>
-            <string>ResignationIndicator;com.hp.hplabs.lim2.ie.text.typesystem.HL_ResignationIndicator;entity</string>
-            <string>PossibleDayNumber;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_PossibleDayNumber;entity</string>
-            <string>Day;com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Day;entity</string>
-            <string>CountryCode;com.hp.hplabs.lim2.ie.text.typesystem.HL_CountryCode;entity</string>
-            <string>CurrencyCode;com.hp.hplabs.lim2.ie.text.typesystem.HL_CurrencyCode;entity</string>
-            <string>WordNumber;com.hp.hplabs.lim2.ie.text.typesystem.HL_WordNumber;entity</string>
-            <string>CurrencyUnit;com.hp.hplabs.lim2.ie.text.typesystem.HL_CurrencyUnit;entity</string>
-            <string>BuybackIndicator;com.hp.hplabs.lim2.ie.text.typesystem.HL_BuybackIndicator;entity</string>
+            <!-- Relations, please state here relation entities as well-->
             <string>iPerson;ru.kfu.itis.issst.ner.typesystem.iPerson;entity</string>
             <string>iCity;ru.kfu.itis.issst.ner.typesystem.iCity;entity</string>
-            <string>iBirthPlace;ru.kfu.itis.issst.ner.typesystem.iBirthPlace;relation</string>
+            <string>iBirthPlace:iPerson:iCity;ru.kfu.itis.issst.ner.typesystem.iBirthPlace;relation</string>
+            <!-- Events, please state here event entities as well -->
+            <string>Acquisition:Company;com.hp.hplabs.lim2.ie.text.typesystem.HL_Acquisition;event</string>
+            <string>Resignation:Company:Person:Position;com.hp.hplabs.lim2.ie.text.typesystem.HL_Resignation;event</string>
+            <string>Company_Announcement:Company;com.hp.hplabs.lim2.ie.text.typesystem.HL_CompanyAnnouncement;event</string>
+            <string>PositionChange:Company:Person:Position;com.hp.hplabs.lim2.ie.text.typesystem.HL_PositionChange;event</string>
+            <string>Person_Announcement:Person;com.hp.hplabs.lim2.ie.text.typesystem.HL_PersonAnnouncement;event</string>
+            
           </array>
         </value>
       </nameValuePair>

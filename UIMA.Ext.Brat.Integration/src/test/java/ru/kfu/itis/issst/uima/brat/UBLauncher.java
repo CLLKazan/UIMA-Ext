@@ -28,7 +28,7 @@ public class UBLauncher {
 
 	public static final String inputFileXMIFile = "data/inputDir/cn_5.txt.xmi";
 
-	public static final String inputFileXMIDir = "data/inputDir/news-corpora-for-ee-eval.cnews/";
+	public static final String inputFileXMIDir  = "data/inputDir/news-corpora-for-ee-eval.cnews/";
 
 	public static final String inputFileDescFile = "desc/TestAnnotatorDescriptor.xml";
 
