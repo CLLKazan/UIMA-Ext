@@ -1,3 +1,2 @@
-#use {uima.datapath}-relative path, from "data" directory 
-opencorpora.morph.dictionary.serialized=data/dict/dict.opcorpora.raw
-test.morphAnnotator.xmiOutputDir=data/output-xmi
+opencorpora.morph.dictionary.serialized=/write-here-path-to-serialized-dict
+#test.morphAnnotator.xmiOutputDir=/write-here-output-dir-path-for-result-xmis

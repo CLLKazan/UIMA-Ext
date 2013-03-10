@@ -73,16 +73,5 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uima-addons-parent</artifactId>
-			<version>2.3.1</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>RegularExpressionAnnotator</artifactId>
-			<version>2.3.1</version>
-		</dependency>
 	</dependencies>
 </project>

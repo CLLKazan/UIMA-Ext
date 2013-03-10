@@ -37,9 +37,7 @@
 		<capabilities>
 			<capability>
 				<inputs />
-				<outputs>
-				<type>ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</type>
-				</outputs>
+				<outputs />
 			</capability>
 		</capabilities>
 		<operationalProperties>

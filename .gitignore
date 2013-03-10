@@ -12,5 +12,3 @@ effective-settings.xml
 .cache
 .idea/
 *.iml
-.raw
-dict.op*
