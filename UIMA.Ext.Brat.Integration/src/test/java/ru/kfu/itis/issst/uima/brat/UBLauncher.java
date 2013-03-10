@@ -90,7 +90,6 @@ public class UBLauncher {
 
 				XmiCasDeserializer.deserialize(f.toURI().toURL()
 						.openStream(), cas.getCas(), false);
-
 				// Create Document Metadata annotation
 				DocumentMetadata inputMeta = new DocumentMetadata(cas);
 				inputMeta.setSourceUri(f.toURI().toString());
