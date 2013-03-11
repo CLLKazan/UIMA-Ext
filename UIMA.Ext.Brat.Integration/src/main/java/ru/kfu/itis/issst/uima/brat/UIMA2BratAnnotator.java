@@ -209,7 +209,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		}
 		if (!fl)
 			ann = "E" + eCounter + "\t"
-					+ events.get(fs.getType().getName()).split(":")[0];
+					+ events.get(fs.getType().getName()).split(":")[0]+":"+t2;
 		else
 			ann = "R" + rCounter + "\t"
 					+ events.get(fs.getType().getName()).split(":")[0];
