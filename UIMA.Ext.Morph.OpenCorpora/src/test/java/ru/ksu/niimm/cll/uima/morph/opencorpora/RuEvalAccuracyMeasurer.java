@@ -12,7 +12,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.util.XMLInputSource;
 import org.opencorpora.cas.Word;
-import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,9 +88,7 @@ public class RuEvalAccuracyMeasurer {
         for (int i = 0; i < word.getWordforms().size(); ++i) {
             org.opencorpora.cas.Wordform casWf = word.getWordforms(i);
             String pos = casWf.getPos();
-            String[] grammemsArray = new String[casWf.getGrammems().size()];
-            casWf.getGrammems().copyToArray(0, grammemsArray, 0, grammemsArray.length);
-            Set<String> grammems = new HashSet<String>(Arrays.asList(grammemsArray));
+            Set<String> grammems = FSUtils.grammemsToSet(casWf.getGrammems());
 
             if (i > 0) System.out.println("------");
             System.out.println(wordStr);

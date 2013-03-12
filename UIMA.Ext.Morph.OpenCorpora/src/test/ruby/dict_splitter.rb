@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-pos_array = %w{NOUN ADJF ADJS COMP VERB INFN PRTF PRTS GRND ADVB NUMR NPRO PRED PREP CONJ PRCL INTJ} # excluded due to low number
+pos_array = %w{NOUN ADJF ADJS COMP VERB INFN PRTF PRTS GRND ADVB NUMR NPRO PRED PREP CONJ PRCL INTJ}
 pos_hash = {}
 
 pos_array.each do |pos|
@@ -14,6 +14,7 @@ puts pos_hash
 former_dict = File.new(ARGV[0], 'r')
 big_dict = File.new(ARGV[1], 'w')
 small_dict = File.new(ARGV[2], 'w')
+text_file = File.new(ARGV[3], 'w')
 
 former_dict.each_line do |line|
   if line =~ /\?xml version=|<dictionary version=|<\/dictionary>|<grammeme|<\/grammeme|lemmata>/
@@ -26,6 +27,9 @@ former_dict.each_line do |line|
         from_array = true
         if rand(v) < 1000
           small_dict.puts line
+          line.scan(/f t="(.*?)"/).collect(&:first).each do |wf|
+            text_file.puts wf
+          end
         else
           big_dict.puts line
         end
