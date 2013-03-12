@@ -3,7 +3,7 @@
   <primitive>true</primitive>
   <annotatorImplementationName>ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator</annotatorImplementationName>
   <analysisEngineMetaData>
-    <name>TestAnnotatorDescriptor</name>
+    <name>UIMA2BratAnnotatorDescriptor</name>
     <description/>
     <version>1.0</version>
     <vendor/>
@@ -35,44 +35,35 @@
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
+        <name>BratOutputDir</name>
+        <value>
+          <string>data/bratOutPutDir/</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
         <name>TypesToBrat</name>
         <value>
           <array>
-            <string>City;com.hp.hplabs.lim2.ie.text.typesystem.HL_City;entity</string>
-            <string>Company;com.hp.hplabs.lim2.ie.text.typesystem.HL_Company;entity</string>
-            <string>Country;com.hp.hplabs.lim2.ie.text.typesystem.HL_Country;entity</string>
-            <string>Position;com.hp.hplabs.lim2.ie.text.typesystem.HL_Position</string>
-            <string>Person;com.hp.hplabs.lim2.ie.text.typesystem.HL_Person;entity</string>
-            <!-- Relations, please state here relation entities as well-->
+            <string>Company;ru.kfu.itis.issst.ner.typesystem.HL_Company;entity</string>
+            <string>Position;ru.kfu.itis.issst.ner.typesystem.HL_Position</string>
+            <string>Person;ru.kfu.itis.issst.ner.typesystem.HL_Person;entity</string>
             <string>iPerson;ru.kfu.itis.issst.ner.typesystem.iPerson;entity</string>
             <string>iCity;ru.kfu.itis.issst.ner.typesystem.iCity;entity</string>
             <string>iBirthPlace:iPerson:iCity;ru.kfu.itis.issst.ner.typesystem.iBirthPlace;relation</string>
-            <!-- Events, please state here event entities as well -->
-            <string>Acquisition:Company;com.hp.hplabs.lim2.ie.text.typesystem.HL_Acquisition;event</string>
-            <string>Resignation:Company:Person:Position;com.hp.hplabs.lim2.ie.text.typesystem.HL_Resignation;event</string>
-            <string>Company_Announcement:Company;com.hp.hplabs.lim2.ie.text.typesystem.HL_CompanyAnnouncement;event</string>
-            <string>PositionChange:Company:Person:Position;com.hp.hplabs.lim2.ie.text.typesystem.HL_PositionChange;event</string>
-            <string>Person_Announcement:Person;com.hp.hplabs.lim2.ie.text.typesystem.HL_PersonAnnouncement;event</string>
-            
+            <string>Acquisition:Company;ru.kfu.itis.issst.ner.typesystem.HL_Acquisition;event</string>
+            <string>Resignation:Company:Person:Position;ru.kfu.itis.issst.ner.typesystem.HL_Resignation;event</string>
+            <string>Company_Announcement:Company;ru.kfu.itis.issst.ner.typesystem.HL_CompanyAnnouncement;event</string>
+            <string>PositionChange:Company:Person:Position;ru.kfu.itis.issst.ner.typesystem.HL_PositionChange;event</string>
+            <string>Person_Announcement:Person;ru.kfu.itis.issst.ner.typesystem.HL_PersonAnnouncement;event</string>
           </array>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
     <typeSystemDescription>
-      <types>
-        <typeDescription>
-          <name>org.apache.uima.tutorial.RoomNumber</name>
-          <description/>
-          <supertypeName>uima.tcas.Annotation</supertypeName>
-          <features>
-            <featureDescription>
-              <name>building</name>
-              <description/>
-              <rangeTypeName>uima.cas.String</rangeTypeName>
-            </featureDescription>
-          </features>
-        </typeDescription>
-        <typeDescription>
+      <imports>
+        <import location="types/default-text-TypeSystem.xml"/>
+      </imports>
+      <typeDescription>
           <name>ru.kfu.itis.cll.uima.commons.DocumentMetadata</name>
           <description/>
           <supertypeName>uima.tcas.Annotation</supertypeName>
@@ -84,13 +75,9 @@
             </featureDescription>
           </features>
         </typeDescription>
-      </types>
-      
-      <imports>
-        <import location="types/hp-text-TypeSystem.xml"/>
-      </imports>
-      
     </typeSystemDescription>
+    
+    
     <typePriorities/>
     <fsIndexCollection/>
     <capabilities>

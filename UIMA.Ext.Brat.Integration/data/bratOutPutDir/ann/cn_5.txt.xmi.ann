@@ -1,0 +1,7 @@
+T0	Acquisition 1 321	Компания Avnet, мировой поставщик электроники, корпоративных решений по обработке и хранению данных и встраиваемых подсистем, объявила о подписании соглашении о приобретении компании Altron GmbH & Co. KG — поставщика соединительных, пассивных и электромеханических компонентов со штаб-квартирой в городе Лерте, Германия.
+T1	Company 10 15	Avnet
+T2	Company 184 205	Altron GmbH & Co. KG 
+E0	Acquisition:T0 Com1:T1 Com2:T2
+T5	Person_Announcement 576 899	По словам Патрика Цаммита (Patrick Zammit), президента подразделения Avnet Electronics Marketing в регионе EMEA, данная сделка демонстрирует заинтересованность Avnet в инвестициях в европейских рынок соединительных, пассивных и электромеханических компонентов (interconnect, passive and electromechanical components, IP&E).
+T6	Person 586 601	Патрика Цаммита
+E1	Person_Announcement:T5 Per1:T6

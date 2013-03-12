@@ -1,20 +1,13 @@
 package ru.kfu.itis.issst.uima.brat;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -25,12 +18,13 @@ import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
-import org.apache.uima.cas.impl.FeatureStructureImpl;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Level;
+import org.apache.uima.util.Logger;
+
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
 /**
@@ -56,10 +50,14 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	// Brat Annotation types
 	// Brat Output directory
 
-	public final static String BRAT_OUTPUTDIR = "data/bratOutPutDir/";
+	public final static String BRAT_OUT = "BratOutputDir";
 	public final static String TYPES_TO_BRAT = "TypesToBrat";
-	public final static String ENCODING = "UTF-8";
 	public final static String CONF_FILE = "annotation.conf";
+	public final static String DEFAULT_BRAT_OUTPUTDIR = "data/bratOutPutDir/";
+
+	public static String BRAT_OUTPUTDIR;
+
+	public final static String ENCODING = "UTF-8";
 	public final static String FILE_SEPARATOR = "file.separator";
 	public final static String DM_ENTITY_TYPE_FEATURE_BASE_NAME = "sourceUri";
 
@@ -73,7 +71,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	private HashMap<String, String> relations = new HashMap<String, String>();
 
 	// output
-	//private HashMap<String, String> outs = new HashMap<String, String>();
+	// private HashMap<String, String> outs = new HashMap<String, String>();
 
 	private static BufferedWriter writer;
 
@@ -88,11 +86,13 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	File annFile, af, f = null;
 	String ann, fileName = null, t, r, ev = null;
 
+	// Logger
+	private static Logger LOGGER;
+
 	@Override
 	public void process(CAS casObj) throws AnalysisEngineProcessException {
 
-		System.out
-				.println("Saving text and annotations into brat output directory's files.");
+		//LOGGER.info("Saving text and annotations files into brat output directory.");
 		AnnotationFS fs;
 		// Initializing CAS Object and getting annotation iterator and source
 		// URI annotation (Document Metadata)
@@ -164,7 +164,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		}
 		// Writing annotations text
 		if (sourceUri != null) {
-			System.out.println(sourceUri + " is text file name. Writing ...");
+			LOGGER.log(Level.FINEST,fileName + " is in process.");
 			f = new File(BRAT_OUTPUTDIR + "txt/", fileName + ".txt");
 			try {
 				FileUtils.write(f, txt, ENCODING);
@@ -172,7 +172,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				e.printStackTrace();
 			}
 		} else
-			System.out.println("TEXT FILE NAME IS EMPTY");
+			LOGGER.log(Level.WARNING,"TEXT FILE NAME IS EMPTY");
 
 		// finalize per one annotation file
 		tCounter = 0;
@@ -209,12 +209,11 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		}
 		if (!fl)
 			ann = "E" + eCounter + "\t"
-					+ events.get(fs.getType().getName()).split(":")[0]+":"+t2;
+					+ events.get(fs.getType().getName()).split(":")[0] + ":"
+					+ t2;
 		else
 			ann = "R" + rCounter + "\t"
 					+ events.get(fs.getType().getName()).split(":")[0];
-
-		//System.out.println("STRING OUTPUT:" + fs.toString());
 
 		Type tp = fs.getType();
 		HashMap<String, String> args = new HashMap<String, String>();
@@ -222,21 +221,20 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 
 		int k = 1;
 		for (Feature f : tp.getFeatures()) {
-			// Recognize a valid features and add them to brat annotation
-			// structure
+			// Recognize a valid features and add them to brat annotation structure
 			try {
 				if (afs.length > 0) {
 					for (String ftype : afs) {
 						if (entities.containsValue(ftype)
 								&& !f.getRange().isPrimitive()
-								&& fs.getFeatureValue(f)!=null
+								&& fs.getFeatureValue(f) != null
 								&& entities.containsKey(fs.getFeatureValue(f)
 										.getType().getName())
 								&& ftype.equals(entities
 										.get(fs.getFeatureValue(f).getType()
 												.getName()))) {
-							// System.out.println(fs.getFeatureValue(f));
-							t = getEntity((AnnotationFS) fs.getFeatureValue(f),	af);
+							t = getEntity((AnnotationFS) fs.getFeatureValue(f),
+									af);
 							args.put(ftype.substring(0, 3) + k, t);
 							k++;
 							break;
@@ -253,7 +251,6 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				fl = false;
 			}
 		}
-		//System.out.println("RG" + args.size() + args.toString());
 		for (String s : args.keySet()) {
 			ann += " " + s + ":" + args.get(s);
 		}
@@ -267,9 +264,9 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		}
 		if (ann.length() != 0) {
 			try {
-				if(!checkUnique(af, ann))
-				 FileUtils.writeStringToFile(af, ann, true);
-				//outs.put(out, ann);
+				if (!checkUnique(af, ann))
+					FileUtils.writeStringToFile(af, ann, true);
+				// outs.put(out, ann);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -283,14 +280,13 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		ann = "T" + tCounter + "\t" + entities.get(fs.getType().getName())
 				+ " " + fs.getBegin() + " " + fs.getEnd() + "\t"
 				+ fs.getCoveredText();
-		//System.out.println(ann);
 		ann += "\n";
 		out += tCounter;
 		tCounter++;
 		if (ann.length() != 0) {
 			try {
-				if(!checkUnique(af,ann))
-				FileUtils.writeStringToFile(af, ann, true);			
+				if (!checkUnique(af, ann))
+					FileUtils.writeStringToFile(af, ann, true);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -299,12 +295,13 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	}
 
 	private boolean checkUnique(File af2, String ann2) throws IOException {
-		if(af.canRead())
-		for(String s:FileUtils.readLines(af2)){
-			//System.out.println(s+"check"+ann2.split("\n")[0]);
-			if(s.replace(s.split("\t")[0]+"\t", "").equals(ann2.replace(ann2.split("\t")[0]+"\t","").split("\n")[0]))
-			return true;
-		}
+		if (af.canRead())
+			for (String s : FileUtils.readLines(af2)) {
+				if (s.replace(s.split("\t")[0] + "\t", "").equals(
+						ann2.replace(ann2.split("\t")[0] + "\t", "")
+								.split("\n")[0]))
+					return true;
+			}
 		return false;
 	}
 
@@ -319,7 +316,18 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(ctx);
 
-		System.out.println("Annotator initialization ... ");
+		 LOGGER = getContext().getLogger();
+			
+		
+		LOGGER.log(Level.INFO,"Annotator is initializing ...");
+		String bratDirectoryPath = (String) ctx
+				.getConfigParameterValue(BRAT_OUT);
+		if (bratDirectoryPath == null) {
+			BRAT_OUTPUTDIR = DEFAULT_BRAT_OUTPUTDIR;
+			throw new IllegalStateException(BRAT_OUT + " param is NULL");
+		} else
+			BRAT_OUTPUTDIR = bratDirectoryPath;
+
 		try {
 			writer = new BufferedWriter(new FileWriter(BRAT_OUTPUTDIR
 					+ System.getProperty(FILE_SEPARATOR) + CONF_FILE));
@@ -328,7 +336,8 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		}
 
 		// How to define Unique types to brat parameter name for nameValuePair
-		System.out.println("Reading types to BRAT parameters ... ");
+		LOGGER.log(Level.INFO,"Reading UIMA types to convert to brat annotations ... ");
+
 		String[] typesToBrat = (String[]) ctx
 				.getConfigParameterValue(TYPES_TO_BRAT);
 		try {
@@ -342,12 +351,11 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	private void convertToBratTypes(String[] typesToBrat) throws IOException {
 
 		// Generate entities to brat configuration file
-		System.out.println("Converting types ...");
+		LOGGER.log(Level.INFO,"Creating brat types config file.");
 
 		File inputFile = new File(BRAT_OUTPUTDIR, CONF_FILE);
 		if (!inputFile.isFile()) {
-			System.err
-					.println("Specified file does not exist ... creating the new one");
+			LOGGER.log(Level.SEVERE,"Specified file does not exist. creating the new one");
 
 			File theDir = new File(BRAT_OUTPUTDIR);
 			if (!theDir.exists())
@@ -356,8 +364,8 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			boolean blnCreated = false;
 			blnCreated = inputFile.createNewFile();
 
-			System.out.println("Was file " + inputFile.getPath()
-					+ " created ? : " + blnCreated);
+			LOGGER.log(Level.INFO,"Was file " + inputFile.getPath() + " created ? : "
+					+ blnCreated);
 			return;
 		}
 
@@ -372,7 +380,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				if (s.split(";").length > 2)
 					bratType = s.split(";")[2];
 				else
-					System.out.println("There is no type for this object!");
+					LOGGER.log(Level.WARNING,"There is no type for " + s + "this object!");
 				try {
 					anTypes = BratTypes.valueOf(bratType.toUpperCase());
 				} catch (Exception e) {
@@ -402,14 +410,14 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			// Writing results to file annotation configuration file
 			writeToFile("[entities]");
 
-			System.out.println(entities);
+			//System.out.println(entities);
 			for (String s : entities.keySet()) {
 				writeToFile(entities.get(s));
 			}
 
 			writeToFile("[events]");
 
-			System.out.println(events);
+			//System.out.println(events);
 			for (String s : events.keySet()) {
 				if (events.get(s).split(":").length > 0)
 					writeToFile(events.get(s).split(":")[0]);
@@ -418,14 +426,9 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			}
 
 			writeToFile("[attributes]");
-
-			// for (String s : attributes) {
-			// writeToFile(s);
-			// }
-
 			writeToFile("[relations]");
 
-			System.out.println(relations);
+			//System.out.println(relations);
 			for (String s : relations.keySet()) {
 				writeToFile(relations.get(s).split(":")[0]);
 			}

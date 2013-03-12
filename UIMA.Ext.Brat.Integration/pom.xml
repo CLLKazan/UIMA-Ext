@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.uimafit</groupId>
 			<artifactId>uimafit</artifactId>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -76,6 +76,11 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.uimafit</groupId>
+			<artifactId>uimafit</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 	</dependencies>
 </project>

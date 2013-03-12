@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><xmi:XMI xmlns:typesystem="http:///ru/kfu/itis/issst/ner/typesystem.ecore" xmlns:cas="http:///uima/cas.ecore" xmlns:temporal="http:///ru/kfu/itis/issst/ner/typesystem/temporal.ecore" xmlns:type2="http:///de/uniwue/tm/type.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:typesystem2="http:///ru/kfu/itis/issst/ner/typesystem.ecore" xmlns:tcas="http:///uima/tcas.ecore" xmlns:type="http:///de/uniwue/tm/textmarker/kernel/type.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="&#10;Глава Минкомсвязи России Николай Никифоров 9 июля в ходе оперативного совещания представил руководству министерства и подведомственных агентств и служб новых заместителей министра: Алексея Волина, Дениса Свердлова и Марка Шмулевича.&#10;Алексей Волин будет отвечать за государственную политику в сфере медиа, Денис Свердлов – в отрасли связи, а Марк Шмулевич займется развитием информационных технологий. «От нас ждут многого, а времени мало», - отметил Николай Никифоров.&#10;Заместитель министра Наум Мардер в ходе того же совещания сообщил о том, что планирует покинуть министерство.&#10;"/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="580" language="x-unspecified"/>
+    <typesystem2:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" confidence="0.0" uri="file:/home/pathfinder/Documents/NIIMM/HP/HPBEE/docs/all_events/cnews/cn_6.txt" offset="-1" documentSize="580" lastSegment="false" encoding="UTF-8" startProcessingTicks="0" stopProcessingTicks="0"/>
+    <typesystem:HL_PositionChange xmi:id="29" sofa="1" begin="1" end="233" confidence="0.0" person="40" newPosition="46" newCompany="52"/>
+    <typesystem:HL_Person xmi:id="40" sofa="1" begin="182" end="232" confidence="0.0"/>
+    <typesystem:HL_Position xmi:id="46" sofa="1" begin="159" end="180" confidence="0.0"/>
+    <typesystem:HL_Company xmi:id="52" sofa="1" begin="7" end="18" confidence="0.0"/>
+    <cas:View sofa="1" members="8 13 29 40 46 52"/>
+</xmi:XMI>
