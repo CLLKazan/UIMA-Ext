@@ -1,4 +1,4 @@
-package tokenization;
+package ru.kfu.cll.uima.tokenizer;
 
 import java.io.CharArrayReader;
 import java.io.IOException;
