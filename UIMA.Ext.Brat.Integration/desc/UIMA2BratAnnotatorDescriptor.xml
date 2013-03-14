@@ -49,12 +49,14 @@
             <string>Person;ru.kfu.itis.issst.ner.typesystem.HL_Person;entity</string>
             <string>iPerson;ru.kfu.itis.issst.ner.typesystem.iPerson;entity</string>
             <string>iCity;ru.kfu.itis.issst.ner.typesystem.iCity;entity</string>
+            <string>Price;ru.kfu.itis.issst.ner.typesystem.HL_Money;entity</string>
+            <string>Date;ru.kfu.itis.issst.ner.typesystem.HL_Date;entity</string>
             <string>iBirthPlace:iPerson:iCity;ru.kfu.itis.issst.ner.typesystem.iBirthPlace;relation</string>
-            <string>Acquisition:Company;ru.kfu.itis.issst.ner.typesystem.HL_Acquisition;event</string>
-            <string>Resignation:Company:Person:Position;ru.kfu.itis.issst.ner.typesystem.HL_Resignation;event</string>
-            <string>Company_Announcement:Company;ru.kfu.itis.issst.ner.typesystem.HL_CompanyAnnouncement;event</string>
-            <string>PositionChange:Company:Person:Position;ru.kfu.itis.issst.ner.typesystem.HL_PositionChange;event</string>
-            <string>Person_Announcement:Person;ru.kfu.itis.issst.ner.typesystem.HL_PersonAnnouncement;event</string>
+            <string>Acquisition:Company{2}:Price?:Date?;ru.kfu.itis.issst.ner.typesystem.HL_Acquisition;event</string>
+            <string>Resignation:Company*:Position+:Person+:Date?;ru.kfu.itis.issst.ner.typesystem.HL_Resignation;event</string>
+            <string>Company_Announcement:Company:Date?;ru.kfu.itis.issst.ner.typesystem.HL_CompanyAnnouncement;event</string>
+            <string>PositionChange:Company*:Position+:Person:Date?;ru.kfu.itis.issst.ner.typesystem.HL_PositionChange;event</string>
+            <string>Person_Announcement:Person:Date?;ru.kfu.itis.issst.ner.typesystem.HL_PersonAnnouncement;event</string>
           </array>
         </value>
       </nameValuePair>
@@ -63,7 +65,8 @@
       <imports>
         <import location="types/default-text-TypeSystem.xml"/>
       </imports>
-      <typeDescription>
+      <types>
+        <typeDescription>
           <name>ru.kfu.itis.cll.uima.commons.DocumentMetadata</name>
           <description/>
           <supertypeName>uima.tcas.Annotation</supertypeName>
@@ -75,9 +78,8 @@
             </featureDescription>
           </features>
         </typeDescription>
+      </types>
     </typeSystemDescription>
-    
-    
     <typePriorities/>
     <fsIndexCollection/>
     <capabilities>
