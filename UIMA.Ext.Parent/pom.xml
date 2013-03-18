@@ -19,6 +19,7 @@
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
+		<module>../UIMA.Ext.Term</module>
 	</modules>
 
 	<build>

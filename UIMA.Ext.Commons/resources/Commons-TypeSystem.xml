@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>Commons-TypeSystem</name>
+	<description />
+	<version>1.0</version>
+	<vendor>Computational Linguistics Lab of Kazan Federal University
+	</vendor>
+	<types>
+		<typeDescription>
+			<name>ru.kfu.itis.cll.uima.commons.DocumentMetadata</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>sourceUri</name>
+					<description />
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>offsetInSource</name>
+					<description />
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>documentSize</name>
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>startProcessingTime</name>
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</name>
+			<description />
+			<!-- <supertypeName>ru.kfu.itis.cll.uima.commons.DocumentMetadata</supertypeName> -->
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+			
+			
+			<featureDescription>
+					<name>sourceUri</name>
+					<description />
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>offsetInSource</name>
+					<description />
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>documentSize</name>
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>startProcessingTime</name>
+					<rangeTypeName>uima.cas.Long</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>language</name>
+					<description />
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>format</name>
+					<description>MIME-type of document: Plaintext, DOC, XLS, PDF.
+					</description>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>documentRawText</name>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+
+			</features>
+		</typeDescription>
+
+	</types>
+</typeSystemDescription>

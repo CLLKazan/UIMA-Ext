@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->  
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>true</primitive>
+	<annotatorImplementationName>org.apache.uima.conceptMapper.ConceptMapper</annotatorImplementationName>
+	<analysisEngineMetaData>
+		<name>ConceptMapper</name>
+		<description></description>
+		<version>1</version>
+		<vendor></vendor>
+		<configurationParameters>
+			<configurationParameter>
+				<name>caseMatch</name>
+				<description>
+					this parameter specifies the case folding mode:
+					ignoreall - fold everything to lowercase for
+					matching insensitive - fold only tokens with initial
+					caps to lowercase digitfold - fold all (and only)
+					tokens with a digit sensitive - perform no case
+					folding
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>Stemmer</name>
+				<description>
+					Name of stemmer class to use before matching. MUST
+					have a zero-parameter constructor! If not specified,
+					no stemming will be performed.
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>ResultingAnnotationName</name>
+				<description>
+					Name of the annotation type created by this TAE,
+					must match the typeSystemDescription entry
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>ResultingEnclosingSpanName</name>
+				<description>
+					Name of the feature in the resultingAnnotation to
+					contain the span that encloses it (i.e. its
+					sentence)
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>AttributeList</name>
+				<description>
+					List of attribute names for XML dictionary entry
+					record - must correspond to FeatureList
+				</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>FeatureList</name>
+				<description>
+					List of feature names for CAS annotation - must
+					correspond to AttributeList
+				</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenAnnotation</name>
+				<description></description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenClassFeatureName</name>
+				<description>
+					Name of feature used when doing lookups against
+					IncludedTokenClasses and ExcludedTokenClasses
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenTextFeatureName</name>
+				<description></description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>SpanFeatureStructure</name>
+				<description>
+					Type of annotation which corresponds to spans of
+					data for processing (e.g. a Sentence)
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>OrderIndependentLookup</name>
+				<description>
+					True if should ignore element order during lookup
+					(i.e., "top box" would equal "box top"). Default is
+					False.
+				</description>
+				<type>Boolean</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenTypeFeatureName</name>
+				<description>
+					Name of feature used when doing lookups against
+					IncludedTokenTypes and ExcludedTokenTypes
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>IncludedTokenTypes</name>
+				<description>
+					Type of tokens to include in lookups (if not
+					supplied, then all types are included except those
+					specifically mentioned in ExcludedTokenTypes)
+				</description>
+				<type>Integer</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>ExcludedTokenTypes</name>
+				<description></description>
+				<type>Integer</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>ExcludedTokenClasses</name>
+				<description>
+					Class of tokens to exclude from lookups (if not
+					supplied, then all classes are excluded except those
+					specifically mentioned in IncludedTokenClasses,
+					unless IncludedTokenClasses is not supplied, in
+					which case none are excluded)
+				</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>IncludedTokenClasses</name>
+				<description>
+					Class of tokens to include in lookups (if not
+					supplied, then all classes are included except those
+					specifically mentioned in ExcludedTokenClasses)
+				</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenClassWriteBackFeatureNames</name>
+				<description>
+					names of features that should be written back to a
+					token, such as a POS tag
+				</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>ResultingAnnotationMatchedTextFeature</name>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>PrintDictionary</name>
+				<type>Boolean</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>SearchStrategy</name>
+				<description>
+					Can be either "SkipAnyMatch",
+					"SkipAnyMatchAllowOverlap" or
+					"ContiguousMatch"&#13;&#13;ContiguousMatch: longest
+					match of contiguous tokens within enclosing
+					span(taking into account included/excluded items).
+					DEFAULT strategy &#13;SkipAnyMatch: longest match of
+					not-necessarily contiguous tokens within enclosing
+					span (taking into account included/excluded items).
+					Subsequent lookups begin in span after complete
+					match. IMPLIES order-independent lookup
+					&#13;SkipAnyMatchAllowOverlap: longest match of
+					not-necessarily contiguous tokens within enclosing
+					span (taking into account included/excluded items).
+					Subsequent lookups begin in span after next token.
+					IMPLIES order-independent lookup
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>StopWords</name>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>FindAllMatches</name>
+				<type>Boolean</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>MatchedTokensFeatureName</name>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>ReplaceCommaWithAND</name>
+				<type>Boolean</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>TokenizerDescriptorPath</name>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>LanguageID</name>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<configurationParameterSettings>
+			<nameValuePair>
+				<name>caseMatch</name>
+				<value>
+					<string>ignoreall</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>AttributeList</name>
+				<value>
+					<array>
+						<string>canonical</string>
+					</array>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>FeatureList</name>
+				<value>
+					<array>
+						<string>DictCanon</string>
+					</array>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>TokenAnnotation</name>
+				<value>
+					<string>uima.tt.TokenAnnotation</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>ResultingAnnotationName</name>
+				<value>
+					<string>
+						org.apache.uima.conceptMapper.DictTerm
+					</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>SpanFeatureStructure</name>
+				<value>
+					<string>uima.tcas.DocumentAnnotation</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>OrderIndependentLookup</name>
+				<value>
+					<boolean>false</boolean>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>TokenClassWriteBackFeatureNames</name>
+				<value>
+					<array />
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>IncludedTokenClasses</name>
+				<value>
+					<array />
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>PrintDictionary</name>
+				<value>
+					<boolean>false</boolean>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>FindAllMatches</name>
+				<value>
+					<boolean>false</boolean>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>StopWords</name>
+				<value>
+					<array />
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>ReplaceCommaWithAND</name>
+				<value>
+					<boolean>false</boolean>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>TokenizerDescriptorPath</name>
+				<value>
+					<string>
+						/OtherStuff/IBM/eclipse-UIMAsandbox/ConceptMapper/desc/analysis_engine/primitive/OffsetTokenizer.xml
+					</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>ResultingEnclosingSpanName</name>
+				<value>
+					<string>enclosingSpan</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>MatchedTokensFeatureName</name>
+				<value>
+					<string>matchedTokens</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>ResultingAnnotationMatchedTextFeature</name>
+				<value>
+					<string>matchedText</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>SearchStrategy</name>
+				<value>
+					<string>ContiguousMatch</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>LanguageID</name>
+				<value>
+					<string>en</string>
+				</value>
+			</nameValuePair>
+		</configurationParameterSettings>
+		<typeSystemDescription>
+			<imports>
+				<import name="org.apache.uima.conceptMapper.DictTerm" />
+				<import
+					name="org.apache.uima.conceptMapper.support.tokenizer.TokenAnnotation" />
+			</imports>
+			<types>
+				<typeDescription>
+					<name>uima.tt.TokenAnnotation</name>
+					<description></description>
+					<supertypeName>uima.tcas.Annotation</supertypeName>
+					<features>
+						<featureDescription>
+							<name>SemClass</name>
+							<description>
+								semantic class of token
+							</description>
+							<rangeTypeName>
+								uima.cas.String
+							</rangeTypeName>
+						</featureDescription>
+						<featureDescription>
+							<name>POS</name>
+							<description>
+								Part of SPeech of term to which this
+								token is a part
+							</description>
+							<rangeTypeName>
+								uima.cas.String
+							</rangeTypeName>
+						</featureDescription>
+						<featureDescription>
+							<name>frost_TokenType</name>
+							<description></description>
+							<rangeTypeName>
+								uima.cas.Integer
+							</rangeTypeName>
+						</featureDescription>
+					</features>
+				</typeDescription>
+			</types>
+		</typeSystemDescription>
+		<typePriorities>
+			<priorityList>
+				<!-- <type>uima.tt.SentenceAnnotation</type> -->
+				<type>uima.tt.TokenAnnotation</type>
+			</priorityList>
+		</typePriorities>
+		<fsIndexCollection />
+		<capabilities>
+			<capability>
+				<inputs>
+					<type allAnnotatorFeatures="true">
+						uima.tt.TokenAnnotation
+					</type>
+					<!-- <type allAnnotatorFeatures="true">uima.tt.SentenceAnnotation</type>
+						<type allAnnotatorFeatures="true">uima.tt.ParagraphAnnotation</type> -->
+				</inputs>
+				<outputs>
+					<type allAnnotatorFeatures="true">
+						org.apache.uima.conceptMapper.DictTerm
+					</type>
+					<type allAnnotatorFeatures="true">
+						uima.tt.TokenAnnotation
+					</type>
+					<type allAnnotatorFeatures="true">
+						org.apache.uima.conceptMapper.support.tokenizer.TokenAnnotation
+					</type>
+					<type allAnnotatorFeatures="true">
+						uima.tcas.DocumentAnnotation
+					</type>
+				</outputs>
+				<languagesSupported />
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<externalResourceDependencies>
+		<externalResourceDependency>
+			<key>DictionaryFile</key>
+			<description>dictionary file loader.</description>
+			<interfaceName>
+				org.apache.uima.conceptMapper.support.dictionaryResource.DictionaryResource
+			</interfaceName>
+			<optional>false</optional>
+		</externalResourceDependency>
+	</externalResourceDependencies>
+	<resourceManagerConfiguration>
+		<externalResources>
+			<externalResource>
+				<name>DictionaryFileName</name>
+				<description>
+					A file containing the dictionary. Modify this URL to
+					use a different dictionary.
+				</description>
+				<fileResourceSpecifier>
+					<fileUrl>file:dict/testDict.xml</fileUrl>
+				</fileResourceSpecifier>
+				<implementationName>
+					org.apache.uima.conceptMapper.support.dictionaryResource.DictionaryResource_impl
+				</implementationName>
+			</externalResource>
+		</externalResources>
+		<externalResourceBindings>
+			<externalResourceBinding>
+				<key>DictionaryFile</key>
+				<resourceName>DictionaryFileName</resourceName>
+			</externalResourceBinding>
+		</externalResourceBindings>
+	</resourceManagerConfiguration>
+</taeDescription>

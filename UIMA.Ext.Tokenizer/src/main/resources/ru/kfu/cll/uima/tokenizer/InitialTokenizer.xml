@@ -19,8 +19,11 @@
         </configurationParameters>
         <configurationParameterSettings/>
         <typeSystemDescription>
-            <imports>
+            <!-- <imports>
                 <import name="ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem"/>
+            </imports> -->
+             <imports>
+                <import location="/home/vladimir/workspace-git/uima-ext/UIMA-Ext/UIMA.Ext.Term/resources/tokenizer-TypeSystem.xml"/>
             </imports>
         </typeSystemDescription>
         <fsIndexCollection/>

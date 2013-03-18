@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="tokenizer">
+			<import name="ru.kfu.cll.uima.tokenizer.InitialTokenizer" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="dictionaryAnnotator">
+			   <analysisEngineDescription>
+                <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+                <primitive>true</primitive>
+                <annotatorImplementationName>org.apache.uima.annotator.dict_annot.impl.DictionaryAnnotator</annotatorImplementationName>
+                <analysisEngineMetaData>
+    <name>DictionaryAnnotator</name>
+    <description></description>
+    <configurationParameters>
+       
+       <configurationParameter>
+          <name>DictionaryFiles</name>
+          <description>list of dictionary files to configure the annotator</description>
+          <type>String</type>
+          <multiValued>true</multiValued>
+          <mandatory>true</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>InputMatchType</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>InputMatchFeaturePath</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>InputMatchFilterFeaturePath</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>FilterConditionOperator</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>FilterConditionValue</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+	
+    </configurationParameters>
+    
+    <configurationParameterSettings>
+    
+       <nameValuePair>
+          <name>DictionaryFiles</name>
+          <value>
+          	<array>
+          	   <string>data/dictionaries/ru-conj-dict.xml</string> 
+          	</array>
+          </value>
+       </nameValuePair>      
+
+       <nameValuePair>
+          <name>InputMatchType</name>
+          <value>
+          	   <string>ru.kfu.cll.uima.tokenizer.fstype.Token</string> 
+          </value>
+       </nameValuePair> 
+     
+    </configurationParameterSettings>
+    <typeSystemDescription>
+     <imports>
+
+<import location="tokenizer-TypeSystem-complexTypes.xml"/>
+     </imports>
+    </typeSystemDescription>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+            </analysisEngineDescription>
+		</delegateAnalysisEngine>
+		
+		
+
+	</delegateAnalysisEngineSpecifiers>
+
+<analysisEngineMetaData>
+    
+		<flowConstraints>
+			<fixedFlow>
+				<node>tokenizer</node>
+				
+				
+				
+				<node>dictionaryAnnotator</node>
+			
+			
+			</fixedFlow>
+		</flowConstraints>
+
+		<capabilities>
+			<capability>
+				<inputs />
+				<outputs>
+					
+					
+					<type>ru.kfu.cll.uima.segmentation.fstype.Locution</type>
+				
+				</outputs>
+				<!-- <languagesSupported>x-unspecified</languagesSupported> -->
+			</capability>
+		</capabilities>
+
+	</analysisEngineMetaData>
+
+
+
+	<resourceManagerConfiguration/>
+		
+		
+	
+</analysisEngineDescription>

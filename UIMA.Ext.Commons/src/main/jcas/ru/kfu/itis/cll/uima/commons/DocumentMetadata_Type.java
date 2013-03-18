@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Sep 27 23:32:25 MSK 2012 */
+/* First created by JCasGen Sun Feb 24 14:06:58 SAMT 2013 */
 package ru.kfu.itis.cll.uima.commons;
 
 import org.apache.uima.jcas.JCas;
@@ -14,11 +14,10 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Thu Sep 27 23:32:25 MSK 2012
+ * Updated by JCasGen Sun Feb 24 14:06:58 SAMT 2013
  * @generated */
 public class DocumentMetadata_Type extends Annotation_Type {
   /** @generated */
-  @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
   private final FSGenerator fsGenerator = 
@@ -37,11 +36,9 @@ public class DocumentMetadata_Type extends Annotation_Type {
   	  }
     };
   /** @generated */
-  @SuppressWarnings ("hiding")
   public final static int typeIndexID = DocumentMetadata.typeIndexID;
   /** @generated 
      @modifiable */
-  @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.itis.cll.uima.commons.DocumentMetadata");
  
   /** @generated */

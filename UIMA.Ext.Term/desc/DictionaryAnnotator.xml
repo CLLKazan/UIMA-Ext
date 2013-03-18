@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>org.apache.uima.annotator.dict_annot.impl.DictionaryAnnotator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>DictionaryAnnotator</name>
+    <description></description>
+    <configurationParameters>
+       
+       <configurationParameter>
+          <name>DictionaryFiles</name>
+          <description>list of dictionary files to configure the annotator</description>
+          <type>String</type>
+          <multiValued>true</multiValued>
+          <mandatory>true</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>InputMatchType</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>InputMatchFeaturePath</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>InputMatchFilterFeaturePath</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>FilterConditionOperator</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+
+       <configurationParameter>
+          <name>FilterConditionValue</name>
+          <description></description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+       </configurationParameter>
+	
+    </configurationParameters>
+    
+    <configurationParameterSettings>
+    
+       <nameValuePair>
+          <name>DictionaryFiles</name>
+          <value>
+          	<array>
+          	   <string>ru-conj-dict.xml</string> 
+          	</array>
+          </value>
+       </nameValuePair>      
+
+       <nameValuePair>
+          <name>InputMatchType</name>
+          <value>
+          	   <string>ru.kfu.cll.uima.tokenizer.fstype.Token</string> 
+          </value>
+       </nameValuePair>      
+     
+    </configurationParameterSettings>
+    <typeSystemDescription>
+     <imports>
+<import location="/home/vladimir/workspace-git/uima-ext/UIMA.Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/tokenizer-TypeSystem-complexTypes.xml"/>
+     </imports>
+    </typeSystemDescription>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+   
+</analysisEngineDescription>

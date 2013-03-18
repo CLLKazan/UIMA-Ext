@@ -27,8 +27,12 @@
 			<capability>
 				<inputs>
 					<type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.DocumentMetadata</type>
+					<type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</type>
 				</inputs>
-				<outputs />
+				<outputs>
+					<type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.DocumentMetadata</type>
+					<type allAnnotatorFeatures="true">ru.kfu.itis.cll.uima.commons.MisisDocumentMetadata</type>
+				</outputs>
 			</capability>
 		</capabilities>
 		<operationalProperties>
