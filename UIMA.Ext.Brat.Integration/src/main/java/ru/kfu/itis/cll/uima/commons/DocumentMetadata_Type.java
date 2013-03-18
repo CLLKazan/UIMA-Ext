@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Thu Feb 07 16:11:41 MSK 2013
+ * Updated by JCasGen Thu Mar 14 16:49:10 MSK 2013
  * @generated */
 public class DocumentMetadata_Type extends Annotation_Type {
   /** @generated */

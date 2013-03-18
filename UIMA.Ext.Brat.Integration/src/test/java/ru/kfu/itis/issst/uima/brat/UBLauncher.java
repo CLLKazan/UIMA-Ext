@@ -52,6 +52,7 @@ public class UBLauncher {
 				inputText = FileUtils.readFileToString(f, encodingType);
 				JCas cas = ae.newJCas();
 				cas.setDocumentText(inputText);
+				System.out.println(f.getName());
 				XmiCasDeserializer.deserialize(f.toURI().toURL().openStream(),cas.getCas(), false);
 				// Create Document Metadata annotation
 				DocumentMetadata 

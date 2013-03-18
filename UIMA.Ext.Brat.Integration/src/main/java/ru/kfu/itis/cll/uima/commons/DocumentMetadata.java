@@ -10,8 +10,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Thu Feb 07 16:11:41 MSK 2013
- * XML source: /home/pathfinder/Projects/BRATWorkspace/git/UIMA.Ext.Brat.Integration/desc/TestAnnotatorDescriptor.xml
+ * Updated by JCasGen Thu Mar 14 16:49:10 MSK 2013
+ * XML source: /home/pathfinder/_WORK/Projects/BRATWorkspace/git/UIMA-Ext/UIMA.Ext.Brat.Integration/desc/UIMA2BratAnnotatorDescriptor.xml
  * @generated */
 public class DocumentMetadata extends Annotation {
   /** @generated
