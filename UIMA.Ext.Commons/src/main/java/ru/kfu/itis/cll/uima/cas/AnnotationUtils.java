@@ -88,8 +88,8 @@ public class AnnotationUtils {
 	 * @return iterator over annotations overlapping with targetAnno from source
 	 *         iterator
 	 */
-	public static FSIterator<AnnotationFS> getOverlapping(CAS cas, FSIterator<AnnotationFS> iter,
-			AnnotationFS targetAnno) {
+	public static <T extends FeatureStructure> FSIterator<T> getOverlapping(CAS cas,
+			FSIterator<T> iter, AnnotationFS targetAnno) {
 		ConstraintFactory cf = ConstraintFactory.instance();
 		FSMatchConstraint firstDisjunct;
 		{
