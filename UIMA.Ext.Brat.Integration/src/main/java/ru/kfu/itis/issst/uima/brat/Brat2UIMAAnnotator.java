@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.hp.hplabs.lim2.ie.text.typesystem.HL_Acquisition;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
@@ -120,7 +121,7 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 		System.out.println("Processing ...");
 
 		ens.clear();
-		
+
 		// LOGGER.info("Saving text and annotations files into brat output directory.");
 		AnnotationFS fs;
 
@@ -300,7 +301,7 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 	}
 
 	/**
-	 * <s> is event annotation in brat has the followinf format
+	 * <s> is event annotation in brat has the following format
 	 * 
 	 * Ei<TAB>EventEntityName:Tj<SPACE>ARGUMENTk:Tl where Ei - event number i is
 	 * event id, Tj,Tl - text bound annotation j, l is entity id, ARGUMENTk -
@@ -348,7 +349,7 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 				Constructor<?> cons = c.getConstructor(JCas.class);
 				Object object = cons.newInstance(jcas);
 				System.out.println(object);
-				java.lang.reflect.Method argMethod1, addToIndexes;
+				java.lang.reflect.Method argMethod1, begin, getBegin, end, getEnd, addToIndexes;
 
 				// there is no information on begin and end args so skip it for
 				// now
@@ -370,10 +371,42 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 					// System.out.println(iBirthPlace.class.getName());
 
-					Type tp = jcas.getTypeSystem().getType(
-							object.getClass().getName());
+					Type tp = jcas.getTypeSystem().getType(object.getClass().getName());
 
 					BiMap<String, String> bm = HashBiMap.create();
+					int b,ei;
+
+					System.out.println(ens.get(s.split("\t")[1].split(" ")[0].split(":")[1])+" setting range of event annotation of " +s.split("\t")[1].split(" ")[0].split(":")[1]);
+					
+					if (ens.get(s.split("\t")[1].split(" ")[0].split(":")[1]) != null) {
+						
+						Object evObj = ens.get(s.split("\t")[1].split(" ")[0].split(":")[1]);
+						System.out.println(evObj+"setting range of event annotation");
+						evObj = Class.forName(uimaClassName).cast(evObj);
+						
+//						HL_Acquisition hl = new HL_Acquisition(jcas);
+//						
+//						hl.getBegin();
+//						
+						
+						getBegin = evObj.getClass().getMethod("getBegin", null);
+						getEnd = evObj.getClass().getMethod("getEnd", null);
+						
+						
+						b = (int)getBegin.invoke(evObj);
+						
+						begin = object.getClass().getMethod("setBegin", int.class);
+						
+						begin.invoke(object, b);
+						
+						// System.out.println("parsing ..."
+						// + s.split("\t")[1].split(" ")[2]);
+						end = object.getClass().getMethod("setEnd", int.class);
+						
+                        ei = (int)getEnd.invoke(evObj);
+						
+						end.invoke(object, ei);
+					}
 
 					// (BiMap<String, String>) entities;
 					bm.putAll(entities);
@@ -421,28 +454,32 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 								String ea = eventsArgs.get(tp.getName());
 								String bratArg = null;
-								
-								for(String e:ea.split(":")){
-									if(e.contains(f.getShortName()))
+
+								for (String e : ea.split(":")) {
+									if (e.contains(f.getShortName()))
 										bratArg = e.split(",")[0];
 								}
-								
-								String[] eventArguments = s.split("\t")[1].split(" ");
-								
-								
+
+								String[] eventArguments = s.split("\t")[1]
+										.split(" ");
+
 								for (String so : eventArguments) {
-									
+
 									String ta = so.split(":")[1];
 									Object o = ens.get(ta);
 
 									// for (Object o : ens.values()) {
-									System.out.println(ta + " T is" + o + "BA" + bratArg);
+									System.out.println(ta + " T is" + o + "BA"
+											+ bratArg);
 									// for arg list of this event do
-									//where is arg in the arg list
-									if(o!=null){
-										if( bm.inverse().get(o.getClass().getName())!=null 
-												&&
-											bm.inverse().get(o.getClass().getName()).equals(bratArg)){
+									// where is arg in the arg list
+									if (o != null) {
+										if (bm.inverse().get(
+												o.getClass().getName()) != null
+												&& bm.inverse()
+														.get(o.getClass()
+																.getName())
+														.equals(bratArg)) {
 											argMethod1.invoke(object, o);
 											System.out.println("invoked");
 											// delete it from the ens list
@@ -450,28 +487,28 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 											break;
 										}
 									}
-//									for (String os : eventsArgs.get(
-//											tp.getName()).split(":")) {
-//										// if arg list contains feature name and
-//										System.out.println(os
-//												+ " IS  IN"
-//												+ bm.inverse().get(
-//														o.getClass().getName())
-//												+ f.getShortName());
-//										if (os.contains(f.getShortName())
-//												&& bm.inverse().get(
-//														o.getClass().getName()) != null
-//												&& os.contains(bm.inverse()
-//														.get(o.getClass()
-//																.getName()))) {
-//											System.out.println("invoked");
-//
-//											argMethod1.invoke(object, o);
-//										}
-//
-//										// }
-//
-//									}
+									// for (String os : eventsArgs.get(
+									// tp.getName()).split(":")) {
+									// // if arg list contains feature name and
+									// System.out.println(os
+									// + " IS  IN"
+									// + bm.inverse().get(
+									// o.getClass().getName())
+									// + f.getShortName());
+									// if (os.contains(f.getShortName())
+									// && bm.inverse().get(
+									// o.getClass().getName()) != null
+									// && os.contains(bm.inverse()
+									// .get(o.getClass()
+									// .getName()))) {
+									// System.out.println("invoked");
+									//
+									// argMethod1.invoke(object, o);
+									// }
+									//
+									// // }
+									//
+									// }
 
 								}
 
@@ -647,7 +684,40 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 					addToIndexes = object.getClass().getMethod("addToIndexes");
 					addToIndexes.invoke(object);
 					ens.put(s.split("\t")[0], object);
-					System.out.println(s.split("\t")[0]+"ADDED");
+					System.out.println(s.split("\t")[0] + "ADDED");
+					// System.out.println("result");
+				} catch (SecurityException e) {
+					// ...
+				} catch (NoSuchMethodException e) {
+					// ...
+				}
+				// ADDED EVENT ENTITY TO ENS
+			} else if (events.get(s.split("\t")[1].split(" ")[0]) != null) {
+				Class<?> c = Class.forName(events.get(s.split("\t")[1]
+						.split(" ")[0]));
+				Constructor<?> cons = c.getConstructor(JCas.class);
+				Object object = cons.newInstance(jcas);
+				// System.out.println(object);
+				java.lang.reflect.Method beginMethod, endMethod, addToIndexes;
+				try {
+					// System.out.println("parsing ..."
+					// + s.split("\t")[1].split(" ")[1]);
+					beginMethod = object.getClass().getMethod("setBegin",
+							int.class);
+					beginMethod.invoke(object,
+							Integer.parseInt(s.split("\t")[1].split(" ")[1]));
+					// System.out.println("parsing ..."
+					// + s.split("\t")[1].split(" ")[2]);
+					endMethod = object.getClass()
+							.getMethod("setEnd", int.class);
+					endMethod.invoke(object,
+							Integer.parseInt(s.split("\t")[1].split(" ")[2]));
+
+					// addToIndexes =
+					// object.getClass().getMethod("addToIndexes");
+					// addToIndexes.invoke(object);
+					ens.put(s.split("\t")[0], object);
+					System.out.println(s.split("\t")[0] + "ADDED");
 					// System.out.println("result");
 				} catch (SecurityException e) {
 					// ...
