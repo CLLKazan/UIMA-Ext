@@ -9,9 +9,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -34,8 +37,14 @@ import org.apache.uima.util.Logger;
 import org.apache.uima.util.XMLSerializer;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
+import ru.kfu.itis.issst.ner.typesystem.iBirthPlace;
+import ru.kfu.itis.issst.ner.typesystem.iCity;
+import ru.kfu.itis.issst.ner.typesystem.iPerson;
 
 /**
  * Brat 2 UIMA Annotator is CAS Annotator to convert Brat standoff format
@@ -45,6 +54,7 @@ import ru.kfu.itis.cll.uima.consumer.XmiWriter;
  * annotations and converts them to UIMA annotation (*.xmi files) T: text-bound
  * annotation R: relation E: event A: attribute M: modification (alias for
  * attribute, for backward compatibility) N: normalization #: note
+ * 
  * @author pathfinder
  */
 
@@ -74,6 +84,9 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 	// Brat types
 	private HashMap<String, String> entities = new HashMap<String, String>();
+
+	private HashMap<String, Object> ens = new HashMap<String, Object>();
+
 	private HashMap<String, String> events = new HashMap<String, String>();
 	private HashMap<String, String> eventsArgs = new HashMap<String, String>();
 	private HashMap<String, String> relations = new HashMap<String, String>();
@@ -105,6 +118,9 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 	public void process(CAS casObj) throws AnalysisEngineProcessException {
 
 		System.out.println("Processing ...");
+
+		ens.clear();
+		
 		// LOGGER.info("Saving text and annotations files into brat output directory.");
 		AnnotationFS fs;
 
@@ -142,7 +158,8 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 						try {
 							System.out.println("Item Processing");
 
-							uri = new URI(fs.getFeatureValueAsString(dmTypeFeature));
+							uri = new URI(
+									fs.getFeatureValueAsString(dmTypeFeature));
 							sourceUri = uri.getPath();
 							annFile = new File(sourceUri);
 							fileName = annFile.getName();
@@ -219,7 +236,15 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 					break;
 				case EVENT_ANN:
 					// Set event annotation
-					makeEventAnnotation(s);
+					try {
+						makeEventAnnotation(s);
+					} catch (IllegalAccessException | IllegalArgumentException
+							| InvocationTargetException
+							| ClassNotFoundException | NoSuchMethodException
+							| SecurityException | InstantiationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					break;
 				}
 			}
@@ -274,48 +299,304 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 	}
 
-	private void makeEventAnnotation(String s) {
-		
-		
-		
+	/**
+	 * <s> is event annotation in brat has the followinf format
+	 * 
+	 * Ei<TAB>EventEntityName:Tj<SPACE>ARGUMENTk:Tl where Ei - event number i is
+	 * event id, Tj,Tl - text bound annotation j, l is entity id, ARGUMENTk -
+	 * argument number k of event annotation
+	 * 
+	 * @param s
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @throws InstantiationException
+	 */
+
+	private void makeEventAnnotation(String s) throws IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException,
+			ClassNotFoundException, NoSuchMethodException, SecurityException,
+			InstantiationException {
+
+		System.out.println("Event Annotation parsing string" + s);
+
+		// REGEXP PROCESSING SHOULD BE HERE:
+
+		// CHECK WHETHER THE STRING IS IN EVENT ANNOTATION FORMAT
+
+		String eventBratName, uimaClassName = null;
+		eventBratName = s.split("\t")[1].split(" ")[0].split(":")[0];
+
+		if (s.split("\t").length > 0
+				&& s.split("\t")[s.split("\t").length - 1].split(" ").length > 0) {
+			System.out.println("Making event annotation ..." + eventBratName);
+
+			// + events.get(s.split("\t")[1].split(" ")[0]).split(":")[0] );
+			System.out.println("Making event annotation ..." + events.keySet()
+					+ "+" + events.values());
+
+			if (eventBratName != null) {
+
+				System.out.println("GET UIMA CLASS BY EVENT BRAT NAME"
+						+ events.get(eventBratName));
+				uimaClassName = events.get(eventBratName);
+				Class<?> c = Class.forName(uimaClassName);
+
+				Constructor<?> cons = c.getConstructor(JCas.class);
+				Object object = cons.newInstance(jcas);
+				System.out.println(object);
+				java.lang.reflect.Method argMethod1, addToIndexes;
+
+				// there is no information on begin and end args so skip it for
+				// now
+
+				try {
+					// SET BEGIN AND END OF EVENT ANNOTATION
+
+					// System.out.println("parsing ..."
+					// + s.split("\t")[1].split(" ")[1]);
+
+					// System.out.println(ens.get(s.split("\t")[1].split(" ")[1]
+					// + .split(":")[1]));
+
+					// System.out.println("parsing ..."
+					// + s.split("\t")[1].split(" ")[2]);
+
+					// System.out.println(ens.get(s.split("\t")[1].split(" ")[2]
+					// + .split(":")[1]));
+
+					// System.out.println(iBirthPlace.class.getName());
+
+					Type tp = jcas.getTypeSystem().getType(
+							object.getClass().getName());
+
+					BiMap<String, String> bm = HashBiMap.create();
+
+					// (BiMap<String, String>) entities;
+					bm.putAll(entities);
+					System.out.println("BM IS" + bm.toString());
+					for (Feature f : tp.getFeatures()) {
+
+						System.out.println(" FEATURE NAME IS "
+								+ f.getShortName() + " IS  IN ");
+						// // check feature in arg list:
+						try {
+							if (eventsArgs.get(tp.getName()) != null
+									&& eventsArgs.get(tp.getName()).contains(
+											f.getShortName())
+
+							) {
+
+								// System.out.println(object + " is "
+								// + f.getShortName()
+								// + "OK"
+								// + eventsArgs.get(tp.getName())
+								// + "set"
+								// + (f.getShortName()
+								// .toCharArray()[0] + "")
+								// .toUpperCase()
+								// + f.getShortName().substring(1)
+								// + f.getRange().getName());
+								// prepare method
+								argMethod1 = object
+										.getClass()
+										.getMethod(
+												"set"
+														+ (f.getShortName()
+																.toCharArray()[0] + "").toUpperCase()
+														+ f.getShortName()
+																.substring(1),
+
+												Class.forName(f.getRange()
+														.getName())
+
+										);
+
+								System.out.println(ens);
+
+								// check where its in
+
+								String ea = eventsArgs.get(tp.getName());
+								String bratArg = null;
+								
+								for(String e:ea.split(":")){
+									if(e.contains(f.getShortName()))
+										bratArg = e.split(",")[0];
+								}
+								
+								String[] eventArguments = s.split("\t")[1].split(" ");
+								
+								
+								for (String so : eventArguments) {
+									
+									String ta = so.split(":")[1];
+									Object o = ens.get(ta);
+
+									// for (Object o : ens.values()) {
+									System.out.println(ta + " T is" + o + "BA" + bratArg);
+									// for arg list of this event do
+									//where is arg in the arg list
+									if(o!=null){
+										if( bm.inverse().get(o.getClass().getName())!=null 
+												&&
+											bm.inverse().get(o.getClass().getName()).equals(bratArg)){
+											argMethod1.invoke(object, o);
+											System.out.println("invoked");
+											// delete it from the ens list
+											ens.remove(ta);
+											break;
+										}
+									}
+//									for (String os : eventsArgs.get(
+//											tp.getName()).split(":")) {
+//										// if arg list contains feature name and
+//										System.out.println(os
+//												+ " IS  IN"
+//												+ bm.inverse().get(
+//														o.getClass().getName())
+//												+ f.getShortName());
+//										if (os.contains(f.getShortName())
+//												&& bm.inverse().get(
+//														o.getClass().getName()) != null
+//												&& os.contains(bm.inverse()
+//														.get(o.getClass()
+//																.getName()))) {
+//											System.out.println("invoked");
+//
+//											argMethod1.invoke(object, o);
+//										}
+//
+//										// }
+//
+//									}
+
+								}
+
+							}
+
+						} catch (NoSuchMethodException e) {
+							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+
+					addToIndexes = object.getClass().getMethod("addToIndexes");
+					addToIndexes.invoke(object);
+					System.out.println("result");
+
+				} catch (SecurityException e) {
+					// ...
+				} catch (NoSuchMethodException e) {
+					// ...
+				}
+			}
+		}
 		// TODO Auto-generated method stub
 
 	}
 
-	private void makeRelationAnnotation(String s) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private void makeRelationAnnotation(String s)
+			throws ClassNotFoundException, NoSuchMethodException,
+			SecurityException, InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
 		// TODO Auto-generated method stub
-		
-		System.out.println("parsing string" + s);
 
-		if (s.split("\t").length > 0 
-				&& 
-			s.split("\t")[s.split("\t").length - 1].split(" ").length > 0) 
-		{
+		System.out.println("RA parsing string" + s);
+
+		if (s.split("\t").length > 0
+				&& s.split("\t")[s.split("\t").length - 1].split(" ").length > 0) {
 			System.out.println("Making relation annotation ..."
 					+ relations.get(s.split("\t")[1].split(" ")[0]));
 			System.out.println("Making relation annotation ..."
 					+ relations.keySet());
-			
-			if (entities.get(s.split("\t")[1].split(" ")[0]) != null) {
-				Class<?> c = Class.forName(relations.get(s.split("\t")[1].split(" ")[0]));
+
+			if (relations.get(s.split("\t")[1].split(" ")[0]) != null) {
+				Class<?> c = Class.forName(relations.get(s.split("\t")[1]
+						.split(" ")[0]));
+
 				Constructor<?> cons = c.getConstructor(JCas.class);
 				Object object = cons.newInstance(jcas);
 				System.out.println(object);
-				java.lang.reflect.Method beginMethod, endMethod, addToIndexes;
+				java.lang.reflect.Method argMethod1, addToIndexes;
+
+				// there is no information on begin and end args so skip it for
+				// now
+
 				try {
 					System.out.println("parsing ..."
 							+ s.split("\t")[1].split(" ")[1]);
-					beginMethod = object.getClass().getMethod("setBegin",
-							int.class);
-					beginMethod.invoke(object,
-							Integer.parseInt(s.split("\t")[1].split(" ")[1]));
+
+					System.out.println(ens.get(s.split("\t")[1].split(" ")[1]
+							.split(":")[1]));
 
 					System.out.println("parsing ..."
 							+ s.split("\t")[1].split(" ")[2]);
-					endMethod = object.getClass()
-							.getMethod("setEnd", int.class);
-					endMethod.invoke(object,
-							Integer.parseInt(s.split("\t")[1].split(" ")[2]));
+
+					System.out.println(ens.get(s.split("\t")[1].split(" ")[2]
+							.split(":")[1]));
+
+					System.out.println(iBirthPlace.class.getName());
+
+					Type tp = jcas.getTypeSystem().getType(
+							object.getClass().getName());
+
+					for (Feature f : tp.getFeatures()) {
+
+						System.out.println(f.getRange().getShortName());
+						// // check feature in arg list:
+						try {
+							if (eventsArgs.get(tp.getName()) != null
+									&& ArrayUtils.contains(
+											eventsArgs.get(tp.getName()).split(
+													":"), f.getRange()
+													.getShortName())) {
+								System.out
+										.println(object
+												+ " is "
+												+ f.getShortName()
+												+ "OK"
+												+ eventsArgs.get(tp.getName())
+												+ "set"
+												+ (f.getShortName()
+														.toCharArray()[0] + "")
+														.toUpperCase()
+												+ f.getShortName().substring(1)
+												+ f.getRange().getName());
+
+								argMethod1 = object
+										.getClass()
+										.getMethod(
+												"set"
+														+ (f.getShortName()
+																.toCharArray()[0] + "").toUpperCase()
+														+ f.getShortName()
+																.substring(1),
+
+												Class.forName(f.getRange()
+														.getName())
+
+										);
+
+								System.out.println(ens);
+
+								for (Object o : ens.values()) {
+									System.out.println(o);
+									if (o.getClass().getName()
+											.equals(f.getRange().getName()))
+										argMethod1.invoke(object, o);
+								}
+							}
+
+						} catch (NoSuchMethodException e) {
+							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
 
 					addToIndexes = object.getClass().getMethod("addToIndexes");
 					addToIndexes.invoke(object);
@@ -336,27 +617,28 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 			NoSuchMethodException, SecurityException {
 		System.out.println("parsing string" + s);
 
+		// regexp for entity ann recog check
+
 		if (s.split("\t").length > 0
 				&& s.split("\t")[s.split("\t").length - 1].split(" ").length > 0) {
-			System.out.println("Making entity annotation ..."
-					+ entities.get(s.split("\t")[1].split(" ")[0]));
+			// System.out.println("Making entity annotation ..."
+			// + entities.get(s.split("\t")[1].split(" ")[0]));
 			if (entities.get(s.split("\t")[1].split(" ")[0]) != null) {
 				Class<?> c = Class.forName(entities.get(s.split("\t")[1]
 						.split(" ")[0]));
 				Constructor<?> cons = c.getConstructor(JCas.class);
 				Object object = cons.newInstance(jcas);
-				System.out.println(object);
+				// System.out.println(object);
 				java.lang.reflect.Method beginMethod, endMethod, addToIndexes;
 				try {
-					System.out.println("parsing ..."
-							+ s.split("\t")[1].split(" ")[1]);
+					// System.out.println("parsing ..."
+					// + s.split("\t")[1].split(" ")[1]);
 					beginMethod = object.getClass().getMethod("setBegin",
 							int.class);
 					beginMethod.invoke(object,
 							Integer.parseInt(s.split("\t")[1].split(" ")[1]));
-
-					System.out.println("parsing ..."
-							+ s.split("\t")[1].split(" ")[2]);
+					// System.out.println("parsing ..."
+					// + s.split("\t")[1].split(" ")[2]);
 					endMethod = object.getClass()
 							.getMethod("setEnd", int.class);
 					endMethod.invoke(object,
@@ -364,8 +646,9 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 					addToIndexes = object.getClass().getMethod("addToIndexes");
 					addToIndexes.invoke(object);
-					System.out.println("result");
-
+					ens.put(s.split("\t")[0], object);
+					System.out.println(s.split("\t")[0]+"ADDED");
+					// System.out.println("result");
 				} catch (SecurityException e) {
 					// ...
 				} catch (NoSuchMethodException e) {
@@ -390,7 +673,13 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(ctx);
 
-		System.out.println("Started Brat2UIMA Annotator Processor ");
+		events.clear();
+		relations.clear();
+		entities.clear();
+		eventsArgs.clear();
+		ens.clear();
+
+		System.out.println("Started Brat 2 UIMA Annotator Processor ");
 
 		LOGGER = getContext().getLogger();
 
@@ -475,16 +764,21 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 					case ENTITY:
 						entities.put(s.split(";")[0], s.split(";")[1]);
+
 						break;
 
 					case RELATION:
 						relations.put(s.split(";")[0].split(":")[0],
 								s.split(";")[1]);
+						eventsArgs.put(s.split(";")[1], s.split(";")[0]);
+
 						break;
 
 					case EVENT:
 						events.put(s.split(";")[0].split(":")[0],
 								s.split(";")[1]);
+						eventsArgs.put(s.split(";")[1], s.split(";")[0]);
+
 						break;
 
 					default:
@@ -493,112 +787,43 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 			}
 
 			// Writing results to file annotation configuration file
-			writeToFile("[entities]");
-
-			// System.out.println(entities);
-			for (String s : entities.keySet()) {
-				writeToFile(entities.get(s));
-			}
-
-			writeToFile("[events]");
-
-			// System.out.println(events);
-			for (String s : events.keySet()) {
-				if (events.get(s).split(":").length > 0)
-					writeToFile(events.get(s));
-				else
-					writeToFile(s);
-			}
-
-			writeToFile("[attributes]");
-
-			writeToFile("[relations]");
-
-			// System.out.println(relations);
-			for (String s : relations.keySet()) {
-				writeToFile(relations.get(s));
-			}
-			writer.close();
+			// writeToFile("[entities]");
+			//
+			// // System.out.println(entities);
+			// for (String s : entities.keySet()) {
+			// writeToFile(entities.get(s));
+			// }
+			//
+			// writeToFile("[events]");
+			//
+			// // System.out.println(events);
+			// for (String s : events.keySet()) {
+			// if (events.get(s).split(":").length > 0)
+			// writeToFile(events.get(s));
+			// else
+			// writeToFile(s);
+			// }
+			//
+			// writeToFile("[attributes]");
+			//
+			// writeToFile("[relations]");
+			//
+			// // System.out.println(relations);
+			// for (String s : relations.keySet()) {
+			// writeToFile(relations.get(s));
+			// }
+			// writer.close();
 		}
 	}
 
-	private String parseEventArgs(String args)
-			throws UIMAIllegalArgumentException {
-		String out = null;
-
-		String argss[] = args.split(":");
-
-		if (args.length() > 0) {
-			out = "";
-			out += argss[0] + "\t ";
-			int ik = 0;
-			String val, param, arg;
-			for (String s : argss) {
-				if (ik != 0) {
-
-					val = s.replaceAll("[\\?\\*\\+\\{\\d\\}]", "");
-
-					arg = s.replaceAll("[^A-z]", "") + "-" + EVENT_ARG_NAME;
-
-					param = s.replaceAll("[\\|\\-\\_A-z]", "");
-
-					out += arg + param + ":" + val;
-
-					eventsArgs.put(val, arg);
-
-					if (ik != argss.length - 1 && ik != 0)
-						out += ", ";
-				}
-				ik++;
-			}
-		} else {
-			out = "";
-			if (args.equals("") | args == null)
-				throw new UIMAIllegalArgumentException(
-						"Event configuration error!");
-			else
-				out += args;
-		}
-		System.out.println("Process" + eventsArgs);
-		return out;
-	}
-
-	//
-	private String parseRelationArgs(String args)
-			throws UIMAIllegalArgumentException {
-
-		String out = null;
-		String argss[] = args.split(":");
-		// Relation has to have exactly two arguments
-		if (argss.length == 3) {
-			out = "";
-			out += argss[0] + "\t ";
-			// Add arguments and replace unnecessary characters
-			out += RELATION_ARG_NAME + "1:"
-					+ argss[1].replaceAll("[\\?\\*\\+\\{\\d\\}]", "");
-			eventsArgs.put(argss[1].replaceAll("[\\?\\*\\+\\{\\d\\}]", ""),
-					RELATION_ARG_NAME);
-
-			out += ", ";
-			out += RELATION_ARG_NAME + "2:"
-					+ argss[2].replaceAll("[\\?\\*\\+\\{\\d\\}]", "");
-			eventsArgs.put(argss[2].replaceAll("[\\?\\*\\+\\{\\d\\}]", ""),
-					RELATION_ARG_NAME);
-
-		} else
-			throw new UIMAIllegalArgumentException(
-					"Relations must have exactly two arguments");
-		return out;
-	}
-
-	public static void writeToFile(String text) {
-		try {
-			writer.write(text);
-			writer.newLine();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	// public static void writeToFile(String text) {
+	// try {
+	// writer.write(text);
+	// writer.newLine();
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 	public enum BratTypes {
 		ENTITY, EVENT, RELATION, ATTRIBUTE
