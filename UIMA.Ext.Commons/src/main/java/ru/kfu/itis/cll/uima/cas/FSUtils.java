@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.uima.cas.ArrayFS;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.ConstraintFactory;
@@ -27,6 +28,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.StringArray;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -43,6 +45,18 @@ public class FSUtils {
 		} catch (CASException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static boolean contain(ArrayFS arr, FeatureStructure targetFS) {
+		if (arr == null) {
+			return false;
+		}
+		for (int i = 0; i < arr.size(); i++) {
+			if (Objects.equal(arr.get(i), targetFS)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static FSArray toFSArray(JCas cas, Collection<? extends FeatureStructure> srcCol) {

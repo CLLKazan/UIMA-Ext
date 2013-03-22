@@ -16,6 +16,7 @@ import scala.collection.immutable.SortedSet
 import scala.math.Ordering
 import ru.kfu.itis.cll.uima.cas.AnnotationOffsetComparator
 import scala.collection.mutable.ListBuffer
+import ru.kfu.itis.cll.uima.cas.FSUtils
 
 package object phrrecog {
 
@@ -69,4 +70,8 @@ package object phrrecog {
   }
 
   def getOffsets(np: NounPhrase): (Int, Int) = (getFirstWord(np, false).getBegin(), getLastWord(np, false).getEnd())
+
+  def containWord(np: NounPhrase, w: Word): Boolean =
+    np.getHead == w || np.getParticle == w || np.getPreposition == w ||
+      FSUtils.contain(np.getDependents, w)
 }
