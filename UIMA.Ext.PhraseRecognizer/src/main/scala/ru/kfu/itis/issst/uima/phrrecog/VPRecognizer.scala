@@ -24,7 +24,7 @@ import scala.collection.mutable.HashSet
 import scala.collection.mutable.Buffer
 import org.apache.uima.jcas.cas.FSArray
 import grizzled.slf4j.Logging
-import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
+import ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -132,11 +132,11 @@ class VPRecognizer extends JCasAnnotator_ImplBase with Logging {
       depsFsArray.set(depsI, iter.next())
       depsI += 1
     }
-    val phrase = new Phrase(jCas)
+    val phrase = new VerbPhrase(jCas)
     phrase.setBegin(head.getBegin)
     phrase.setEnd(head.getEnd)
     phrase.setHead(head)
-    phrase.setDependents(depsFsArray)
+    phrase.setDependentWords(depsFsArray)
     phrase.addToIndexes()
   }
 

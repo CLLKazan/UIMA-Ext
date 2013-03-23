@@ -17,6 +17,8 @@ import scala.math.Ordering
 import ru.kfu.itis.cll.uima.cas.AnnotationOffsetComparator
 import scala.collection.mutable.ListBuffer
 import ru.kfu.itis.cll.uima.cas.FSUtils
+import ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase
+import org.apache.uima.cas.ArrayFS
 
 package object phrrecog {
 
@@ -30,48 +32,39 @@ package object phrrecog {
    * Returns the first word of NP.
    * If ignoreAux is true then leading preposition or particle is ignored.
    */
-  def getFirstWord(np: NounPhrase, ignoreAux: Boolean): Word = {
-    val candidates = ListBuffer.empty[Word]
-    candidates += np.getHead
-    if (!ignoreAux && np.getPreposition != null) candidates += np.getPreposition
-    if (!ignoreAux && np.getParticle != null) candidates += np.getParticle
-    np.getDependents() match {
-      case null =>
-      case depsFS if depsFS.size == 0 =>
-      case depsFS => candidates += FSCollectionFactory.create(depsFS, classOf[Word]).head
+  def getFirstWord(np: NounPhrase, ignoreAux: Boolean): Word =
+    toTraversable(np, ignoreAux).minBy(_.getBegin())
+
+  private[phrrecog] def toTraversable(np: NounPhrase, ignoreAux: Boolean): Traversable[Word] = new Traversable[Word] {
+    override def foreach[U](f: Word => U) {
+      f(np.getHead)
+      if (!ignoreAux && np.getPreposition != null) f(np.getPreposition)
+      if (!ignoreAux && np.getParticle != null) f(np.getParticle)
+      np.getDependentWords() match {
+        case null =>
+        case depsFS => for (i <- 0 until depsFS.size)
+          f(depsFS.get(i).asInstanceOf[Word])
+      }
+      np.getDependentPhrases() match {
+        case null =>
+        case depPhrases => for (i <- 0 until depPhrases.size)
+          phrrecog.toTraversable(depPhrases.get(i).asInstanceOf[NounPhrase], false).foreach(f(_))
+      }
     }
-    candidates.minBy(_.getBegin)
   }
 
   /**
    * Returns the last word of NP.
    * If ignoreAux is true then leading preposition or particle is ignored.
    */
-  def getLastWord(np: NounPhrase, ignoreAux: Boolean): Word = {
-    val candidates = ListBuffer.empty[Word]
-    candidates += np.getHead
-    if (!ignoreAux && np.getPreposition != null) candidates += np.getPreposition
-    if (!ignoreAux && np.getParticle != null) candidates += np.getParticle
-    np.getDependents() match {
-      case null =>
-      case depsFS if depsFS.size == 0 =>
-      case depsFS => candidates += FSCollectionFactory.create(depsFS, classOf[Word]).last
-    }
-    candidates.maxBy(_.getBegin)
-  }
+  def getLastWord(np: NounPhrase, ignoreAux: Boolean): Word =
+    toTraversable(np, ignoreAux).maxBy(_.getBegin)
 
-  def getWords(np: NounPhrase, ignoreAux: Boolean): SortedSet[Word] = {
-    var result = SortedSet.empty[Word](annOffsetComp) + np.getHead
-    val depsFS = np.getDependents
-    if (depsFS != null && depsFS.size() > 0) result ++= FSCollectionFactory.create(depsFS, classOf[Word])
-    if (!ignoreAux && np.getPreposition != null) result += np.getPreposition
-    if (!ignoreAux && np.getParticle != null) result += np.getParticle
-    result
-  }
+  def getWords(np: NounPhrase, ignoreAux: Boolean): SortedSet[Word] =
+    SortedSet.empty[Word](annOffsetComp) ++ toTraversable(np, ignoreAux)
 
   def getOffsets(np: NounPhrase): (Int, Int) = (getFirstWord(np, false).getBegin(), getLastWord(np, false).getEnd())
 
   def containWord(np: NounPhrase, w: Word): Boolean =
-    np.getHead == w || np.getParticle == w || np.getPreposition == w ||
-      FSUtils.contain(np.getDependents, w)
+    toTraversable(np, false).exists(_ == w)
 }

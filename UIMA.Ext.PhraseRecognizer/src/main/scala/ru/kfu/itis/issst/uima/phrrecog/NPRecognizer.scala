@@ -48,7 +48,7 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
     if (!reader.atEnd)
       np(reader) match {
         case Success(np, rest) => {
-          makeNPAnnotation(np)
+          addToCas(np)
           parseFrom(rest)
         }
         case Failure(_, _) =>
@@ -56,7 +56,12 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
           parseFrom(reader.rest)
       }
 
-  private def makeNPAnnotation(np: NP) {
+  private def addToCas(np: NP) {
+    val npAnno = createNPAnnotation(np)
+    npAnno.addToIndexes()
+  }
+
+  private def createNPAnnotation(np: NP): NounPhrase = {
     val head = np.noun
     val jCas = head.getCAS().getJCas()
 
@@ -69,10 +74,21 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
       case Some(prep) => phrase.setPreposition(prep)
       case None =>
     }
+    np.particleOpt match {
+      case Some(particle) => phrase.setParticle(particle)
+      case None =>
+    }
 
-    val depsFsArray = new FSArray(jCas, np.deps.size)
-    FSCollectionFactory.fillArrayFS(depsFsArray, TreeSet.empty[Word](annOffsetComp) ++ np.deps)
-    phrase.setDependents(depsFsArray)
-    phrase.addToIndexes()
+    val depWordsFsArray = new FSArray(jCas, np.depWords.size)
+    FSCollectionFactory.fillArrayFS(depWordsFsArray, TreeSet.empty[Word](annOffsetComp) ++ np.depWords)
+    phrase.setDependentWords(depWordsFsArray)
+
+    // TODO low priority: add a sanity check to avoid infinite recursion
+    val depAnnoQ = np.depNPs.map(createNPAnnotation(_))
+    val depNPsFsArray = new FSArray(jCas, depAnnoQ.size)
+    FSCollectionFactory.fillArrayFS(depNPsFsArray, depAnnoQ)
+    phrase.setDependentPhrases(depNPsFsArray)
+
+    phrase
   }
 }

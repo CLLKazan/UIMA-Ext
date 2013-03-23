@@ -229,10 +229,16 @@
                     <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
-                    <name>dependents</name>
+                    <name>dependentWords</name>
                     <description/>
                     <rangeTypeName>uima.cas.FSArray</rangeTypeName>
                     <elementType>org.opencorpora.cas.Word</elementType>
+                </featureDescription>
+                <featureDescription>
+                    <name>dependentPhrases</name>
+                    <description/>
+                    <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                    <elementType>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</elementType>
                 </featureDescription>
             </features>
         </typeDescription>

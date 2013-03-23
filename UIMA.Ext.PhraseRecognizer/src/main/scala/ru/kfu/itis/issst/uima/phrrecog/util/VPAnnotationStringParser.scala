@@ -5,10 +5,17 @@ import org.apache.uima.jcas.JCas
 import org.apache.uima.jcas.cas.FSArray
 import ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase
 import scala.collection.Map
+import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
+import org.apache.uima.cas.text.AnnotationFS
 
-class VPAnnotationStringParser extends AnnotationStringParser {
+class VPAnnotationStringParserFactory extends PhraseStringParsersFactory {
+  override def createParser(jCas: JCas, tokens: Array[AnnotationFS]) =
+    new VPAnnotationStringParser(jCas, tokens)
+}
 
-  override def parseTokens(jCas: JCas, prefixedTokensMap: Map[String, Seq[Word]]) {
+class VPAnnotationStringParser(protected val jCas: JCas, protected val tokens: Array[AnnotationFS]) extends PhraseStringParsers {
+
+  protected override def createAnnotation(prefixedTokensMap: Map[String, Seq[Word]], depPhrases: Seq[Phrase]): VerbPhrase = {
     val unprefixedWords = prefixedTokensMap.get(null) match {
       case Some(list) => list
       case None => throw new IllegalStateException(
@@ -30,9 +37,9 @@ class VPAnnotationStringParser extends AnnotationStringParser {
     phrase.setBegin(headWord.getBegin())
     phrase.setEnd(headWord.getEnd())
     phrase.setHead(headWord)
-    phrase.setDependents(dependentsFsArray)
+    phrase.setDependentWords(dependentsFsArray)
 
-    phrase.addToIndexes()
+    phrase
   }
 
 }

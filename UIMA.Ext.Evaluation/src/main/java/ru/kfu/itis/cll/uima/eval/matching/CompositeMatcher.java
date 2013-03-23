@@ -110,12 +110,37 @@ public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<F
 			return this;
 		}
 
+		/*
+		 * this signature is required to allow build cyclic matcher references
+		 * without exposing builder 'instance' field outside
+		 */
+		public <FVT extends FeatureStructure> Builder<FST> addFSFeatureMatcher(String featName,
+				Builder<FVT> valueMatcherBuilder) {
+			Feature feat = getFeature(targetType, featName, true);
+			instance.topMatchers.add(new FSFeatureMatcher<FST, FVT>(
+					feat, valueMatcherBuilder.instance));
+			return this;
+		}
+
 		public <FET extends FeatureStructure> Builder<FST> addFSCollectionFeatureMatcher(
 				String featName,
 				Matcher<FET> elementMatcher, boolean ignoreOrder) {
 			Feature feat = getFeature(targetType, featName, true);
 			instance.topMatchers.add(new FSCollectionFeatureMatcher<FST, FET>(feat, elementMatcher,
 					ignoreOrder));
+			return this;
+		}
+
+		/*
+		 * this signature is required to allow build cyclic matcher references
+		 * without exposing builder 'instance' field outside
+		 */
+		public <FET extends FeatureStructure> Builder<FST> addFSCollectionFeatureMatcher(
+				String featName,
+				Builder<FET> elemMatcherBuilder, boolean ignoreOrder) {
+			Feature feat = getFeature(targetType, featName, true);
+			instance.topMatchers.add(new FSCollectionFeatureMatcher<FST, FET>(
+					feat, elemMatcherBuilder.instance, ignoreOrder));
 			return this;
 		}
 

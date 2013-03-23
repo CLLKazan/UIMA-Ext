@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Fri Mar 01 17:08:28 MSK 2013 */
+/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,7 +11,7 @@ import org.opencorpora.cas.Word;
 
 
 /** Represents Noun Phrase
- * Updated by JCasGen Fri Mar 01 17:08:28 MSK 2013
+ * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
  * XML source: src/main/resources/ru/kfu/itis/issst/uima/phrrecog/ts-phrase-recognizer.xml
  * @generated */
 public class NounPhrase extends Phrase {

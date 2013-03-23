@@ -21,10 +21,10 @@ object StandoffAnnotationsToXmi {
 
   def main(args: Array[String]) {
     if (args.length != 3) {
-      println("Usage: <annoStrParserClass> <inputDir> <outputDir>")
+      println("Usage: <annoStrParserFactoryClass> <inputDir> <outputDir>")
       exit(1)
     }
-    val annoStrParserClsName = args(0)
+    val annoStrParserFactoryClsName = args(0)
     val inputDir = args(1)
     val outputDir = args(2)
 
@@ -61,7 +61,7 @@ object StandoffAnnotationsToXmi {
         "org.opencorpora.morphology-ts",
         "ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer")
       createPrimitiveDescription(classOf[StandoffAnnotationsProcessor], tsDesc,
-        ParamAnnotationStringParserClass, annoStrParserClsName)
+        ParamAnnotationStringParserFactoryClass, annoStrParserFactoryClsName)
     }
 
     val xmiWriterDesc = {

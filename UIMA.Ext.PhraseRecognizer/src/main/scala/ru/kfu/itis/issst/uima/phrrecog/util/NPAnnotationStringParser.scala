@@ -9,10 +9,20 @@ import scala.collection.immutable.TreeSet
 import org.apache.uima.jcas.cas.FSArray
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import grizzled.slf4j.Logging
+import org.apache.uima.cas.text.AnnotationFS
+import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
+import org.uimafit.util.FSCollectionFactory
+import scala.collection.JavaConversions.asJavaIterable
 
-class NPAnnotationStringParser extends AnnotationStringParser with Logging {
+class NPAnnotationStringParserFactory extends PhraseStringParsersFactory {
+  override def createParser(jCas: JCas, tokens: Array[AnnotationFS]): NPAnnotationStringParser =
+    new NPAnnotationStringParser(jCas, tokens)
+}
 
-  def parseTokens(jCas: JCas, prefixedTokensMap: Map[String, Seq[Word]]) {
+class NPAnnotationStringParser(protected val jCas: JCas, protected val tokens: Array[AnnotationFS])
+  extends PhraseStringParsers with Logging {
+
+  override protected def createAnnotation(prefixedTokensMap: Map[String, Seq[Word]], depPhrases: Seq[Phrase]): NounPhrase = {
     val unprefixedWords = prefixedTokensMap.get(null) match {
       case Some(list) => list
       case None => throw new IllegalStateException(
@@ -42,12 +52,11 @@ class NPAnnotationStringParser extends AnnotationStringParser with Logging {
     val headWord = unprefixedWords.head
     val dependentWordAnnos = TreeSet.empty[Word](annOffsetComp) ++ unprefixedWords.tail
 
-    val dependentsFsArray = new FSArray(jCas, dependentWordAnnos.size)
-    var fsArrayIndex = 0
-    for (dwAnno <- dependentWordAnnos) {
-      dependentsFsArray.set(fsArrayIndex, dwAnno)
-      fsArrayIndex += 1
-    }
+    val depWordsFsArray = new FSArray(jCas, dependentWordAnnos.size)
+    FSCollectionFactory.fillArrayFS(depWordsFsArray, dependentWordAnnos)
+
+    val depPhrasesFsArray = new FSArray(jCas, depPhrases.size)
+    FSCollectionFactory.fillArrayFS(depPhrasesFsArray, depPhrases)
 
     val phrase = new NounPhrase(jCas)
     phrase.setBegin(headWord.getBegin())
@@ -55,9 +64,9 @@ class NPAnnotationStringParser extends AnnotationStringParser with Logging {
     if (prepWordOpt.isDefined) phrase.setPreposition(prepWordOpt.get)
     if (particleWordOpt.isDefined) phrase.setParticle(particleWordOpt.get)
     phrase.setHead(headWord)
-    phrase.setDependents(dependentsFsArray)
-
-    phrase.addToIndexes()
+    phrase.setDependentWords(depWordsFsArray)
+    phrase.setDependentPhrases(depPhrasesFsArray)
+    phrase
   }
 }
 

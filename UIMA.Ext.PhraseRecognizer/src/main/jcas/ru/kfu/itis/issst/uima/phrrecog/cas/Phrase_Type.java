@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Fri Mar 01 17:08:28 MSK 2013 */
+/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -15,7 +15,7 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Represents typed 'phrase', i.e. a head word with its dependents.
 				Phrase annotation should have the same borders with its head word.
- * Updated by JCasGen Fri Mar 01 17:08:28 MSK 2013
+ * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
  * @generated */
 public class Phrase_Type extends Annotation_Type {
   /** @generated */
@@ -64,39 +64,76 @@ public class Phrase_Type extends Annotation_Type {
   
  
   /** @generated */
-  final Feature casFeat_dependents;
+  final Feature casFeat_dependentWords;
   /** @generated */
-  final int     casFeatCode_dependents;
+  final int     casFeatCode_dependentWords;
   /** @generated */ 
-  public int getDependents(int addr) {
-        if (featOkTst && casFeat_dependents == null)
-      jcas.throwFeatMissing("dependents", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    return ll_cas.ll_getRefValue(addr, casFeatCode_dependents);
+  public int getDependentWords(int addr) {
+        if (featOkTst && casFeat_dependentWords == null)
+      jcas.throwFeatMissing("dependentWords", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+    return ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords);
   }
   /** @generated */    
-  public void setDependents(int addr, int v) {
-        if (featOkTst && casFeat_dependents == null)
-      jcas.throwFeatMissing("dependents", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    ll_cas.ll_setRefValue(addr, casFeatCode_dependents, v);}
+  public void setDependentWords(int addr, int v) {
+        if (featOkTst && casFeat_dependentWords == null)
+      jcas.throwFeatMissing("dependentWords", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+    ll_cas.ll_setRefValue(addr, casFeatCode_dependentWords, v);}
     
    /** @generated */
-  public int getDependents(int addr, int i) {
-        if (featOkTst && casFeat_dependents == null)
-      jcas.throwFeatMissing("dependents", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+  public int getDependentWords(int addr, int i) {
+        if (featOkTst && casFeat_dependentWords == null)
+      jcas.throwFeatMissing("dependentWords", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
     if (lowLevelTypeChecks)
-      return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependents), i, true);
-    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_dependents), i);
-	return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependents), i);
+      return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords), i, true);
+    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords), i);
+	return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords), i);
   }
    
   /** @generated */ 
-  public void setDependents(int addr, int i, int v) {
-        if (featOkTst && casFeat_dependents == null)
-      jcas.throwFeatMissing("dependents", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+  public void setDependentWords(int addr, int i, int v) {
+        if (featOkTst && casFeat_dependentWords == null)
+      jcas.throwFeatMissing("dependentWords", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
     if (lowLevelTypeChecks)
-      ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependents), i, v, true);
-    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_dependents), i);
-    ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependents), i, v);
+      ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords), i, v, true);
+    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords), i);
+    ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentWords), i, v);
+  }
+ 
+ 
+  /** @generated */
+  final Feature casFeat_dependentPhrases;
+  /** @generated */
+  final int     casFeatCode_dependentPhrases;
+  /** @generated */ 
+  public int getDependentPhrases(int addr) {
+        if (featOkTst && casFeat_dependentPhrases == null)
+      jcas.throwFeatMissing("dependentPhrases", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+    return ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases);
+  }
+  /** @generated */    
+  public void setDependentPhrases(int addr, int v) {
+        if (featOkTst && casFeat_dependentPhrases == null)
+      jcas.throwFeatMissing("dependentPhrases", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+    ll_cas.ll_setRefValue(addr, casFeatCode_dependentPhrases, v);}
+    
+   /** @generated */
+  public int getDependentPhrases(int addr, int i) {
+        if (featOkTst && casFeat_dependentPhrases == null)
+      jcas.throwFeatMissing("dependentPhrases", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+    if (lowLevelTypeChecks)
+      return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases), i, true);
+    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases), i);
+	return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases), i);
+  }
+   
+  /** @generated */ 
+  public void setDependentPhrases(int addr, int i, int v) {
+        if (featOkTst && casFeat_dependentPhrases == null)
+      jcas.throwFeatMissing("dependentPhrases", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
+    if (lowLevelTypeChecks)
+      ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases), i, v, true);
+    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases), i);
+    ll_cas.ll_setRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_dependentPhrases), i, v);
   }
  
 
@@ -113,8 +150,12 @@ public class Phrase_Type extends Annotation_Type {
     casFeatCode_head  = (null == casFeat_head) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_head).getCode();
 
  
-    casFeat_dependents = jcas.getRequiredFeatureDE(casType, "dependents", "uima.cas.FSArray", featOkTst);
-    casFeatCode_dependents  = (null == casFeat_dependents) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_dependents).getCode();
+    casFeat_dependentWords = jcas.getRequiredFeatureDE(casType, "dependentWords", "uima.cas.FSArray", featOkTst);
+    casFeatCode_dependentWords  = (null == casFeat_dependentWords) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_dependentWords).getCode();
+
+ 
+    casFeat_dependentPhrases = jcas.getRequiredFeatureDE(casType, "dependentPhrases", "uima.cas.FSArray", featOkTst);
+    casFeatCode_dependentPhrases  = (null == casFeat_dependentPhrases) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_dependentPhrases).getCode();
 
   }
 }

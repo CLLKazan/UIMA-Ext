@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Fri Mar 01 17:08:28 MSK 2013 */
+/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -11,7 +11,7 @@ import org.apache.uima.cas.impl.TypeImpl;
 import org.apache.uima.cas.Type;
 
 /** Represents Verb Phrase
- * Updated by JCasGen Fri Mar 01 17:08:28 MSK 2013
+ * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
  * @generated */
 public class VerbPhrase_Type extends Phrase_Type {
   /** @generated */

@@ -10,6 +10,7 @@ import NPParsers._
 import scala.collection.mutable.ListBuffer
 import ru.kfu.cll.uima.tokenizer.fstype.NUM
 import org.apache.uima.cas.text.AnnotationFS
+import scala.collection.immutable.Queue
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -19,6 +20,12 @@ trait NPParsers extends Parsers {
 
   type Elem = Word
 
+  // atomic
+  def adjf(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.ADJF, grs: _*)
+  def prtf(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.PRTF, grs: _*)
+  def noun(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.NOUN, grs: _*)
+  def pronoun(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.NPRO, grs: _*)
+
   // adjective or perfective
   def aNom: Parser[Elem] = adjf(M.nomn) | prtf(M.nomn)
   def aGen: Parser[Elem] = adjf(M.gent) | prtf(M.gent)
@@ -26,6 +33,9 @@ trait NPParsers extends Parsers {
   def aAcc: Parser[Elem] = adjf(M.accs) | prtf(M.accs)
   def aAbl: Parser[Elem] = adjf(M.ablt) | prtf(M.ablt)
   def aLoc: Parser[Elem] = adjf(M.loct) | prtf(M.loct)
+
+  // Noun base
+  def nounBase(grs: GrammemeMatcher*) = noun(grs: _*) | pronoun(grs: _*)
 
   // Coordinated Adjective + Noun
   def cANNom(grs: GrammemeMatcher*) =
@@ -40,9 +50,6 @@ trait NPParsers extends Parsers {
     rep(aAbl) ~ nounBase(has(M.ablt) +: grs: _*) ^^ { case deps ~ n => new NP(n, deps) }
   def cANLoc(grs: GrammemeMatcher*) =
     rep(aLoc) ~ nounBase(has(M.loct) +: grs: _*) ^^ { case deps ~ n => new NP(n, deps) }
-
-  // Noun base
-  def nounBase(grs: GrammemeMatcher*) = noun(grs: _*) | pronoun(grs: _*)
 
   // NU = Numeral + Unit
   def nUNom = (numNot1 ~ cANGen() ^^ { case n ~ can => new NP(n, can) }
@@ -61,45 +68,51 @@ trait NPParsers extends Parsers {
 
   def nULoc = num ~ cANLoc() ^^ { case n ~ can => new NP(n, can) }
 
-  // Prepositional CAN
-  def pCANNom = nUNom | cANNom()
-  def pCANGen = opt(gentPrep) ~ (nUGen | cANGen()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
-    case None ~ np => np
-  }
-  def pCANDat = opt(datPrep) ~ (nUDat | cANDat()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
-    case None ~ np => np
-  }
-  def pCANAcc = opt(accPrep) ~ (nUAcc | cANAcc()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
-    case None ~ np => np
-  }
-  def pCANAbl = opt(ablPrep) ~ (nUAbl | cANAbl()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
-    case None ~ np => np
-  }
-  def pCANLoc = opt(locPrep) ~ (nULoc | cANLoc()) ^^ {
-    case Some(prep) ~ np => new NP(np.noun, Some(prep), np.deps)
-    case None ~ np => np
-  }
-
-  // NP = pCAN + genitives
-  def np = (pCANNom | pCANGen | pCANDat | pCANAcc | pCANAbl | pCANLoc) ~ rep(cANGen()) ^^ {
-    case headNP ~ depNPList => new NP(headNP.noun, headNP.prepOpt, headNP.deps ::: flatten(depNPList))
-  }
-
-  // atomic
-  def adjf(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.ADJF, grs: _*)
-  def prtf(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.PRTF, grs: _*)
-  def noun(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.NOUN, grs: _*)
-  def pronoun(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.NPRO, grs: _*)
-
+  // prepositions
   def gentPrep: Parser[Elem] = textParser(gentPrepositions)
   def datPrep: Parser[Elem] = textParser(datPrepositions)
   def accPrep: Parser[Elem] = textParser(accPrepositions)
   def ablPrep: Parser[Elem] = textParser(ablPrepositions)
   def locPrep: Parser[Elem] = textParser(locPrepositions)
+
+  // Prepositional CAN
+  def pCANNom = nUNom | cANNom()
+  def pCANGen = opt(gentPrep) ~ (nUGen | cANGen()) ^^ {
+    case Some(prep) ~ np => np.setPreposition(prep) //new NP(noun = np.noun, prepOpt = Some(prep), depWords = np.depWords)
+    case None ~ np => np
+  }
+  def pCANDat = opt(datPrep) ~ (nUDat | cANDat()) ^^ {
+    case Some(prep) ~ np => np.setPreposition(prep) // new NP(np.noun, Some(prep), np.deps)
+    case None ~ np => np
+  }
+  def pCANAcc = opt(accPrep) ~ (nUAcc | cANAcc()) ^^ {
+    case Some(prep) ~ np => np.setPreposition(prep) // new NP(np.noun, Some(prep), np.deps)
+    case None ~ np => np
+  }
+  def pCANAbl = opt(ablPrep) ~ (nUAbl | cANAbl()) ^^ {
+    case Some(prep) ~ np => np.setPreposition(prep) // new NP(np.noun, Some(prep), np.deps)
+    case None ~ np => np
+  }
+  def pCANLoc = opt(locPrep) ~ (nULoc | cANLoc()) ^^ {
+    case Some(prep) ~ np => np.setPreposition(prep) // new NP(np.noun, Some(prep), np.deps)
+    case None ~ np => np
+  }
+
+  // NP = pCAN + genitives
+  def np = (pCANNom | pCANGen | pCANDat | pCANAcc | pCANAbl | pCANLoc) ~ rep(cANGen()) ^^ {
+    case headNP ~ depNPList => {
+      val genHeadOpt = toDependentNPChain(depNPList)
+      genHeadOpt match {
+        case None => headNP
+        case Some(genHead) =>
+          if (headNP.depNPs.isEmpty)
+            headNP.addDependentNP(genHeadOpt)
+          else new NP(headNP.noun, headNP.prepOpt, headNP.particleOpt, headNP.depWords,
+            // add genitive NP chain head to last
+            headNP.depNPs.init + headNP.depNPs.last.addDependentNP(genHeadOpt))
+      }
+    }
+  }
 
   def posParser(pos: String, grs: GrammemeMatcher*) = new Parser[Elem] {
     def apply(in: Input) =
@@ -145,9 +158,24 @@ trait NPParsers extends Parsers {
     has(grString)
 }
 
-class NP(val noun: Word, val prepOpt: Option[Word], val deps: List[Word]) {
-  def this(noun: Word, nps: NP*) = this(noun, None, flatten(nps))
-  def this(noun: Word, deps: List[Word]) = this(noun, None, deps)
+class NP(val noun: Word,
+  val prepOpt: Option[Word] = None, val particleOpt: Option[Word] = None,
+  val depWords: List[Word] = Nil, val depNPs: Queue[NP] = Queue()) {
+  // aux constructor
+  def this(noun: Word, nps: NP*) = this(noun, None, None, Nil, Queue() ++ nps)
+  // aux constructor
+  def this(noun: Word, deps: List[Word]) = this(noun, None, None, deps, Queue())
+  // clone and change
+  def setPreposition(newPrep: Word): NP =
+    if (prepOpt.isDefined) throw new IllegalStateException(
+      "Can't add preposition '%s' because NP already has one: '%s'".format(
+        newPrep.getCoveredText, prepOpt.get.getCoveredText))
+    else new NP(noun, Some(newPrep), particleOpt, depWords, depNPs)
+  // clone and change
+  def addDependentNP(newDepNPOpt: Option[NP]): NP = newDepNPOpt match {
+    case None => this
+    case Some(newDepNP) => new NP(noun, prepOpt, particleOpt, depWords, depNPs.enqueue(newDepNP))
+  }
 }
 
 object NPParsers {
@@ -157,6 +185,7 @@ object NPParsers {
   private val ablPrepositions = generateCommonWordsSet("над", "перед", "между", "за", "под", "с")
   private val locPrepositions = generateCommonWordsSet("при", "в", "на", "о", "по")
 
+  /*
   private[parsing] def flatten(nps: TraversableOnce[NP]): List[Word] = {
     val result = new ListBuffer[Word]
     for (np <- nps) {
@@ -165,6 +194,10 @@ object NPParsers {
     }
     result.toList
   }
+  */
+  private def toDependentNPChain(nps: List[NP]): Option[NP] =
+    if (nps == null || nps.isEmpty) None
+    else Some(nps.head.addDependentNP(toDependentNPChain(nps.tail)))
 
   private def generateCommonWordsSet(words: String*): Set[String] =
     Set() ++ words ++ words.map(_.capitalize)
