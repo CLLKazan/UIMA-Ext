@@ -28,6 +28,7 @@ import org.apache.uima.cas.Feature
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import scala.collection.mutable.ListBuffer
 import ru.kfu.itis.issst.uima.shaltef.mappings.DepToArgMappingsHolder
+import ru.kfu.itis.issst.uima.shaltef.mappings.SlotPattern
 
 class ShaltefAnnotator extends CasAnnotator_ImplBase {
 
@@ -84,15 +85,15 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
       val template = cas.createAnnotation(
         mapping.templateAnnoType, segm.getBegin(), segm.getEnd())
       val matchedPhrases = mutable.Set.empty[Phrase]
-      def fillTemplate(iter: Iterator[(PhrasePattern, Feature)]): Boolean =
+      def fillTemplate(iter: Iterator[SlotPattern]): Boolean =
         if (iter.hasNext) {
-          val (phrasePattern, slotFeature) = iter.next()
-          phraseIndex.searchPhrase(phrasePattern, matchedPhrases) match {
+          val slotPattern = iter.next()
+          phraseIndex.searchPhrase(slotPattern.pattern, matchedPhrases) match {
             case None =>
-              if (phrasePattern.isOptional) fillTemplate(iter)
+              if (slotPattern.pattern.isOptional) fillTemplate(iter)
               else false
             case Some(mPhrase) =>
-              template.setFeatureValue(slotFeature, makeCoveringAnnotation(mPhrase))
+              template.setFeatureValue(slotPattern.slotFeature, makeCoveringAnnotation(mPhrase))
               fillTemplate(iter)
           }
         } else true // END of fillTemplate
@@ -115,30 +116,41 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
   private def buildPhraseIndex(segm: AnnotationFS, refWord: Word) = new PhraseIndex(segm, refWord)
 
   private class PhraseIndex(segm: AnnotationFS, refWord: Word) {
-    // refWordIndex points to the phrase before refWord;
+    // refWordIndex points to the closest phrase on the left to refWord;
     // if there is no such phrase in the segment then refWordIndex = -1
-    private val (phraseSeq: IndexedSeq[Phrase], refWordIndex) = {
+    private val (phraseSeq: Seq[Phrase], refWordIndex) = {
       val buffer = ListBuffer.empty[NounPhrase]
       for (np <- CasUtil.selectCovered(npType, segm).asInstanceOf[jul.List[NounPhrase]])
-        if (phrrecog.containWord(np, refWord)) {
-          // TODO check inner dependencies of refWord inside np
-          // if refWord has deps =>
-          // 	create annotations for inner NPs - deps of refWord - (do not index them) and add them to buffer
-          // TODO keep head chain of refWord separately
-        } else buffer += np
-      // TODO check refWordIndex computation below
+        phrrecog.getDependencyChain(np, refWord) match {
+          case Some(refWordDepChain) =>
+            // TODO keep head chain of refWord separately
+            val refWordNP = refWordDepChain.head
+            buffer ++= phrrecog.traversableNPArray(refWordNP.getDependentPhrases)
+          case None => buffer += np
+        }
       val refWordIndex = buffer.indexWhere(refWord.getBegin < _.getBegin) match {
-        case -1 => buffer.size - 1 // means refWord is after last phrase
+        case -1 => buffer.size - 1 // means refWord is on right to the last phrase
         case i => i - 1
       }
-      (buffer.toIndexedSeq, refWordIndex)
+      (buffer, refWordIndex)
     }
 
-    def searchPhrase(pattern: PhrasePattern, setOfIgnored: sc.Set[Phrase]): Option[Phrase] = {
-      // EXTENSION POINT: introduce traverse strategy
-      // TODO
-      throw new UnsupportedOperationException
+    // EXTENSION POINT: introduce traverse strategy
+    private val phraseTraverseSeq = {
+      val (beforeRefSeq, afterRefSeq) = phraseSeq.splitAt(refWordIndex + 1)
+      val buffer = ListBuffer.empty[Phrase]
+      val iterBefore = beforeRefSeq.iterator
+      val iterAfter = afterRefSeq.iterator
+      while (iterBefore.hasNext || iterAfter.hasNext) {
+        if (iterAfter.hasNext) buffer += iterAfter.next()
+        if (iterBefore.hasNext) buffer += iterBefore.next()
+      }
+      buffer.toList
     }
+
+    def searchPhrase(pattern: PhrasePattern, setOfIgnored: sc.Set[Phrase]): Option[Phrase] =
+      phraseTraverseSeq.find(candPhr =>
+        !setOfIgnored.contains(candPhr) && pattern.matches(candPhr))
   }
 }
 

@@ -19,6 +19,8 @@ import scala.collection.mutable.ListBuffer
 import ru.kfu.itis.cll.uima.cas.FSUtils
 import ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase
 import org.apache.uima.cas.ArrayFS
+import org.apache.uima.cas.FeatureStructure
+import scala.util.control.Breaks
 
 package object phrrecog {
 
@@ -37,6 +39,14 @@ package object phrrecog {
 
   private[phrrecog] def toTraversable(np: NounPhrase, ignoreAux: Boolean): Traversable[Word] = new Traversable[Word] {
     override def foreach[U](f: Word => U) {
+      toTraverseableLocal(np, ignoreAux).foreach(f)
+      for (subNP <- traversableNPArray(np.getDependentPhrases()))
+        phrrecog.toTraversable(subNP, false).foreach(f(_))
+    }
+  }
+
+  private def toTraverseableLocal[U](np: NounPhrase, ignoreAux: Boolean): Traversable[Word] = new Traversable[Word] {
+    override def foreach[U](f: Word => U) {
       f(np.getHead)
       if (!ignoreAux && np.getPreposition != null) f(np.getPreposition)
       if (!ignoreAux && np.getParticle != null) f(np.getParticle)
@@ -45,13 +55,23 @@ package object phrrecog {
         case depsFS => for (i <- 0 until depsFS.size)
           f(depsFS.get(i).asInstanceOf[Word])
       }
-      np.getDependentPhrases() match {
-        case null =>
-        case depPhrases => for (i <- 0 until depPhrases.size)
-          phrrecog.toTraversable(depPhrases.get(i).asInstanceOf[NounPhrase], false).foreach(f(_))
-      }
     }
   }
+
+  private def toTraverseableLocal[U](np: NounPhrase): Traversable[Word] =
+    toTraverseableLocal(np, false)
+
+  // TODO low priority: move to scala-uima-common utility package
+  private def fsArrayToTraversable[FST <: FeatureStructure](
+    fsArr: ArrayFS, fstClass: Class[FST]): Traversable[FST] = new Traversable[FST] {
+    override def foreach[U](f: FST => U): Unit =
+      if (fsArr != null)
+        for (i <- 0 until fsArr.size)
+          f(fsArr.get(i).asInstanceOf[FST])
+  }
+
+  def traversableNPArray(npArr: ArrayFS): Traversable[NounPhrase] =
+    fsArrayToTraversable(npArr, classOf[NounPhrase])
 
   /**
    * Returns the last word of NP.
@@ -67,4 +87,29 @@ package object phrrecog {
 
   def containWord(np: NounPhrase, w: Word): Boolean =
     toTraversable(np, false).exists(_ == w)
+
+  /**
+   * @return None if tree of given np does not contain given word.
+   * Else return list where head is a sub-np containing given word and tail is ancestor NPs chain.
+   */
+  def getDependencyChain(np: NounPhrase, w: Word): Option[List[NounPhrase]] = {
+    require(w != null, "w is NULL")
+    def searchLocal(ancestorChain: List[NounPhrase], np: NounPhrase): Option[List[NounPhrase]] = {
+      if (toTraverseableLocal(np).exists(_ == w)) Some(np :: ancestorChain)
+      else {
+        val breaks = new Breaks
+        import breaks.{ break, breakable }
+        var result: Option[List[NounPhrase]] = None
+        breakable {
+          for (subNP <- traversableNPArray(np.getDependentPhrases)) {
+            result = searchLocal(np :: ancestorChain, subNP)
+            if (result.isDefined)
+              break
+          }
+        }
+        result
+      }
+    }
+    searchLocal(Nil, np)
+  }
 }

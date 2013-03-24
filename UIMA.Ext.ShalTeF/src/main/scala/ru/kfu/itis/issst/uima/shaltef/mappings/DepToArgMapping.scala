@@ -7,5 +7,7 @@ trait DepToArgMapping {
 
   val templateAnnoType: Type
 
-  def getSlotPatterns: Iterable[(PhrasePattern, Feature)]
+  def getSlotPatterns: Iterable[SlotPattern]
 }
+
+class SlotPattern(val pattern: PhrasePattern, val slotFeature: Feature)
