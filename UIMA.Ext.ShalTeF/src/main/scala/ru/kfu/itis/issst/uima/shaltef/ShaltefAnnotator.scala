@@ -36,8 +36,8 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
   private val mappingParser = MappingsParser.getInstance
   private val mappingsHolder = new DepToArgMappingsHolder
   // CAS types
+  private var ts: TypeSystem = _
   private var wordType: Type = _
-  private var npType: Type = _
 
   override def initialize(ctx: UimaContext) {
     super.initialize(ctx)
@@ -55,8 +55,9 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
   }
 
   override def typeSystemInit(ts: TypeSystem) {
+    this.ts = ts
     wordType = ts.getType(classOf[Word].getName)
-    npType = ts.getType(classOf[NounPhrase].getName)
+
     // parse mapping files
     for ((templateAnnoTypeName, url) <- templateType2File) {
       val templateAnnoType = ts.getType(templateAnnoTypeName)
@@ -94,6 +95,7 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
               else false
             case Some(mPhrase) =>
               template.setFeatureValue(slotPattern.slotFeature, makeCoveringAnnotation(mPhrase))
+              matchedPhrases += mPhrase
               fillTemplate(iter)
           }
         } else true // END of fillTemplate
@@ -113,47 +115,48 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
     cas.createAnnotation(cas.getAnnotationType(), begin, end)
   }
 
-  private def buildPhraseIndex(segm: AnnotationFS, refWord: Word) = new PhraseIndex(segm, refWord)
-
-  private class PhraseIndex(segm: AnnotationFS, refWord: Word) {
-    // refWordIndex points to the closest phrase on the left to refWord;
-    // if there is no such phrase in the segment then refWordIndex = -1
-    private val (phraseSeq: Seq[Phrase], refWordIndex) = {
-      val buffer = ListBuffer.empty[NounPhrase]
-      for (np <- CasUtil.selectCovered(npType, segm).asInstanceOf[jul.List[NounPhrase]])
-        phrrecog.getDependencyChain(np, refWord) match {
-          case Some(refWordDepChain) =>
-            // TODO keep head chain of refWord separately
-            val refWordNP = refWordDepChain.head
-            buffer ++= phrrecog.traversableNPArray(refWordNP.getDependentPhrases)
-          case None => buffer += np
-        }
-      val refWordIndex = buffer.indexWhere(refWord.getBegin < _.getBegin) match {
-        case -1 => buffer.size - 1 // means refWord is on right to the last phrase
-        case i => i - 1
-      }
-      (buffer, refWordIndex)
-    }
-
-    // EXTENSION POINT: introduce traverse strategy
-    private val phraseTraverseSeq = {
-      val (beforeRefSeq, afterRefSeq) = phraseSeq.splitAt(refWordIndex + 1)
-      val buffer = ListBuffer.empty[Phrase]
-      val iterBefore = beforeRefSeq.iterator
-      val iterAfter = afterRefSeq.iterator
-      while (iterBefore.hasNext || iterAfter.hasNext) {
-        if (iterAfter.hasNext) buffer += iterAfter.next()
-        if (iterBefore.hasNext) buffer += iterBefore.next()
-      }
-      buffer.toList
-    }
-
-    def searchPhrase(pattern: PhrasePattern, setOfIgnored: sc.Set[Phrase]): Option[Phrase] =
-      phraseTraverseSeq.find(candPhr =>
-        !setOfIgnored.contains(candPhr) && pattern.matches(candPhr))
-  }
+  private def buildPhraseIndex(segm: AnnotationFS, refWord: Word) = new PhraseIndex(segm, refWord, ts)
 }
 
 object ShaltefAnnotator {
   val ParamTemplateMappingFiles = "TemplateMappingFiles"
+}
+
+private[shaltef] class PhraseIndex(segm: AnnotationFS, refWord: Word, ts: TypeSystem) {
+  private val npType: Type = ts.getType(classOf[NounPhrase].getName)
+  // refWordIndex points to the closest phrase on the left to refWord;
+  // if there is no such phrase in the segment then refWordIndex = -1
+  val (phraseSeq: Seq[Phrase], refWordIndex) = {
+    val buffer = ListBuffer.empty[NounPhrase]
+    for (np <- CasUtil.selectCovered(npType, segm).asInstanceOf[jul.List[NounPhrase]])
+      phrrecog.getDependencyChain(np, refWord) match {
+        case Some(refWordDepChain) =>
+          // TODO keep head chain of refWord separately
+          val refWordNP = refWordDepChain.head
+          buffer ++= phrrecog.traversableNPArray(refWordNP.getDependentPhrases)
+        case None => buffer += np
+      }
+    val refWordIndex = buffer.indexWhere(refWord.getBegin < _.getBegin) match {
+      case -1 => buffer.size - 1 // means refWord is on right to the last phrase
+      case i => i - 1
+    }
+    (buffer, refWordIndex)
+  }
+
+  // EXTENSION POINT: introduce traverse strategy
+  private val phraseTraverseSeq = {
+    val (beforeRefSeq, afterRefSeq) = phraseSeq.splitAt(refWordIndex + 1)
+    val buffer = ListBuffer.empty[Phrase]
+    val iterBefore = beforeRefSeq.iterator
+    val iterAfter = afterRefSeq.iterator
+    while (iterBefore.hasNext || iterAfter.hasNext) {
+      if (iterAfter.hasNext) buffer += iterAfter.next()
+      if (iterBefore.hasNext) buffer += iterBefore.next()
+    }
+    buffer.toList
+  }
+
+  def searchPhrase(pattern: PhrasePattern, setOfIgnored: sc.Set[Phrase]): Option[Phrase] =
+    phraseTraverseSeq.find(candPhr =>
+      !setOfIgnored.contains(candPhr) && pattern.matches(candPhr))
 }

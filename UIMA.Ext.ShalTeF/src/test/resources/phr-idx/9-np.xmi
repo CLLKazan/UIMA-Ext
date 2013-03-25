@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:cas2="http:///org/opencorpora/cas.ecore" xmlns:fstype="http:///ru/kfu/cll/uima/segmentation/fstype.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:fstype2="http:///ru/kfu/cll/uima/tokenizer/fstype.ecore" xmlns:cas3="http:///ru/kfu/itis/issst/uima/phrrecog/cas.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="Отборочный матч чемпионата мира по футболу 2014 года между сборными Северной Ирландии и России перенесен на более поздний срок."/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="127" language="x-unspecified"/>
+    <fstype2:W xmi:id="13" sofa="1" begin="0" end="10"/>
+    <fstype2:W xmi:id="23" sofa="1" begin="11" end="15"/>
+    <fstype2:W xmi:id="33" sofa="1" begin="16" end="26"/>
+    <fstype2:W xmi:id="43" sofa="1" begin="27" end="31"/>
+    <fstype2:W xmi:id="53" sofa="1" begin="32" end="34"/>
+    <fstype2:W xmi:id="63" sofa="1" begin="35" end="42"/>
+    <fstype2:W xmi:id="73" sofa="1" begin="43" end="47"/>
+    <fstype2:W xmi:id="83" sofa="1" begin="48" end="52"/>
+    <fstype2:W xmi:id="93" sofa="1" begin="53" end="58"/>
+    <fstype2:W xmi:id="103" sofa="1" begin="59" end="67"/>
+    <fstype2:W xmi:id="113" sofa="1" begin="68" end="76"/>
+    <fstype2:W xmi:id="123" sofa="1" begin="77" end="85"/>
+    <fstype2:W xmi:id="133" sofa="1" begin="86" end="87"/>
+    <fstype2:W xmi:id="143" sofa="1" begin="88" end="94"/>
+    <fstype2:W xmi:id="153" sofa="1" begin="95" end="104"/>
+    <fstype2:W xmi:id="163" sofa="1" begin="105" end="107"/>
+    <fstype2:W xmi:id="173" sofa="1" begin="108" end="113"/>
+    <fstype2:W xmi:id="183" sofa="1" begin="114" end="121"/>
+    <fstype2:W xmi:id="193" sofa="1" begin="122" end="126"/>
+    <cas2:Word xmi:id="17" sofa="1" begin="0" end="10" token="13"/>
+    <cas2:Word xmi:id="27" sofa="1" begin="11" end="15" token="23"/>
+    <cas2:Word xmi:id="37" sofa="1" begin="16" end="26" token="33"/>
+    <cas2:Word xmi:id="47" sofa="1" begin="27" end="31" token="43"/>
+    <cas2:Word xmi:id="57" sofa="1" begin="32" end="34" token="53"/>
+    <cas2:Word xmi:id="67" sofa="1" begin="35" end="42" token="63"/>
+    <cas2:Word xmi:id="77" sofa="1" begin="43" end="47" token="73"/>
+    <cas2:Word xmi:id="87" sofa="1" begin="48" end="52" token="83"/>
+    <cas2:Word xmi:id="97" sofa="1" begin="53" end="58" token="93"/>
+    <cas2:Word xmi:id="107" sofa="1" begin="59" end="67" token="103"/>
+    <cas2:Word xmi:id="117" sofa="1" begin="68" end="76" token="113"/>
+    <cas2:Word xmi:id="127" sofa="1" begin="77" end="85" token="123"/>
+    <cas2:Word xmi:id="137" sofa="1" begin="86" end="87" token="133"/>
+    <cas2:Word xmi:id="147" sofa="1" begin="88" end="94" token="143"/>
+    <cas2:Word xmi:id="157" sofa="1" begin="95" end="104" token="153"/>
+    <cas2:Word xmi:id="167" sofa="1" begin="105" end="107" token="163"/>
+    <cas2:Word xmi:id="177" sofa="1" begin="108" end="113" token="173"/>
+    <cas2:Word xmi:id="187" sofa="1" begin="114" end="121" token="183"/>
+    <cas2:Word xmi:id="197" sofa="1" begin="122" end="126" token="193"/>
+    <fstype:Sentence xmi:id="203" sofa="1" begin="0" end="127"/>
+    <cas3:NounPhrase xmi:id="228" sofa="1" begin="11" end="15" head="27" dependentWords="17" dependentPhrases="216"/>
+    <cas3:NounPhrase xmi:id="243" sofa="1" begin="35" end="42" head="67" preposition="57"/>
+    <cas3:NounPhrase xmi:id="252" sofa="1" begin="48" end="52" head="87" dependentWords="77"/>
+    <cas3:NounPhrase xmi:id="285" sofa="1" begin="59" end="67" head="107" dependentPhrases="264 276" preposition="97"/>
+    <cas3:NounPhrase xmi:id="298" sofa="1" begin="122" end="126" head="197" dependentWords="177 187" preposition="167"/>
+    <cas3:NounPhrase xmi:id="276" sofa="1" begin="88" end="94" head="147"/>
+    <cas3:NounPhrase xmi:id="264" sofa="1" begin="77" end="85" head="127" dependentWords="117"/>
+    <cas3:NounPhrase xmi:id="207" sofa="1" begin="27" end="31" head="47"/>
+    <cas3:NounPhrase xmi:id="216" sofa="1" begin="16" end="26" head="37" dependentPhrases="207"/>
+    <cas:View sofa="1" members="8 13 23 33 43 53 63 73 83 93 103 113 123 133 143 153 163 173 183 193 17 27 37 47 57 67 77 87 97 107 117 127 137 147 157 167 177 187 197 203 228 243 252 285 298"/>
+</xmi:XMI>
