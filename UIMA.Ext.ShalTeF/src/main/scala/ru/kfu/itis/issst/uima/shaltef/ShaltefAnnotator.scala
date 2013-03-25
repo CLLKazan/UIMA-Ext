@@ -28,13 +28,17 @@ import org.apache.uima.cas.Feature
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import scala.collection.mutable.ListBuffer
 import ru.kfu.itis.issst.uima.shaltef.mappings.DepToArgMappingsHolder
-import ru.kfu.itis.issst.uima.shaltef.mappings.SlotPattern
+import ru.kfu.itis.issst.uima.shaltef.mappings.SlotMapping
+import ru.kfu.itis.issst.uima.shaltef.mappings.DepToArgMappingsBuilder
+import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParser
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource
+import ru.kfu.itis.issst.uima.shaltef.mappings.TextualMappingsParser
 
 class ShaltefAnnotator extends CasAnnotator_ImplBase {
 
   private val templateType2File = mutable.Map.empty[String, URL]
-  private val mappingParser = MappingsParser.getInstance
-  private val mappingsHolder = new DepToArgMappingsHolder
+  private var mappingParser: MappingsParser = _
+  private var mappingsHolder: DepToArgMappingsHolder = _
   // CAS types
   private var ts: TypeSystem = _
   private var wordType: Type = _
@@ -50,20 +54,29 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
           templateType2File += (templateAnnoType -> new URL(urlStr))
         }
         case otherArr => throw new IllegalArgumentException(
-          "Can't parse templateFile string %s".format(otherArr))
+          "Can't parse templateFile param value %s".format(otherArr))
       }
+    // get dict object
+    val morphDictKey = ResourceKeyMorphDict
+    val morphDict = ctx.getResourceObject(morphDictKey) match {
+      case sdr: SerializedDictionaryResource => sdr.getDictionary()
+      case someRes => throw new IllegalStateException(
+        "Unknown resource under key %s: %s".format(morphDictKey, someRes))
+    }
+    mappingParser = TextualMappingsParser(morphDict)
   }
 
   override def typeSystemInit(ts: TypeSystem) {
     this.ts = ts
     wordType = ts.getType(classOf[Word].getName)
-
+    val mappingsBuilder = DepToArgMappingsBuilder()
     // parse mapping files
     for ((templateAnnoTypeName, url) <- templateType2File) {
       val templateAnnoType = ts.getType(templateAnnoTypeName)
       annotationTypeExist(templateAnnoTypeName, templateAnnoType)
-      mappingParser.parse(url, templateAnnoType, mappingsHolder)
+      mappingParser.parse(url, templateAnnoType, mappingsBuilder)
     }
+    mappingsHolder = mappingsBuilder.build()
   }
 
   override def process(cas: CAS): Unit = process(cas.getJCas())
@@ -74,7 +87,7 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
       w <- CasUtil.selectCovered(wordType, segm).asInstanceOf[jul.List[Word]];
       if w.getWordforms() != null;
       wf <- FSCollectionFactory.create(w.getWordforms(), classOf[Wordform])
-    ) if (mappingsHolder.containLemma(wf.getLemmaId()))
+    ) if (mappingsHolder.containsTriggerLemma(wf.getLemmaId()))
       onIndicatorWordformDetected(segm, w, wf)
   }
 
@@ -82,25 +95,25 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
     val cas = segm.getView()
     // build phrase index - optimization point: reuse for the same segment segm
     val phraseIndex = buildPhraseIndex(segm, word)
-    for (mapping <- mappingsHolder.getMappingsFor(wf)) {
+    for (mapping <- mappingsHolder.getMappingsTriggeredBy(wf)) {
       val template = cas.createAnnotation(
         mapping.templateAnnoType, segm.getBegin(), segm.getEnd())
       val matchedPhrases = mutable.Set.empty[Phrase]
-      def fillTemplate(iter: Iterator[SlotPattern]): Boolean =
+      def fillTemplate(iter: Iterator[SlotMapping]): Boolean =
         if (iter.hasNext) {
-          val slotPattern = iter.next()
-          phraseIndex.searchPhrase(slotPattern.pattern, matchedPhrases) match {
+          val slotMapping = iter.next()
+          phraseIndex.searchPhrase(slotMapping.pattern, matchedPhrases) match {
             case None =>
-              if (slotPattern.pattern.isOptional) fillTemplate(iter)
+              if (slotMapping.isOptional) fillTemplate(iter)
               else false
             case Some(mPhrase) =>
-              template.setFeatureValue(slotPattern.slotFeature, makeCoveringAnnotation(mPhrase))
+              template.setFeatureValue(slotMapping.slotFeature, makeCoveringAnnotation(mPhrase))
               matchedPhrases += mPhrase
               fillTemplate(iter)
           }
         } else true // END of fillTemplate
       // invoke recursive inner function
-      if (fillTemplate(mapping.getSlotPatterns.iterator))
+      if (fillTemplate(mapping.getSlotMappings.iterator))
         cas.addFsToIndexes(template)
     }
   }
@@ -120,6 +133,7 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
 
 object ShaltefAnnotator {
   val ParamTemplateMappingFiles = "TemplateMappingFiles"
+  val ResourceKeyMorphDict = "MorphDict"
 }
 
 private[shaltef] class PhraseIndex(segm: AnnotationFS, refWord: Word, ts: TypeSystem) {

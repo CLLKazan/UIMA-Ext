@@ -1,15 +1,23 @@
 package ru.kfu.itis.issst.uima.shaltef.mappings
 
 import org.opencorpora.cas.Wordform
+import ru.kfu.itis.issst.uima.shaltef.mappings.impl.DefaultDepToArgMappingsBuilder
 
-class DepToArgMappingsHolder {
+trait DepToArgMappingsHolder {
 
-  def containLemma(lemmaId: Int): Boolean =
-    // TODO
-    throw new UnsupportedOperationException
+  def containsTriggerLemma(lemmaId: Int): Boolean
 
-  def getMappingsFor(wf: Wordform): Iterable[DepToArgMapping] =
-    // TODO
-    throw new UnsupportedOperationException
+  def getMappingsTriggeredBy(wf: Wordform): Iterable[DepToArgMapping]
+}
 
+trait DepToArgMappingsBuilder {
+
+  def add(mp: DepToArgMapping)
+
+  def build(): DepToArgMappingsHolder
+
+}
+
+object DepToArgMappingsBuilder {
+  def apply(): DepToArgMappingsBuilder = new DefaultDepToArgMappingsBuilder
 }

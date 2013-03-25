@@ -27,16 +27,14 @@ import org.apache.uima.cas.impl.XmiCasSerializer
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import org.apache.uima.cas.text.AnnotationIndex
+import ru.kfu.itis.issst.uima.shaltef.util.CasTestUtils
 
-class PhraseIndexTestSuite extends FunSuite {
+class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
 
-  private val ts = {
-    val tsDesc = createTypeSystemDescription("ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer",
-      "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-      "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
-    val dumbCas = CasCreationUtils.createCas(tsDesc, null, null)
-    dumbCas.getTypeSystem()
-  }
+  private val ts = loadTypeSystem("ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer",
+    "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
+    "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
+
   private val sentenceType = ts.getType(classOf[Sentence].getName)
 
   test("Create phrase index over segment without NPs") {
