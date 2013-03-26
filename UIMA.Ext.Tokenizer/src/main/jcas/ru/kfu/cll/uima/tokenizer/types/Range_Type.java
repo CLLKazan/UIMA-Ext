@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sun Mar 03 15:23:57 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Range_Type extends Token_Type {
   /** @generated */
@@ -41,7 +41,7 @@ public class Range_Type extends Token_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Range");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Range");
  
   /** @generated */
   final Feature casFeat_Left;
@@ -50,13 +50,13 @@ public class Range_Type extends Token_Type {
   /** @generated */ 
   public String getLeft(int addr) {
         if (featOkTst && casFeat_Left == null)
-      jcas.throwFeatMissing("Left", "tokenization.types.Range");
+      jcas.throwFeatMissing("Left", "ru.kfu.cll.uima.tokenizer.types.Range");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Left);
   }
   /** @generated */    
   public void setLeft(int addr, String v) {
         if (featOkTst && casFeat_Left == null)
-      jcas.throwFeatMissing("Left", "tokenization.types.Range");
+      jcas.throwFeatMissing("Left", "ru.kfu.cll.uima.tokenizer.types.Range");
     ll_cas.ll_setStringValue(addr, casFeatCode_Left, v);}
     
   
@@ -68,13 +68,13 @@ public class Range_Type extends Token_Type {
   /** @generated */ 
   public String getRight(int addr) {
         if (featOkTst && casFeat_Right == null)
-      jcas.throwFeatMissing("Right", "tokenization.types.Range");
+      jcas.throwFeatMissing("Right", "ru.kfu.cll.uima.tokenizer.types.Range");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Right);
   }
   /** @generated */    
   public void setRight(int addr, String v) {
         if (featOkTst && casFeat_Right == null)
-      jcas.throwFeatMissing("Right", "tokenization.types.Range");
+      jcas.throwFeatMissing("Right", "ru.kfu.cll.uima.tokenizer.types.Range");
     ll_cas.ll_setStringValue(addr, casFeatCode_Right, v);}
     
   

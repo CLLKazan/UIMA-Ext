@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sat Mar 02 18:51:31 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Letters_Type extends Token_Type {
   /** @generated */
@@ -41,7 +41,7 @@ public class Letters_Type extends Token_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Letters");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Letters");
  
   /** @generated */
   final Feature casFeat_LetterCase;
@@ -50,13 +50,13 @@ public class Letters_Type extends Token_Type {
   /** @generated */ 
   public String getLetterCase(int addr) {
         if (featOkTst && casFeat_LetterCase == null)
-      jcas.throwFeatMissing("LetterCase", "tokenization.types.Letters");
+      jcas.throwFeatMissing("LetterCase", "ru.kfu.cll.uima.tokenizer.types.Letters");
     return ll_cas.ll_getStringValue(addr, casFeatCode_LetterCase);
   }
   /** @generated */    
   public void setLetterCase(int addr, String v) {
         if (featOkTst && casFeat_LetterCase == null)
-      jcas.throwFeatMissing("LetterCase", "tokenization.types.Letters");
+      jcas.throwFeatMissing("LetterCase", "ru.kfu.cll.uima.tokenizer.types.Letters");
     ll_cas.ll_setStringValue(addr, casFeatCode_LetterCase, v);}
     
   
@@ -68,13 +68,13 @@ public class Letters_Type extends Token_Type {
   /** @generated */ 
   public String getLanguage(int addr) {
         if (featOkTst && casFeat_Language == null)
-      jcas.throwFeatMissing("Language", "tokenization.types.Letters");
+      jcas.throwFeatMissing("Language", "ru.kfu.cll.uima.tokenizer.types.Letters");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Language);
   }
   /** @generated */    
   public void setLanguage(int addr, String v) {
         if (featOkTst && casFeat_Language == null)
-      jcas.throwFeatMissing("Language", "tokenization.types.Letters");
+      jcas.throwFeatMissing("Language", "ru.kfu.cll.uima.tokenizer.types.Letters");
     ll_cas.ll_setStringValue(addr, casFeatCode_Language, v);}
     
   

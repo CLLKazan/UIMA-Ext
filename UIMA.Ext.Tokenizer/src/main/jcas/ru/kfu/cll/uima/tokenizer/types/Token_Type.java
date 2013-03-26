@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sat Mar 02 18:51:31 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Token_Type extends Annotation_Type {
   /** @generated */
@@ -42,7 +42,7 @@ public class Token_Type extends Annotation_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Token");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Token");
  
   /** @generated */
   final Feature casFeat_Text;
@@ -51,13 +51,13 @@ public class Token_Type extends Annotation_Type {
   /** @generated */ 
   public String getText(int addr) {
         if (featOkTst && casFeat_Text == null)
-      jcas.throwFeatMissing("Text", "tokenization.types.Token");
+      jcas.throwFeatMissing("Text", "ru.kfu.cll.uima.tokenizer.types.Token");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Text);
   }
   /** @generated */    
   public void setText(int addr, String v) {
         if (featOkTst && casFeat_Text == null)
-      jcas.throwFeatMissing("Text", "tokenization.types.Token");
+      jcas.throwFeatMissing("Text", "ru.kfu.cll.uima.tokenizer.types.Token");
     ll_cas.ll_setStringValue(addr, casFeatCode_Text, v);}
     
   
@@ -69,13 +69,13 @@ public class Token_Type extends Annotation_Type {
   /** @generated */ 
   public String getNorm(int addr) {
         if (featOkTst && casFeat_Norm == null)
-      jcas.throwFeatMissing("Norm", "tokenization.types.Token");
+      jcas.throwFeatMissing("Norm", "ru.kfu.cll.uima.tokenizer.types.Token");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Norm);
   }
   /** @generated */    
   public void setNorm(int addr, String v) {
         if (featOkTst && casFeat_Norm == null)
-      jcas.throwFeatMissing("Norm", "tokenization.types.Token");
+      jcas.throwFeatMissing("Norm", "ru.kfu.cll.uima.tokenizer.types.Token");
     ll_cas.ll_setStringValue(addr, casFeatCode_Norm, v);}
     
   

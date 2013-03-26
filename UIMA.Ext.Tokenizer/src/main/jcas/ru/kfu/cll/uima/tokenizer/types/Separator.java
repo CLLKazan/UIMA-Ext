@@ -1,7 +1,7 @@
 
 
-/* First created by JCasGen Sat Mar 02 21:16:11 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
@@ -10,8 +10,8 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
- * XML source: /home/marsel/Рабочий стол/desc/NLP@Cloud_Tokenizer_Descriptor.xml
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
+ * XML source: /home/fsqcds/idea-projects/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/jflex-tokenizer-ts.xml
  * @generated */
 public class Separator extends Token {
   /** @generated
@@ -59,6 +59,8 @@ public class Separator extends Token {
   @generated modifiable */
   private void readObject() {/*default - does nothing empty block */}
      
+ 
+    
   //*--------------*
   //* Feature: Kind
 
@@ -66,14 +68,14 @@ public class Separator extends Token {
    * @generated */
   public String getKind() {
     if (Separator_Type.featOkTst && ((Separator_Type)jcasType).casFeat_Kind == null)
-      jcasType.jcas.throwFeatMissing("Kind", "tokenization.types.Separator");
+      jcasType.jcas.throwFeatMissing("Kind", "ru.kfu.cll.uima.tokenizer.types.Separator");
     return jcasType.ll_cas.ll_getStringValue(addr, ((Separator_Type)jcasType).casFeatCode_Kind);}
     
   /** setter for Kind - sets  
    * @generated */
   public void setKind(String v) {
     if (Separator_Type.featOkTst && ((Separator_Type)jcasType).casFeat_Kind == null)
-      jcasType.jcas.throwFeatMissing("Kind", "tokenization.types.Separator");
+      jcasType.jcas.throwFeatMissing("Kind", "ru.kfu.cll.uima.tokenizer.types.Separator");
     jcasType.ll_cas.ll_setStringValue(addr, ((Separator_Type)jcasType).casFeatCode_Kind, v);}    
   }
 

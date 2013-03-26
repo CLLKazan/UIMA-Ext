@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sat Mar 09 01:46:51 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Currensy_Type extends Token_Type {
   /** @generated */
@@ -41,7 +41,7 @@ public class Currensy_Type extends Token_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Currensy");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Currensy");
  
   /** @generated */
   final Feature casFeat_Value;
@@ -50,13 +50,13 @@ public class Currensy_Type extends Token_Type {
   /** @generated */ 
   public String getValue(int addr) {
         if (featOkTst && casFeat_Value == null)
-      jcas.throwFeatMissing("Value", "tokenization.types.Currensy");
+      jcas.throwFeatMissing("Value", "ru.kfu.cll.uima.tokenizer.types.Currensy");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Value);
   }
   /** @generated */    
   public void setValue(int addr, String v) {
         if (featOkTst && casFeat_Value == null)
-      jcas.throwFeatMissing("Value", "tokenization.types.Currensy");
+      jcas.throwFeatMissing("Value", "ru.kfu.cll.uima.tokenizer.types.Currensy");
     ll_cas.ll_setStringValue(addr, casFeatCode_Value, v);}
     
   
@@ -68,13 +68,13 @@ public class Currensy_Type extends Token_Type {
   /** @generated */ 
   public String getCurrensySymbol(int addr) {
         if (featOkTst && casFeat_CurrensySymbol == null)
-      jcas.throwFeatMissing("CurrensySymbol", "tokenization.types.Currensy");
+      jcas.throwFeatMissing("CurrensySymbol", "ru.kfu.cll.uima.tokenizer.types.Currensy");
     return ll_cas.ll_getStringValue(addr, casFeatCode_CurrensySymbol);
   }
   /** @generated */    
   public void setCurrensySymbol(int addr, String v) {
         if (featOkTst && casFeat_CurrensySymbol == null)
-      jcas.throwFeatMissing("CurrensySymbol", "tokenization.types.Currensy");
+      jcas.throwFeatMissing("CurrensySymbol", "ru.kfu.cll.uima.tokenizer.types.Currensy");
     ll_cas.ll_setStringValue(addr, casFeatCode_CurrensySymbol, v);}
     
   

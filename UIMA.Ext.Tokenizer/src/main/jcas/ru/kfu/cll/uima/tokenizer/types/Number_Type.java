@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sat Mar 02 20:27:33 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Number_Type extends Token_Type {
   /** @generated */
@@ -41,7 +41,7 @@ public class Number_Type extends Token_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Number");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Number");
  
   /** @generated */
   final Feature casFeat_Kind;
@@ -50,13 +50,13 @@ public class Number_Type extends Token_Type {
   /** @generated */ 
   public String getKind(int addr) {
         if (featOkTst && casFeat_Kind == null)
-      jcas.throwFeatMissing("Kind", "tokenization.types.Number");
+      jcas.throwFeatMissing("Kind", "ru.kfu.cll.uima.tokenizer.types.Number");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Kind);
   }
   /** @generated */    
   public void setKind(int addr, String v) {
         if (featOkTst && casFeat_Kind == null)
-      jcas.throwFeatMissing("Kind", "tokenization.types.Number");
+      jcas.throwFeatMissing("Kind", "ru.kfu.cll.uima.tokenizer.types.Number");
     ll_cas.ll_setStringValue(addr, casFeatCode_Kind, v);}
     
   
@@ -68,13 +68,13 @@ public class Number_Type extends Token_Type {
   /** @generated */ 
   public String getSign(int addr) {
         if (featOkTst && casFeat_Sign == null)
-      jcas.throwFeatMissing("Sign", "tokenization.types.Number");
+      jcas.throwFeatMissing("Sign", "ru.kfu.cll.uima.tokenizer.types.Number");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Sign);
   }
   /** @generated */    
   public void setSign(int addr, String v) {
         if (featOkTst && casFeat_Sign == null)
-      jcas.throwFeatMissing("Sign", "tokenization.types.Number");
+      jcas.throwFeatMissing("Sign", "ru.kfu.cll.uima.tokenizer.types.Number");
     ll_cas.ll_setStringValue(addr, casFeatCode_Sign, v);}
     
   
