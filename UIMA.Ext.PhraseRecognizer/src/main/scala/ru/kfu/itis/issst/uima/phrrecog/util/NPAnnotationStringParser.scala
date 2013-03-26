@@ -13,6 +13,8 @@ import org.apache.uima.cas.text.AnnotationFS
 import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
 import org.uimafit.util.FSCollectionFactory
 import scala.collection.JavaConversions.asJavaIterable
+import org.opencorpora.cas.Wordform
+import ru.kfu.itis.cll.uima.cas.FSUtils
 
 class NPAnnotationStringParserFactory extends PhraseStringParsersFactory {
   override def createParser(jCas: JCas, tokens: Array[AnnotationFS]): NPAnnotationStringParser =
@@ -22,49 +24,53 @@ class NPAnnotationStringParserFactory extends PhraseStringParsersFactory {
 class NPAnnotationStringParser(protected val jCas: JCas, protected val tokens: Array[AnnotationFS])
   extends PhraseStringParsers with Logging {
 
-  override protected def createAnnotation(prefixedTokensMap: Map[String, Seq[Word]], depPhrases: Seq[Phrase]): NounPhrase = {
-    val unprefixedWords = prefixedTokensMap.get(null) match {
+  override protected def createAnnotation(prefixedWordformsMap: Map[String, Seq[Wordform]], depPhrases: Seq[Phrase]): NounPhrase = {
+    val unprefixedWfs = prefixedWordformsMap.get(null) match {
       case Some(list) => list
       case None => throw new IllegalStateException(
-        "No head in %s".format(prefixedTokensMap))
+        "No head in %s".format(prefixedWordformsMap))
     }
-    val prepWordOpt = prefixedTokensMap.get(PrefixPreposition) match {
+    val prepWfOpt = prefixedWordformsMap.get(PrefixPreposition) match {
       case None => None
-      case Some(Seq(prepWord)) => Some(prepWord)
+      case Some(Seq(prepWf)) => Some(prepWf)
       case Some(list) => {
-        val sortedList = TreeSet.empty[Word](annOffsetComp) ++ list
+        val sortedList = TreeSet.empty[Wordform](wfOffsetComp) ++ list
         val prepWord = new Word(jCas)
-        prepWord.setBegin(sortedList.firstKey.getBegin)
-        prepWord.setEnd(sortedList.lastKey.getEnd)
+        prepWord.setBegin(sortedList.firstKey.getWord.getBegin)
+        prepWord.setEnd(sortedList.lastKey.getWord.getEnd)
         info("Compound preposition detected: %s".format(prepWord.getCoveredText))
-        Some(prepWord)
+
+        val prepWf = new Wordform(jCas)
+        prepWf.setWord(prepWord)
+        prepWord.setWordforms(FSUtils.toFSArray(jCas, prepWf))
+        Some(prepWf)
       }
     }
-    val particleWordOpt = prefixedTokensMap.get(PrefixParticle) match {
+    val particleWfOpt = prefixedWordformsMap.get(PrefixParticle) match {
       case None => None
-      case Some(Seq(particleWord)) => Some(particleWord)
+      case Some(Seq(particleWf)) => Some(particleWf)
       case Some(list) => throw new IllegalStateException(
-        "Multiple words with particle prefix: %s".format(prefixedTokensMap))
+        "Multiple words with particle prefix: %s".format(prefixedWordformsMap))
     }
-    if (prefixedTokensMap.size > 3) throw new IllegalStateException(
-      "Unknown prefixes in %s".format(prefixedTokensMap))
+    if (prefixedWordformsMap.size > 3) throw new IllegalStateException(
+      "Unknown prefixes in %s".format(prefixedWordformsMap))
 
-    val headWord = unprefixedWords.head
-    val dependentWordAnnos = TreeSet.empty[Word](annOffsetComp) ++ unprefixedWords.tail
+    val headWf = unprefixedWfs.head
 
-    val depWordsFsArray = new FSArray(jCas, dependentWordAnnos.size)
-    FSCollectionFactory.fillArrayFS(depWordsFsArray, dependentWordAnnos)
+    val dependentWfAnnos = TreeSet.empty[Wordform](wfOffsetComp) ++ unprefixedWfs.tail
+    val depWordformsFsArray = new FSArray(jCas, dependentWfAnnos.size)
+    FSCollectionFactory.fillArrayFS(depWordformsFsArray, dependentWfAnnos)
 
     val depPhrasesFsArray = new FSArray(jCas, depPhrases.size)
     FSCollectionFactory.fillArrayFS(depPhrasesFsArray, depPhrases)
 
     val phrase = new NounPhrase(jCas)
-    phrase.setBegin(headWord.getBegin())
-    phrase.setEnd(headWord.getEnd())
-    if (prepWordOpt.isDefined) phrase.setPreposition(prepWordOpt.get)
-    if (particleWordOpt.isDefined) phrase.setParticle(particleWordOpt.get)
-    phrase.setHead(headWord)
-    phrase.setDependentWords(depWordsFsArray)
+    phrase.setBegin(headWf.getWord.getBegin)
+    phrase.setEnd(headWf.getWord.getEnd)
+    if (prepWfOpt.isDefined) phrase.setPreposition(prepWfOpt.get)
+    if (particleWfOpt.isDefined) phrase.setParticle(particleWfOpt.get)
+    phrase.setHead(headWf)
+    phrase.setDependentWords(depWordformsFsArray)
     phrase.setDependentPhrases(depPhrasesFsArray)
     phrase
   }

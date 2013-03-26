@@ -11,6 +11,7 @@ import scala.collection.mutable.ListBuffer
 import ru.kfu.cll.uima.tokenizer.fstype.NUM
 import org.apache.uima.cas.text.AnnotationFS
 import scala.collection.immutable.Queue
+import org.opencorpora.cas.Wordform
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -21,18 +22,18 @@ trait NPParsers extends Parsers {
   type Elem = Word
 
   // atomic
-  def adjf(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.ADJF, grs: _*)
-  def prtf(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.PRTF, grs: _*)
-  def noun(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.NOUN, grs: _*)
-  def pronoun(grs: GrammemeMatcher*): Parser[Elem] = posParser(M.NPRO, grs: _*)
+  def adjf(grs: GrammemeMatcher*) = posParser(M.ADJF, grs: _*)
+  def prtf(grs: GrammemeMatcher*) = posParser(M.PRTF, grs: _*)
+  def noun(grs: GrammemeMatcher*) = posParser(M.NOUN, grs: _*)
+  def pronoun(grs: GrammemeMatcher*) = posParser(M.NPRO, grs: _*)
 
   // adjective or perfective
-  def aNom: Parser[Elem] = adjf(M.nomn) | prtf(M.nomn)
-  def aGen: Parser[Elem] = adjf(M.gent) | prtf(M.gent)
-  def aDat: Parser[Elem] = adjf(M.datv) | prtf(M.datv)
-  def aAcc: Parser[Elem] = adjf(M.accs) | prtf(M.accs)
-  def aAbl: Parser[Elem] = adjf(M.ablt) | prtf(M.ablt)
-  def aLoc: Parser[Elem] = adjf(M.loct) | prtf(M.loct)
+  def aNom = adjf(M.nomn) | prtf(M.nomn)
+  def aGen = adjf(M.gent) | prtf(M.gent)
+  def aDat = adjf(M.datv) | prtf(M.datv)
+  def aAcc = adjf(M.accs) | prtf(M.accs)
+  def aAbl = adjf(M.ablt) | prtf(M.ablt)
+  def aLoc = adjf(M.loct) | prtf(M.loct)
 
   // Noun base
   def nounBase(grs: GrammemeMatcher*) = noun(grs: _*) | pronoun(grs: _*)
@@ -69,11 +70,11 @@ trait NPParsers extends Parsers {
   def nULoc = num ~ cANLoc() ^^ { case n ~ can => new NP(n, can) }
 
   // prepositions
-  def gentPrep: Parser[Elem] = textParser(gentPrepositions)
-  def datPrep: Parser[Elem] = textParser(datPrepositions)
-  def accPrep: Parser[Elem] = textParser(accPrepositions)
-  def ablPrep: Parser[Elem] = textParser(ablPrepositions)
-  def locPrep: Parser[Elem] = textParser(locPrepositions)
+  def gentPrep = textParser(gentPrepositions, M.PREP)
+  def datPrep = textParser(datPrepositions, M.PREP)
+  def accPrep = textParser(accPrepositions, M.PREP)
+  def ablPrep = textParser(ablPrepositions, M.PREP)
+  def locPrep = textParser(locPrepositions, M.PREP)
 
   // Prepositional CAN
   def pCANNom = nUNom | cANNom()
@@ -114,36 +115,51 @@ trait NPParsers extends Parsers {
     }
   }
 
-  def posParser(pos: String, grs: GrammemeMatcher*) = new Parser[Elem] {
-    def apply(in: Input) =
+  def posParser(pos: String, grs: GrammemeMatcher*) = new Parser[Wordform] {
+    override def apply(in: Input) =
       if (in.atEnd) Failure("end of sequence detected", in)
-      else if (checkGrammems(in.first, pos, grs: _*)) Success(in.first, in.rest)
-      else Failure("%s with grammems {%s} expected".format(pos, grs), in)
+      else findWordform(in.first, pos, grs: _*) match {
+        case Some(wf) => Success(wf, in.rest)
+        case None => Failure("%s with grammems {%s} expected".format(pos, grs), in)
+      }
   }
 
-  def textParser(variants: Set[String]) = new Parser[Elem] {
+  def textParser(variants: Set[String], requiredPos: String) = new Parser[Wordform] {
     def apply(in: Input) =
       if (in.atEnd) Failure("end of sequence detected", in)
-      else if (variants.contains(in.first.getCoveredText())) Success(in.first, in.rest)
+      else if (variants.contains(in.first.getCoveredText))
+        findWordform(in.first, requiredPos) match {
+          case Some(wf) => Success(wf, in.rest)
+          case None => Failure(
+            "Found word '%s' does not have expected pos '%s'".format(in.first.getCoveredText, requiredPos),
+            in)
+        }
       else Failure("One of %s was expected".format(variants), in)
   }
 
   // num ends on 1
-  def num1 = num(endsOn(Set('1')) _)
+  def num1 = num(endsOn(Set('1'))(_), M.NUMR)
   // num ends on 2,3,4
-  def num24 = num(endsOn(Set('2', '3', '4')) _)
+  def num24 = num(endsOn(Set('2', '3', '4'))(_), M.NUMR)
   // num ends on 0,5-9
-  def num059 = num(endsOn(Set('0', '5', '6', '7', '8', '9')) _)
+  def num059 = num(endsOn(Set('0', '5', '6', '7', '8', '9'))(_), M.NUMR)
   // num ends on 0,2-9
-  def numNot1 = num(n => !(endsOn(Set('1'))(n)))
+  def numNot1 = num(n => !(endsOn(Set('1'))(n)), M.NUMR)
 
-  def num: Parser[Elem] = num(n => true)
+  def num: Parser[Wordform] = num(n => true, M.NUMR)
 
-  def num(matcher: NUM => Boolean) = new Parser[Elem] {
+  def num(matcher: NUM => Boolean, requiredPos: String) = new Parser[Wordform] {
     def apply(in: Input) =
       if (in.atEnd) Failure("end of sequence detected", in)
       else in.first.getToken() match {
-        case n: NUM => if (matcher(n)) Success(in.first, in.rest)
+        case n: NUM => if (matcher(n))
+          findWordform(in.first, requiredPos) match {
+            case Some(wf) => Success(wf, in.rest)
+            case None => Failure(
+              "NUM word '%s' does not have required pos '%s'"
+                .format(in.first.getCoveredText, requiredPos),
+              in)
+          }
         else Failure("num does not match condition", in)
         case _ => Failure("NUM was expected", in)
       }
@@ -158,18 +174,18 @@ trait NPParsers extends Parsers {
     has(grString)
 }
 
-class NP(val noun: Word,
-  val prepOpt: Option[Word] = None, val particleOpt: Option[Word] = None,
-  val depWords: List[Word] = Nil, val depNPs: Queue[NP] = Queue()) {
+class NP(val noun: Wordform,
+  val prepOpt: Option[Wordform] = None, val particleOpt: Option[Wordform] = None,
+  val depWords: List[Wordform] = Nil, val depNPs: Queue[NP] = Queue()) {
   // aux constructor
-  def this(noun: Word, nps: NP*) = this(noun, None, None, Nil, Queue() ++ nps)
+  def this(noun: Wordform, nps: NP*) = this(noun, None, None, Nil, Queue() ++ nps)
   // aux constructor
-  def this(noun: Word, deps: List[Word]) = this(noun, None, None, deps, Queue())
+  def this(noun: Wordform, deps: List[Wordform]) = this(noun, None, None, deps, Queue())
   // clone and change
-  def setPreposition(newPrep: Word): NP =
+  def setPreposition(newPrep: Wordform): NP =
     if (prepOpt.isDefined) throw new IllegalStateException(
       "Can't add preposition '%s' because NP already has one: '%s'".format(
-        newPrep.getCoveredText, prepOpt.get.getCoveredText))
+        newPrep.getWord.getCoveredText, prepOpt.get.getWord.getCoveredText))
     else new NP(noun, Some(newPrep), particleOpt, depWords, depNPs)
   // clone and change
   def addDependentNP(newDepNPOpt: Option[NP]): NP = newDepNPOpt match {

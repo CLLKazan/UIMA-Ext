@@ -6,6 +6,7 @@ package ru.kfu.itis.cll.uima.eval.matching;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,12 +20,16 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.uimafit.util.FSCollectionFactory;
 
+import com.google.common.collect.Lists;
+
+import static ru.kfu.itis.cll.uima.eval.matching.MatchingUtils.*;
+
 /**
  * @author Rinat Gareev
  * 
  */
 public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends FeatureStructure>
-		implements Matcher<FST> {
+		extends MatcherBase<FST> {
 
 	private Feature feature;
 	private Matcher<E> elemMatcher;
@@ -34,12 +39,11 @@ public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends 
 		this.feature = feature;
 		this.elemMatcher = elemMatcher;
 		this.ignoreOrder = ignoreOrder;
-		// TODO what about FSList ?
-		if (!feature.getRange().isArray()) {
+		if (!isCollectionType(feature.getRange())) {
 			throw new IllegalArgumentException(String.format(
 					"Feature '%s' (of type '%s') range is not array", feature, feature.getDomain()));
 		}
-		Type elemType = feature.getRange().getComponentType();
+		Type elemType = getComponentType(feature.getRange());
 		if (elemType.isPrimitive()) {
 			throw new IllegalArgumentException(String.format(
 					"Feature '%s' (of type '%s') range is array of primitives", feature,
@@ -103,11 +107,19 @@ public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends 
 	}
 
 	@Override
-	public String toString() {
-		return new ToStringBuilder(ToStringStyle.SHORT_PREFIX_STYLE)
+	protected String toString(IdentityHashMap<Matcher<?>, Integer> idMap) {
+		idMap.put(this, getNextId(idMap));
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 				.append("feature", feature)
-				.append("elemMatcher", elemMatcher)
+				.append("elemMatcher", getToString(idMap, elemMatcher))
 				.append("ignoreOrder", ignoreOrder).toString();
+	}
+
+	@Override
+	protected Collection<Matcher<?>> getSubMatchers() {
+		List<Matcher<?>> result = Lists.newLinkedList();
+		result.add(elemMatcher);
+		return result;
 	}
 
 	@Override
@@ -142,6 +154,7 @@ public class FSCollectionFeatureMatcher<FST extends FeatureStructure, E extends 
 		return -1;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Collection<E> getCollection(FeatureStructure anno) {
 		ArrayFS fsArray = (ArrayFS) anno.getFeatureValue(feature);
 		if (fsArray == null) {

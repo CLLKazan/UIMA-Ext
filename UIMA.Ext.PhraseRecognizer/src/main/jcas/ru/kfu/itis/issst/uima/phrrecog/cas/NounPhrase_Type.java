@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:42:53 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** Represents Noun Phrase
- * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
+ * Updated by JCasGen Tue Mar 26 15:42:53 MSK 2013
  * @generated */
 public class NounPhrase_Type extends Phrase_Type {
   /** @generated */
@@ -88,11 +88,11 @@ public class NounPhrase_Type extends Phrase_Type {
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
 
  
-    casFeat_preposition = jcas.getRequiredFeatureDE(casType, "preposition", "org.opencorpora.cas.Word", featOkTst);
+    casFeat_preposition = jcas.getRequiredFeatureDE(casType, "preposition", "org.opencorpora.cas.Wordform", featOkTst);
     casFeatCode_preposition  = (null == casFeat_preposition) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_preposition).getCode();
 
  
-    casFeat_particle = jcas.getRequiredFeatureDE(casType, "particle", "org.opencorpora.cas.Word", featOkTst);
+    casFeat_particle = jcas.getRequiredFeatureDE(casType, "particle", "org.opencorpora.cas.Wordform", featOkTst);
     casFeatCode_particle  = (null == casFeat_particle) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_particle).getCode();
 
   }

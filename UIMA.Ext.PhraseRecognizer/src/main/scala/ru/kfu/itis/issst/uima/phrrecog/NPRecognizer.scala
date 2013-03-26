@@ -20,6 +20,7 @@ import org.uimafit.util.FSCollectionFactory
 import org.apache.uima.jcas.cas.FSArray
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import scala.collection.immutable.TreeSet
+import org.opencorpora.cas.Wordform
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -66,8 +67,8 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
     val jCas = head.getCAS().getJCas()
 
     val phrase = new NounPhrase(jCas)
-    phrase.setBegin(head.getBegin())
-    phrase.setEnd(head.getEnd())
+    phrase.setBegin(head.getWord.getBegin)
+    phrase.setEnd(head.getWord.getEnd)
 
     phrase.setHead(head)
     np.prepOpt match {
@@ -80,7 +81,7 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
     }
 
     val depWordsFsArray = new FSArray(jCas, np.depWords.size)
-    FSCollectionFactory.fillArrayFS(depWordsFsArray, TreeSet.empty[Word](annOffsetComp) ++ np.depWords)
+    FSCollectionFactory.fillArrayFS(depWordsFsArray, TreeSet.empty[Wordform](wfOffsetComp) ++ np.depWords)
     phrase.setDependentWords(depWordsFsArray)
 
     // TODO low priority: add a sanity check to avoid infinite recursion

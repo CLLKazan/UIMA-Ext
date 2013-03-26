@@ -36,6 +36,12 @@
 					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
 					<elementType>test.Word</elementType>
 				</featureDescription>
+				<featureDescription>
+					<name>subChunks</name>
+					<description />
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>test.Chunk</elementType>
+				</featureDescription>
 			</features>
 		</typeDescription>
 		<typeDescription>
@@ -55,6 +61,13 @@
 			<name>test.Word</name>
 			<description />
 			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>uid</name>
+					<description />
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+			</features>
 		</typeDescription>
 	</types>
 </typeSystemDescription>

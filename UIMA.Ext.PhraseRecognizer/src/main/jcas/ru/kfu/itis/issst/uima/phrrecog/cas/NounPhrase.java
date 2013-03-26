@@ -1,17 +1,17 @@
 
 
-/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:42:53 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
 
-import org.opencorpora.cas.Word;
+import org.opencorpora.cas.Wordform;
 
 
 /** Represents Noun Phrase
- * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
+ * Updated by JCasGen Tue Mar 26 15:42:53 MSK 2013
  * XML source: src/main/resources/ru/kfu/itis/issst/uima/phrrecog/ts-phrase-recognizer.xml
  * @generated */
 public class NounPhrase extends Phrase {
@@ -67,14 +67,14 @@ public class NounPhrase extends Phrase {
 
   /** getter for preposition - gets 
    * @generated */
-  public Word getPreposition() {
+  public Wordform getPreposition() {
     if (NounPhrase_Type.featOkTst && ((NounPhrase_Type)jcasType).casFeat_preposition == null)
       jcasType.jcas.throwFeatMissing("preposition", "ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase");
-    return (Word)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((NounPhrase_Type)jcasType).casFeatCode_preposition)));}
+    return (Wordform)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((NounPhrase_Type)jcasType).casFeatCode_preposition)));}
     
   /** setter for preposition - sets  
    * @generated */
-  public void setPreposition(Word v) {
+  public void setPreposition(Wordform v) {
     if (NounPhrase_Type.featOkTst && ((NounPhrase_Type)jcasType).casFeat_preposition == null)
       jcasType.jcas.throwFeatMissing("preposition", "ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase");
     jcasType.ll_cas.ll_setRefValue(addr, ((NounPhrase_Type)jcasType).casFeatCode_preposition, jcasType.ll_cas.ll_getFSRef(v));}    
@@ -85,14 +85,14 @@ public class NounPhrase extends Phrase {
 
   /** getter for particle - gets 
    * @generated */
-  public Word getParticle() {
+  public Wordform getParticle() {
     if (NounPhrase_Type.featOkTst && ((NounPhrase_Type)jcasType).casFeat_particle == null)
       jcasType.jcas.throwFeatMissing("particle", "ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase");
-    return (Word)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((NounPhrase_Type)jcasType).casFeatCode_particle)));}
+    return (Wordform)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((NounPhrase_Type)jcasType).casFeatCode_particle)));}
     
   /** setter for particle - sets  
    * @generated */
-  public void setParticle(Word v) {
+  public void setParticle(Wordform v) {
     if (NounPhrase_Type.featOkTst && ((NounPhrase_Type)jcasType).casFeat_particle == null)
       jcasType.jcas.throwFeatMissing("particle", "ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase");
     jcasType.ll_cas.ll_setRefValue(addr, ((NounPhrase_Type)jcasType).casFeatCode_particle, jcasType.ll_cas.ll_getFSRef(v));}    

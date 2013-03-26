@@ -121,6 +121,9 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 			List<String> gramSet = dict.toGramSet(grammems);
 			casWf.setGrammems(FSUtils.toStringArray(cas, gramSet));
 
+			// set hosting word
+			casWf.setWord(word);
+
 			casWfList.add(casWf);
 		}
 		// set wordforms

@@ -124,5 +124,5 @@ private[ner] object PossibleNEWrapper {
   def of(np: NounPhrase): PossibleNEWrapper =
     // TODO consider adding internal punctuation to 'tokens' feature of PossibleNE.
     // This should be implemented in NPR annotator if required.
-    new PossibleNEWrapper(getWords(np, true), np.getHead)
+    new PossibleNEWrapper(getWords(np, true), np.getHead.getWord)
 }

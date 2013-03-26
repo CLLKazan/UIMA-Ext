@@ -5,16 +5,16 @@ package ru.kfu.itis.cll.uima.eval.matching;
 
 import static ru.kfu.itis.cll.uima.cas.FSTypeUtils.getFeature;
 
+import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
  * @author Rinat Gareev
  * 
  */
-public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<FST> {
+public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<FST> {
 
 	private List<Matcher<FST>> topMatchers;
 
@@ -39,23 +39,27 @@ public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<F
 		return true;
 	}
 
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder().append(topMatchers).toHashCode();
-	}
+	/* 'equals' implementation has to deal with cyclic graph of matchers.
+	 * It is not necessary. See also equality checking in tests
+	 */
+	// public boolean equals(Object obj) {
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof CompositeMatcher)) {
-			return false;
+	protected String toString(IdentityHashMap<Matcher<?>, Integer> idMap) {
+		if (topMatchers == null)
+			return "null-list";
+		else {
+			idMap.put(this, getNextId(idMap));
+			StringBuilder sb = new StringBuilder("[");
+			Iterator<Matcher<FST>> tmIter = topMatchers.iterator();
+			while (tmIter.hasNext()) {
+				Matcher<FST> m = tmIter.next();
+				sb.append(getToString(idMap, m));
+				if (tmIter.hasNext())
+					sb.append(", ");
+			}
+			return sb.toString();
 		}
-		CompositeMatcher<?> that = (CompositeMatcher<?>) obj;
-		return Objects.equal(this.topMatchers, that.topMatchers);
-	}
-
-	@Override
-	public String toString() {
-		return topMatchers == null ? "null-list" : topMatchers.toString();
 	}
 
 	@Override
@@ -73,6 +77,13 @@ public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<F
 		}
 		if (printExtBrackets)
 			out.append("]");
+	}
+
+	@Override
+	protected Collection<Matcher<?>> getSubMatchers() {
+		List<Matcher<?>> result = Lists.newLinkedList();
+		result.addAll(topMatchers);
+		return result;
 	}
 
 	public static <FST extends FeatureStructure> Builder<FST> builderForFS(Type targetType) {
@@ -149,6 +160,7 @@ public class CompositeMatcher<FST extends FeatureStructure> implements Matcher<F
 		}
 
 		public CompositeMatcher<FST> build() {
+			// TODO LOW PRIORITY: invoke 'build' on sub-builders avoiding inf recursion
 			instance.topMatchers = ImmutableList.copyOf(instance.topMatchers);
 			return instance;
 		}

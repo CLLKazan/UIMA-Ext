@@ -15,6 +15,7 @@ import org.uimafit.util.CasUtil._
 import org.apache.uima.cas.text.AnnotationFS
 import ru.kfu.cll.uima.tokenizer.fstype.Token
 import org.opencorpora.cas.Word
+import org.opencorpora.cas.Wordform
 import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import scala.collection.JavaConversions.{ asJavaCollection, iterableAsScalaIterable }
@@ -28,6 +29,7 @@ import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import org.apache.uima.cas.text.AnnotationIndex
 import ru.kfu.itis.issst.uima.shaltef.util.CasTestUtils
+import ru.kfu.itis.cll.uima.cas.FSUtils
 
 class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
 
@@ -112,9 +114,9 @@ class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
     val np = p.asInstanceOf[NounPhrase]
     val testDepWords =
       if (np.getDependentWords != null)
-        FSCollectionFactory.create(np.getDependentWords, classOf[Word]).toList
+        FSCollectionFactory.create(np.getDependentWords, classOf[Wordform]).toList
       else Nil
-    TestNP(np.getHead.getCoveredText,
+    TestNP(np.getHead.getWord.getCoveredText,
       toTestWord(np.getPreposition()),
       toTestWord(np.getParticle()),
       testDepWords.map(toTestWord(_)),
@@ -139,9 +141,9 @@ class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
     assert(idx.refWordIndex == 3)
   }
 
-  private def toTestWord(w: Word): String =
+  private def toTestWord(w: Wordform): String =
     if (w == null) null
-    else w.getCoveredText
+    else w.getWord.getCoveredText
 
   private def selectWord(jCas: JCas, wordTxt: String): Word = {
     val wordIdx: Iterable[Word] = jCas.getAnnotationIndex(Word.typeIndexID).asInstanceOf[AnnotationIndex[Word]]
@@ -185,7 +187,7 @@ object PhraseIndexTestSuiteResources extends App {
     dumbCas.getTypeSystem()
   }
 
-  private val wordMap = mutable.Map.empty[String, Word]
+  private val wfMap = mutable.Map.empty[String, Wordform]
   private var jCas: JCas = _ // no-np xmi
 
   {
@@ -206,10 +208,10 @@ object PhraseIndexTestSuiteResources extends App {
     serialize("src/test/resources/phr-idx/9-np.xmi")
   }
 
-  private def w(begin: Int, end: Int): Word = w(text.substring(begin, end), begin, end)
+  private def w(begin: Int, end: Int): Wordform = w(text.substring(begin, end), begin, end)
 
-  private def w(id: String, begin: Int, end: Int): Word = {
-    require(!wordMap.contains(id), "Duplicate id: %s".format(id))
+  private def w(id: String, begin: Int, end: Int): Wordform = {
+    require(!wfMap.contains(id), "Duplicate id: %s".format(id))
     val token = new W(jCas)
     token.setBegin(begin)
     token.setEnd(end)
@@ -218,22 +220,28 @@ object PhraseIndexTestSuiteResources extends App {
     word.setBegin(begin)
     word.setEnd(end)
     word.setToken(token)
+
+    val wf = new Wordform(jCas)
+    wf.setWord(word)
+    word.setWordforms(FSUtils.toFSArray(jCas, wf))
+
     word.addToIndexes()
-    wordMap(id) = word
-    word
+
+    wfMap(id) = wf
+    wf
   }
 
-  private def w(id: String): Word =
+  private def w(id: String): Wordform =
     if (id == null) null
-    else wordMap(id)
+    else wfMap(id)
 
   private def np(headId: String, prepId: String = null, particleId: String = null,
     depWordIds: Iterable[String] = Nil, depNPs: Iterable[Phrase] = Nil,
     index: Boolean = false): NounPhrase = {
     val npAnno = new NounPhrase(jCas)
     val head = w(headId)
-    npAnno.setBegin(head.getBegin)
-    npAnno.setEnd(head.getEnd)
+    npAnno.setBegin(head.getWord.getBegin)
+    npAnno.setEnd(head.getWord.getEnd)
     npAnno.setHead(head)
     npAnno.setParticle(w(particleId))
     npAnno.setPreposition(w(prepId))
@@ -255,7 +263,7 @@ object PhraseIndexTestSuiteResources extends App {
   }
 
   private def getNewCas() {
-    wordMap.clear()
+    wfMap.clear()
     jCas = CasCreationUtils.createCas(ts, null, null, null).getJCas();
     jCas.setDocumentText(text)
     w(0, 10)

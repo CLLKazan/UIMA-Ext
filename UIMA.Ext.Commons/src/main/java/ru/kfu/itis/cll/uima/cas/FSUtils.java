@@ -7,6 +7,7 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -60,7 +61,16 @@ public class FSUtils {
 	}
 
 	public static FSArray toFSArray(JCas cas, Collection<? extends FeatureStructure> srcCol) {
-		FSArray result = new FSArray(cas, srcCol.size());
+		return toFSArray(cas, srcCol, srcCol.size());
+	}
+
+	public static FSArray toFSArray(JCas cas, FeatureStructure... srcArr) {
+		return toFSArray(cas, Arrays.asList(srcArr), srcArr.length);
+	}
+
+	public static FSArray toFSArray(JCas cas, Iterable<? extends FeatureStructure> srcCol,
+			int srcSize) {
+		FSArray result = new FSArray(cas, srcSize);
 		int i = 0;
 		for (FeatureStructure fs : srcCol) {
 			result.set(i, fs);

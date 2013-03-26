@@ -32,8 +32,6 @@ import ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase
  */
 class VPRecognizer extends JCasAnnotator_ImplBase with Logging {
 
-  private type WordformPointer = (Int, Int)
-
   private var wordType: Type = _
 
   override def process(jCas: JCas) {
@@ -49,92 +47,94 @@ class VPRecognizer extends JCasAnnotator_ImplBase with Logging {
     val verbalWfs =
       for (
         (wwfs, wIndex) <- wordforms.zipWithIndex;
-        (wf, wfIndex) <- wwfs.zipWithIndex;
+        wf <- wwfs;
         if (VerbalPoSes.contains(wf.getPos()))
-      ) yield (wIndex, wfIndex)
-
-    val attached = HashSet.empty[WordformPointer]
-    for (vwCoord <- verbalWfs.reverse; if !attached.contains(vwCoord)) {
-      val phrWfs = wordforms(vwCoord._1)(vwCoord._2).getPos() match {
-        case M.VERB => handleFiniteVerb(wordforms, vwCoord)
-        case M.PRTS => handleShortPerfective(wordforms, vwCoord)
-        case M.PRTF => List(vwCoord) // TODO handleFullPerfective(words, wIndex, wfIndex)
-        case M.GRND => List(vwCoord) // TODO handleGerund(words, wIndex, wfIndex)
-        case M.INFN => handleInfinitive(wordforms, vwCoord)
+      ) yield (wIndex, wf)
+    val attached = HashSet.empty[Wordform]
+    for ((vwIndex, vwf) <- verbalWfs.reverse; if !attached.contains(vwf)) {
+      val phrWfs = vwf.getPos match {
+        case M.VERB => handleFiniteVerb(wordforms, vwIndex, vwf)
+        case M.PRTS => handleShortPerfective(wordforms, vwIndex, vwf)
+        case M.PRTF => List(vwf) // TODO handleFullPerfective(words, wIndex, wfIndex)
+        case M.GRND => List(vwf) // TODO handleGerund(words, wIndex, wfIndex)
+        case M.INFN => handleInfinitive(wordforms, vwIndex, vwf)
         case unknownPos => throw new UnsupportedOperationException("Unknown verbal word pos: %s"
           .format(unknownPos))
       }
       if (phrWfs != null && !phrWfs.isEmpty) {
         attached ++= phrWfs
-        createPhraseAnnotation(jCas, for ((wIndex, wf) <- phrWfs) yield words(wIndex))
+        createPhraseAnnotation(jCas, phrWfs)
       }
     }
   }
 
-  // returns phrase words; first wf of iter is a head of phrase
-  private def handleFiniteVerb(wordforms: Buffer[IndexedSeq[Wordform]],
-    verbCoord: WordformPointer): Iterable[WordformPointer] =
-    List(verbCoord)
+  // returns phrase wordforms; first wf of iter is a head of phrase
+  private def handleFiniteVerb(
+    wordforms: Buffer[IndexedSeq[Wordform]],
+    verbIndex: Int,
+    verb: Wordform): Iterable[Wordform] = List(verb)
 
-  private def handleShortPerfective(wordforms: Buffer[IndexedSeq[Wordform]],
-    spCoord: WordformPointer): Iterable[WordformPointer] = {
-    val (spWordIndex, spWfIndex) = spCoord
-    if (spWordIndex > 0) {
-      val toBeWordIdx = spWordIndex - 1
-      val toBeWfIdx = wordforms(spWordIndex - 1).indexWhere(hasLemma("есть", M.VERB))
-      if (toBeWfIdx >= 0)
-        (toBeWordIdx, toBeWfIdx) :: spCoord :: Nil
-      else List(spCoord)
-    } else
-      List(spCoord)
-  }
+  private def handleShortPerfective(
+    wordforms: Buffer[IndexedSeq[Wordform]],
+    spIndex: Int,
+    sp: Wordform): Iterable[Wordform] =
+    if (spIndex > 0) {
+      val toBeIdx = spIndex - 1
+      wordforms(toBeIdx).find(hasLemma("есть", M.VERB) _) match {
+        case Some(toBeWf) => toBeWf :: sp :: Nil
+        case None => sp :: Nil
+      }
+    } else sp :: Nil
 
-  private def handleInfinitive(wordforms: Buffer[IndexedSeq[Wordform]],
-    infCoord: WordformPointer): Iterable[WordformPointer] = {
-    debug("Handling infinitive: %s".format(wordforms(infCoord._1)(infCoord._2)))
-    val (infWordIndex, infWfIndex) = infCoord
-    var head: WordformPointer = null
+  private def handleInfinitive(
+    wordforms: Buffer[IndexedSeq[Wordform]],
+    infIndex: Int,
+    inf: Wordform): Iterable[Wordform] = {
+    val infW = inf.getWord
+    debug("Handling infinitive: (%s,%s) %s".format(infW.getBegin, infW.getEnd, infW.getCoveredText))
+    var head: Wordform = null
     // search to the left
-    if (infWordIndex > 0) {
-      val (vIndex, vWfIndex) = findIndexOfWf(wordforms.view(0, infWordIndex).reverse, isVerb)
-      if (vIndex >= 0)
-        // ajdust index of reversed subview
-        head = (infWordIndex - 1 - vIndex, vWfIndex)
+    if (infIndex > 0) {
+      findWf(wordforms.view(0, infIndex).reverse, isVerb) match {
+        case Some(wf) => head = wf
+        case None =>
+      }
     }
-    if (head != null)
-      List(head, infCoord)
-    else List(infCoord)
+    if (head != null) head :: inf :: Nil
+    else inf :: Nil
   }
 
-  private def findIndexOfWf(wordforms: Seq[IndexedSeq[Wordform]], pred: Wordform => Boolean): (Int, Int) = {
-    var wfIndex = -1
-    val wordIndex = wordforms.findIndexOf(wfs => {
-      wfIndex = wfs.indexWhere(pred(_))
-      wfIndex >= 0
+  private def findWf(wordforms: Seq[IndexedSeq[Wordform]], pred: Wordform => Boolean): Option[Wordform] = {
+    var result: Option[Wordform] = None
+    wordforms.find(wfs => {
+      wfs.find(pred(_)) match {
+        case opt @ Some(_) => {
+          result = opt
+          true
+        }
+        case None => false
+      }
     })
-    (wordIndex, wfIndex)
+    result
   }
 
-  private def isVerb(wf: Wordform): Boolean = {
-    // trace("Checking whether wf is verb: %s".format(wf))
-    M.VERB == wf.getPos()
-  }
+  private def isVerb(wf: Wordform): Boolean = M.VERB == wf.getPos()
 
   private def hasLemma(lemmaString: String, pos: String)(wf: Wordform): Boolean =
     pos == wf.getPos() && lemmaString == wf.getLemma()
 
-  private def createPhraseAnnotation(jCas: JCas, phraseWords: Iterable[Word]) {
-    val iter = phraseWords.iterator
+  private def createPhraseAnnotation(jCas: JCas, phraseWordforms: Iterable[Wordform]) {
+    val iter = phraseWordforms.iterator
     val head = iter.next()
-    val depsFsArray = new FSArray(jCas, phraseWords.size - 1)
+    val depsFsArray = new FSArray(jCas, phraseWordforms.size - 1)
     var depsI = 0
     while (iter.hasNext) {
       depsFsArray.set(depsI, iter.next())
       depsI += 1
     }
     val phrase = new VerbPhrase(jCas)
-    phrase.setBegin(head.getBegin)
-    phrase.setEnd(head.getEnd)
+    phrase.setBegin(head.getWord.getBegin)
+    phrase.setEnd(head.getWord.getEnd)
     phrase.setHead(head)
     phrase.setDependentWords(depsFsArray)
     phrase.addToIndexes()

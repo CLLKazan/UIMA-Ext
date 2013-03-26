@@ -10,6 +10,8 @@ import scala.collection.mutable.Queue
 import scala.collection.mutable.ListBuffer
 import scala.collection.Map
 import scala.collection.Seq
+import org.opencorpora.cas.Wordform
+import ru.kfu.itis.cll.uima.cas.FSUtils
 
 private[util] trait PhraseStringParsers extends RegexParsers {
 
@@ -25,41 +27,46 @@ private[util] trait PhraseStringParsers extends RegexParsers {
 
   private def phraseString: Parser[Phrase] = rep1(phraseElem) ^^ {
     case elemsList => {
-      val prefixedWordsMap = mutable.Map.empty[String, ListBuffer[Word]]
+      val prefixedWfsMap = mutable.Map.empty[String, ListBuffer[Wordform]]
       val depPhrases = ListBuffer.empty[Phrase]
       for (elem <- elemsList)
         elem match {
           case subPhrase: Phrase => depPhrases += subPhrase
-          case (prefixOpt: Option[String], word: Word) => prefixedWordsMap.get(prefixOpt.getOrElse(null)) match {
-            case None => prefixedWordsMap(prefixOpt.getOrElse(null)) = ListBuffer.empty += word
-            case Some(q) => q += word
+          case (prefixOpt: Option[String], wf: Wordform) => prefixedWfsMap.get(prefixOpt.getOrElse(null)) match {
+            case None => prefixedWfsMap(prefixOpt.getOrElse(null)) = ListBuffer.empty += wf
+            case Some(q) => q += wf
           }
         }
-      createAnnotation(prefixedWordsMap, depPhrases)
+      createAnnotation(prefixedWfsMap, depPhrases)
     }
   }
 
   protected def createAnnotation(
-    prefixedWordsMap: Map[String, Seq[Word]],
+    prefixedWordformsMap: Map[String, Seq[Wordform]],
     depPhrases: Seq[Phrase]): Phrase
 
   private def phraseElem = "{" ~> phraseString <~ "}" | prefixedWord
 
-  private def prefixedWord: Parser[(Option[String], Word)] = opt("""[\p{Alnum}_]+""".r <~ "=") ~ wordOccurrence ^^ {
-    case prefixOpt ~ word => (prefixOpt, word)
+  private def prefixedWord: Parser[(Option[String], Wordform)] = opt("""[\p{Alnum}_]+""".r <~ "=") ~ wordOccurrence ^^ {
+    case prefixOpt ~ wf => (prefixOpt, wf)
   }
 
-  private def wordOccurrence: Parser[Word] = opt("""\d+""".r <~ ":") ~ """[^\s{}]+""".r ^^ {
-    case Some(occNumStr) ~ wordStr => getWordAnno(wordStr, Some(occNumStr.toInt))
-    case None ~ wordStr => getWordAnno(wordStr, None)
+  private def wordOccurrence: Parser[Wordform] = opt("""\d+""".r <~ ":") ~ """[^\s{}]+""".r ^^ {
+    case Some(occNumStr) ~ wordStr => getWordformAnno(wordStr, Some(occNumStr.toInt))
+    case None ~ wordStr => getWordformAnno(wordStr, None)
   }
 
-  private def getWordAnno(wordStr: String, occNum: Option[Int]): Word = {
+  private def getWordformAnno(wordStr: String, occNum: Option[Int]): Wordform = {
     val (wordBegin, wordEnd) = getOffsets(tokens, wordStr, occNum)
     val word = new Word(jCas)
     word.setBegin(wordBegin)
     word.setEnd(wordEnd)
-    word
+
+    val wf = new Wordform(jCas)
+    wf.setWord(word)
+    word.setWordforms(FSUtils.toFSArray(jCas, wf))
+
+    wf
   }
 
   private def getOffsets(txtTokens: Array[AnnotationFS], word: String, numberOpt: Option[Int]): (Int, Int) = {

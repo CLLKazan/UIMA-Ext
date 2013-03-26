@@ -7,28 +7,33 @@
 	<types>
 		<typeDescription>
 			<name>org.opencorpora.cas.Wordform</name>
-			<description/>
+			<description />
 			<supertypeName>uima.cas.TOP</supertypeName>
 			<features>
 				<featureDescription>
 					<name>pos</name>
-					<description/>
+					<description />
 					<rangeTypeName>uima.cas.String</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
 					<name>lemma</name>
-					<description/>
+					<description />
 					<rangeTypeName>uima.cas.String</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
 					<name>lemmaId</name>
-					<description/>
+					<description />
 					<rangeTypeName>uima.cas.Integer</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
 					<name>grammems</name>
-					<description/>
+					<description />
 					<rangeTypeName>uima.cas.StringArray</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>word</name>
+					<description>Reference to hosting word</description>
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
 				</featureDescription>
 			</features>
 		</typeDescription>
@@ -39,13 +44,13 @@
 			<features>
 				<featureDescription>
 					<name>wordforms</name>
-					<description/>
+					<description />
 					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
 					<elementType>org.opencorpora.cas.Wordform</elementType>
 				</featureDescription>
 				<featureDescription>
 					<name>token</name>
-					<description/>
+					<description />
 					<rangeTypeName>uima.tcas.Annotation</rangeTypeName>
 				</featureDescription>
 			</features>

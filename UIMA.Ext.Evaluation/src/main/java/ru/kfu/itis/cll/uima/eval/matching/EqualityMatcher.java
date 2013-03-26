@@ -13,6 +13,7 @@ public class EqualityMatcher<T> implements Matcher<T> {
 
 	private static final EqualityMatcher<?> INSTANCE = new EqualityMatcher<Object>();
 
+	@SuppressWarnings("unchecked")
 	public static final <T> EqualityMatcher<T> getInstance() {
 		return (EqualityMatcher<T>) INSTANCE;
 	}

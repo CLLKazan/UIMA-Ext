@@ -18,6 +18,7 @@
 		<module>../UIMA.Ext.Morph.Search</module>
 		<module>../UIMA.Ext.PhraseRecognizer</module>
 		<module>../UIMA.Ext.NER</module>
+		<module>../UIMA.Ext.ShalTeF</module>
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>

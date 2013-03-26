@@ -64,17 +64,10 @@ public class MatchingConfigurationInitializer {
 					KEY_MATCHING_CONFIGURATION_TARGET_TYPE));
 		}
 		Type targetType = FSTypeUtils.getType(ts, targetTypeName, true);
-		String targetTypeShortName = targetType.getShortName();
-		String topMatcherDescKey = PREFIX_MATCHING_CONFIGURATION + targetTypeShortName;
-		String topTypeMatchersDesc = propertyResolver.getProperty(topMatcherDescKey);
-		if (topTypeMatchersDesc == null) {
-			throw new IllegalStateException("Can't find matcher descriptions under key "
-					+ topMatcherDescKey);
-		}
-		AnnotationMatcherBuilder builder = CompositeMatcher.builderForAnnotation(targetType);
-		id2Builder.put(targetTypeShortName, builder);
-		String[] matcherStrings = split(topTypeMatchersDesc, MATCHER_DELIMITER_CHARS);
-		parseMatchersDescription(builder, Arrays.asList(matcherStrings));
+		String matcherId = targetType.getShortName();
+		AnnotationMatcherBuilder builder = (AnnotationMatcherBuilder) getBuilder(
+				matcherId,
+				targetType);
 		return builder.build();
 	}
 
@@ -98,6 +91,41 @@ public class MatchingConfigurationInitializer {
 			}
 		}
 		return false;
+	}
+
+	private Builder<?> getBuilder(String matcherId, Type matcherTargetType) {
+		Builder<?> result = id2Builder.get(matcherId);
+		if (result != null) {
+			return result;
+		}
+		// get description string
+		String matcherDescKey = PREFIX_MATCHING_CONFIGURATION + matcherId;
+		String matchersDesc = propertyResolver.getProperty(matcherDescKey);
+		if (matchersDesc == null) {
+			throw new IllegalStateException("Can't find matcher descriptions under key "
+					+ matcherDescKey);
+		}
+		// create instance
+		result = createBuilder(matcherTargetType);
+		id2Builder.put(matcherId, result);
+		// parse description string
+		String[] matcherStrings = split(matchersDesc, MATCHER_DELIMITER_CHARS);
+		parseMatchersDescription(result, Arrays.asList(matcherStrings));
+		return result;
+	}
+
+	private Builder<?> parseSubMatcher(List<String> desc, Type targetType) {
+		String matcherIdReference = getPrefixed("ref:", desc);
+		if (matcherIdReference != null) {
+			if (desc.size() > 1) {
+				throw new IllegalArgumentException(String.format(
+						"Illegal combination of submatchers: %s", desc));
+			}
+			return getBuilder(matcherIdReference, targetType);
+		}
+		Builder<?> subMatcherBuilder = createBuilder(targetType);
+		parseMatchersDescription(subMatcherBuilder, desc);
+		return subMatcherBuilder;
 	}
 
 	private abstract class MatcherDescriptionParser {
@@ -145,61 +173,38 @@ public class MatchingConfigurationInitializer {
 				String subMatchersDesc = regexMatcher.group(2);
 				List<String> subMatcherStrings = newArrayList(
 						split(subMatchersDesc, SUBMATCHER_DELIMITER_CHARS));
-				if (subMatcherStrings.equals(Arrays.asList("primitive"))) {
-					// handle primitive-ranged feature
-					builder.addPrimitiveFeatureMatcher(featName);
-					return;
-				}
-				// handle non-primitive-ranged feature
-				Boolean ignoreOrder = null;
-				if (subMatcherStrings.contains("unordered")) {
-					ignoreOrder = true;
-					subMatcherStrings.remove("unordered");
-				}
-				if (subMatcherStrings.contains("ordered")) {
-					ignoreOrder = false;
-					subMatcherStrings.remove("ordered");
-				}
 
-				Builder<?> valueMatcherBuilder = null;
-				String matcherIdReference = getPrefixed("ref:", subMatcherStrings);
-				if (matcherIdReference != null) {
-					if (subMatcherStrings.size() > 1) {
-						throw new IllegalArgumentException(String.format(
-								"Illegal combination of submatchers: %s", subMatcherStrings));
-					}
-					valueMatcherBuilder = id2Builder.get(matcherIdReference);
-					if (valueMatcherBuilder == null) {
-						throw new IllegalArgumentException(String.format(
-								"Can't find matcher '%s'", matcherIdReference));
-					}
-				}
-
-				boolean isCollection = ignoreOrder != null;
 				Feature feature = getFeature(builder.getTargetType(), featName, true);
 				Type featRange = feature.getRange();
-				if (isCollection) {
+				if (featRange.isPrimitive()) {
+					if (subMatcherStrings.equals(Arrays.asList("primitive"))) {
+						// handle primitive-ranged feature
+						builder.addPrimitiveFeatureMatcher(featName);
+						return;
+					}
+					throw new IllegalStateException(String.format(
+							"Illegal matcher description for primitive feature %s:\n%s",
+							feature, subMatcherStrings));
+				}
+				if (MatchingUtils.isCollectionType(featRange)) {
 					// handle array-or-collection-ranged feature
-					if (valueMatcherBuilder != null) {
-						builder.addFSCollectionFeatureMatcher(
-								featName, valueMatcherBuilder, ignoreOrder);
-					} else {
-						Type elemType = featRange.getComponentType();
-						valueMatcherBuilder = createBuilder(elemType);
-						parseMatchersDescription(valueMatcherBuilder, subMatcherStrings);
-						builder.addFSCollectionFeatureMatcher(featName,
-								valueMatcherBuilder.build(),
-								ignoreOrder);
+					Boolean ignoreOrder = null;
+					if (subMatcherStrings.contains("unordered")) {
+						ignoreOrder = true;
+						subMatcherStrings.remove("unordered");
 					}
+					if (subMatcherStrings.contains("ordered")) {
+						ignoreOrder = false;
+						subMatcherStrings.remove("ordered");
+					}
+					Builder<?> elemMatcherBuilder = parseSubMatcher(
+							subMatcherStrings, MatchingUtils.getComponentType(featRange));
+					builder.addFSCollectionFeatureMatcher(featName, elemMatcherBuilder, ignoreOrder);
 				} else {
-					// handle FS-ranged feature
-					if (valueMatcherBuilder != null) {
-						builder.addFSFeatureMatcher(featName, valueMatcherBuilder);
-					} else {
-						valueMatcherBuilder = createBuilder(featRange);
-						parseMatchersDescription(valueMatcherBuilder, subMatcherStrings);
-						builder.addFSFeatureMatcher(featName, valueMatcherBuilder.build());
-					}
+					// handle non-primitive-ranged feature
+					Builder<?> valueMatcherBuilder = parseSubMatcher(
+							subMatcherStrings, featRange);
+					builder.addFSFeatureMatcher(featName, valueMatcherBuilder);
 				}
 			}
 		});

@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:42:53 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -15,7 +15,7 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Represents typed 'phrase', i.e. a head word with its dependents.
 				Phrase annotation should have the same borders with its head word.
- * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
+ * Updated by JCasGen Tue Mar 26 15:42:53 MSK 2013
  * @generated */
 public class Phrase_Type extends Annotation_Type {
   /** @generated */
@@ -146,7 +146,7 @@ public class Phrase_Type extends Annotation_Type {
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
 
  
-    casFeat_head = jcas.getRequiredFeatureDE(casType, "head", "org.opencorpora.cas.Word", featOkTst);
+    casFeat_head = jcas.getRequiredFeatureDE(casType, "head", "org.opencorpora.cas.Wordform", featOkTst);
     casFeatCode_head  = (null == casFeat_head) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_head).getCode();
 
  

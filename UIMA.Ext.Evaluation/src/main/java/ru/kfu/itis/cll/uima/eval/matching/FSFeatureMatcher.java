@@ -3,6 +3,10 @@
  */
 package ru.kfu.itis.cll.uima.eval.matching;
 
+import java.util.Collection;
+import java.util.IdentityHashMap;
+import java.util.List;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -10,12 +14,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 
+import com.google.common.collect.Lists;
+
+import static ru.kfu.itis.cll.uima.eval.matching.MatchingUtils.*;
+
 /**
  * @author Rinat Gareev
  * 
  */
-public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStructure> implements
-		Matcher<S> {
+public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStructure>
+		extends MatcherBase<S> {
 
 	private Feature feature;
 	private Matcher<E> valueMatcher;
@@ -23,8 +31,7 @@ public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStruc
 	public FSFeatureMatcher(Feature feature, Matcher<E> valueMatcher) {
 		this.feature = feature;
 		this.valueMatcher = valueMatcher;
-		// TODO what about FSList ?
-		if (feature.getRange().isArray()) {
+		if (isCollectionType(feature.getRange())) {
 			throw new IllegalArgumentException(String.format(
 					"Feature '%s' (of type '%s') range is array", feature, feature.getDomain()));
 		}
@@ -60,10 +67,18 @@ public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStruc
 	}
 
 	@Override
-	public String toString() {
-		return new ToStringBuilder(ToStringStyle.SHORT_PREFIX_STYLE)
+	protected String toString(IdentityHashMap<Matcher<?>, Integer> idMap) {
+		idMap.put(this, getNextId(idMap));
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 				.append("feature", feature)
-				.append("valueMatcher", valueMatcher).toString();
+				.append("valueMatcher", getToString(idMap, valueMatcher)).toString();
+	}
+
+	@Override
+	protected Collection<Matcher<?>> getSubMatchers() {
+		List<Matcher<?>> result = Lists.newLinkedList();
+		result.add(valueMatcher);
+		return result;
 	}
 
 	@Override
@@ -77,6 +92,7 @@ public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStruc
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private E getValue(FeatureStructure fs) {
 		E featureValue = (E) fs.getFeatureValue(feature);
 		return featureValue;

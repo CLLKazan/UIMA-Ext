@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Fri Mar 22 16:53:11 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:42:53 MSK 2013 */
 package ru.kfu.itis.issst.uima.phrrecog.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -8,13 +8,13 @@ import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
 
 import org.apache.uima.jcas.cas.FSArray;
-import org.opencorpora.cas.Word;
+import org.opencorpora.cas.Wordform;
 import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** Represents typed 'phrase', i.e. a head word with its dependents.
 				Phrase annotation should have the same borders with its head word.
- * Updated by JCasGen Fri Mar 22 16:53:11 MSK 2013
+ * Updated by JCasGen Tue Mar 26 15:42:53 MSK 2013
  * XML source: src/main/resources/ru/kfu/itis/issst/uima/phrrecog/ts-phrase-recognizer.xml
  * @generated */
 public class Phrase extends Annotation {
@@ -70,14 +70,14 @@ public class Phrase extends Annotation {
 
   /** getter for head - gets 
    * @generated */
-  public Word getHead() {
+  public Wordform getHead() {
     if (Phrase_Type.featOkTst && ((Phrase_Type)jcasType).casFeat_head == null)
       jcasType.jcas.throwFeatMissing("head", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
-    return (Word)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_head)));}
+    return (Wordform)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_head)));}
     
   /** setter for head - sets  
    * @generated */
-  public void setHead(Word v) {
+  public void setHead(Wordform v) {
     if (Phrase_Type.featOkTst && ((Phrase_Type)jcasType).casFeat_head == null)
       jcasType.jcas.throwFeatMissing("head", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
     jcasType.ll_cas.ll_setRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_head, jcasType.ll_cas.ll_getFSRef(v));}    
@@ -102,15 +102,15 @@ public class Phrase extends Annotation {
     
   /** indexed getter for dependentWords - gets an indexed value - 
    * @generated */
-  public Word getDependentWords(int i) {
+  public Wordform getDependentWords(int i) {
     if (Phrase_Type.featOkTst && ((Phrase_Type)jcasType).casFeat_dependentWords == null)
       jcasType.jcas.throwFeatMissing("dependentWords", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
     jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_dependentWords), i);
-    return (Word)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_dependentWords), i)));}
+    return (Wordform)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_dependentWords), i)));}
 
   /** indexed setter for dependentWords - sets an indexed value - 
    * @generated */
-  public void setDependentWords(int i, Word v) { 
+  public void setDependentWords(int i, Wordform v) { 
     if (Phrase_Type.featOkTst && ((Phrase_Type)jcasType).casFeat_dependentWords == null)
       jcasType.jcas.throwFeatMissing("dependentWords", "ru.kfu.itis.issst.uima.phrrecog.cas.Phrase");
     jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((Phrase_Type)jcasType).casFeatCode_dependentWords), i);

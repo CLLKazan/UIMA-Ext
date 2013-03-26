@@ -4,52 +4,71 @@
     <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="Отборочный матч чемпионата мира по футболу 2014 года между сборными Северной Ирландии и России перенесен на более поздний срок."/>
     <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="127" language="x-unspecified"/>
     <fstype2:W xmi:id="13" sofa="1" begin="0" end="10"/>
-    <fstype2:W xmi:id="23" sofa="1" begin="11" end="15"/>
-    <fstype2:W xmi:id="33" sofa="1" begin="16" end="26"/>
-    <fstype2:W xmi:id="43" sofa="1" begin="27" end="31"/>
-    <fstype2:W xmi:id="53" sofa="1" begin="32" end="34"/>
-    <fstype2:W xmi:id="63" sofa="1" begin="35" end="42"/>
-    <fstype2:W xmi:id="73" sofa="1" begin="43" end="47"/>
-    <fstype2:W xmi:id="83" sofa="1" begin="48" end="52"/>
-    <fstype2:W xmi:id="93" sofa="1" begin="53" end="58"/>
-    <fstype2:W xmi:id="103" sofa="1" begin="59" end="67"/>
-    <fstype2:W xmi:id="113" sofa="1" begin="68" end="76"/>
-    <fstype2:W xmi:id="123" sofa="1" begin="77" end="85"/>
-    <fstype2:W xmi:id="133" sofa="1" begin="86" end="87"/>
-    <fstype2:W xmi:id="143" sofa="1" begin="88" end="94"/>
-    <fstype2:W xmi:id="153" sofa="1" begin="95" end="104"/>
-    <fstype2:W xmi:id="163" sofa="1" begin="105" end="107"/>
-    <fstype2:W xmi:id="173" sofa="1" begin="108" end="113"/>
-    <fstype2:W xmi:id="183" sofa="1" begin="114" end="121"/>
-    <fstype2:W xmi:id="193" sofa="1" begin="122" end="126"/>
-    <cas2:Word xmi:id="17" sofa="1" begin="0" end="10" token="13"/>
-    <cas2:Word xmi:id="27" sofa="1" begin="11" end="15" token="23"/>
-    <cas2:Word xmi:id="37" sofa="1" begin="16" end="26" token="33"/>
-    <cas2:Word xmi:id="47" sofa="1" begin="27" end="31" token="43"/>
-    <cas2:Word xmi:id="57" sofa="1" begin="32" end="34" token="53"/>
-    <cas2:Word xmi:id="67" sofa="1" begin="35" end="42" token="63"/>
-    <cas2:Word xmi:id="77" sofa="1" begin="43" end="47" token="73"/>
-    <cas2:Word xmi:id="87" sofa="1" begin="48" end="52" token="83"/>
-    <cas2:Word xmi:id="97" sofa="1" begin="53" end="58" token="93"/>
-    <cas2:Word xmi:id="107" sofa="1" begin="59" end="67" token="103"/>
-    <cas2:Word xmi:id="117" sofa="1" begin="68" end="76" token="113"/>
-    <cas2:Word xmi:id="127" sofa="1" begin="77" end="85" token="123"/>
-    <cas2:Word xmi:id="137" sofa="1" begin="86" end="87" token="133"/>
-    <cas2:Word xmi:id="147" sofa="1" begin="88" end="94" token="143"/>
-    <cas2:Word xmi:id="157" sofa="1" begin="95" end="104" token="153"/>
-    <cas2:Word xmi:id="167" sofa="1" begin="105" end="107" token="163"/>
-    <cas2:Word xmi:id="177" sofa="1" begin="108" end="113" token="173"/>
-    <cas2:Word xmi:id="187" sofa="1" begin="114" end="121" token="183"/>
-    <cas2:Word xmi:id="197" sofa="1" begin="122" end="126" token="193"/>
-    <fstype:Sentence xmi:id="203" sofa="1" begin="0" end="127"/>
-    <cas3:NounPhrase xmi:id="228" sofa="1" begin="11" end="15" head="27" dependentWords="17" dependentPhrases="216"/>
-    <cas3:NounPhrase xmi:id="243" sofa="1" begin="35" end="42" head="67" preposition="57"/>
-    <cas3:NounPhrase xmi:id="252" sofa="1" begin="48" end="52" head="87" dependentWords="77"/>
-    <cas3:NounPhrase xmi:id="285" sofa="1" begin="59" end="67" head="107" dependentPhrases="264 276" preposition="97"/>
-    <cas3:NounPhrase xmi:id="298" sofa="1" begin="122" end="126" head="197" dependentWords="177 187" preposition="167"/>
-    <cas3:NounPhrase xmi:id="276" sofa="1" begin="88" end="94" head="147"/>
-    <cas3:NounPhrase xmi:id="264" sofa="1" begin="77" end="85" head="127" dependentWords="117"/>
-    <cas3:NounPhrase xmi:id="207" sofa="1" begin="27" end="31" head="47"/>
-    <cas3:NounPhrase xmi:id="216" sofa="1" begin="16" end="26" head="37" dependentPhrases="207"/>
-    <cas:View sofa="1" members="8 13 23 33 43 53 63 73 83 93 103 113 123 133 143 153 163 173 183 193 17 27 37 47 57 67 77 87 97 107 117 127 137 147 157 167 177 187 197 203 228 243 252 285 298"/>
+    <fstype2:W xmi:id="32" sofa="1" begin="11" end="15"/>
+    <fstype2:W xmi:id="51" sofa="1" begin="16" end="26"/>
+    <fstype2:W xmi:id="70" sofa="1" begin="27" end="31"/>
+    <fstype2:W xmi:id="89" sofa="1" begin="32" end="34"/>
+    <fstype2:W xmi:id="108" sofa="1" begin="35" end="42"/>
+    <fstype2:W xmi:id="127" sofa="1" begin="43" end="47"/>
+    <fstype2:W xmi:id="146" sofa="1" begin="48" end="52"/>
+    <fstype2:W xmi:id="165" sofa="1" begin="53" end="58"/>
+    <fstype2:W xmi:id="184" sofa="1" begin="59" end="67"/>
+    <fstype2:W xmi:id="203" sofa="1" begin="68" end="76"/>
+    <fstype2:W xmi:id="222" sofa="1" begin="77" end="85"/>
+    <fstype2:W xmi:id="241" sofa="1" begin="86" end="87"/>
+    <fstype2:W xmi:id="260" sofa="1" begin="88" end="94"/>
+    <fstype2:W xmi:id="279" sofa="1" begin="95" end="104"/>
+    <fstype2:W xmi:id="298" sofa="1" begin="105" end="107"/>
+    <fstype2:W xmi:id="317" sofa="1" begin="108" end="113"/>
+    <fstype2:W xmi:id="336" sofa="1" begin="114" end="121"/>
+    <fstype2:W xmi:id="355" sofa="1" begin="122" end="126"/>
+    <cas2:Word xmi:id="17" sofa="1" begin="0" end="10" wordforms="23" token="13"/>
+    <cas2:Word xmi:id="36" sofa="1" begin="11" end="15" wordforms="42" token="32"/>
+    <cas2:Word xmi:id="55" sofa="1" begin="16" end="26" wordforms="61" token="51"/>
+    <cas2:Word xmi:id="74" sofa="1" begin="27" end="31" wordforms="80" token="70"/>
+    <cas2:Word xmi:id="93" sofa="1" begin="32" end="34" wordforms="99" token="89"/>
+    <cas2:Word xmi:id="112" sofa="1" begin="35" end="42" wordforms="118" token="108"/>
+    <cas2:Word xmi:id="131" sofa="1" begin="43" end="47" wordforms="137" token="127"/>
+    <cas2:Word xmi:id="150" sofa="1" begin="48" end="52" wordforms="156" token="146"/>
+    <cas2:Word xmi:id="169" sofa="1" begin="53" end="58" wordforms="175" token="165"/>
+    <cas2:Word xmi:id="188" sofa="1" begin="59" end="67" wordforms="194" token="184"/>
+    <cas2:Word xmi:id="207" sofa="1" begin="68" end="76" wordforms="213" token="203"/>
+    <cas2:Word xmi:id="226" sofa="1" begin="77" end="85" wordforms="232" token="222"/>
+    <cas2:Word xmi:id="245" sofa="1" begin="86" end="87" wordforms="251" token="241"/>
+    <cas2:Word xmi:id="264" sofa="1" begin="88" end="94" wordforms="270" token="260"/>
+    <cas2:Word xmi:id="283" sofa="1" begin="95" end="104" wordforms="289" token="279"/>
+    <cas2:Word xmi:id="302" sofa="1" begin="105" end="107" wordforms="308" token="298"/>
+    <cas2:Word xmi:id="321" sofa="1" begin="108" end="113" wordforms="327" token="317"/>
+    <cas2:Word xmi:id="340" sofa="1" begin="114" end="121" wordforms="346" token="336"/>
+    <cas2:Word xmi:id="359" sofa="1" begin="122" end="126" wordforms="365" token="355"/>
+    <fstype:Sentence xmi:id="374" sofa="1" begin="0" end="127"/>
+    <cas3:NounPhrase xmi:id="399" sofa="1" begin="11" end="15" head="42" dependentWords="23" dependentPhrases="387"/>
+    <cas3:NounPhrase xmi:id="414" sofa="1" begin="35" end="42" head="118" preposition="99"/>
+    <cas3:NounPhrase xmi:id="423" sofa="1" begin="48" end="52" head="156" dependentWords="137"/>
+    <cas3:NounPhrase xmi:id="456" sofa="1" begin="59" end="67" head="194" dependentPhrases="435 447" preposition="175"/>
+    <cas3:NounPhrase xmi:id="469" sofa="1" begin="122" end="126" head="365" dependentWords="327 346" preposition="308"/>
+    <cas3:NounPhrase xmi:id="447" sofa="1" begin="88" end="94" head="270"/>
+    <cas3:NounPhrase xmi:id="435" sofa="1" begin="77" end="85" head="232" dependentWords="213"/>
+    <cas3:NounPhrase xmi:id="378" sofa="1" begin="27" end="31" head="80"/>
+    <cas3:NounPhrase xmi:id="387" sofa="1" begin="16" end="26" head="61" dependentPhrases="378"/>
+    <cas2:Wordform xmi:id="365" lemmaId="0" word="359"/>
+    <cas2:Wordform xmi:id="346" lemmaId="0" word="340"/>
+    <cas2:Wordform xmi:id="327" lemmaId="0" word="321"/>
+    <cas2:Wordform xmi:id="308" lemmaId="0" word="302"/>
+    <cas2:Wordform xmi:id="289" lemmaId="0" word="283"/>
+    <cas2:Wordform xmi:id="270" lemmaId="0" word="264"/>
+    <cas2:Wordform xmi:id="251" lemmaId="0" word="245"/>
+    <cas2:Wordform xmi:id="232" lemmaId="0" word="226"/>
+    <cas2:Wordform xmi:id="213" lemmaId="0" word="207"/>
+    <cas2:Wordform xmi:id="194" lemmaId="0" word="188"/>
+    <cas2:Wordform xmi:id="175" lemmaId="0" word="169"/>
+    <cas2:Wordform xmi:id="156" lemmaId="0" word="150"/>
+    <cas2:Wordform xmi:id="137" lemmaId="0" word="131"/>
+    <cas2:Wordform xmi:id="118" lemmaId="0" word="112"/>
+    <cas2:Wordform xmi:id="99" lemmaId="0" word="93"/>
+    <cas2:Wordform xmi:id="80" lemmaId="0" word="74"/>
+    <cas2:Wordform xmi:id="61" lemmaId="0" word="55"/>
+    <cas2:Wordform xmi:id="42" lemmaId="0" word="36"/>
+    <cas2:Wordform xmi:id="23" lemmaId="0" word="17"/>
+    <cas:View sofa="1" members="8 13 32 51 70 89 108 127 146 165 184 203 222 241 260 279 298 317 336 355 17 36 55 74 93 112 131 150 169 188 207 226 245 264 283 302 321 340 359 374 399 414 423 456 469"/>
 </xmi:XMI>

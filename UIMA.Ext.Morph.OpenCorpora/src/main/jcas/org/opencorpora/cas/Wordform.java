@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:39:15 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,8 +12,8 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** 
- * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
- * XML source: D:/projects/uima-ext/UIMA.Ext.Morph.OpenCorpora/src/main/resources/org/opencorpora/morphology-ts.xml
+ * Updated by JCasGen Tue Mar 26 15:39:15 MSK 2013
+ * XML source: src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class Wordform extends TOP {
   /** @generated
@@ -141,6 +141,24 @@ public class Wordform extends TOP {
       jcasType.jcas.throwFeatMissing("grammems", "org.opencorpora.cas.Wordform");
     jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_grammems), i);
     jcasType.ll_cas.ll_setStringArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_grammems), i, v);}
+   
+    
+  //*--------------*
+  //* Feature: word
+
+  /** getter for word - gets Reference to hosting word
+   * @generated */
+  public Word getWord() {
+    if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_word == null)
+      jcasType.jcas.throwFeatMissing("word", "org.opencorpora.cas.Wordform");
+    return (Word)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_word)));}
+    
+  /** setter for word - sets Reference to hosting word 
+   * @generated */
+  public void setWord(Word v) {
+    if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_word == null)
+      jcasType.jcas.throwFeatMissing("word", "org.opencorpora.cas.Wordform");
+    jcasType.ll_cas.ll_setRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_word, jcasType.ll_cas.ll_getFSRef(v));}    
   }
 
     

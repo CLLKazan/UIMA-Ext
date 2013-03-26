@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:39:15 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,8 +12,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
- * XML source: D:/projects/uima-ext/UIMA.Ext.Morph.OpenCorpora/src/main/resources/org/opencorpora/morphology-ts.xml
+ * Updated by JCasGen Tue Mar 26 15:39:15 MSK 2013
+ * XML source: src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class Word extends Annotation {
   /** @generated

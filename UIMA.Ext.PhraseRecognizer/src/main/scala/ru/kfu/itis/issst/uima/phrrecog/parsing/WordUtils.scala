@@ -26,6 +26,17 @@ object WordUtils {
           case GrammemeProhibited(gr) => !toSet(wf.getGrammems()).contains(gr)
         }))
   }
+  
+  def findWordform(w: Word, pos: String, grms: GrammemeMatcher*): Option[Wordform] = {
+    require(w != null, "word annotation is null")
+    if (w.getWordforms() == null) None
+    else FSCollectionFactory.create(w.getWordforms(), classOf[Wordform]).find(wf =>
+      pos == wf.getPos()
+        && grms.forall(_ match {
+          case GrammemeRequired(gr) => toSet(wf.getGrammems()).contains(gr)
+          case GrammemeProhibited(gr) => !toSet(wf.getGrammems()).contains(gr)
+        }))
+  }
 
   def has(gr: String) = new GrammemeRequired(gr)
   def hasNot(gr: String) = new GrammemeProhibited(gr)

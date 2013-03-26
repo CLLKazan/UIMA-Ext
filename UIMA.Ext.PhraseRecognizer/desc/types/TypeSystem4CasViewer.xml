@@ -44,6 +44,11 @@
                     <description/>
                     <rangeTypeName>uima.cas.StringArray</rangeTypeName>
                 </featureDescription>
+                <featureDescription>
+                    <name>word</name>
+                    <description>Reference to hosting word</description>
+                    <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+                </featureDescription>
             </features>
         </typeDescription>
         <typeDescription>
@@ -208,12 +213,12 @@
                 <featureDescription>
                     <name>preposition</name>
                     <description/>
-                    <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+                    <rangeTypeName>org.opencorpora.cas.Wordform</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
                     <name>particle</name>
                     <description/>
-                    <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+                    <rangeTypeName>org.opencorpora.cas.Wordform</rangeTypeName>
                 </featureDescription>
             </features>
         </typeDescription>
@@ -226,13 +231,13 @@
                 <featureDescription>
                     <name>head</name>
                     <description/>
-                    <rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+                    <rangeTypeName>org.opencorpora.cas.Wordform</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
                     <name>dependentWords</name>
                     <description/>
                     <rangeTypeName>uima.cas.FSArray</rangeTypeName>
-                    <elementType>org.opencorpora.cas.Word</elementType>
+                    <elementType>org.opencorpora.cas.Wordform</elementType>
                 </featureDescription>
                 <featureDescription>
                     <name>dependentPhrases</name>

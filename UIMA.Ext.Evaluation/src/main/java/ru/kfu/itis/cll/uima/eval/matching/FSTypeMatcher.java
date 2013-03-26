@@ -53,7 +53,7 @@ public class FSTypeMatcher<FST extends FeatureStructure> implements Matcher<FST>
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(ToStringStyle.SHORT_PREFIX_STYLE).append("subtypeMatch",
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("subtypeMatch",
 				subtypeMatch).toString();
 	}
 

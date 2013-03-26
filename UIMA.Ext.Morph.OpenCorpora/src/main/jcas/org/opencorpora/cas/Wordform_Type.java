@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
+/* First created by JCasGen Tue Mar 26 15:39:15 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.cas.TOP_Type;
 
 /** 
- * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
+ * Updated by JCasGen Tue Mar 26 15:39:15 MSK 2013
  * @generated */
 public class Wordform_Type extends TOP_Type {
   /** @generated */
@@ -134,6 +134,24 @@ public class Wordform_Type extends TOP_Type {
     ll_cas.ll_setStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_grammems), i, v);
   }
  
+ 
+  /** @generated */
+  final Feature casFeat_word;
+  /** @generated */
+  final int     casFeatCode_word;
+  /** @generated */ 
+  public int getWord(int addr) {
+        if (featOkTst && casFeat_word == null)
+      jcas.throwFeatMissing("word", "org.opencorpora.cas.Wordform");
+    return ll_cas.ll_getRefValue(addr, casFeatCode_word);
+  }
+  /** @generated */    
+  public void setWord(int addr, int v) {
+        if (featOkTst && casFeat_word == null)
+      jcas.throwFeatMissing("word", "org.opencorpora.cas.Wordform");
+    ll_cas.ll_setRefValue(addr, casFeatCode_word, v);}
+    
+  
 
 
 
@@ -158,6 +176,10 @@ public class Wordform_Type extends TOP_Type {
  
     casFeat_grammems = jcas.getRequiredFeatureDE(casType, "grammems", "uima.cas.StringArray", featOkTst);
     casFeatCode_grammems  = (null == casFeat_grammems) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_grammems).getCode();
+
+ 
+    casFeat_word = jcas.getRequiredFeatureDE(casType, "word", "org.opencorpora.cas.Word", featOkTst);
+    casFeatCode_word  = (null == casFeat_word) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_word).getCode();
 
   }
 }
