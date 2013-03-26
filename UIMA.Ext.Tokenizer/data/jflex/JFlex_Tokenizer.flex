@@ -16,6 +16,7 @@ import ru.kfu.cll.uima.tokenizer.types.ComplexWord;
 import ru.kfu.cll.uima.tokenizer.types.Date;
 import ru.kfu.cll.uima.tokenizer.types.Email;
 import ru.kfu.cll.uima.tokenizer.types.Abbrevation;
+import ru.kfu.cll.uima.tokenizer.types.RussianWord;
 import org.apache.uima.jcas.JCas;
 %%
 %public
