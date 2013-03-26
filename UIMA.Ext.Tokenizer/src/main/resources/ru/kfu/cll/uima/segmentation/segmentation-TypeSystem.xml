@@ -29,5 +29,29 @@
       	</featureDescription>
       </features>
     </typeDescription>
+      <typeDescription>
+          <name>ru.kfu.cll.uima.segmentation.fstype.Sentence</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+      </typeDescription>
+      <typeDescription>
+          <name>ru.kfu.cll.uima.segmentation.fstype.PMSegment</name>
+          <description/>
+          <supertypeName>uima.tcas.Annotation</supertypeName>
+          <features>
+              <featureDescription>
+                  <name>contentBegin</name>
+                  <rangeTypeName>uima.cas.Integer</rangeTypeName>
+              </featureDescription>
+              <featureDescription>
+                  <name>contentEnd</name>
+                  <rangeTypeName>uima.cas.Integer</rangeTypeName>
+              </featureDescription>
+              <featureDescription>
+                  <name>parentSegment</name>
+                  <rangeTypeName>uima.tcas.Annotation</rangeTypeName>
+              </featureDescription>
+          </features>
+      </typeDescription>
   </types>
 </typeSystemDescription>
