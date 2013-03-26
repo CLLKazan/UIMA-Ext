@@ -141,6 +141,14 @@ return null;
 		token.setLanguage(lang);
 		return token;
 	}
+	public RussianWord getRussianWordToken() {
+    		RussianWord token = new RussianWOrd(UIMA_JCas);
+    		token.setNorm(null);
+    		token.setText(yytext().toString());
+    		token.setBegin(zzCurrentPos);
+    		token.setEnd(zzCurrentPos + yylength());
+    		return token;
+    	}
 
 	public Range getRangeToken(String left, String right) {
 		Range token = new Range(UIMA_JCas);
