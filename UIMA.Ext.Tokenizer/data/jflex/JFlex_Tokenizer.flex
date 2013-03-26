@@ -284,7 +284,8 @@ return null;
 	LETTERS_EN_CAP = [A-Z][a-z]+ 
 	LETTERS_EN_LOW = [a-z]+ 
 	LETTERS_EN_UPP = [A-Z]+ 
-	LETTERS_EN_MIX = [A-Za-z]+	
+	LETTERS_EN_MIX = [A-Za-z]+
+	RUSSIAN_WORD = {LETTERS_RU_CAP}|{LETTERS_RU_LOW}|{LETTERS_RU_UPP}|{LETTERS_RU_MIX}
 	LETTERS = {LETTERS_EN_MIX}|{LETTERS_EN_UPP}|{LETTERS_EN_LOW}|{LETTERS_EN_CAP}|{LETTERS_RU_MIX}|{LETTERS_RU_UPP}|{LETTERS_RU_LOW}|{LETTERS_RU_CAP}
 	//DATE
 	YYYY = [1-9][0-9][0-9][0-9]
@@ -338,7 +339,7 @@ return null;
 		{NUMBER_INTEGER_POSITIVE}	{ yybegin(YYINITIAL); return getNumberToken("Integer","Positive"); } 
 		{NUMBER_INTEGER_NEGATIVE}	{ yybegin(YYINITIAL); return getNumberToken("Integer","Negative"); }
 		
-		{LETTERS_RU_CAP}			{ yybegin(YYINITIAL); return getLettersToken("Russian","Capital"); }
+		/*{LETTERS_RU_CAP}			{ yybegin(YYINITIAL); return getLettersToken("Russian","Capital"); }
 		{LETTERS_RU_LOW}			{ yybegin(YYINITIAL); return getLettersToken("Russian","Lower"); }		
 		{LETTERS_RU_UPP}			{ yybegin(YYINITIAL); return getLettersToken("Russian","Upper"); }
 		{LETTERS_RU_MIX}			{ yybegin(YYINITIAL); return getLettersToken("Russian","Mixed"); }
@@ -346,7 +347,8 @@ return null;
 		{LETTERS_EN_LOW}			{ yybegin(YYINITIAL); return getLettersToken("English","Lower"); }
 		{LETTERS_EN_UPP}			{ yybegin(YYINITIAL); return getLettersToken("English","Upper"); }
 		{LETTERS_EN_MIX}			{ yybegin(YYINITIAL); return getLettersToken("English","Mixed"); }		
-		
+		*/
+		{RUSSIAN_WORD}              { yybegin(YYINITIAL); return getRussianWordToken());}
 		{NEW_LINE}					{ yybegin(YYINITIAL); return getSeparatorToken("New line"); }
 		{CAR_RET}					{ yybegin(YYINITIAL); return getSeparatorToken("Carrige return"); }
 		{TAB}						{ yybegin(YYINITIAL); return getSeparatorToken("Tabulation"); }
@@ -368,12 +370,12 @@ return null;
 			back();
 			return currentRange;
 		}	
-		{COMPLEX_WORD} {
+		/*{COMPLEX_WORD} {
 			currentComplexWord = getComplexWordToken(null,null);
 			yybegin(IN_COMPLEX);
 			back();
 			return currentComplexWord;
-		}
+		} */
 		{CURRENSY} {
 			currentCurrensy = getCurrensyToken(null, null);
 			yybegin(IN_CURRENSY);
