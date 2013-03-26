@@ -203,5 +203,12 @@
                 </featureDescription>
             </features>
         </typeDescription>
+        <typeDescription>
+            <name>ru.kfu.cll.uima.tokenizer.types.RussianWord</name>
+            <description/>
+            <supertypeName>ru.kfu.cll.uima.tokenizer.types.Token</supertypeName>
+            <features>
+            </features>
+        </typeDescription>
     </types>
 </typeSystemDescription>
