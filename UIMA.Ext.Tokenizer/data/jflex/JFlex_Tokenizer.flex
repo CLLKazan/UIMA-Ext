@@ -142,7 +142,7 @@ return null;
 		return token;
 	}
 	public RussianWord getRussianWordToken() {
-    		RussianWord token = new RussianWOrd(UIMA_JCas);
+    		RussianWord token = new RussianWord(UIMA_JCas);
     		token.setNorm(null);
     		token.setText(yytext().toString());
     		token.setBegin(zzCurrentPos);
