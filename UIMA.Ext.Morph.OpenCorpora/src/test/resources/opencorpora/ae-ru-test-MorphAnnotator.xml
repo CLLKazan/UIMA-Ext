@@ -5,7 +5,7 @@
 
 	<delegateAnalysisEngineSpecifiers>
 		<delegateAnalysisEngine key="tokenizer">
-			<import name="ru.kfu.cll.uima.tokenizer.InitialTokenizer" />
+			<import name="ru.kfu.cll.uima.tokenizer.JFlexTokenizer" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="morphAnnotator">
 			<import
@@ -40,7 +40,7 @@
 			<nameValuePair>
 				<name>TokenType</name>
 				<value>
-					<string>ru.kfu.cll.uima.tokenizer.fstype.Token</string>
+					<string>ru.kfu.cll.uima.tokenizer.types.RussianWord</string>
 				</value>
 			</nameValuePair>
 			<nameValuePair>
