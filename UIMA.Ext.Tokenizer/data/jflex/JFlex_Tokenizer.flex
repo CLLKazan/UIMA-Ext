@@ -348,7 +348,7 @@ return null;
 		{LETTERS_EN_UPP}			{ yybegin(YYINITIAL); return getLettersToken("English","Upper"); }
 		{LETTERS_EN_MIX}			{ yybegin(YYINITIAL); return getLettersToken("English","Mixed"); }		
 		*/
-		{RUSSIAN_WORD}              { yybegin(YYINITIAL); return getRussianWordToken());}
+		{RUSSIAN_WORD}              { yybegin(YYINITIAL); return getRussianWordToken();}
 		{NEW_LINE}					{ yybegin(YYINITIAL); return getSeparatorToken("New line"); }
 		{CAR_RET}					{ yybegin(YYINITIAL); return getSeparatorToken("Carrige return"); }
 		{TAB}						{ yybegin(YYINITIAL); return getSeparatorToken("Tabulation"); }
