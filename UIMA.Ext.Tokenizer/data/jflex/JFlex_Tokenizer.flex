@@ -1,21 +1,22 @@
 // Sidikov Marsel
 
-package tokenization;
+package ru.kfu.cll.uima.tokenizer;
+import ru.kfu.cll.uima.tokenizer.types.Token;
+import ru.kfu.cll.uima.tokenizer.types.Letters;
+import ru.kfu.cll.uima.tokenizer.types.Number;
+import ru.kfu.cll.uima.tokenizer.types.Separator;
+import ru.kfu.cll.uima.tokenizer.types.PM;
+import ru.kfu.cll.uima.tokenizer.types.Bracket;
+import ru.kfu.cll.uima.tokenizer.types.Symbol;
+import ru.kfu.cll.uima.tokenizer.types.Range;
+import ru.kfu.cll.uima.tokenizer.types.Abbrevation;
+import ru.kfu.cll.uima.tokenizer.types.Currensy;
+import ru.kfu.cll.uima.tokenizer.types.Measurement;
+import ru.kfu.cll.uima.tokenizer.types.ComplexWord;
+import ru.kfu.cll.uima.tokenizer.types.Date;
+import ru.kfu.cll.uima.tokenizer.types.Email;
+import ru.kfu.cll.uima.tokenizer.types.Abbrevation;
 import org.apache.uima.jcas.JCas;
-import tokenization.types.Token;
-import tokenization.types.Letters; // ok
-import tokenization.types.Number; // ok
-import tokenization.types.Separator; // ok
-import tokenization.types.PM; // ok
-import tokenization.types.Bracket; // ok
-import tokenization.types.Symbol; // ok
-import tokenization.types.Range; // ok
-import tokenization.types.Abbrevation; // ok
-import tokenization.types.Currensy; // ok
-import tokenization.types.Measurement;
-import tokenization.types.ComplexWord; // ok
-import tokenization.types.Date;
-import tokenization.types.Email;
 %%
 %public
 %class JFlex_Tokenizer
@@ -53,7 +54,7 @@ return null;
 
 	public JFlex_Tokenizer(java.io.Reader in, JCas UIMA_JCas) {
 		this.UIMA_JCas = UIMA_JCas;
-    	this.yy_reader = in;
+    	this.zzReader = in;
     	allBooleansToFalse();
     }
     
@@ -64,11 +65,11 @@ return null;
     	this.inDate = false; 		
     }
 	public boolean isEof() {
-		return yy_atEOF;
+		return zzAtEOF;
 	}
 
 	private void back() {
-		yypushback(yylength());		
+		yypushback(yylength());
 	}	  
 	
 	public Letters getLettersToken(String language, String letterCase) {
@@ -77,8 +78,8 @@ return null;
 		token.setText(yytext().toString());
 		token.setLanguage(language);
 		token.setLetterCase(letterCase);
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
@@ -88,8 +89,8 @@ return null;
 		token.setText(yytext().toString());
 		token.setKind(kind);
 		token.setSign(sign);
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
@@ -98,8 +99,8 @@ return null;
 		token.setNorm(null);
 		token.setText(yytext().toString());
 		token.setKind(kind);		
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
@@ -107,8 +108,8 @@ return null;
 		PM token = new PM(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());		
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
@@ -116,8 +117,8 @@ return null;
 		Bracket token = new Bracket(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());		
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
@@ -125,8 +126,8 @@ return null;
 		Symbol token = new Symbol(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());		
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
@@ -134,8 +135,8 @@ return null;
 		Abbrevation token = new Abbrevation(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		token.setLanguage(lang);
 		return token;
 	}
@@ -144,8 +145,8 @@ return null;
 		Range token = new Range(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		token.setLeft(left);
 		token.setRight(right);
 		return token;
@@ -155,8 +156,8 @@ return null;
 		Currensy token = new Currensy(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		token.setValue(value);
 		token.setCurrensySymbol(kindOfCurrensy);
 		return token;
@@ -173,8 +174,8 @@ return null;
 		ComplexWord token = new ComplexWord(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		token.setLeft(left);
 		token.setRight(right);
 		return token;
@@ -184,8 +185,8 @@ return null;
 		Date token = new Date(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		token.setYear(year);
 		token.setMounth(mounth);
 		token.setDay(day);
@@ -196,8 +197,8 @@ return null;
 		Email token = new Email(UIMA_JCas);
 		token.setNorm(null);
 		token.setText(yytext().toString());
-		token.setBegin(yy_currentPos);
-		token.setEnd(yy_currentPos + yylength());
+		token.setBegin(zzCurrentPos);
+		token.setEnd(zzCurrentPos + yylength());
 		return token;
 	}
 	
