@@ -24,6 +24,7 @@ import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 
+import ru.kfu.cll.uima.tokenizer.types.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
@@ -43,7 +44,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	public static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
 
 	@ConfigurationParameter(name = PARAM_TOKEN_TYPE,
-			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
+			defaultValue = "ru.kfu.cll.uima.tokenizer.types.Letters")
 	private String tokenTypeName;
 	@ExternalResource(key = RESOURCE_KEY_DICTIONARY)
 	private SerializedDictionaryResource dictResource;
@@ -85,7 +86,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	private void process(JCas cas) throws AnalysisEngineProcessException {
 		AnnotationIndex<Annotation> tokenIdx = cas.getAnnotationIndex(tokenType);
 		for (Annotation token : tokenIdx) {
-			String tokenStr = token.getCoveredText();
+			String tokenStr = ((Token)token).getText();
 			if (proceed(tokenStr)) {
 				// TODO configuration point
 				// tokenizer should care about normalization 

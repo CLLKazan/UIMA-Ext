@@ -23,7 +23,7 @@ import org.uimafit.factory.ExternalResourceFactory;
 import org.xml.sax.SAXException;
 
 import ru.kfu.cll.uima.segmentation.SentenceSplitter;
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
+import ru.kfu.cll.uima.tokenizer.TokenizationAnnotator;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource;
 
 /**
@@ -46,9 +46,9 @@ public class GenerateBasicAggregateDescriptor {
 		ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
 				SerializedDictionaryResource.class, morphDictUrl);
 
-		TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
+		TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.jflex-tokenizer-ts");
 		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
-				InitialTokenizer.class, tokenizerTsDesc);
+				TokenizationAnnotator.class, tokenizerTsDesc);
 
 		TypeSystemDescription ssTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
 		AnalysisEngineDescription ssDesc = createPrimitiveDescription(SentenceSplitter.class,
