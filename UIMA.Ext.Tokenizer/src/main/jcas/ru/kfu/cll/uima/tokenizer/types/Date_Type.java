@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sun Mar 10 01:48:22 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Date_Type extends Token_Type {
   /** @generated */
@@ -41,7 +41,7 @@ public class Date_Type extends Token_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Date");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Date");
  
   /** @generated */
   final Feature casFeat_Year;
@@ -50,13 +50,13 @@ public class Date_Type extends Token_Type {
   /** @generated */ 
   public String getYear(int addr) {
         if (featOkTst && casFeat_Year == null)
-      jcas.throwFeatMissing("Year", "tokenization.types.Date");
+      jcas.throwFeatMissing("Year", "ru.kfu.cll.uima.tokenizer.types.Date");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Year);
   }
   /** @generated */    
   public void setYear(int addr, String v) {
         if (featOkTst && casFeat_Year == null)
-      jcas.throwFeatMissing("Year", "tokenization.types.Date");
+      jcas.throwFeatMissing("Year", "ru.kfu.cll.uima.tokenizer.types.Date");
     ll_cas.ll_setStringValue(addr, casFeatCode_Year, v);}
     
   
@@ -68,13 +68,13 @@ public class Date_Type extends Token_Type {
   /** @generated */ 
   public String getMounth(int addr) {
         if (featOkTst && casFeat_Mounth == null)
-      jcas.throwFeatMissing("Mounth", "tokenization.types.Date");
+      jcas.throwFeatMissing("Mounth", "ru.kfu.cll.uima.tokenizer.types.Date");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Mounth);
   }
   /** @generated */    
   public void setMounth(int addr, String v) {
         if (featOkTst && casFeat_Mounth == null)
-      jcas.throwFeatMissing("Mounth", "tokenization.types.Date");
+      jcas.throwFeatMissing("Mounth", "ru.kfu.cll.uima.tokenizer.types.Date");
     ll_cas.ll_setStringValue(addr, casFeatCode_Mounth, v);}
     
   
@@ -86,13 +86,13 @@ public class Date_Type extends Token_Type {
   /** @generated */ 
   public String getDay(int addr) {
         if (featOkTst && casFeat_Day == null)
-      jcas.throwFeatMissing("Day", "tokenization.types.Date");
+      jcas.throwFeatMissing("Day", "ru.kfu.cll.uima.tokenizer.types.Date");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Day);
   }
   /** @generated */    
   public void setDay(int addr, String v) {
         if (featOkTst && casFeat_Day == null)
-      jcas.throwFeatMissing("Day", "tokenization.types.Date");
+      jcas.throwFeatMissing("Day", "ru.kfu.cll.uima.tokenizer.types.Date");
     ll_cas.ll_setStringValue(addr, casFeatCode_Day, v);}
     
   

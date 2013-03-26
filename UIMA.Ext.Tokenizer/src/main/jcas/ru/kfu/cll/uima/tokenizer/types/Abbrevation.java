@@ -1,7 +1,7 @@
 
 
-/* First created by JCasGen Thu Mar 07 21:51:17 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
@@ -10,8 +10,8 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
- * XML source: /home/marsel/Рабочий стол/desc/NLP@Cloud_Tokenizer_Descriptor.xml
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
+ * XML source: /home/fsqcds/idea-projects/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/jflex-tokenizer-ts.xml
  * @generated */
 public class Abbrevation extends Token {
   /** @generated
@@ -59,6 +59,8 @@ public class Abbrevation extends Token {
   @generated modifiable */
   private void readObject() {/*default - does nothing empty block */}
      
+ 
+    
   //*--------------*
   //* Feature: Language
 
@@ -66,14 +68,14 @@ public class Abbrevation extends Token {
    * @generated */
   public String getLanguage() {
     if (Abbrevation_Type.featOkTst && ((Abbrevation_Type)jcasType).casFeat_Language == null)
-      jcasType.jcas.throwFeatMissing("Language", "tokenization.types.Abbrevation");
+      jcasType.jcas.throwFeatMissing("Language", "ru.kfu.cll.uima.tokenizer.types.Abbrevation");
     return jcasType.ll_cas.ll_getStringValue(addr, ((Abbrevation_Type)jcasType).casFeatCode_Language);}
     
   /** setter for Language - sets  
    * @generated */
   public void setLanguage(String v) {
     if (Abbrevation_Type.featOkTst && ((Abbrevation_Type)jcasType).casFeat_Language == null)
-      jcasType.jcas.throwFeatMissing("Language", "tokenization.types.Abbrevation");
+      jcasType.jcas.throwFeatMissing("Language", "ru.kfu.cll.uima.tokenizer.types.Abbrevation");
     jcasType.ll_cas.ll_setStringValue(addr, ((Abbrevation_Type)jcasType).casFeatCode_Language, v);}    
   }
 

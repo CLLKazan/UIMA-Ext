@@ -1,6 +1,6 @@
 
-/* First created by JCasGen Sat Mar 09 22:06:31 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
@@ -13,7 +13,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
  * @generated */
 public class Measurement_Type extends Token_Type {
   /** @generated */
@@ -41,7 +41,7 @@ public class Measurement_Type extends Token_Type {
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("tokenization.types.Measurement");
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ru.kfu.cll.uima.tokenizer.types.Measurement");
  
   /** @generated */
   final Feature casFeat_UnitName;
@@ -50,13 +50,13 @@ public class Measurement_Type extends Token_Type {
   /** @generated */ 
   public String getUnitName(int addr) {
         if (featOkTst && casFeat_UnitName == null)
-      jcas.throwFeatMissing("UnitName", "tokenization.types.Measurement");
+      jcas.throwFeatMissing("UnitName", "ru.kfu.cll.uima.tokenizer.types.Measurement");
     return ll_cas.ll_getStringValue(addr, casFeatCode_UnitName);
   }
   /** @generated */    
   public void setUnitName(int addr, String v) {
         if (featOkTst && casFeat_UnitName == null)
-      jcas.throwFeatMissing("UnitName", "tokenization.types.Measurement");
+      jcas.throwFeatMissing("UnitName", "ru.kfu.cll.uima.tokenizer.types.Measurement");
     ll_cas.ll_setStringValue(addr, casFeatCode_UnitName, v);}
     
   
@@ -68,13 +68,13 @@ public class Measurement_Type extends Token_Type {
   /** @generated */ 
   public String getValue(int addr) {
         if (featOkTst && casFeat_Value == null)
-      jcas.throwFeatMissing("Value", "tokenization.types.Measurement");
+      jcas.throwFeatMissing("Value", "ru.kfu.cll.uima.tokenizer.types.Measurement");
     return ll_cas.ll_getStringValue(addr, casFeatCode_Value);
   }
   /** @generated */    
   public void setValue(int addr, String v) {
         if (featOkTst && casFeat_Value == null)
-      jcas.throwFeatMissing("Value", "tokenization.types.Measurement");
+      jcas.throwFeatMissing("Value", "ru.kfu.cll.uima.tokenizer.types.Measurement");
     ll_cas.ll_setStringValue(addr, casFeatCode_Value, v);}
     
   

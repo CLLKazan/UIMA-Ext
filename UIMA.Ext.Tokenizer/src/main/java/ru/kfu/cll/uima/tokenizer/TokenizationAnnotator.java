@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.jcas.JCas;
 
-import tokenization.types.Token;
+import ru.kfu.cll.uima.tokenizer.types.Token;
 
 public class TokenizationAnnotator extends JCasAnnotator_ImplBase {
 	public void process (JCas cas) {

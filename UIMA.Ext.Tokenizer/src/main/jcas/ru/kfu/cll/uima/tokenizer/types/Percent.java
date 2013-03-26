@@ -1,7 +1,7 @@
 
 
-/* First created by JCasGen Sun Mar 10 20:09:10 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
@@ -10,8 +10,8 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
- * XML source: /home/marsel/Рабочий стол/desc/NLP@Cloud_Tokenizer_Descriptor.xml
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
+ * XML source: /home/fsqcds/idea-projects/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/jflex-tokenizer-ts.xml
  * @generated */
 public class Percent extends Token {
   /** @generated
@@ -68,14 +68,14 @@ public class Percent extends Token {
    * @generated */
   public String getValue() {
     if (Percent_Type.featOkTst && ((Percent_Type)jcasType).casFeat_Value == null)
-      jcasType.jcas.throwFeatMissing("Value", "tokenization.types.Percent");
+      jcasType.jcas.throwFeatMissing("Value", "ru.kfu.cll.uima.tokenizer.types.Percent");
     return jcasType.ll_cas.ll_getStringValue(addr, ((Percent_Type)jcasType).casFeatCode_Value);}
     
   /** setter for Value - sets  
    * @generated */
   public void setValue(String v) {
     if (Percent_Type.featOkTst && ((Percent_Type)jcasType).casFeat_Value == null)
-      jcasType.jcas.throwFeatMissing("Value", "tokenization.types.Percent");
+      jcasType.jcas.throwFeatMissing("Value", "ru.kfu.cll.uima.tokenizer.types.Percent");
     jcasType.ll_cas.ll_setStringValue(addr, ((Percent_Type)jcasType).casFeatCode_Value, v);}    
   }
 

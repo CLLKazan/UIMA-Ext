@@ -1,7 +1,7 @@
 
 
-/* First created by JCasGen Sat Mar 09 23:24:41 MSK 2013 */
-package tokenization.types;
+/* First created by JCasGen Tue Mar 26 13:55:53 SAMT 2013 */
+package ru.kfu.cll.uima.tokenizer.types;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
@@ -10,8 +10,8 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Sun Mar 10 20:12:40 MSK 2013
- * XML source: /home/marsel/Рабочий стол/desc/NLP@Cloud_Tokenizer_Descriptor.xml
+ * Updated by JCasGen Tue Mar 26 13:55:53 SAMT 2013
+ * XML source: /home/fsqcds/idea-projects/UIMA-Ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/tokenizer/jflex-tokenizer-ts.xml
  * @generated */
 public class ComplexWord extends Token {
   /** @generated
@@ -68,14 +68,14 @@ public class ComplexWord extends Token {
    * @generated */
   public String getLeft() {
     if (ComplexWord_Type.featOkTst && ((ComplexWord_Type)jcasType).casFeat_Left == null)
-      jcasType.jcas.throwFeatMissing("Left", "tokenization.types.ComplexWord");
+      jcasType.jcas.throwFeatMissing("Left", "ru.kfu.cll.uima.tokenizer.types.ComplexWord");
     return jcasType.ll_cas.ll_getStringValue(addr, ((ComplexWord_Type)jcasType).casFeatCode_Left);}
     
   /** setter for Left - sets  
    * @generated */
   public void setLeft(String v) {
     if (ComplexWord_Type.featOkTst && ((ComplexWord_Type)jcasType).casFeat_Left == null)
-      jcasType.jcas.throwFeatMissing("Left", "tokenization.types.ComplexWord");
+      jcasType.jcas.throwFeatMissing("Left", "ru.kfu.cll.uima.tokenizer.types.ComplexWord");
     jcasType.ll_cas.ll_setStringValue(addr, ((ComplexWord_Type)jcasType).casFeatCode_Left, v);}    
    
     
@@ -86,14 +86,14 @@ public class ComplexWord extends Token {
    * @generated */
   public String getRight() {
     if (ComplexWord_Type.featOkTst && ((ComplexWord_Type)jcasType).casFeat_Right == null)
-      jcasType.jcas.throwFeatMissing("Right", "tokenization.types.ComplexWord");
+      jcasType.jcas.throwFeatMissing("Right", "ru.kfu.cll.uima.tokenizer.types.ComplexWord");
     return jcasType.ll_cas.ll_getStringValue(addr, ((ComplexWord_Type)jcasType).casFeatCode_Right);}
     
   /** setter for Right - sets  
    * @generated */
   public void setRight(String v) {
     if (ComplexWord_Type.featOkTst && ((ComplexWord_Type)jcasType).casFeat_Right == null)
-      jcasType.jcas.throwFeatMissing("Right", "tokenization.types.ComplexWord");
+      jcasType.jcas.throwFeatMissing("Right", "ru.kfu.cll.uima.tokenizer.types.ComplexWord");
     jcasType.ll_cas.ll_setStringValue(addr, ((ComplexWord_Type)jcasType).casFeatCode_Right, v);}    
   }
 
