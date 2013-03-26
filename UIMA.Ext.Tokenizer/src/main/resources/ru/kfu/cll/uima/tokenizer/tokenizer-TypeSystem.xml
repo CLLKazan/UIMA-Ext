@@ -6,14 +6,14 @@
   <vendor/>
   <types>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.TokenBase</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.TokenBase</name>
       <description/>
       <supertypeName>uima.tcas.Annotation</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.Token</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.Token</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.TokenBase</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.TokenBase</supertypeName>
       <features>
 				<featureDescription>
 					<name>TypeName</name>
@@ -27,89 +27,89 @@
       
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.WhiteSpace</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.WhiteSpace</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.TokenBase</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.TokenBase</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.W</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.W</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.Token</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.Token</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.CW</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.CW</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.W</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.W</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.SW</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.SW</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.W</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.W</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.CAP</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.CAP</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.CW</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.CW</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.PM</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.PM</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.Token</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.Token</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.COLON</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.COLON</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.PM</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.PM</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.PERIOD</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.PERIOD</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.PM</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.PM</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.QUESTION</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.QUESTION</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.PM</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.PM</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.EXCLAMATION</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.EXCLAMATION</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.PM</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.PM</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.COMMA</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.COMMA</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.PM</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.PM</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.SEMICOLON</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.SEMICOLON</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.PM</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.PM</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.NUM</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.NUM</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.Token</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.Token</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.SPECIAL</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.SPECIAL</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.Token</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.Token</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.SPACE</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.SPACE</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.WhiteSpace</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.WhiteSpace</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.BREAK</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.BREAK</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.WhiteSpace</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.WhiteSpace</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>ru.kfu.cll.uima.tokenizer.fstype.NBSP</name>
+      <name>ru.kfu.cll.uima.segmentation.fstype.NBSP</name>
       <description/>
-      <supertypeName>ru.kfu.cll.uima.tokenizer.fstype.WhiteSpace</supertypeName>
+      <supertypeName>ru.kfu.cll.uima.segmentation.fstype.WhiteSpace</supertypeName>
     </typeDescription>
   </types>
 </typeSystemDescription>

@@ -22,12 +22,12 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 
-import ru.kfu.cll.uima.tokenizer.fstype.CW;
-import ru.kfu.cll.uima.tokenizer.fstype.EXCLAMATION;
-import ru.kfu.cll.uima.tokenizer.fstype.PERIOD;
-import ru.kfu.cll.uima.tokenizer.fstype.QUESTION;
-import ru.kfu.cll.uima.tokenizer.fstype.SW;
-import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.cll.uima.segmentation.fstype.CW;
+import ru.kfu.cll.uima.segmentation.fstype.EXCLAMATION;
+import ru.kfu.cll.uima.segmentation.fstype.PERIOD;
+import ru.kfu.cll.uima.segmentation.fstype.QUESTION;
+import ru.kfu.cll.uima.segmentation.fstype.SW;
+import ru.kfu.cll.uima.segmentation.fstype.Token;
 
 import com.google.common.collect.ImmutableSet;
 

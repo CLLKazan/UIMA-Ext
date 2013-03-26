@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
 import ru.kfu.cll.uima.segmentation.fstype.PMSegment;
 import ru.kfu.cll.uima.segmentation.fstype.QSegment;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.cll.uima.tokenizer.fstype.PM;
+import ru.kfu.cll.uima.segmentation.fstype.PM;
 
 public class PunctuationSegmentAnnotator extends CasAnnotator_ImplBase {
 

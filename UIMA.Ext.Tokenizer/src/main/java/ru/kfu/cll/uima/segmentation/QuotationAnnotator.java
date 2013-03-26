@@ -24,7 +24,7 @@ import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 
 import ru.kfu.cll.uima.segmentation.fstype.QSegment;
-import ru.kfu.cll.uima.tokenizer.fstype.PM;
+import ru.kfu.cll.uima.segmentation.fstype.PM;
 
 import com.google.common.collect.Lists;
 
