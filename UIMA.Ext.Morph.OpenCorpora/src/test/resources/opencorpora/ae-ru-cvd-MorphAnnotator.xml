@@ -30,7 +30,7 @@
 			<nameValuePair>
 				<name>TokenType</name>
 				<value>
-					<string>ru.kfu.cll.uima.tokenizer.types.Letters</string>
+					<string>ru.kfu.cll.uima.tokenizer.types.RussianWord</string>
 				</value>
 			</nameValuePair>
 		</configurationParameterSettings>

@@ -44,7 +44,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	public static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
 
 	@ConfigurationParameter(name = PARAM_TOKEN_TYPE,
-			defaultValue = "ru.kfu.cll.uima.tokenizer.types.Letters")
+			defaultValue = "ru.kfu.cll.uima.tokenizer.types.RussianWord")
 	private String tokenTypeName;
 	@ExternalResource(key = RESOURCE_KEY_DICTIONARY)
 	private SerializedDictionaryResource dictResource;
