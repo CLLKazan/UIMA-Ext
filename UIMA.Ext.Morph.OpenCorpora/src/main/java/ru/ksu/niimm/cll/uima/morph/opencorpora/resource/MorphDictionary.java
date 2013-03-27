@@ -44,6 +44,10 @@ public interface MorphDictionary {
 
 	BitSet getPosBits();
 
+	/**
+	 * @param id
+	 * @return grammeme with given string id or null if it does not exist.
+	 */
 	Grammeme getGrammem(String id);
 
 	Map<Integer, LemmaLinkType> getLemmaOutlinks(int lemmaId);
@@ -54,7 +58,8 @@ public interface MorphDictionary {
 	 * @param gramId
 	 * @param includeTarget
 	 *            if true given gramId will be included in result set
-	 * @return
+	 * @return bitset containing numerical ids given grammeme children. If
+	 *         grammeme with given string id does not exist then result is null.
 	 */
 	BitSet getGrammemWithChildrenBits(String gramId, boolean includeTarget);
 

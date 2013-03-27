@@ -23,7 +23,7 @@ import org.uimafit.util.FSCollectionFactory
 import org.opencorpora.cas.Wordform
 import org.apache.uima.cas.text.AnnotationFS
 import ru.kfu.itis.issst.uima.phrrecog.cas.Phrase
-import ru.kfu.itis.issst.uima.shaltef.mappings.PhrasePattern
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhrasePattern
 import org.apache.uima.cas.Feature
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
 import scala.collection.mutable.ListBuffer
@@ -33,6 +33,7 @@ import ru.kfu.itis.issst.uima.shaltef.mappings.DepToArgMappingsBuilder
 import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParser
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource
 import ru.kfu.itis.issst.uima.shaltef.mappings.TextualMappingsParser
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.MatchingContext
 
 class ShaltefAnnotator extends CasAnnotator_ImplBase {
 
@@ -102,15 +103,17 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
       def fillTemplate(iter: Iterator[SlotMapping]): Boolean =
         if (iter.hasNext) {
           val slotMapping = iter.next()
-          phraseIndex.searchPhrase(slotMapping.pattern, matchedPhrases) match {
-            case None =>
-              if (slotMapping.isOptional) fillTemplate(iter)
-              else false
-            case Some(mPhrase) =>
-              template.setFeatureValue(slotMapping.slotFeature, makeCoveringAnnotation(mPhrase))
-              matchedPhrases += mPhrase
-              fillTemplate(iter)
-          }
+          val matchingCtx = MatchingContext(wf)
+          phraseIndex.searchPhrase(
+            slotMapping.pattern.matches(_, matchingCtx), matchedPhrases) match {
+              case None =>
+                if (slotMapping.isOptional) fillTemplate(iter)
+                else false
+              case Some(mPhrase) =>
+                template.setFeatureValue(slotMapping.slotFeature, makeCoveringAnnotation(mPhrase))
+                matchedPhrases += mPhrase
+                fillTemplate(iter)
+            }
         } else true // END of fillTemplate
       // invoke recursive inner function
       if (fillTemplate(mapping.getSlotMappings.iterator))
@@ -170,7 +173,7 @@ private[shaltef] class PhraseIndex(segm: AnnotationFS, refWord: Word, ts: TypeSy
     buffer.toList
   }
 
-  def searchPhrase(pattern: PhrasePattern, setOfIgnored: sc.Set[Phrase]): Option[Phrase] =
+  def searchPhrase(pred: Phrase => Boolean, setOfIgnored: sc.Set[Phrase]): Option[Phrase] =
     phraseTraverseSeq.find(candPhr =>
-      !setOfIgnored.contains(candPhr) && pattern.matches(candPhr))
+      !setOfIgnored.contains(candPhr) && pred(candPhr))
 }

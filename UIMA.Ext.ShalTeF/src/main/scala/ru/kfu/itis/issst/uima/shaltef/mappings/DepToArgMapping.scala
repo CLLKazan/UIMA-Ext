@@ -5,6 +5,7 @@ import org.apache.uima.cas.Feature
 import scala.collection.immutable.Iterable
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhrasePattern
 
 trait DepToArgMapping {
 

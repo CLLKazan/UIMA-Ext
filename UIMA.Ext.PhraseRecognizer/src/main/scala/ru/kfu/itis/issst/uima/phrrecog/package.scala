@@ -70,7 +70,7 @@ package object phrrecog {
     toTraverseableLocal(np, false)
 
   // TODO low priority: move to scala-uima-common utility package
-  private def fsArrayToTraversable[FST <: FeatureStructure](
+  def fsArrayToTraversable[FST <: FeatureStructure](
     fsArr: ArrayFS, fstClass: Class[FST]): Traversable[FST] = new Traversable[FST] {
     override def foreach[U](f: FST => U): Unit =
       if (fsArr != null)

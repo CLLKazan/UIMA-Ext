@@ -11,8 +11,26 @@ import scala.collection.JavaConversions.iterableAsScalaIterable
 import scala.collection.mutable.HashSet
 import ru.kfu.itis.issst.uima.shaltef.mappings.impl.DefaultDepToArgMapping
 import java.io.Reader
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintValue
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintValueFactory
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.Equals
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintOperator
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintConjunctionPhrasePattern
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraint
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PrepositionConstraint
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.HeadGrammemeConstraint
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintTarget
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintTargetFactory
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraintFactory
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.BinaryConstraintOperator
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.UnaryConstraintOperator
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.HasHeadsPath
 
 private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extends MappingsParser {
+
+  private val constrValueFactory = new ConstraintValueFactory(morphDict)
+  private val constrTargetFactory = new ConstraintTargetFactory(morphDict)
+  private val constrFactory = new PhraseConstraintFactory
 
   override def parse(url: URL, templateAnnoType: Type, mappingsHolder: DepToArgMappingsBuilder) {
     val is = url.openStream()
@@ -79,25 +97,39 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
       new ConstraintConjunctionPhrasePattern(_)
     }
 
-    private def slotConstraint = constraintTarget ~ constraintOp ~ constraintValue ^^ {
-      case target ~ op ~ value => new PhraseConstraint(target, op, value)
+    private def slotConstraint = slotConstraintBinOp | slotConstraintUnOp
+
+    private def slotConstraintBinOp = constraintTarget ~ constraintBinOp ~ constraintValue ^^ {
+      case target ~ op ~ value => constrFactory.phraseConstraint(target, op, value)
     }
 
+    private def slotConstraintUnOp = (constraintUnOp <~ "(") ~ constraintValue <~ ")" ^^ {
+      case op ~ value => constrFactory.phraseConstraint(op, value)
+    }
+
+    import constrValueFactory._
+    import constrTargetFactory._
+
     private def constraintTarget: Parser[ConstraintTarget] = rep1sep(ident, ".") ^? ({
-      case List("head", gramCat) => new HeadGrammemeConstraint(gramCat)
-      case List("words") => WordsConstraint
-      case List("prep") => PrepositionConstraint
+      case List("head", gramCat) => headFeature(gramCat)
+      case List("prep") => prepositionTarget
     }, "Unknown constraint target: %s".format(_))
 
-    private def constraintOp: Parser[ConstraintOperator] = "=" ^^ { _ => Equals }
+    private def constraintBinOp: Parser[BinaryConstraintOperator] =
+      "=" ^^ { _ => Equals }
+
+    private def constraintUnOp: Parser[UnaryConstraintOperator] =
+      "headPath" ^^ { _ => HasHeadsPath }
 
     private def constraintValue: Parser[ConstraintValue] = constantValue | triggerValueRef
 
     private def constantValue = stringLiteral ^^ {
-      str => ConstantValue(str.substring(1, str.length() - 1))
+      str => constant(str.substring(1, str.length() - 1))
     }
 
-    private def triggerValueRef = "$trigger." ~> ident ^^ { new TriggerFeatureReference(_) }
+    private def triggerValueRef = "$trigger." ~> ident ^^ {
+      triggerFeatureReference(_)
+    }
   }
 }
 

@@ -203,6 +203,9 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	@Override
 	public BitSet getGrammemWithChildrenBits(String gramId, boolean includeTarget) {
 		Grammeme targetGram = getGrammem(gramId);
+		if (targetGram == null) {
+			return null;
+		}
 		BitSet result = new BitSet(getGrammemMaxNumId());
 		if (includeTarget) {
 			result.set(targetGram.getNumId());
@@ -215,12 +218,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public Grammeme getGrammem(String id) {
-		Grammeme gr = gramMap.get(id);
-		if (gr == null) {
-			throw new IllegalStateException(String.format(
-					"Unknown grammeme: %s", id));
-		}
-		return gr;
+		return gramMap.get(id);
 	}
 
 	@Override

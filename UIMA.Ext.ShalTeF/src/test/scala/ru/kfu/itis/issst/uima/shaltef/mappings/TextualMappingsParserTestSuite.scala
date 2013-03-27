@@ -4,12 +4,21 @@ import org.scalatest.FunSuite
 import org.mockito.Mockito._
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary
 import org.scalatest.mock.MockitoSugar
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConversions.{ seqAsJavaList, bufferAsJavaList }
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform
 import java.io.File
 import ru.kfu.itis.issst.uima.shaltef.util.CasTestUtils
 import ru.kfu.itis.issst.uima.shaltef.mappings.impl.DefaultDepToArgMapping
 import ru.kfu.itis.issst.uima.shaltef.mappings.impl.DefaultDepToArgMappingsHolder
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintValueFactory
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.Equals
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintConjunctionPhrasePattern
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraint
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraintFactory
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintTargetFactory
+import java.util.BitSet
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintConjunctionPhrasePattern
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.HasHeadsPath
 
 class TextualMappingsParserTestSuite extends FunSuite with MockitoSugar with CasTestUtils {
 
@@ -17,12 +26,25 @@ class TextualMappingsParserTestSuite extends FunSuite with MockitoSugar with Cas
 
   test("Parse mappings in release.txt") {
     val morphDict = mock[MorphDictionary]
+    // stub invocations for trigger lemma search
     when(morphDict.getEntries("выпустил")).thenReturn(
       Wordform.builder(morphDict, 100).build() :: Nil)
     when(morphDict.getEntries("выйдет")).thenReturn(
       Wordform.builder(morphDict, 200).build :: Nil)
+    // stub invocations for grammeme extractors
+    val caseBS = new BitSet
+    caseBS.set(100)
+    val gndrBS = new BitSet
+    caseBS.set(200)
+    when(morphDict.getGrammemWithChildrenBits("CAse", false)).thenReturn(caseBS)
+    when(morphDict.getGrammemWithChildrenBits("GNdr", false)).thenReturn(gndrBS)
+    when(morphDict.toGramSet(caseBS)).thenReturn(List("nomn", "accs", "ablt"))
+    when(morphDict.toGramSet(gndrBS)).thenReturn(List("masc", "femn", "neut"))
 
     val parser = TextualMappingsParser(morphDict)
+    val constrValueFactory = new ConstraintValueFactory(morphDict)
+    val constrTargetFactory = new ConstraintTargetFactory(morphDict)
+    val constrFactory = new PhraseConstraintFactory
 
     val mappingsBuilder = DepToArgMappingsBuilder()
     val templateAnnoType = ts.getType("test.Release")
@@ -37,15 +59,18 @@ class TextualMappingsParserTestSuite extends FunSuite with MockitoSugar with Cas
     val mappings = mappingsBuilder.build().asInstanceOf[DefaultDepToArgMappingsHolder]
     assert(mappings.triggerLemmaId2Mappings.size === 2)
 
+    import constrValueFactory._
+    import constrTargetFactory._
+    import constrFactory._
     val pattern1 = new ConstraintConjunctionPhrasePattern(
-      new PhraseConstraint(new HeadGrammemeConstraint("case"), Equals, ConstantValue("nomn")) ::
-        new PhraseConstraint(new HeadGrammemeConstraint("gndr"), Equals, TriggerFeatureReference("gndr")) ::
+      phraseConstraint(headFeature("case"), Equals, constant("nomn")) ::
+        phraseConstraint(headFeature("gndr"), Equals, triggerFeatureReference("gndr")) ::
         Nil)
     val pattern2 = new ConstraintConjunctionPhrasePattern(
-      new PhraseConstraint(new HeadGrammemeConstraint("case"), Equals, ConstantValue("accs"))
+      phraseConstraint(headFeature("case"), Equals, constant("accs"))
         :: Nil)
     val pattern3 = new ConstraintConjunctionPhrasePattern(
-      new PhraseConstraint(PrepositionConstraint, Equals, ConstantValue("в"))
+      phraseConstraint(prepositionTarget, Equals, constant("в"))
         :: Nil)
     assert(mappings.triggerLemmaId2Mappings(100) === new DefaultDepToArgMapping(
       templateAnnoType, Set(100),
@@ -55,11 +80,15 @@ class TextualMappingsParserTestSuite extends FunSuite with MockitoSugar with Cas
       :: Nil)
 
     val pattern4 = new ConstraintConjunctionPhrasePattern(
-      new PhraseConstraint(new HeadGrammemeConstraint("case"), Equals, ConstantValue("nomn")) ::
-        new PhraseConstraint(new HeadGrammemeConstraint("gndr"), Equals, TriggerFeatureReference("gndr")) :: Nil)
+      phraseConstraint(headFeature("case"), Equals, constant("nomn")) ::
+        phraseConstraint(headFeature("gndr"), Equals, triggerFeatureReference("gndr")) :: Nil)
+    val pattern5 = new ConstraintConjunctionPhrasePattern(
+      phraseConstraint(prepositionTarget, Equals, constant("в")) ::
+        phraseConstraint(HasHeadsPath, constant("году")) :: Nil)
     assert(mappings.triggerLemmaId2Mappings(200) === new DefaultDepToArgMapping(
       templateAnnoType, Set(200),
-      new SlotMapping(pattern4, false, objFeat) :: Nil)
+      new SlotMapping(pattern4, false, objFeat) ::
+        new SlotMapping(pattern5, false, dateFeat) :: Nil)
       :: Nil)
   }
 
