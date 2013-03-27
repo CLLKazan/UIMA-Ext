@@ -86,11 +86,8 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	private void process(JCas cas) throws AnalysisEngineProcessException {
 		AnnotationIndex<Annotation> tokenIdx = cas.getAnnotationIndex(tokenType);
 		for (Annotation token : tokenIdx) {
-			String tokenStr = ((Token)token).getText();
-			if (proceed(tokenStr)) {
-				// TODO configuration point
-				// tokenizer should care about normalization 
-				tokenStr = WordUtils.normalizeToDictionaryForm(tokenStr);
+			String tokenStr = ((Token)token).getNorm();
+			if (tokenStr != null) {
 				List<Wordform> wfDictEntries = dict.getEntries(tokenStr);
 				if (wfDictEntries != null && !wfDictEntries.isEmpty()) {
 					// make word annotation
@@ -129,10 +126,5 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 		word.setWordforms(FSUtils.toFSArray(cas, casWfList));
 
 		word.addToIndexes();
-	}
-
-	// TODO configuration point
-	private boolean proceed(String tokenStr) {
-		return WordUtils.isRussianWord(tokenStr);
 	}
 }
