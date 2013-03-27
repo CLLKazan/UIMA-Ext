@@ -326,7 +326,7 @@ return null;
 	PM = [\.,:;!\?…——-]
 	SYMBOLS = [«»$£¥₣€°@#\%\^&\*№<>\+=]|("\"")
 	COMPLEX_WORD = {LETTERS}("-"|"—"){LETTERS}
-	ABBREVATION_RUS = "ж/д"|"т.д."|"т. д."|"т.п."|"т. п."|"пр."|"см."|"др."|"гг."|"б/y"|"и.о."|"и. о."
+	ABBREVATION_RUS = "ж/д"|"т.д."|"т. д."|"т.п."|"т. п."|"пр."|"см."|"др."|"гг."|"б/y"|"и.о."|"и. о."|"т.е."|"т. e."|([Пп]"римеч.")|([Сс]"ост.")|("Спб.")
 	ABBREVATION_ENG = "anon."|"etc."|"a.m."|"p.m"|"AM"|"PM"
 	//MEASUREMET = "кг"|"м"|"м/c"|"см"|"км/ч"
 	//UINIT_OF_MEASUREMENT = {NUMBER}{SPACE}{MEASUREMENT}
