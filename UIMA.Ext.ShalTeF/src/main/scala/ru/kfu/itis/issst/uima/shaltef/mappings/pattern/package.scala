@@ -3,6 +3,7 @@ package ru.kfu.itis.issst.uima.shaltef.mappings
 import grizzled.slf4j.Logging
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, asScalaSet }
+import org.opencorpora.cas.Wordform
 
 package object pattern extends Logging {
 
@@ -26,4 +27,9 @@ package object pattern extends Logging {
     }
   }
 
+  type WordformConstraint = Wordform => Boolean
+
+  def lemmaWfConstraint(lemmaStr: String): WordformConstraint = _.getLemma == lemmaStr
+
+  def stringWfConstraint(str: String): WordformConstraint = _.getWord.getCoveredText == str
 }

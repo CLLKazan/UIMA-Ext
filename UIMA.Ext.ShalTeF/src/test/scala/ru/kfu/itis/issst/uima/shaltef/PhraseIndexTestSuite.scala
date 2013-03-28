@@ -29,6 +29,7 @@ import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import org.apache.uima.cas.text.AnnotationIndex
 import ru.kfu.itis.issst.uima.shaltef.util.CasTestUtils
+import ru.kfu.itis.issst.uima.shaltef.util.NprCasBuilder
 import ru.kfu.itis.cll.uima.cas.FSUtils
 
 class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
@@ -179,23 +180,18 @@ private[shaltef] case class TestNP(head: String, prepOpt: String = null, particl
 
 object PhraseIndexTestSuiteResources extends App {
   private val text = "Отборочный матч чемпионата мира по футболу 2014 года между сборными Северной Ирландии и России перенесен на более поздний срок."
-  private val ts = {
-    val tsDesc = createTypeSystemDescription("ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer",
-      "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-      "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
-    val dumbCas = CasCreationUtils.createCas(tsDesc, null, null)
-    dumbCas.getTypeSystem()
+
+  {
+    // no-np.xmi
+    val cb = new NprCasBuilder(text, Nil)
+    preprocess(cb)
+    cb.serialize("src/test/resources/phr-idx/no-np.xmi")
   }
-
-  private val wfMap = mutable.Map.empty[String, Wordform]
-  private var jCas: JCas = _ // no-np xmi
-
   {
-    getNewCas()
-    serialize("src/test/resources/phr-idx/no-np.xmi")
-  } // 9-np xmi
-  {
-    getNewCas()
+    // 9-np.xmi
+    val cb = new NprCasBuilder(text, Nil)
+    preprocess(cb)
+    import cb._
     val np1 = np("мира")
     val np2 = np("чемпионата", depNPs = np1 :: Nil)
     val np3 = np("матч", depWordIds = "Отборочный" :: Nil, depNPs = np2 :: Nil, index = true)
@@ -208,64 +204,8 @@ object PhraseIndexTestSuiteResources extends App {
     serialize("src/test/resources/phr-idx/9-np.xmi")
   }
 
-  private def w(begin: Int, end: Int): Wordform = w(text.substring(begin, end), begin, end)
-
-  private def w(id: String, begin: Int, end: Int): Wordform = {
-    require(!wfMap.contains(id), "Duplicate id: %s".format(id))
-    val token = new W(jCas)
-    token.setBegin(begin)
-    token.setEnd(end)
-    token.addToIndexes()
-    val word = new Word(jCas)
-    word.setBegin(begin)
-    word.setEnd(end)
-    word.setToken(token)
-
-    val wf = new Wordform(jCas)
-    wf.setWord(word)
-    word.setWordforms(FSUtils.toFSArray(jCas, wf))
-
-    word.addToIndexes()
-
-    wfMap(id) = wf
-    wf
-  }
-
-  private def w(id: String): Wordform =
-    if (id == null) null
-    else wfMap(id)
-
-  private def np(headId: String, prepId: String = null, particleId: String = null,
-    depWordIds: Iterable[String] = Nil, depNPs: Iterable[Phrase] = Nil,
-    index: Boolean = false): NounPhrase = {
-    val npAnno = new NounPhrase(jCas)
-    val head = w(headId)
-    npAnno.setBegin(head.getWord.getBegin)
-    npAnno.setEnd(head.getWord.getEnd)
-    npAnno.setHead(head)
-    npAnno.setParticle(w(particleId))
-    npAnno.setPreposition(w(prepId))
-    if (!depWordIds.isEmpty)
-      npAnno.setDependentWords(FSCollectionFactory.createFSArray(jCas, depWordIds.map(w(_))).asInstanceOf[FSArray])
-    if (!depNPs.isEmpty)
-      npAnno.setDependentPhrases(FSCollectionFactory.createFSArray(jCas, depNPs).asInstanceOf[FSArray])
-    if (index)
-      npAnno.addToIndexes()
-    npAnno
-  }
-
-  private def sent(begin: Int, end: Int): Sentence = {
-    val sentAnno = new Sentence(jCas)
-    sentAnno.setBegin(begin)
-    sentAnno.setEnd(end)
-    sentAnno.addToIndexes()
-    sentAnno
-  }
-
-  private def getNewCas() {
-    wfMap.clear()
-    jCas = CasCreationUtils.createCas(ts, null, null, null).getJCas();
-    jCas.setDocumentText(text)
+  private def preprocess(cb: NprCasBuilder) {
+    import cb._
     w(0, 10)
     w(11, 15)
     w(16, 26)
@@ -286,14 +226,5 @@ object PhraseIndexTestSuiteResources extends App {
     w(114, 121)
     w(122, 126)
     sent(0, 127)
-  }
-
-  private def serialize(outPath: String) {
-    val os = new BufferedOutputStream(new FileOutputStream(outPath))
-    try {
-      XmiCasSerializer.serialize(jCas.getCas(), null, os, true, null)
-    } finally {
-      os.close()
-    }
   }
 }
