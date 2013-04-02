@@ -58,6 +58,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 				if (tmIter.hasNext())
 					sb.append(", ");
 			}
+			sb.append("]");
 			return sb.toString();
 		}
 	}

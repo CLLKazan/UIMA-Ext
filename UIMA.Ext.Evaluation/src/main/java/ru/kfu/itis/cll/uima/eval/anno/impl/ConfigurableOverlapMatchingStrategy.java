@@ -6,7 +6,7 @@ package ru.kfu.itis.cll.uima.eval.anno.impl;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.kfu.itis.cll.uima.eval.matching.CompositeMatcher;
+import ru.kfu.itis.cll.uima.eval.matching.TypeBasedMatcherDispatcher;
 
 /**
  * @author Rinat Gareev
@@ -15,7 +15,7 @@ import ru.kfu.itis.cll.uima.eval.matching.CompositeMatcher;
 public class ConfigurableOverlapMatchingStrategy extends OverlapMatchingStrategy {
 
 	@Autowired
-	private CompositeMatcher<AnnotationFS> topMatcher;
+	private TypeBasedMatcherDispatcher<AnnotationFS> topMatcher;
 
 	/**
 	 * {@inheritDoc}

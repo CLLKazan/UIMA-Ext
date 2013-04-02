@@ -13,7 +13,8 @@ import org.springframework.core.env.Environment;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class MatchingConfigurationFactory implements FactoryBean<CompositeMatcher<AnnotationFS>> {
+public class MatchingConfigurationFactory implements
+		FactoryBean<TypeBasedMatcherDispatcher<AnnotationFS>> {
 
 	@Autowired
 	private Environment environment;
@@ -21,10 +22,10 @@ public class MatchingConfigurationFactory implements FactoryBean<CompositeMatche
 	private TypeSystem ts;
 
 	// state
-	private CompositeMatcher<AnnotationFS> instance;
+	private TypeBasedMatcherDispatcher<AnnotationFS> instance;
 
 	@Override
-	public CompositeMatcher<AnnotationFS> getObject() throws Exception {
+	public TypeBasedMatcherDispatcher<AnnotationFS> getObject() throws Exception {
 		if (instance == null) {
 			instance = new MatchingConfigurationInitializer(ts, environment).create();
 		}
@@ -32,7 +33,7 @@ public class MatchingConfigurationFactory implements FactoryBean<CompositeMatche
 	}
 
 	public Class<?> getObjectType() {
-		return CompositeMatcher.class;
+		return TypeBasedMatcherDispatcher.class;
 	}
 
 	@Override

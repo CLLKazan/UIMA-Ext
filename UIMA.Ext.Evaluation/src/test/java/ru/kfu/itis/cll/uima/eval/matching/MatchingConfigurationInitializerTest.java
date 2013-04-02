@@ -31,6 +31,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import ru.kfu.itis.cll.uima.eval.TypeSystemInitializer;
 import ru.kfu.itis.cll.uima.eval.matching.CompositeMatcher.AnnotationMatcherBuilder;
+import ru.kfu.itis.cll.uima.eval.matching.TypeBasedMatcherDispatcher.Builder;
 
 /**
  * @author Rinat Gareev
@@ -59,14 +60,14 @@ public class MatchingConfigurationInitializerTest extends AbstractJUnit4SpringCo
 	@Test
 	public void testChunkMatcher() {
 		Map<String, Object> properties = newHashMap();
-		properties.put("check.targetType", "test.Chunk");
+		properties.put("check.targetTypes", "test.Chunk");
 		properties
 				.put("check.Chunk",
 						"checkType,feature.chunkType={primitive},feature.head={checkBoundaries},feature.dependents={ordered&ref:Word},feature.subChunks={unordered&ref:Chunk}");
 		properties.put("check.Word", "checkBoundaries,feature.uid={primitive}");
 		PropertyResolver propResolver = makePropertyResolver(properties);
-		CompositeMatcher<AnnotationFS> actualMatcher = new MatchingConfigurationInitializer(ts,
-				propResolver).create();
+		TypeBasedMatcherDispatcher<AnnotationFS> actualMatcher =
+				new MatchingConfigurationInitializer(ts, propResolver).create();
 
 		Type chunkType = ts.getType("test.Chunk");
 		// build expected config
@@ -85,7 +86,31 @@ public class MatchingConfigurationInitializerTest extends AbstractJUnit4SpringCo
 						.build(), false);
 		expectedBuilder.addFSCollectionFeatureMatcher("subChunks", expectedBuilder, true);
 		CompositeMatcher<AnnotationFS> expectedMatcher = expectedBuilder.build();
-		assertMatchersEqual(expectedMatcher, actualMatcher);
+		assertMatchersEqual(
+				TypeBasedMatcherDispatcher.<AnnotationFS> builder()
+						.addSubmatcher(chunkType, expectedMatcher).build(),
+				actualMatcher);
+	}
+
+	@Test
+	public void testDispatcher() {
+		Map<String, Object> properties = newHashMap();
+		properties.put("check.targetTypes", "test.TestFirst,test.TestSecond");
+		properties.put("check.TestFirst", "checkType");
+		properties.put("check.TestSecond", "checkBoundaries");
+		PropertyResolver propResolver = makePropertyResolver(properties);
+		TypeBasedMatcherDispatcher<AnnotationFS> actualMatcher =
+				new MatchingConfigurationInitializer(ts, propResolver).create();
+
+		Type firstType = ts.getType("test.TestFirst");
+		Type secondType = ts.getType("test.TestSecond");
+		Builder<AnnotationFS> expectedBuilder = TypeBasedMatcherDispatcher.builder();
+		expectedBuilder.addSubmatcher(firstType,
+				CompositeMatcher.builderForAnnotation(firstType).addTypeChecker().build());
+		expectedBuilder.addSubmatcher(secondType,
+				CompositeMatcher.builderForAnnotation(secondType).addBoundaryMatcher().build());
+
+		assertMatchersEqual(expectedBuilder.build(), actualMatcher);
 	}
 
 	private void assertMatchersEqual(Matcher<?> expected, Matcher<?> actual) {

@@ -16,7 +16,7 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.event.logging.AnnotationPrinter;
-import ru.kfu.itis.cll.uima.eval.matching.CompositeMatcher;
+import ru.kfu.itis.cll.uima.eval.matching.Matcher;
 
 import com.google.common.collect.Sets;
 
@@ -29,7 +29,7 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 	@Autowired
 	private TypeSystem ts;
 	@Autowired
-	private CompositeMatcher<AnnotationFS> matcher;
+	private Matcher<AnnotationFS> matcher;
 
 	// config
 	private boolean stripDocumentUri;

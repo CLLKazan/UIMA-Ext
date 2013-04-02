@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
@@ -55,15 +56,27 @@ public class MatchingConfigurationInitializer {
 		this.uimaAnnotationType = FSTypeUtils.getType(ts, "uima.tcas.Annotation", true);
 	}
 
-	public CompositeMatcher<AnnotationFS> create() {
-		String targetTypeName = propertyResolver
+	public TypeBasedMatcherDispatcher<AnnotationFS> create() {
+		String targetTypeNamesStr = propertyResolver
 				.getProperty(KEY_MATCHING_CONFIGURATION_TARGET_TYPE);
-		if (targetTypeName == null) {
+		if (targetTypeNamesStr == null) {
 			throw new IllegalStateException(String.format(
 					"Can't create matcher because there is no property under key %s",
 					KEY_MATCHING_CONFIGURATION_TARGET_TYPE));
 		}
-		Type targetType = FSTypeUtils.getType(ts, targetTypeName, true);
+		TypeBasedMatcherDispatcher.Builder<AnnotationFS> builder =
+				TypeBasedMatcherDispatcher.builder();
+		List<String> targetTypeNames = Arrays.asList(StringUtils.split(
+				targetTypeNamesStr, ",;"));
+		for (String ttn : targetTypeNames) {
+			Type targetType = FSTypeUtils.getType(ts, ttn, true);
+			CompositeMatcher<AnnotationFS> m = createTargetMatcher(targetType);
+			builder.addSubmatcher(targetType, m);
+		}
+		return builder.build();
+	}
+
+	public CompositeMatcher<AnnotationFS> createTargetMatcher(Type targetType) {
 		String matcherId = targetType.getShortName();
 		AnnotationMatcherBuilder builder = (AnnotationMatcherBuilder) getBuilder(
 				matcherId,
