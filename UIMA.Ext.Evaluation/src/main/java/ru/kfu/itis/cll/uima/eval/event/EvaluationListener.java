@@ -30,6 +30,12 @@ import org.apache.uima.cas.text.AnnotationFS;
  */
 public interface EvaluationListener extends EventListener {
 
+	/**
+	 * Invoked before processing each document. After processing a document
+	 * invoked with docUri = = null.
+	 * 
+	 * @param docUri
+	 */
 	public void onDocumentChange(String docUri);
 
 	public void onMissing(AnnotationFS goldAnno);

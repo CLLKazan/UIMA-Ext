@@ -6,6 +6,7 @@ package ru.kfu.itis.cll.uima.eval.anno.impl;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toLinkedHashSet;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.uima.cas.CAS;
@@ -16,8 +17,13 @@ import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
 import ru.kfu.itis.cll.uima.eval.anno.MatchingStrategy;
 
 /**
+ * 
  * @author Rinat Gareev
  * 
+ */
+/*
+ * TODO OverlapMatchingStrategy, AnnotationExtractor and TypeBasedMatcherDispatcher 
+ * seem to be highly-coupled concepts.
  */
 public abstract class OverlapMatchingStrategy implements MatchingStrategy {
 
@@ -29,6 +35,12 @@ public abstract class OverlapMatchingStrategy implements MatchingStrategy {
 		// We return here LinkedHashSet because an appropriate comparator is unknown here
 		Set<AnnotationFS> result = toLinkedHashSet(getOverlapping(
 				sysCas, annotationExtractor.extract(sysCas), goldAnno));
+		Iterator<AnnotationFS> resultIter = result.iterator();
+		while (resultIter.hasNext()) {
+			if (!isCandidate(goldAnno, resultIter.next())) {
+				resultIter.remove();
+			}
+		}
 		return result;
 	}
 
@@ -43,4 +55,6 @@ public abstract class OverlapMatchingStrategy implements MatchingStrategy {
 	}
 
 	protected abstract boolean match(AnnotationFS goldAnno, AnnotationFS candAnno);
+
+	protected abstract boolean isCandidate(AnnotationFS goldAnno, AnnotationFS sysAnno);
 }

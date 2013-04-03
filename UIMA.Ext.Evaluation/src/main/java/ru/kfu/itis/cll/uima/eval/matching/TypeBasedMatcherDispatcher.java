@@ -8,11 +8,13 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
 /**
@@ -48,6 +50,10 @@ public class TypeBasedMatcherDispatcher<FST extends FeatureStructure> extends Ma
 	private Map<Type, Matcher<FST>> type2matcher;
 
 	private TypeBasedMatcherDispatcher() {
+	}
+
+	public Set<Type> getRegisteredTypes() {
+		return ImmutableSet.copyOf(type2matcher.keySet());
 	}
 
 	@Override
