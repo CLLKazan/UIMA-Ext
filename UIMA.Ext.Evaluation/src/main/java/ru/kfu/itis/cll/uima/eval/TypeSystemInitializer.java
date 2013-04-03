@@ -45,10 +45,10 @@ public class TypeSystemInitializer implements FactoryBean<TypeSystem> {
 	@PostConstruct
 	private void init() {
 		if (!isBlank(typeSystemDescPathsString)) {
-			typeSystemDescPaths = StringUtils.split(typeSystemDescPathsString, ";");
+			typeSystemDescPaths = StringUtils.split(typeSystemDescPathsString, ";,");
 		}
 		if (!isBlank(typeSystemDescNamesString)) {
-			typeSystemDescNames = StringUtils.split(typeSystemDescNamesString, ";");
+			typeSystemDescNames = StringUtils.split(typeSystemDescNamesString, ";,");
 		}
 	}
 

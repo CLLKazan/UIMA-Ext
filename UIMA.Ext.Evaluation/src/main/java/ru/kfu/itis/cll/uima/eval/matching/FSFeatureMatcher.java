@@ -37,6 +37,10 @@ public class FSFeatureMatcher<S extends FeatureStructure, E extends FeatureStruc
 		}
 	}
 
+	public Feature getFeature() {
+		return feature;
+	}
+
 	@Override
 	public boolean match(S ref, S cand) {
 		E refValue = getValue(ref);

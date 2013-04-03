@@ -24,14 +24,18 @@ import com.google.common.collect.Lists;
  */
 public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<FST> {
 
-	private List<Matcher<FST>> topMatchers;
+	private List<Matcher<FST>> matchers;
 
 	private CompositeMatcher() {
 	}
 
+	public List<Matcher<FST>> getMatchers() {
+		return ImmutableList.copyOf(matchers);
+	}
+
 	@Override
 	public boolean match(FST ref, FST cand) {
-		for (Matcher<FST> curMatcher : topMatchers) {
+		for (Matcher<FST> curMatcher : matchers) {
 			if (!curMatcher.match(ref, cand)) {
 				return false;
 			}
@@ -46,12 +50,12 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 
 	@Override
 	protected String toString(IdentityHashMap<Matcher<?>, Integer> idMap) {
-		if (topMatchers == null)
+		if (matchers == null)
 			return "null-list";
 		else {
 			idMap.put(this, getNextId(idMap));
 			StringBuilder sb = new StringBuilder("[");
-			Iterator<Matcher<FST>> tmIter = topMatchers.iterator();
+			Iterator<Matcher<FST>> tmIter = matchers.iterator();
 			while (tmIter.hasNext()) {
 				Matcher<FST> m = tmIter.next();
 				sb.append(getToString(idMap, m));
@@ -68,7 +72,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 		boolean printExtBrackets = out.length() > 0;
 		if (printExtBrackets)
 			out.append("[");
-		Iterator<Matcher<FST>> iter = topMatchers.iterator();
+		Iterator<Matcher<FST>> iter = matchers.iterator();
 		if (iter.hasNext()) {
 			iter.next().print(out, value);
 		}
@@ -83,7 +87,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 	@Override
 	protected Collection<Matcher<?>> getSubMatchers() {
 		List<Matcher<?>> result = Lists.newLinkedList();
-		result.addAll(topMatchers);
+		result.addAll(matchers);
 		return result;
 	}
 
@@ -101,24 +105,24 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 
 		protected Builder(Type targetType) {
 			this.targetType = targetType;
-			instance.topMatchers = Lists.newLinkedList();
+			instance.matchers = Lists.newLinkedList();
 		}
 
 		public Builder<FST> addTypeChecker() {
-			instance.topMatchers.add(new FSTypeMatcher<FST>(true));
+			instance.matchers.add(new FSTypeMatcher<FST>(true));
 			return this;
 		}
 
 		public Builder<FST> addPrimitiveFeatureMatcher(String featName) {
 			Feature feature = getFeature(targetType, featName, true);
-			instance.topMatchers.add(new PrimitiveFeatureMatcher<FST>(feature));
+			instance.matchers.add(new PrimitiveFeatureMatcher<FST>(feature));
 			return this;
 		}
 
 		public <FVT extends FeatureStructure> Builder<FST> addFSFeatureMatcher(String featName,
 				Matcher<FVT> valueMatcher) {
 			Feature feat = getFeature(targetType, featName, true);
-			instance.topMatchers.add(new FSFeatureMatcher<FST, FVT>(feat, valueMatcher));
+			instance.matchers.add(new FSFeatureMatcher<FST, FVT>(feat, valueMatcher));
 			return this;
 		}
 
@@ -129,7 +133,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 		public <FVT extends FeatureStructure> Builder<FST> addFSFeatureMatcher(String featName,
 				Builder<FVT> valueMatcherBuilder) {
 			Feature feat = getFeature(targetType, featName, true);
-			instance.topMatchers.add(new FSFeatureMatcher<FST, FVT>(
+			instance.matchers.add(new FSFeatureMatcher<FST, FVT>(
 					feat, valueMatcherBuilder.instance));
 			return this;
 		}
@@ -138,7 +142,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 				String featName,
 				Matcher<FET> elementMatcher, boolean ignoreOrder) {
 			Feature feat = getFeature(targetType, featName, true);
-			instance.topMatchers.add(new FSCollectionFeatureMatcher<FST, FET>(feat, elementMatcher,
+			instance.matchers.add(new FSCollectionFeatureMatcher<FST, FET>(feat, elementMatcher,
 					ignoreOrder));
 			return this;
 		}
@@ -151,7 +155,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 				String featName,
 				Builder<FET> elemMatcherBuilder, boolean ignoreOrder) {
 			Feature feat = getFeature(targetType, featName, true);
-			instance.topMatchers.add(new FSCollectionFeatureMatcher<FST, FET>(
+			instance.matchers.add(new FSCollectionFeatureMatcher<FST, FET>(
 					feat, elemMatcherBuilder.instance, ignoreOrder));
 			return this;
 		}
@@ -162,7 +166,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 
 		public CompositeMatcher<FST> build() {
 			// TODO LOW PRIORITY: invoke 'build' on sub-builders avoiding inf recursion
-			instance.topMatchers = ImmutableList.copyOf(instance.topMatchers);
+			instance.matchers = ImmutableList.copyOf(instance.matchers);
 			return instance;
 		}
 	}
@@ -174,7 +178,7 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 		}
 
 		public Builder<AnnotationFS> addBoundaryMatcher() {
-			instance.topMatchers.add(BoundaryMatcher.INSTANCE);
+			instance.matchers.add(BoundaryMatcher.INSTANCE);
 			return this;
 		}
 

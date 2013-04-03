@@ -32,6 +32,10 @@ public abstract class PrintingEvaluationListener implements EvaluationListener {
 		// init printer
 		Writer writer;
 		if (outputFile != null) {
+			File outputDir = outputFile.getParentFile();
+			if (outputDir != null) {
+				outputDir.mkdirs();
+			}
 			OutputStream os = new FileOutputStream(outputFile);
 			writer = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
 		} else {

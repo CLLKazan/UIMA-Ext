@@ -56,6 +56,10 @@ public class TypeBasedMatcherDispatcher<FST extends FeatureStructure> extends Ma
 		return ImmutableSet.copyOf(type2matcher.keySet());
 	}
 
+	public Matcher<FST> getMatcherFor(Type t) {
+		return type2matcher.get(t);
+	}
+
 	@Override
 	public boolean match(FST ref, FST cand) {
 		Matcher<FST> submatcher = getSubmatcher(ref);
