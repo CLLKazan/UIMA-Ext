@@ -131,11 +131,11 @@ class PhraseConstraintTestSuite extends FunSuite with MockitoSugar with CasTestU
 
     val pc4 = new UnOpPhraseConstraint(
       HasHeadsPath,
-      new ConstantCollectionValue(Set("команда" :: Nil, "экипаж" :: "экспедиции" :: Nil)))
+      new ConstantCollectionAlternatives(Set("команда" :: Nil, "экипаж" :: "экспедиции" :: Nil)))
 
     val pc5 = new UnOpPhraseConstraint(
       HasHeadsPath,
-      new ConstantCollectionValue(Set("экипаж" :: "экспедиции" :: "станции" :: Nil)))
+      new ConstantCollectionAlternatives(Set("экипаж" :: "экспедиции" :: "станции" :: Nil)))
 
     val ctx = MatchingContext(trigger)
 
@@ -153,7 +153,7 @@ class PhraseConstraintTestSuite extends FunSuite with MockitoSugar with CasTestU
 
     val pc6 = new UnOpPhraseConstraint(
       HasHeadsPath,
-      new ConstantCollectionValue(Set("Викиновости" :: "происшествий" :: Nil)))
+      new ConstantCollectionAlternatives(Set("Викиновости" :: "происшествий" :: Nil)))
     assertMatch(pc6, np3, ctx)
   }
 

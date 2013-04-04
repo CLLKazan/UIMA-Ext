@@ -1,8 +1,9 @@
 [lemma("выпустил")]
-head.case="nomn" & head.gndr=$trigger.gndr => subj,
-head.case="accs" => obj,
+head.case="nomn" & head.gndr=$trigger.gndr => subj
+head.case="accs" => obj
 prep="в" ?=> date
 
 [lemma("выйдет")]
-head.case="nomn" & head.gndr=$trigger.gndr => obj,
+head.case="nomn" & head.gndr=$trigger.gndr => obj
 prep="в" & headPath("году") => date
+headPath("пресс-релиза" | "сообщения", "сайте") => subj

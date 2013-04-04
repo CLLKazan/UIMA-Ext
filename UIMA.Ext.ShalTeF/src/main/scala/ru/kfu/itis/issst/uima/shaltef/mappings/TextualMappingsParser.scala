@@ -25,6 +25,7 @@ import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraintFactory
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.BinaryConstraintOperator
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.UnaryConstraintOperator
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.HasHeadsPath
+import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraint
 
 private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extends MappingsParser {
 
@@ -36,23 +37,24 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
     val is = url.openStream()
     val reader = new BufferedReader(new InputStreamReader(is, "utf-8"))
     try {
-      val mappings = new DocParsers(templateAnnoType).parseDoc(reader)
+      val mappings = new DocParsers(templateAnnoType, url).parseDoc(reader)
       mappings.foreach(mappingsHolder.add(_))
     } finally {
       reader.close()
     }
   }
 
-  private class DocParsers(templateType: Type) extends JavaTokenParsers {
+  private class DocParsers(templateType: Type, url: URL) extends JavaTokenParsers {
     def parseDoc(reader: Reader): List[DepToArgMapping] = parseAll(mappingsDoc, reader) match {
       case Success(mappings, _) => mappings
       case NoSuccess(msg, remainingInput) => throw new IllegalStateException(
-        "Unsuccessful parsing: %s\n".format(msg))
+        "Unsuccessful parsing of %s at line %s & column %s:\n%s".format(
+          url, remainingInput.pos.line, remainingInput.pos.column, msg))
     }
 
     private def mappingsDoc: Parser[List[DepToArgMapping]] = rep(mappingDecl)
 
-    private def mappingDecl: Parser[DepToArgMapping] = triggerDecl ~ rep1sep(slotMapping, ",") ^^ {
+    private def mappingDecl: Parser[DepToArgMapping] = triggerDecl ~ rep1(slotMapping) ^^ {
       case lemmaIdSet ~ slotMappings => new DefaultDepToArgMapping(templateType,
         lemmaIdSet, slotMappings)
     }
@@ -103,9 +105,7 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
       case target ~ op ~ value => constrFactory.phraseConstraint(target, op, value)
     }
 
-    private def slotConstraintUnOp = (constraintUnOp <~ "(") ~ constraintValue <~ ")" ^^ {
-      case op ~ value => constrFactory.phraseConstraint(op, value)
-    }
+    private def slotConstraintUnOp = unOpConstraint(headPathOp, constantMatrix)
 
     import constrValueFactory._
     import constrTargetFactory._
@@ -118,17 +118,40 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
     private def constraintBinOp: Parser[BinaryConstraintOperator] =
       "=" ^^ { _ => Equals }
 
-    private def constraintUnOp: Parser[UnaryConstraintOperator] =
-      "headPath" ^^ { _ => HasHeadsPath }
+    private def unOpConstraint(
+      unOpParser: Parser[UnaryConstraintOperator],
+      valueParser: Parser[ConstraintValue]): Parser[PhraseConstraint] =
+      (unOpParser <~ "(") ~ valueParser <~ ")" ^^ {
+        case unOp ~ value => constrFactory.phraseConstraint(unOp, value)
+      }
 
-    private def constraintValue: Parser[ConstraintValue] = constantValue | triggerValueRef
+    private def headPathOp: Parser[UnaryConstraintOperator] = "headPath" ^^ {
+      _ => HasHeadsPath
+    }
 
-    private def constantValue = stringLiteral ^^ {
-      str => constant(str.substring(1, str.length() - 1))
+    private def constraintValue: Parser[ConstraintValue] = (constantValue
+      | triggerValueRef
+      | constantList
+      | constantMatrix)
+
+    private def constantValue = constantParser ^^ {
+      str => constant(str)
+    }
+
+    private def constantParser = stringLiteral ^^ {
+      str => str.substring(1, str.length() - 1)
     }
 
     private def triggerValueRef = "$trigger." ~> ident ^^ {
       triggerFeatureReference(_)
+    }
+
+    private def constantList = rep1sep(constantParser, ",") ^^ {
+      constantCollection(_)
+    }
+
+    private def constantMatrix = rep1sep(rep1sep(constantParser, ","), "|") ^^ {
+      listList => constrValueFactory.constantCollectionAlternatives(listList.toSet)
     }
   }
 }

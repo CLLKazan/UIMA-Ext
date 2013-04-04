@@ -23,6 +23,7 @@ case object HasHeadsPath extends UnaryConstraintOperator {
     arg match {
       case paths: Set[Iterable[String]] => paths.exists(apply(phr, _))
       case path: Iterable[String] => matches(phr, path.toList)
+      case u => throw new IllegalStateException("Can't apply HasHeadsPath to arg %s".format(u))
     }
 
   private def matches(phr: Phrase, expectedHeads: List[String]): Boolean =
