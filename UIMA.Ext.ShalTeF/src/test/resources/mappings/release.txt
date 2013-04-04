@@ -3,7 +3,10 @@ head.case="nomn" & head.gndr=$trigger.gndr => subj
 head.case="accs" => obj
 prep="в" ?=> date
 
+# some comment here
 [lemma("выйдет")]
 head.case="nomn" & head.gndr=$trigger.gndr => obj
 prep="в" & headPath("году") => date
 headPath("пресс-релиза" | "сообщения", "сайте") => subj
+# more comments
+# final comment

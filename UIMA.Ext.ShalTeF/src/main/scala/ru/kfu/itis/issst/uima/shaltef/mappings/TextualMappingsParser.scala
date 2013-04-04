@@ -52,7 +52,10 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
           url, remainingInput.pos.line, remainingInput.pos.column, msg))
     }
 
-    private def mappingsDoc: Parser[List[DepToArgMapping]] = rep(mappingDecl)
+    private def mappingsDoc: Parser[List[DepToArgMapping]] =
+      rep(rep(comment) ~> mappingDecl <~ rep(comment))
+
+    private def comment: Parser[String] = """#[^\n]*""".r
 
     private def mappingDecl: Parser[DepToArgMapping] = triggerDecl ~ rep1(slotMapping) ^^ {
       case lemmaIdSet ~ slotMappings => new DefaultDepToArgMapping(templateType,
