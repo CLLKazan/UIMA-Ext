@@ -83,9 +83,9 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
     }
 
     private def slotMapping: Parser[SlotMapping] =
-      slotPattern ~ slotMappingOptionality ~ templateFeatureName ^^ {
-        case pattern ~ optionality ~ slotFeature =>
-          new SlotMapping(pattern, optionality, slotFeature)
+      slotPattern ~ slotMappingOptionality ~ (templateFeatureName | templateFeatureStub) ^^ {
+        case pattern ~ optionality ~ slotFeatureOpt =>
+          new SlotMapping(pattern, optionality, slotFeatureOpt)
       }
 
     private def slotMappingOptionality: Parser[Boolean] = ("=>" | "?=>") ^^ {
@@ -93,10 +93,12 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
       case "?=>" => true
     }
 
-    private def templateFeatureName: Parser[Feature] = ident ^? ({
+    private def templateFeatureName: Parser[Option[Feature]] = ident ^? ({
       case featName if templateType.getFeatureByBaseName(featName) != null =>
-        templateType.getFeatureByBaseName(featName)
+        Some(templateType.getFeatureByBaseName(featName))
     }, "Type %s does not have feature '%s'".format(templateType, _))
+
+    private def templateFeatureStub: Parser[Option[Feature]] = "_" ^^ { _ => None }
 
     private def slotPattern = rep1sep(slotConstraint, "&") ^^ {
       new ConstraintConjunctionPhrasePattern(_)

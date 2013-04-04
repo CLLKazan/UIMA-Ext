@@ -110,7 +110,12 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
                 if (slotMapping.isOptional) fillTemplate(iter)
                 else false
               case Some(mPhrase) =>
-                template.setFeatureValue(slotMapping.slotFeature, makeCoveringAnnotation(mPhrase))
+                slotMapping.slotFeatureOpt match {
+                  case Some(slotFeature) => template.setFeatureValue(
+                    slotFeature,
+                    makeCoveringAnnotation(mPhrase))
+                  case None => // means mapping constraint is mandatory but do not fill feature
+                }
                 matchedPhrases += mPhrase
                 fillTemplate(iter)
             }
@@ -121,6 +126,9 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
     }
   }
 
+  // TODO 1) after initialization phase - check slot features for range.
+  // If a range differ from uima.tcas.Annonation then send warning
+  // TODO 2) make annotation of the type that equals to slot feature range
   private def makeCoveringAnnotation(phraseAnno: Phrase): AnnotationFS = {
     val cas = phraseAnno.getView()
     val (begin, end) = phraseAnno match {

@@ -16,12 +16,13 @@ trait DepToArgMapping {
   def getSlotMappings: Iterable[SlotMapping]
 }
 
-class SlotMapping(val pattern: PhrasePattern, val isOptional: Boolean, val slotFeature: Feature) {
+class SlotMapping(val pattern: PhrasePattern, val isOptional: Boolean, 
+    val slotFeatureOpt: Option[Feature]) {
   override def equals(obj: Any): Boolean = obj match {
     case that: SlotMapping => this.pattern == that.pattern && this.isOptional == that.isOptional &&
-      this.slotFeature == that.slotFeature
+      this.slotFeatureOpt == that.slotFeatureOpt
     case _ => false
   }
   override def toString(): String = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).
-    append(slotFeature).append(isOptional).append(pattern).toString
+    append(slotFeatureOpt).append(isOptional).append(pattern).toString
 }

@@ -8,5 +8,6 @@ prep="в" ?=> date
 head.case="nomn" & head.gndr=$trigger.gndr => obj
 prep="в" & headPath("году") => date
 headPath("пресс-релиза" | "сообщения", "сайте") => subj
+prep="на" => _
 # more comments
 # final comment
