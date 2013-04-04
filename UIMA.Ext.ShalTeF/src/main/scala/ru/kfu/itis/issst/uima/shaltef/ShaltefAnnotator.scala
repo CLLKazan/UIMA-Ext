@@ -50,7 +50,7 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
       .asInstanceOf[Array[String]]
     mandatoryParam(ParamTemplateMappingFiles, templMappingFileStrings)
     for (templMappingFileStr <- templMappingFileStrings)
-      templMappingFileStr.split(":") match {
+      templMappingFileStr.split("\\|") match {
         case Array(templateAnnoType, urlStr) => {
           templateType2File += (templateAnnoType -> new URL(urlStr))
         }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>true</primitive>
+	<annotatorImplementationName>ru.kfu.itis.issst.uima.shaltef.ShaltefAnnotator</annotatorImplementationName>
+	<analysisEngineMetaData>
+		<name>ShaltefAnnotator</name>
+		<description />
+		<version>0.1</version>
+		<vendor>Kazan Federal University</vendor>
+		<configurationParameters>
+			<configurationParameter>
+				<name>TemplateMappingFiles</name>
+				<description>Array of "templateAnnotationType=filePathURL" pairs</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<typeSystemDescription>
+			<imports>
+				<import name="ru.kfu.cll.uima.segmentation.segmentation-TypeSystem"/>
+				<import name="ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer"/>
+			</imports>
+		</typeSystemDescription>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<externalResourceDependencies>
+		<externalResourceDependency>
+			<key>MorphDict</key>
+			<description />
+			<interfaceName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource</interfaceName>
+			<optional>false</optional>
+		</externalResourceDependency>
+	</externalResourceDependencies>
+</analysisEngineDescription>
