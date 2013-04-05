@@ -1,5 +1,7 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
@@ -23,101 +25,106 @@ import java.util.Set;
  * change this template use File | Settings | File Templates.
  */
 public class OpenCorporaAccuracyMeasurer {
-	public static void main(String[] args) throws IOException, UIMAException {
-		if (args.length != 3) {
-			System.err
-					.println("Usage: <opcorpora-dict-without-test-selection> <opcorpora-test-selection-dict> "
-							+
-							"<opcorpora-test-selection-textfile>");
-			return;
-		}
+    private static Set<String> importantGrammems = ImmutableSet.of(
+            "masc", "femn", "neut",
 
-		XMLInputSource aeDescInputBig = new XMLInputSource(
-				"target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
-		AnalysisEngineDescription aeDescBig = UIMAFramework.getXMLParser()
-				.parseAnalysisEngineDescription(aeDescInputBig);
+            "nomn", "voct",
+            "gent", "gen1", "gen2",
+            "datv",
+            "accs", "acc2",
+            "ablt",
+            "loct", "loc1", "loc2",
 
-		XMLInputSource aeDescInputSmall = new XMLInputSource(
-				"target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
-		AnalysisEngineDescription aeDescSmall = UIMAFramework.getXMLParser()
-				.parseAnalysisEngineDescription(aeDescInputSmall);
+            "sing", "plur",
+            "pres", "futr", "past",
+            "impr",
+            "INFN",
+            "PRTF", "PRTS",
+            "GRND",
+            "actv", "pssv",
+            "1per", "2per", "3per"
+    );
 
-		//        ExternalResourceDescription dictDescription = new
-		((FileResourceSpecifier) aeDescBig.getResourceManagerConfiguration().getExternalResources()[0]
-				.getResourceSpecifier()).setFileUrl(args[0]);
-		((FileResourceSpecifier) aeDescSmall.getResourceManagerConfiguration()
-				.getExternalResources()[0].getResourceSpecifier()).setFileUrl(args[1]);
+    public static void main(String[] args) throws IOException, UIMAException {
+        if (args.length != 3) {
+            System.err.println("Usage: <opcorpora-dict-without-test-selection> <opcorpora-test-selection-dict> " +
+                    "<opcorpora-test-selection-textfile>");
+            return;
+        }
 
-		AnalysisEngine aeBig = UIMAFramework.produceAnalysisEngine(aeDescBig);
-		AnalysisEngine aeSmall = UIMAFramework.produceAnalysisEngine(aeDescSmall);
+        XMLInputSource aeDescInputBig = new XMLInputSource(
+                "target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
+        AnalysisEngineDescription aeDescBig = UIMAFramework.getXMLParser()
+                .parseAnalysisEngineDescription(aeDescInputBig);
 
-		JCas casBig = aeBig.newJCas();
-		JCas casSmall = aeSmall.newJCas();
+        XMLInputSource aeDescInputSmall = new XMLInputSource(
+                "target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
+        AnalysisEngineDescription aeDescSmall = UIMAFramework.getXMLParser()
+                .parseAnalysisEngineDescription(aeDescInputSmall);
 
-		String textString = IOUtils.toString(new FileReader(args[2]));
-		casBig.setDocumentText(textString);
-		casSmall.setDocumentText(textString);
+//        ExternalResourceDescription dictDescription = new
+        ((FileResourceSpecifier)aeDescBig.getResourceManagerConfiguration().getExternalResources()[0].getResourceSpecifier()).setFileUrl(args[0]);
+        ((FileResourceSpecifier)aeDescSmall.getResourceManagerConfiguration().getExternalResources()[0].getResourceSpecifier()).setFileUrl(args[1]);
 
-		aeBig.process(casBig);
-		aeSmall.process(casSmall);
+        AnalysisEngine aeBig = UIMAFramework.produceAnalysisEngine(aeDescBig);
+        AnalysisEngine aeSmall = UIMAFramework.produceAnalysisEngine(aeDescSmall);
 
-		AnnotationIndex<Annotation> wordIdxPredicted = casBig.getAnnotationIndex(Word.type);
-		AnnotationIndex<Annotation> wordIdxFromDict = casSmall.getAnnotationIndex(Word.type);
 
-		int t = 0;
-		int n = 0;
+        JCas casBig = aeBig.newJCas();
+        JCas casSmall = aeSmall.newJCas();
 
-		Iterator<Annotation> predictedIterator = wordIdxPredicted.iterator();
-		Iterator<Annotation> fromDictIterator = wordIdxFromDict.iterator();
+        String textString = IOUtils.toString(new FileReader(args[2]));
+        casBig.setDocumentText(textString);
+        casSmall.setDocumentText(textString);
 
-		while (predictedIterator.hasNext()) {
-			n++;
+        aeBig.process(casBig);
+        aeSmall.process(casSmall);
 
-			Word predicted = (Word) predictedIterator.next();
-			Word fromDict = (Word) fromDictIterator.next();
+        AnnotationIndex<Annotation> wordIdxPredicted = casBig.getAnnotationIndex(Word.type);
+        AnnotationIndex<Annotation> wordIdxFromDict = casSmall.getAnnotationIndex(Word.type);
 
-			if (hasCommon(predicted, fromDict)) {
-				t++;
-			}
-		}
+        int t = 0;
+        int n = 0;
 
-		System.out.println("Accuracy: " + (double) t / n);
-	}
+        Iterator<Annotation> predictedIterator = wordIdxPredicted.iterator();
+        Iterator<Annotation> fromDictIterator = wordIdxFromDict.iterator();
 
-	private static boolean hasCommon(Word predicted, Word fromDict) {
-		System.out.println("#################################");
-		System.out.println(predicted.getCoveredText());
-		System.out.println(fromDict.getCoveredText());
+        while (predictedIterator.hasNext()) {
 
-		for (int i = 0; i < predicted.getWordforms().size(); ++i) {
-			org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(i);
-			String predictedPos = predictedWf.getPos();
-			Set<String> predictedGrammems = FSUtils.toSet(predictedWf.getGrammems());
+            Word predicted = (Word)predictedIterator.next();
+            Word fromDict = (Word)fromDictIterator.next();
 
-			System.out.println("------------");
-			System.out.println(predictedPos);
-			System.out.println(predictedGrammems);
-			System.out.println("^^^^^^^^^^^^");
+            for (int i = 0; i < fromDict.getWordforms().size(); ++i) {
+                n++;
+                org.opencorpora.cas.Wordform fromDictWf = fromDict.getWordforms(i);
 
-			for (int j = 0; j < fromDict.getWordforms().size(); ++j) {
-				org.opencorpora.cas.Wordform secondWf = fromDict.getWordforms(j);
-				String fromDictPos = secondWf.getPos();
+                if (hasCommon(predicted, fromDictWf))
+                    t++;
+            }
+        }
 
-				System.out.println(fromDictPos);
+        System.out.println("Accuracy: " + (double)t / n);
+    }
 
-				if (!fromDictPos.equals(predictedPos))
-					continue;
-				Set<String> fromDictGrammems = FSUtils.toSet(secondWf.getGrammems());
+    private static boolean hasCommon(Word predicted, org.opencorpora.cas.Wordform fromDictWf) {
 
-				System.out.println(fromDictGrammems);
+        String fromDictPos = fromDictWf.getPos();
+        Set<String> fromDictGrammems = FSUtils.grammemsToSet(fromDictWf.getGrammems());
+        fromDictGrammems = Sets.intersection(fromDictGrammems, importantGrammems);
 
-				if (predictedGrammems.containsAll(fromDictGrammems)) {
-					return true;
-				}
-			}
-		}
+        for (int j = 0; j < predicted.getWordforms().size(); ++j) {
+            org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(j);
+            String predictedPos = predictedWf.getPos();
 
-		System.out.println("NOT PREDICTED");
-		return false;
-	}
+            if (!fromDictPos.equals(predictedPos))
+                continue;
+            Set<String> predictedGrammems = FSUtils.grammemsToSet(predictedWf.getGrammems());
+
+            if (predictedGrammems.containsAll(fromDictGrammems)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
