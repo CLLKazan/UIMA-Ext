@@ -42,7 +42,8 @@ class NPRecognizer extends CasAnnotator_ImplBase with NPParsers {
   private def processSpan(span: AnnotationFS) {
     val spanWords = CasUtil.selectCovered(span.getCAS(), wordType, span)
       .asInstanceOf[java.util.List[Word]].toList
-    parseFrom(new AnnotationSpan(spanWords).reader)
+    if (!spanWords.isEmpty)
+      parseFrom(new AnnotationSpan(spanWords).reader)
   }
 
   private def parseFrom(reader: Reader[Word]): Unit =

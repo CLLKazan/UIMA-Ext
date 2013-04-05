@@ -49,7 +49,7 @@ public class ConfigPropertiesUtils {
 								"Can't find value for placeholder %s", phMatcher.group()));
 					}
 				}
-				phMatcher.appendReplacement(sb, replacement);
+				phMatcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
 			}
 			phMatcher.appendTail(sb);
 			String resultValue = sb.toString();
@@ -65,6 +65,16 @@ public class ConfigPropertiesUtils {
 
 	private static final Pattern PLACEHOLDER_PATTERN = Pattern
 			.compile("\\$\\{([\\p{Alnum}._]+)\\}");
+
+	public static String prettyString(Properties props) {
+		StringBuilder sb = new StringBuilder();
+		for (String key : props.stringPropertyNames()) {
+			sb.append(key).append("=");
+			sb.append(props.getProperty(key));
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 
 	private ConfigPropertiesUtils() {
 	}
