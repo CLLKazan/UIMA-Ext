@@ -1,5 +1,7 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
@@ -8,7 +10,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.FileResourceSpecifier;
 import org.apache.uima.util.XMLInputSource;
 import org.opencorpora.cas.Word;
@@ -27,6 +28,26 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class OpenCorporaAccuracyMeasurer {
+    private static Set<String> importantGrammems = ImmutableSet.of(
+            "masc", "femn", "neut",
+
+            "nomn", "voct",
+            "gent", "gen1", "gen2",
+            "datv",
+            "accs", "acc2",
+            "ablt",
+            "loct", "loc1", "loc2",
+
+            "sing", "plur",
+            "pres", "futr", "past",
+            "impr",
+            "INFN",
+            "PRTF", "PRTS",
+            "GRND",
+            "actv", "pssv",
+            "1per", "2per", "3per"
+    );
+
     public static void main(String[] args) throws IOException, UIMAException {
         if (args.length != 3) {
             System.err.println("Usage: <opcorpora-dict-without-test-selection> <opcorpora-test-selection-dict> " +
@@ -72,53 +93,41 @@ public class OpenCorporaAccuracyMeasurer {
         Iterator<Annotation> fromDictIterator = wordIdxFromDict.iterator();
 
         while (predictedIterator.hasNext()) {
-            n++;
 
             Word predicted = (Word)predictedIterator.next();
             Word fromDict = (Word)fromDictIterator.next();
 
-            if (hasCommon(predicted, fromDict)) {
-                t++;
+            for (int i = 0; i < fromDict.getWordforms().size(); ++i) {
+                n++;
+                org.opencorpora.cas.Wordform fromDictWf = fromDict.getWordforms(i);
+
+                if (hasCommon(predicted, fromDictWf))
+                    t++;
             }
         }
 
         System.out.println("Accuracy: " + (double)t / n);
     }
 
-    private static boolean hasCommon(Word predicted, Word fromDict) {
-        System.out.println("#################################");
-        System.out.println(predicted.getCoveredText());
-        System.out.println(fromDict.getCoveredText());
+    private static boolean hasCommon(Word predicted, org.opencorpora.cas.Wordform fromDictWf) {
 
-        for (int i = 0; i < predicted.getWordforms().size(); ++i) {
-            org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(i);
+        String fromDictPos = fromDictWf.getPos();
+        Set<String> fromDictGrammems = FSUtils.grammemsToSet(fromDictWf.getGrammems());
+        fromDictGrammems = Sets.intersection(fromDictGrammems, importantGrammems);
+
+        for (int j = 0; j < predicted.getWordforms().size(); ++j) {
+            org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(j);
             String predictedPos = predictedWf.getPos();
+
+            if (!fromDictPos.equals(predictedPos))
+                continue;
             Set<String> predictedGrammems = FSUtils.grammemsToSet(predictedWf.getGrammems());
 
-            System.out.println("------------");
-            System.out.println(predictedPos);
-            System.out.println(predictedGrammems);
-            System.out.println("^^^^^^^^^^^^");
-
-            for (int j = 0; j < fromDict.getWordforms().size(); ++j) {
-                org.opencorpora.cas.Wordform secondWf = fromDict.getWordforms(j);
-                String fromDictPos = secondWf.getPos();
-
-                System.out.println(fromDictPos);
-
-                if (!fromDictPos.equals(predictedPos))
-                    continue;
-                Set<String> fromDictGrammems = FSUtils.grammemsToSet(secondWf.getGrammems());
-
-                System.out.println(fromDictGrammems);
-
-                if (predictedGrammems.containsAll(fromDictGrammems)) {
-                    return true;
-                }
+            if (predictedGrammems.containsAll(fromDictGrammems)) {
+                return true;
             }
         }
 
-        System.out.println("NOT PREDICTED");
         return false;
     }
 }
