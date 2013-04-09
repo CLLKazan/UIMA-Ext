@@ -41,10 +41,10 @@ class TextualMappingsParserTestSuite extends FunSuite with MockitoSugar with Cas
     when(morphDict.toGramSet(caseBS)).thenReturn(List("nomn", "accs", "ablt"))
     when(morphDict.toGramSet(gndrBS)).thenReturn(List("masc", "femn", "neut"))
 
-    val parser = TextualMappingsParser(morphDict)
     val constrValueFactory = new ConstraintValueFactory(morphDict)
     val constrTargetFactory = new ConstraintTargetFactory(morphDict)
     val constrFactory = new PhraseConstraintFactory
+    val parser = TextualMappingsParser(new MappingsParserConfig(morphDict))
 
     val mappingsBuilder = DepToArgMappingsBuilder()
     val templateAnnoType = ts.getType("test.Release")

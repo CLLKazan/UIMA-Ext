@@ -18,7 +18,7 @@ class PhraseConstraintTestSuite extends FunSuite with MockitoSugar with CasTestU
     import cb._
 
     val pc1 = new BinOpPhraseConstraint(
-      new HeadGrammemeConstraint(caseIds),
+      new HeadGrammemeTarget(caseIds),
       Equals,
       new ConstantScalarValue("accs"))
     val trigger = w("trigger", 0, 1).addGrammems("datv")
@@ -40,7 +40,7 @@ class PhraseConstraintTestSuite extends FunSuite with MockitoSugar with CasTestU
 
     // test with trigger ref value
     val pc2 = new BinOpPhraseConstraint(
-      new HeadGrammemeConstraint(caseIds),
+      new HeadGrammemeTarget(caseIds),
       Equals,
       new TriggerGrammemeReference(caseIds))
 
@@ -56,7 +56,7 @@ class PhraseConstraintTestSuite extends FunSuite with MockitoSugar with CasTestU
     import cb._
 
     val pc1 = new BinOpPhraseConstraint(
-      PrepositionConstraint,
+      PrepositionTarget,
       Equals,
       new ConstantScalarValue("супротив"))
 

@@ -17,8 +17,6 @@ import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.Equals
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintOperator
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintConjunctionPhrasePattern
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraint
-import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PrepositionConstraint
-import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.HeadGrammemeConstraint
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintTarget
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintTargetFactory
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraintFactory
@@ -27,11 +25,9 @@ import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.UnaryConstraintOperator
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.HasHeadsPath
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PhraseConstraint
 
-private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extends MappingsParser {
+private[mappings] class TextualMappingsParser(config: MappingsParserConfig) extends MappingsParser {
 
-  private val constrValueFactory = new ConstraintValueFactory(morphDict)
-  private val constrTargetFactory = new ConstraintTargetFactory(morphDict)
-  private val constrFactory = new PhraseConstraintFactory
+  import config._
 
   override def parse(url: URL, templateAnnoType: Type, mappingsHolder: DepToArgMappingsBuilder) {
     val is = url.openStream()
@@ -107,13 +103,13 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
     private def slotConstraint = slotConstraintBinOp | slotConstraintUnOp
 
     private def slotConstraintBinOp = constraintTarget ~ constraintBinOp ~ constraintValue ^^ {
-      case target ~ op ~ value => constrFactory.phraseConstraint(target, op, value)
+      case target ~ op ~ value => constraintFactory.phraseConstraint(target, op, value)
     }
 
     private def slotConstraintUnOp = unOpConstraint(headPathOp, constantMatrix)
 
-    import constrValueFactory._
-    import constrTargetFactory._
+    import constraintValueFactory._
+    import constraintTargetFactory._
 
     private def constraintTarget: Parser[ConstraintTarget] = rep1sep(ident, ".") ^? ({
       case List("head", gramCat) => headFeature(gramCat)
@@ -127,7 +123,7 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
       unOpParser: Parser[UnaryConstraintOperator],
       valueParser: Parser[ConstraintValue]): Parser[PhraseConstraint] =
       (unOpParser <~ "(") ~ valueParser <~ ")" ^^ {
-        case unOp ~ value => constrFactory.phraseConstraint(unOp, value)
+        case unOp ~ value => constraintFactory.phraseConstraint(unOp, value)
       }
 
     private def headPathOp: Parser[UnaryConstraintOperator] = "headPath" ^^ {
@@ -156,11 +152,11 @@ private[mappings] class TextualMappingsParser(morphDict: MorphDictionary) extend
     }
 
     private def constantMatrix = rep1sep(rep1sep(constantParser, ","), "|") ^^ {
-      listList => constrValueFactory.constantCollectionAlternatives(listList.toSet)
+      listList => constraintValueFactory.constantCollectionAlternatives(listList.toSet)
     }
   }
 }
 
 object TextualMappingsParser {
-  def apply(morphDict: MorphDictionary): MappingsParser = new TextualMappingsParser(morphDict)
+  def apply(config: MappingsParserConfig): MappingsParser = new TextualMappingsParser(config)
 }

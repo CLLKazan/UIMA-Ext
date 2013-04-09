@@ -14,6 +14,13 @@ trait DepToArgMappingsBuilder {
 
   def add(mp: DepToArgMapping)
 
+  /**
+   * Return defensive copy of current mapping collection
+   */
+  def getMappings(): Iterable[DepToArgMapping]
+
+  def replace(old: DepToArgMapping, newMp: DepToArgMapping)
+
   def build(): DepToArgMappingsHolder
 
 }

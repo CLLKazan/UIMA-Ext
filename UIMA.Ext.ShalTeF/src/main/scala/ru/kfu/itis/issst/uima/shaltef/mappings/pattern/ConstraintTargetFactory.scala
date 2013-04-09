@@ -5,35 +5,40 @@ import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary
 import ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase
+import org.apache.commons.lang3.builder.HashCodeBuilder
 
 class ConstraintTargetFactory(morphDict: MorphDictionary) {
 
   def headFeature(featStr: String): ConstraintTarget = {
     getGramCategory(morphDict, featStr) match {
-      case Some(gramIds) => new HeadGrammemeConstraint(gramIds)
+      case Some(gramIds) => new HeadGrammemeTarget(gramIds)
       case None => throw new IllegalArgumentException(
         "Unknown head constraint target: %s".format(featStr))
     }
   }
 
-  def prepositionTarget: ConstraintTarget = PrepositionConstraint
+  def prepositionTarget: ConstraintTarget = PrepositionTarget
 }
 
-private[pattern] class HeadGrammemeConstraint(protected val gramIds: Set[String])
+private[pattern] class HeadGrammemeTarget(protected val gramIds: Set[String])
   extends ConstraintTarget with GrammemeExtractor {
 
   override def getValue(phr: Phrase): String = extractGrammeme(phr.getHead)
 
   override def equals(obj: Any): Boolean = obj match {
-    case that: HeadGrammemeConstraint => this.gramIds == that.gramIds
+    case that: HeadGrammemeTarget => this.gramIds == that.gramIds
     case _ => false
   }
+
+  override def hashCode(): Int =
+    new HashCodeBuilder().append(gramIds).toHashCode()
+
   override def toString =
     new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
       .append(gramIds).toString
 }
 
-private[pattern] object PrepositionConstraint extends ConstraintTarget {
+private[mappings] object PrepositionTarget extends ConstraintTarget {
   override def getValue(phr: Phrase): String =
     phr match {
       case np: NounPhrase =>

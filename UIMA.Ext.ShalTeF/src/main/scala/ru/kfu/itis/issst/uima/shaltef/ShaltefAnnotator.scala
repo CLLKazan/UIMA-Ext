@@ -34,10 +34,17 @@ import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParser
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource
 import ru.kfu.itis.issst.uima.shaltef.mappings.TextualMappingsParser
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.MatchingContext
+import ru.kfu.itis.issst.uima.shaltef.mappings.DepToArgMappingsPostProcessor
+import ru.kfu.itis.issst.uima.shaltef.mappings.impl.EnforcePrepositionConstraintPostProcessor
+import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParserConfig
+import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParserConfig
+import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParserConfig
+import ru.kfu.itis.issst.uima.shaltef.mappings.impl.EnforcePrepositionConstraintPostProcessor
 
 class ShaltefAnnotator extends CasAnnotator_ImplBase {
 
   private val templateType2File = mutable.Map.empty[String, URL]
+  private var parserConfig: MappingsParserConfig = _
   private var mappingParser: MappingsParser = _
   private var mappingsHolder: DepToArgMappingsHolder = _
   // CAS types
@@ -64,7 +71,8 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
       case someRes => throw new IllegalStateException(
         "Unknown resource under key %s: %s".format(morphDictKey, someRes))
     }
-    mappingParser = TextualMappingsParser(morphDict)
+    parserConfig = new MappingsParserConfig(morphDict)
+    mappingParser = TextualMappingsParser(parserConfig)
   }
 
   override def typeSystemInit(ts: TypeSystem) {
@@ -77,6 +85,9 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
       annotationTypeExist(templateAnnoTypeName, templateAnnoType)
       mappingParser.parse(url, templateAnnoType, mappingsBuilder)
     }
+    // apply post-processors
+    getMappingPostProcessors(parserConfig).foreach(_.postprocess(mappingsBuilder))
+    // build final holder
     mappingsHolder = mappingsBuilder.build()
   }
 
@@ -121,7 +132,7 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
             }
         } else true // END of fillTemplate
       // invoke recursive inner function
-      if (fillTemplate(mapping.getSlotMappings.iterator))
+      if (fillTemplate(mapping.slotMappings.iterator))
         cas.addFsToIndexes(template)
     }
   }
@@ -138,6 +149,11 @@ class ShaltefAnnotator extends CasAnnotator_ImplBase {
   }
 
   private def buildPhraseIndex(segm: AnnotationFS, refWord: Word) = new PhraseIndex(segm, refWord, ts)
+
+  // CONFIGURATION POINT
+  private def getMappingPostProcessors(config: MappingsParserConfig): Traversable[DepToArgMappingsPostProcessor] =
+    List(new EnforcePrepositionConstraintPostProcessor(config))
+
 }
 
 object ShaltefAnnotator {
