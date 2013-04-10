@@ -34,7 +34,7 @@ private[mappings] class BinOpPhraseConstraint private[pattern] (
     new HashCodeBuilder().append(target).append(op).append(value).toHashCode()
 
   override def toString = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-    .append("target", target).append("op", op).append("value", value).toString
+    .append(target).append(op).append(value).toString
 }
 
 private[mappings] class UnOpPhraseConstraint private[pattern] (
@@ -53,5 +53,5 @@ private[mappings] class UnOpPhraseConstraint private[pattern] (
     new HashCodeBuilder().append(op).append(value).toHashCode()
 
   override def toString = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-    .append("op", op).append("value", value).toString
+    .append(op).append(value).toString
 }

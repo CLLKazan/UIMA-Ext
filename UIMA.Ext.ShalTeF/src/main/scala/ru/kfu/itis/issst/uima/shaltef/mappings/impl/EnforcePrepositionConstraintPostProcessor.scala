@@ -16,12 +16,14 @@ import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.PrepositionTarget
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.ConstraintConjunctionPhrasePattern
 import ru.kfu.itis.issst.uima.shaltef.mappings.MappingsParserConfig
 import ru.kfu.itis.issst.uima.shaltef.mappings.pattern.Equals
+import grizzled.slf4j.Logging
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
-class EnforcePrepositionConstraintPostProcessor(config: MappingsParserConfig) extends DepToArgMappingsPostProcessor {
+class EnforcePrepositionConstraintPostProcessor(config: MappingsParserConfig) extends DepToArgMappingsPostProcessor
+  with Logging {
 
   import config.constraintFactory._
   import config.constraintTargetFactory._
@@ -30,7 +32,10 @@ class EnforcePrepositionConstraintPostProcessor(config: MappingsParserConfig) ex
   override def postprocess(mpBuilder: DepToArgMappingsBuilder) {
     for (mp <- mpBuilder.getMappings) {
       val newMP = enforcePrepositionConstraints(mp)
-      mpBuilder.replace(mp, newMP)
+      if (mp != newMP) {
+        mpBuilder.replace(mp, newMP)
+        info("Preposition constraint enforced in:\n%s".format(newMP))
+      }
     }
   }
 

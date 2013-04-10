@@ -28,6 +28,5 @@ private[mappings] class ConstraintConjunctionPhrasePattern(
   override def hashCode(): Int =
     new HashCodeBuilder().append(constraints).toHashCode()
 
-  override def toString = new StringBuilder("ConstraintConjunction:").
-    append(constraints.toString).toString
+  override def toString = new StringBuilder("ConstraintConjunction:").append(constraints).toString
 }

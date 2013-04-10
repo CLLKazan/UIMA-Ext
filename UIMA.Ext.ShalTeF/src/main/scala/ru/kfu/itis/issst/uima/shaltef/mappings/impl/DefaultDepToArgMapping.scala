@@ -24,7 +24,5 @@ private[mappings] class DefaultDepToArgMapping(val templateAnnoType: Type,
       .toHashCode()
 
   override def toString: String = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).
-    append("templateAnnoType", templateAnnoType).
-    append("triggerLemmaIds", triggerLemmaIds).
-    append("slotMappings", slotMappings).toString;
+    append(templateAnnoType).append(triggerLemmaIds).append(slotMappings).toString;
 }

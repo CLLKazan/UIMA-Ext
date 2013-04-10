@@ -48,4 +48,6 @@ private[mappings] object PrepositionTarget extends ConstraintTarget {
         else null
       case otherPhrase => null
     }
+
+  override def toString = "PrepositionTarget"
 }
