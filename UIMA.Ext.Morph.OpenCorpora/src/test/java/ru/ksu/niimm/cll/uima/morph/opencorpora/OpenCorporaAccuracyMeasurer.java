@@ -25,7 +25,7 @@ import java.util.Set;
  * change this template use File | Settings | File Templates.
  */
 public class OpenCorporaAccuracyMeasurer {
-    private static Set<String> importantGrammems = ImmutableSet.of(
+    private static Set<String> IMPORTANT_GRAMMEMS = ImmutableSet.of(
             "masc", "femn", "neut",
 
             "nomn", "voct",
@@ -44,6 +44,9 @@ public class OpenCorporaAccuracyMeasurer {
             "actv", "pssv",
             "1per", "2per", "3per"
     );
+
+    private static final int POS_WEIGHT = 3;
+    private static int tp, fp, fn;
 
     public static void main(String[] args) throws IOException, UIMAException {
         if (args.length != 3) {
@@ -83,11 +86,10 @@ public class OpenCorporaAccuracyMeasurer {
         AnnotationIndex<Annotation> wordIdxPredicted = casBig.getAnnotationIndex(Word.type);
         AnnotationIndex<Annotation> wordIdxFromDict = casSmall.getAnnotationIndex(Word.type);
 
-        int t = 0;
-        int n = 0;
-
         Iterator<Annotation> predictedIterator = wordIdxPredicted.iterator();
         Iterator<Annotation> fromDictIterator = wordIdxFromDict.iterator();
+
+        tp = fp = fn = 0;
 
         while (predictedIterator.hasNext()) {
 
@@ -95,36 +97,38 @@ public class OpenCorporaAccuracyMeasurer {
             Word fromDict = (Word)fromDictIterator.next();
 
             for (int i = 0; i < fromDict.getWordforms().size(); ++i) {
-                n++;
                 org.opencorpora.cas.Wordform fromDictWf = fromDict.getWordforms(i);
 
-                if (hasCommon(predicted, fromDictWf))
-                    t++;
+                for (int j = 0; j < predicted.getWordforms().size(); ++j) {
+                    org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(j);
+
+                    calculateCounts(predictedWf, fromDictWf);
+                }
             }
         }
 
-        System.out.println("Accuracy: " + (double)t / n);
+        System.out.println("Accuracy: " + (double)tp / (tp + fn + fp));
     }
 
-    private static boolean hasCommon(Word predicted, org.opencorpora.cas.Wordform fromDictWf) {
+    private static void calculateCounts(org.opencorpora.cas.Wordform predictedWf, org.opencorpora.cas.Wordform fromDictWf) {
 
         String fromDictPos = fromDictWf.getPos();
         Set<String> fromDictGrammems = FSUtils.grammemsToSet(fromDictWf.getGrammems());
-        fromDictGrammems = Sets.intersection(fromDictGrammems, importantGrammems);
+        fromDictGrammems = Sets.intersection(fromDictGrammems, IMPORTANT_GRAMMEMS);
 
-        for (int j = 0; j < predicted.getWordforms().size(); ++j) {
-            org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(j);
-            String predictedPos = predictedWf.getPos();
+        String predictedPos = predictedWf.getPos();
+        Set<String> predictedGrammems = FSUtils.grammemsToSet(predictedWf.getGrammems());
+        predictedGrammems = Sets.intersection(predictedGrammems, IMPORTANT_GRAMMEMS);
 
-            if (!fromDictPos.equals(predictedPos))
-                continue;
-            Set<String> predictedGrammems = FSUtils.grammemsToSet(predictedWf.getGrammems());
-
-            if (predictedGrammems.containsAll(fromDictGrammems)) {
-                return true;
-            }
+        if (predictedPos.equals(fromDictPos)) {
+            tp += POS_WEIGHT;
+        } else {
+            fp += POS_WEIGHT;
+            fn += POS_WEIGHT;
         }
 
-        return false;
+        tp += Sets.intersection(predictedGrammems, fromDictGrammems).size();
+        fp += Sets.difference(predictedGrammems, fromDictGrammems).size();
+        fn += Sets.difference(fromDictGrammems, predictedGrammems).size();
     }
 }
