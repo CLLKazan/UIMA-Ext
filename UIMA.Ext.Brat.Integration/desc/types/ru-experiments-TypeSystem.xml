@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>default-text-TypeSystem</name>
+  <description/>
+  <version>1.0</version>
+  <vendor/>
+  <imports>
+    <import location="default-text-TypeSystem-Base.xml"/>
+  </imports>
+  <types>
+  	<typeDescription>
+      <name>ru.kfu.itis.issst.ner.typesystem.TargetGPE</name>
+      <description/>
+      <supertypeName>ru.kfu.itis.issst.ner.typesystem.Annotation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>ru.kfu.itis.issst.ner.typesystem.OpenQuoteMark</name>
+      <description/>
+      <supertypeName>ru.kfu.itis.issst.ner.typesystem.Annotation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>ru.kfu.itis.issst.ner.typesystem.CloseQuoteMark</name>
+      <description/>
+      <supertypeName>ru.kfu.itis.issst.ner.typesystem.Annotation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>ru.kfu.itis.issst.ner.typesystem.QM</name>
+      <description/>
+      <supertypeName>ru.kfu.itis.issst.ner.typesystem.Annotation</supertypeName>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

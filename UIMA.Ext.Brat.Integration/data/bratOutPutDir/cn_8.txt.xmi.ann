@@ -1,0 +1,6 @@
+T1	Resignation 190 359	До недавнего времени Свердлов был гендиректором группы Yota, оказывающей услуги беспроводного доступа в интернет по технологиям WiMAX и LTE в России и ряде других стран.
+T2	Position 211 219	Свердлов
+T3	Person 224 237	гендиректором
+T4	Company 245 249	Yota
+E1	Resignation:T1 Company-EArg3:T4 Position-EArg1:T2 Person-EArg2:T3
+T8	Position 897 904	министр
