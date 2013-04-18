@@ -39,7 +39,6 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.hp.hplabs.lim2.ie.text.typesystem.HL_Acquisition;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
