@@ -3,8 +3,13 @@
  */
 package org.nlplab.brat.configuration;
 
-import java.util.Collections;
 import java.util.Map;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Rinat Gareev
@@ -12,40 +17,51 @@ import java.util.Map;
  */
 public class BratEventType extends BratType {
 
-	private Map<String, EventSlot> slots;
+	private Map<String, EventRole> roles;
 
-	public BratEventType(String name, Map<String, EventSlot> slots) {
+	public BratEventType(String name, Map<String, EventRole> roles) {
 		super(name);
-		this.slots = Collections.unmodifiableMap(slots);
+		this.roles = ImmutableMap.copyOf(roles);
 	}
 
-	public static enum Cardinality {
-		ONE, OPTIONAL, ARRAY, NON_EMPTY_ARRAY
+	public boolean hasRole(String role) {
+		return roles.containsKey(role);
 	}
 
-	public static class EventSlot {
-		private String role;
-		private BratType range;
-		private Cardinality cardinality;
-
-		public EventSlot(String role, BratType range, Cardinality cardinality) {
-			this.role = role;
-			this.range = range;
-			this.cardinality = cardinality;
+	public EventRole getRole(String roleName) {
+		EventRole eventRole = roles.get(roleName);
+		if (eventRole == null) {
+			throw new IllegalArgumentException(String.format(
+					"No role '%s' in %s", roleName, this));
 		}
-
-		public String getRole() {
-			return role;
-		}
-
-		public BratType getRange() {
-			return range;
-		}
-
-		public Cardinality getCardinality() {
-			return cardinality;
-		}
-
+		return eventRole;
 	}
 
+	public Map<String, EventRole> getRoles() {
+		return roles;
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof BratEventType)) {
+			return false;
+		}
+		BratEventType that = (BratEventType) obj;
+		return new EqualsBuilder().append(name, that.name)
+				.append(roles, that.roles).isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("name", name).append("roles", roles).toString();
+	}
 }

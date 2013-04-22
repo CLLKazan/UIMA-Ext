@@ -1,33 +1,55 @@
 package ru.kfu.itis.issst.uima.brat;
 
+import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
+import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.CASRuntimeException;
-import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Feature;
+import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.cas.text.AnnotationIndex;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.nlplab.brat.ann.BratAnnotation;
+import org.nlplab.brat.ann.BratAnnotationContainer;
+import org.nlplab.brat.ann.BratEntity;
+import org.nlplab.brat.ann.BratEvent;
+import org.nlplab.brat.ann.BratEventTrigger;
+import org.nlplab.brat.ann.BratRelation;
+import org.nlplab.brat.configuration.BratEntityType;
+import org.nlplab.brat.configuration.BratEventType;
+import org.nlplab.brat.configuration.BratRelationType;
+import org.nlplab.brat.configuration.BratType;
+import org.nlplab.brat.configuration.BratTypesConfiguration;
+import org.nlplab.brat.configuration.EventRole;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.util.CasUtil;
 
-import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+import ru.kfu.itis.issst.uima.brat.UimaBratMapping.Builder;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * UIMA Annotator is CAS Annotator to convert UIMA annotations to brat standoff
@@ -49,55 +71,47 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
 public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 
-	// Input Parameters
-	// Brat Annotation types
-	// Brat Output directory
-
 	public final static String BRAT_OUT = "BratOutputDir";
-	public final static String TYPES_TO_BRAT = "TypesToBrat";
+	public final static String ENTITIES_TO_BRAT = "EntitiesToBrat";
+	public final static String RELATIONS_TO_BRAT = "RelationsToBrat";
+	public final static String EVENTS_TO_BRAT = "EventsToBrat";
+	public final static String DOC_META_TYPE = "DocumentMetadataType";
+	public final static String DOC_META_URI_FEATURE = "DocumentMetadataUriFeature";
 	public final static String CONF_FILE = "annotation.conf";
-	public final static String DEFAULT_BRAT_OUTPUTDIR = "data/bratOutPutDir/";
-
 	public final static String ENCODING = "UTF-8";
-	public final static String FILE_SEPARATOR = "file.separator";
 	public final static String TXT_FILE_FORMAT = ".txt";
 	public final static String ANN_FILE_FORMAT = ".ann";
-	public final static String RELATION_ARG_NAME = "Arg";
-	public final static String EVENT_ARG_NAME = "EArg";
-	public final static String DM_ENTITY_TYPE_FEATURE_BASE_NAME = "sourceUri";
 
-	public static int tCounter = 0;
-	public static int rCounter = 0;
-	public static int eCounter = 0;
-
-	//
+	// annotator configuration fields
 	@ConfigurationParameter(name = BRAT_OUT, mandatory = true)
 	private File bratDirectory;
-	@ConfigurationParameter(name = TYPES_TO_BRAT, mandatory = true)
-	private String[] typesToBrat;
+	@ConfigurationParameter(name = ENTITIES_TO_BRAT)
+	private String[] entitiesToBratRaw;
+	private List<EntityDefinitionValue> entitiesToBrat;
+	@ConfigurationParameter(name = RELATIONS_TO_BRAT)
+	private String[] relationsToBratRaw;
+	private List<StructureDefinitionValue> relationsToBrat;
+	@ConfigurationParameter(name = EVENTS_TO_BRAT)
+	private String[] eventsToBratRaw;
+	private List<StructureDefinitionValue> eventsToBrat;
+	@ConfigurationParameter(name = DOC_META_TYPE, defaultValue = "ru.kfu.itis.cll.uima.commons.DocumentMetadata")
+	private String docMetaTypeName;
+	private Type docMetaType;
+	@ConfigurationParameter(name = DOC_META_URI_FEATURE, defaultValue = "sourceUri")
+	private String docMetaUriFeatName;
+	private Feature docMetaUriFeature;
 
-	// Brat types
-	private HashMap<String, String> entities = new HashMap<String, String>();
-	private HashMap<String, String> events = new HashMap<String, String>();
-	private HashMap<String, String> eventsArgs = new HashMap<String, String>();
-	private HashMap<String, String> relations = new HashMap<String, String>();
+	// derived configuration fields
+	private BratTypesConfiguration bratTypesConfig;
+	private UimaBratMapping mapping;
 
-	// output
-	// private HashMap<String, String> outs = new HashMap<String, String>();
+	// state fields
+	private TypeSystem ts;
 
-	// Annotation.conf writer
-	private BufferedWriter acWriter;
-
-	FSIterator<AnnotationFS> iterator = null;
-	URI uri = null;
-	String sourceUri = null;
-	Type dmEntityType = null;
-	String txt = "";
-	JCas jcas = null;
-	Feature dmTypeFeature = null;
-	AnnotationIndex<AnnotationFS> annotationIndex = null;
-	File annFile, af, f = null;
-	String ann, fileName = null;
+	// per-CAS state fields
+	private String currentDocName;
+	private BratAnnotationContainer bac;
+	private ToBratMappingContext context;
 
 	@Override
 	public void initialize(UimaContext ctx)
@@ -105,19 +119,37 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		super.initialize(ctx);
 
 		getLogger().info("Annotator is initializing ...");
-
-		try {
-			if (!bratDirectory.isDirectory())
-				bratDirectory.mkdirs();
-			File annotationConfFile = new File(bratDirectory, CONF_FILE);
-			acWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(annotationConfFile), "utf-8"));
-			getLogger().info("Reading UIMA types to convert to brat annotations ... ");
-			writeBratTypesConfig();
-		} catch (IOException e) {
-			throw new ResourceInitializationException(e);
-		} finally {
-			IOUtils.closeQuietly(acWriter);
+		if (entitiesToBratRaw == null) {
+			entitiesToBrat = ImmutableList.of();
+		} else {
+			entitiesToBrat = Lists.newLinkedList();
+			for (String valStr : entitiesToBratRaw) {
+				entitiesToBrat.add(EntityDefinitionValue.fromString(valStr));
+			}
+			entitiesToBrat = ImmutableList.copyOf(entitiesToBrat);
+		}
+		if (relationsToBratRaw == null) {
+			relationsToBrat = ImmutableList.of();
+		} else {
+			relationsToBrat = Lists.newLinkedList();
+			for (String valStr : relationsToBratRaw) {
+				StructureDefinitionValue val = StructureDefinitionValue.fromString(valStr);
+				if (val.roleDefinitions.size() != 2) {
+					throw new IllegalArgumentException(String.format(
+							"Illegal relation definition: %s", valStr));
+				}
+				relationsToBrat.add(val);
+			}
+			relationsToBrat = ImmutableList.copyOf(relationsToBrat);
+		}
+		if (eventsToBratRaw == null) {
+			eventsToBrat = ImmutableList.of();
+		} else {
+			eventsToBrat = Lists.newLinkedList();
+			for (String valStr : eventsToBratRaw) {
+				eventsToBrat.add(StructureDefinitionValue.fromString(valStr));
+			}
+			eventsToBrat = ImmutableList.copyOf(eventsToBrat);
 		}
 	}
 
@@ -125,369 +157,452 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	public void typeSystemInit(TypeSystem ts)
 			throws AnalysisEngineProcessException {
 		super.typeSystemInit(ts);
+		this.ts = ts;
+		getLogger().info("Configuring document metadata & uri retrieval...");
+		docMetaType = ts.getType(docMetaTypeName);
+		annotationTypeExist(docMetaTypeName, docMetaType);
+		docMetaUriFeature = featureExist(docMetaType, docMetaUriFeatName);
+
+		getLogger().info("Reading UIMA types to convert to brat annotations ... ");
+		createBratTypesConfiguration();
+		Writer acWriter = null;
+		try {
+			if (!bratDirectory.isDirectory())
+				bratDirectory.mkdirs();
+			File annotationConfFile = new File(bratDirectory, CONF_FILE);
+			acWriter = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(annotationConfFile), ENCODING));
+			bratTypesConfig.writeTo(acWriter);
+		} catch (IOException e) {
+			throw new AnalysisEngineProcessException(e);
+		} finally {
+			IOUtils.closeQuietly(acWriter);
+		}
 	}
 
 	@Override
-	public void process(CAS casObj) throws AnalysisEngineProcessException {
-
-		// LOGGER.info("Saving text and annotations files into brat output directory.");
-		AnnotationFS fs;
-		// Initializing CAS Object and getting annotation iterator and source
-		// URI annotation (Document Metadata)
+	public void process(CAS cas) throws AnalysisEngineProcessException {
+		// extract target file name
+		currentDocName = extractDocName(cas);
+		// write doc text
+		File txtFile = new File(bratDirectory, currentDocName + TXT_FILE_FORMAT);
+		String txt = cas.getDocumentText();
 		try {
-			jcas = casObj.getJCas();
-		} catch (CASException e) {
+			FileUtils.write(txtFile, txt, ENCODING);
+		} catch (IOException e) {
 			throw new AnalysisEngineProcessException(e);
 		}
-		txt = jcas.getDocumentText();
-		// TODO move to initialize & typeSystemInit
-		dmEntityType = (Type) jcas.getTypeSystem().getType(
-				DocumentMetadata.class.getName());
-		annotationIndex = (AnnotationIndex<AnnotationFS>) jcas.getCas()
-				.getAnnotationIndex();
-		iterator = annotationIndex.iterator();
-		dmTypeFeature = dmEntityType
-				.getFeatureByBaseName(DM_ENTITY_TYPE_FEATURE_BASE_NAME);
 
-		// Find sourceUri annotation first to write annotations somewhere!
-		// TODO simplify using typed annotationIndex
-		while (iterator.isValid()) {
-			fs = iterator.get();
-			// Writing annotations files init:
-			try {
-				if (fs.getFeatureValueAsString(dmTypeFeature) != null
-						&& !fs.getFeatureValueAsString(dmTypeFeature)
-								.equals("x-unspecified")) {
-					try {
-						uri = new URI(
-								fs.getFeatureValueAsString(dmTypeFeature));
-						sourceUri = uri.getPath();
-						annFile = new File(sourceUri);
-						fileName = annFile.getName();
-						af = new File(bratDirectory, fileName + ANN_FILE_FORMAT);
-						break;
-					} catch (CASRuntimeException e) {
-						e.printStackTrace();
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-					}
-
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			iterator.moveToNext();
-		}
-		iterator = annotationIndex.iterator();
-		// Iterate over the annotations
-		while (iterator.isValid()) {
-			fs = iterator.get();
-			// Get entity annotations
-			if (entities.get(fs.getType().getName()) != null) {
-				writeEntity(fs, af);
-			}
-			// Get relation annotations
-			if (relations.get(fs.getType().getName()) != null) {
-				writeEvent(fs, af);
-			}
-			// Get event annotations
-			if (events.get(fs.getType().getName()) != null) {
-				writeEvent(fs, af);
-			}
-			iterator.moveToNext();
-		}
-		// Writing annotations text
-		if (sourceUri != null) {
-			getLogger().debug(fileName + " is in process.");
-			f = new File(bratDirectory, fileName + TXT_FILE_FORMAT);
-			try {
-				FileUtils.write(f, txt, ENCODING);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else
-			getLogger().warn("TEXT FILE NAME IS EMPTY");
-
-		// finalize per one annotation file
-		tCounter = 1;
-		rCounter = 1;
-		eCounter = 1;
-		af = null;
-		f = null;
-
-	}
-
-	private String writeEvent(AnnotationFS fs, File af) {
-		String ann, t2 = null, t = null, out = "E";
-		boolean fl = false;
-
-		// Set event text-bound annotation.
-		if (events.get(fs.getType().getName()) == null) {
-			if (relations.get(fs.getType().getName()) != null) {
-				// ???
-				events.put(fs.getType().getName(), relations.get(fs.getType().getName()));
-				out = "R";
-				fl = true;
+		// populate Brat annotation container
+		bac = new BratAnnotationContainer();
+		context = new ToBratMappingContext();
+		// start with entities
+		for (Type uType : mapping.getEntityUimaTypes()) {
+			BratEntityType bType = mapping.getBratEntityType(uType);
+			for (AnnotationFS uEntity : cas.getAnnotationIndex(uType)) {
+				mapEntity(bType, uEntity);
 			}
 		}
-		if (!fl) {
-			entities.put(fs.getType().getName(), events.get(fs.getType().getName()).split("\t")[0]);
-
-			t2 = writeEntity(fs, af);
-
-			entities.remove(fs.getType().getName());
-
-		}
-		if (!fl)
-			ann = "E" + eCounter + "\t"
-					+ events.get(fs.getType().getName()).split("\t ")[0] + ":"
-					+ t2;
-		else
-			ann = "R" + rCounter + "\t"
-					+ events.get(fs.getType().getName()).split("\t")[0];
-
-		Type tp = fs.getType();
-
-		HashMap<String, String> args = new HashMap<String, String>();
-
-		String[] afs = eventsArgs.keySet().toArray(new String[0]);
-
-		// Events.get(fs.getType().getName()).replaceAll("[^A-z\\-\\_]","").split(":");
-
-		int k = 1;
-		for (Feature f : tp.getFeatures()) {
-			// Recognize a valid features and add them to brat annotation
-			// structure
-			try {
-				for (String ftype : afs) {
-					// check whether event  arg
-					if (entities.containsValue(ftype)
-							&& !f.getRange().isPrimitive()
-							&& fs.getFeatureValue(f) != null
-							&& entities.containsKey(fs.getFeatureValue(f).getType().getName())
-							&& ftype.equals(entities.get(fs.getFeatureValue(f).getType()
-									.getName()))) {
-						t = writeEntity((AnnotationFS) fs.getFeatureValue(f), af);
-						if (!fl) {
-							System.out.println(ftype + k + t);
-
-							args.put(eventsArgs.get(ftype) + k, t);
-						} else
-							args.put(RELATION_ARG_NAME.substring(0, 3) + k, t);
-						k++;
-						break;
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+		// then relations
+		for (Type uType : mapping.getRelationUimaTypes()) {
+			UimaBratRelationMapping relMapping = mapping.getRelationMapping(uType);
+			for (AnnotationFS uRelation : cas.getAnnotationIndex(uType)) {
+				mapRelation(relMapping, uRelation);
 			}
 		}
-		if (fl) {
-			if (relations.get(fs.getType().getName()) != null) {
-				events.remove(fs.getType().getName());
-				fl = false;
+		// then events
+		for (Type uType : mapping.getEventUimaTypes()) {
+			UimaBratEventMapping evMapping = mapping.getEventMapping(uType);
+			for (AnnotationFS uEvent : cas.getAnnotationIndex(uType)) {
+				mapEvent(evMapping, uEvent);
 			}
 		}
-		System.out.println(args);
-		for (String s : args.keySet()) {
-			ann += " " + s + ":" + args.get(s);
-		}
-		ann += "\n";
-		if (!fl) {
-			out += eCounter;
-			this.eCounter++;
-		} else {
-			out += rCounter;
-			this.rCounter++;
-		}
-		if (ann.length() != 0) {
-			try {
-				if (!checkUnique(af, ann))
-					FileUtils.writeStringToFile(af, ann, true);
-				// outs.put(out, ann);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return out;
-	}
-
-	private String writeEntity(AnnotationFS fs, File af) {
-		String ann, out = "T";
-		// Add entity to annotation file ...
-		ann = "T" + tCounter + "\t" + entities.get(fs.getType().getName())
-				+ " " + fs.getBegin() + " " + fs.getEnd() + "\t"
-				+ fs.getCoveredText();
-		ann += "\n";
-		out += tCounter;
-		tCounter++;
-		if (ann.length() != 0) {
-			try {
-				if (!checkUnique(af, ann))
-					//System.out.println("writing entity ..."+ann);
-					FileUtils.writeStringToFile(af, ann, true);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return out;
-	}
-
-	private boolean checkUnique(File af2, String ann2) throws IOException {
-		if (af.canRead())
-			for (String s : FileUtils.readLines(af2)) {
-				if (s.replace(s.split("\t")[0] + "\t", "").equals(
-						ann2.replace(ann2.split("\t")[0] + "\t", "")
-								.split("\n")[0]))
-					return true;
-			}
-		return false;
-	}
-
-	private void writeBratTypesConfig() {
-		// Generate entities to brat configuration file
-		BratTypes anTypes = null;
-		String bratType = "none";
-
-		boolean fl;
-		if (typesToBrat.length != 0) {
-
-			for (String s : typesToBrat) {
-				fl = false;
-				if (s.split(";").length > 2)
-					bratType = s.split(";")[2];
-				else
-					getLogger().warn("There is no type for " + s + "this object!");
-				try {
-					anTypes = BratTypes.valueOf(bratType.toUpperCase());
-				} catch (Exception e) {
-					fl = true;
-					continue;
-				}
-				if (!fl)
-					switch (anTypes) {
-
-					case ENTITY:
-						entities.put(s.split(";")[1], s.split(";")[0]);
-						break;
-
-					case RELATION:
-						relations.put(s.split(";")[1],
-								parseRelationArgs(s.split(";")[0]));
-						break;
-
-					case EVENT:
-						events.put(s.split(";")[1],
-								parseEventArgs(s.split(";")[0]));
-						break;
-
-					default:
-						break;
-					}
-			}
-
-			// Writing results to file annotation configuration file
-			writeToFile("[entities]");
-
-			// System.out.println(entities);
-			for (String s : entities.keySet()) {
-				writeToFile(entities.get(s));
-			}
-
-			writeToFile("[events]");
-
-			// System.out.println(events);
-			for (String s : events.keySet()) {
-				if (events.get(s).split(":").length > 0)
-					writeToFile(events.get(s));
-				else
-					writeToFile(s);
-			}
-
-			writeToFile("[attributes]");
-
-			writeToFile("[relations]");
-
-			// System.out.println(relations);
-			for (String s : relations.keySet()) {
-				writeToFile(relations.get(s));
-			}
-		}
-	}
-
-	private String parseEventArgs(String args) {
-		String out = null;
-
-		String argss[] = args.split(":");
-
-		if (args.length() > 0) {
-			out = "";
-			out += argss[0] + "\t ";
-			int ik = 0;
-			String val, param, arg;
-			for (String s : argss) {
-				if (ik != 0) {
-
-					val = s.replaceAll("[\\?\\*\\+\\{\\d\\}]", "");
-
-					arg = s.replaceAll("[^A-z]", "") + "-" + EVENT_ARG_NAME;
-
-					param = s.replaceAll("[\\|\\-\\_A-z]", "");
-
-					out += arg + param + ":" + val;
-
-					eventsArgs.put(val, arg);
-
-					if (ik != argss.length - 1 && ik != 0)
-						out += ", ";
-				}
-				ik++;
-			}
-		} else {
-			out = "";
-			if (args.equals("") | args == null)
-				throw new IllegalStateException("Event configuration error!");
-			else
-				out += args;
-		}
-		System.out.println(eventsArgs);
-		return out;
-	}
-
-	private String parseRelationArgs(String args) {
-		String out = null;
-		String argss[] = args.split(":");
-		// Relation has to have exactly two arguments
-		if (argss.length == 3) {
-			out = "";
-			out += argss[0] + "\t ";
-			// Add arguments and replace unnecessary characters
-			out += RELATION_ARG_NAME + "1:"
-					+ argss[1].replaceAll("[\\?\\*\\+\\{\\d\\}]", "");
-			eventsArgs.put(argss[1].replaceAll("[\\?\\*\\+\\{\\d\\}]", "")
-					, RELATION_ARG_NAME);
-
-			out += ", ";
-			out += RELATION_ARG_NAME + "2:"
-					+ argss[2].replaceAll("[\\?\\*\\+\\{\\d\\}]", "");
-			eventsArgs.put(argss[2].replaceAll("[\\?\\*\\+\\{\\d\\}]", "")
-					, RELATION_ARG_NAME);
-
-		} else
-			throw new IllegalStateException("Relations must have exactly two arguments");
-		return out;
-	}
-
-	public void writeToFile(String text) {
+		// write .ann file
+		File annFile = new File(bratDirectory, currentDocName + ANN_FILE_FORMAT);
+		Writer annWriter = null;
 		try {
-			acWriter.write(text);
-			acWriter.newLine();
-		} catch (Exception e) {
-			e.printStackTrace();
+			annWriter = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(annFile), ENCODING));
+			bac.writeTo(annWriter);
+		} catch (IOException e) {
+			throw new AnalysisEngineProcessException(e);
+		} finally {
+			IOUtils.closeQuietly(annWriter);
+		}
+		// clear per-CAS state
+		currentDocName = null;
+		bac = null;
+		context = null;
+	}
+
+	private void mapEntity(BratEntityType bType, AnnotationFS uEntity) {
+		if (context.isMapped(uEntity)) {
+			return;
+		}
+		// create brat annotation instance
+		BratEntity bEntity = new BratEntity(bType,
+				uEntity.getBegin(), uEntity.getEnd(), uEntity.getCoveredText());
+		// add to container - it assigns ID
+		bEntity = bac.add(bEntity);
+		// remember that it was mapped => put into mappedAnnos
+		context.mapped(uEntity, bEntity);
+	}
+
+	private void mapRelation(UimaBratRelationMapping relMapping, AnnotationFS uRelation) {
+		if (context.isMapped(uRelation)) {
+			return;
+		}
+		BratRelationType bType = relMapping.bratType;
+		Map<String, BratEntity> argMap = makeArgMap(
+				uRelation, bType, relMapping.roleFeatures);
+		if (argMap == null) {
+			return;
+		}
+		// create
+		BratRelation bRelation = new BratRelation(bType, argMap);
+		// assign id
+		bRelation = bac.add(bRelation);
+		// memorize
+		context.mapped(uRelation, bRelation);
+	}
+
+	private void mapEvent(UimaBratEventMapping evMapping, AnnotationFS uEvent) {
+		if (context.isMapped(uEvent)) {
+			return;
+		}
+		BratEventType bType = evMapping.bratType;
+		// use UIMA event annotation boundaries as Brat event trigger boundaries
+		BratEventTrigger trigger = new BratEventTrigger(bType,
+				uEvent.getBegin(), uEvent.getEnd(), uEvent.getCoveredText());
+		// assign id to trigger
+		trigger = bac.add(trigger);
+		// fill slots
+		Map<String, BratAnnotation<?>> roleAnnotations = makeRoleMap(
+				uEvent, bType, evMapping.roleFeatures);
+		// create
+		BratEvent bEvent = new BratEvent(bType, trigger, roleAnnotations);
+		// assign id
+		bEvent = bac.add(bEvent);
+		// memorize
+		context.mapped(uEvent, bEvent);
+	}
+
+	// fill relation roles
+	private Map<String, BratEntity> makeArgMap(AnnotationFS uAnno,
+			BratRelationType bratType, Map<String, Feature> argFeatMap) {
+		Map<String, BratEntity> argAnnotations = Maps.newHashMapWithExpectedSize(2);
+		for (String argName : argFeatMap.keySet()) {
+			Feature argFeat = argFeatMap.get(argName);
+			FeatureStructure argFS = uAnno.getFeatureValue(argFeat);
+			if (argFS == null) {
+				getLogger().warn(String.format(
+						"Can't map %s to Brat relation. Its feature '%s' is not set.",
+						toPrettyString(uAnno), argFeat));
+				return null;
+			}
+			BratEntity argValue = context.demandEntity(argFS);
+			argAnnotations.put(argName, argValue);
+		}
+		return argAnnotations;
+	}
+
+	// fill event roles
+	private Map<String, BratAnnotation<?>> makeRoleMap(AnnotationFS uAnno,
+			BratEventType bratType, Map<String, Feature> roleFeatMap) {
+		Map<String, BratAnnotation<?>> roleAnnotations = Maps.newHashMapWithExpectedSize(
+				roleFeatMap.size());
+		for (String roleName : roleFeatMap.keySet()) {
+			EventRole roleDesc = bratType.getRole(roleName);
+			Feature roleFeat = roleFeatMap.get(roleName);
+			FeatureStructure roleFS = uAnno.getFeatureValue(roleFeat);
+			if (roleFS == null) {
+				continue;
+			}
+			BratAnnotation<?> roleValue;
+			if (roleDesc.getRange() instanceof BratEntityType) {
+				roleValue = context.demandEntity(roleFS);
+			} else { // role value should be event
+				roleValue = context.getEvent(roleFS, false);
+				if (roleValue == null) {
+					// means that a sub-event has not been mapped yet
+					// TODO
+					throw new UnsupportedOperationException(
+							"Nested event mapping is not supported yet");
+				}
+			}
+			roleAnnotations.put(roleName, roleValue);
+		}
+		return roleAnnotations;
+	}
+
+	private String toPrettyString(AnnotationFS anno) {
+		return String.format("<%s, offset %s in %s>", anno.getCoveredText(), anno.getBegin(),
+				currentDocName);
+	}
+
+	private String toPrettyString(FeatureStructure fs) {
+		if (fs instanceof AnnotationFS) {
+			return toPrettyString((AnnotationFS) fs);
+		}
+		return String.valueOf(fs);
+	}
+
+	private String extractDocName(CAS cas) {
+		FeatureStructure docMeta = CasUtil.selectSingle(cas, docMetaType);
+		String uriStr = docMeta.getStringValue(docMetaUriFeature);
+		if (uriStr == null) {
+			throw new IllegalStateException(String.format("Value of %s is null", docMetaUriFeature));
+		}
+		URI uri;
+		try {
+			uri = new URI(uriStr);
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException(e);
+		}
+		File docFile = new File(uri);
+		String docName = FilenameUtils.getBaseName(docFile.getPath());
+		if (StringUtils.isBlank(docName)) {
+			throw new IllegalStateException(String.format(
+					"Can't extract doc name from uri: %s", uri));
+		}
+		return docName;
+	}
+
+	/*
+	 * syntax for EntitiesToBrat strings:
+	 * <UIMA_TYPE_NAME> ("=>" <BRAT_TYPE_NAME>)?
+	 * syntax for RelationsToBrat strings:
+	 * <UIMA_TYPE_NAME> ("=>" <BRAT_TYPE_NAME>)? ":" <Arg1FeatureName> (" as " <UIMA_TYPE_SHORT_NAME>)? "," <Arg2FeatureName> (" as " <UIMA_TYPE_SHORT_NAME>)?
+	 */
+	private void createBratTypesConfiguration() throws AnalysisEngineProcessException {
+		// mapping builder
+		UimaBratMapping.Builder mpBuilder = UimaBratMapping.builder();
+		// type configuration builder
+		BratTypesConfiguration.Builder tcBuilder = BratTypesConfiguration.builder();
+		// configure entity types
+		for (EntityDefinitionValue entityDef : entitiesToBrat) {
+			Type uimaType = ts.getType(entityDef.uimaTypeName);
+			annotationTypeExist(entityDef.uimaTypeName, uimaType);
+			String bratTypeName = entityDef.bratTypeName;
+			if (bratTypeName == null) {
+				bratTypeName = uimaType.getShortName();
+			}
+			BratEntityType bratType = tcBuilder.addEntityType(bratTypeName);
+			mpBuilder.addEntityMapping(uimaType, bratType);
+		}
+		// configure relation types
+		for (StructureDefinitionValue relationDef : relationsToBrat) {
+			String uimaTypeName = relationDef.uimaTypeName;
+			Type uimaType = ts.getType(uimaTypeName);
+			annotationTypeExist(uimaTypeName, uimaType);
+			String bratTypeName = relationDef.bratTypeName;
+			if (bratTypeName == null) {
+				bratTypeName = uimaType.getShortName();
+			}
+			Map<String, Feature> argFeatures = Maps.newHashMap();
+			Map<String, BratEntityType> argTypes = Maps.newLinkedHashMap();
+			for (RoleDefinitionValue rdv : relationDef.roleDefinitions) {
+				String argFeatName = rdv.featureName;
+				Feature argFeat = featureExist(uimaType, argFeatName);
+				argFeatures.put(argFeatName, argFeat);
+				Type argUimaType = detectRoleUimaType(mpBuilder, argFeat, rdv.asTypeName);
+				BratEntityType argBratType = mpBuilder.getEntityType(argUimaType);
+				argTypes.put(argFeatName, argBratType);
+			}
+
+			BratRelationType brt = tcBuilder.addRelationType(bratTypeName, argTypes);
+			mpBuilder.addRelationMapping(uimaType, brt, argFeatures);
+		}
+		// configure event types
+		for (StructureDefinitionValue eventDef : eventsToBrat) {
+			String uimaTypeName = eventDef.uimaTypeName;
+			Type uimaType = ts.getType(uimaTypeName);
+			annotationTypeExist(uimaTypeName, uimaType);
+			String bratTypeName = eventDef.bratTypeName;
+			if (bratTypeName == null) {
+				bratTypeName = uimaType.getShortName();
+			}
+			Map<String, Feature> roleFeatures = Maps.newHashMap();
+			Map<String, BratType> roleTypes = Maps.newLinkedHashMap();
+
+			for (RoleDefinitionValue rdv : eventDef.roleDefinitions) {
+				String roleFeatName = rdv.featureName;
+				Feature roleFeat = featureExist(uimaType, roleFeatName);
+				roleFeatures.put(roleFeatName, roleFeat);
+				Type roleUimaType = detectRoleUimaType(mpBuilder, roleFeat, rdv.asTypeName);
+				BratType roleBratType = mpBuilder.getType(roleUimaType);
+				roleTypes.put(roleFeatName, roleBratType);
+			}
+
+			BratEventType bet = tcBuilder.addEventType(bratTypeName, roleTypes);
+			mpBuilder.addEventMapping(uimaType, bet, roleFeatures);
+		}
+		bratTypesConfig = tcBuilder.build();
+		mapping = mpBuilder.build();
+	}
+
+	private Type detectRoleUimaType(Builder mpBuilder, Feature roleFeat,
+			String shortTypeNameHint) {
+		Type uRoleType;
+		if (shortTypeNameHint == null) {
+			uRoleType = roleFeat.getRange();
+		} else {
+			uRoleType = mpBuilder.getUimaTypeByShortName(shortTypeNameHint);
+			if (!ts.subsumes(roleFeat.getRange(), uRoleType)) {
+				throw new IllegalStateException(String.format(
+						"%s is not subtype of %s", uRoleType, roleFeat.getRange()));
+			}
+		}
+		return uRoleType;
+	}
+
+	private class ToBratMappingContext {
+		private Map<AnnotationFS, BratAnnotation<?>> mappedAnnos = Maps.newHashMap();
+
+		private boolean isMapped(AnnotationFS anno) {
+			return mappedAnnos.containsKey(anno);
+		}
+
+		private BratEntity demandEntity(FeatureStructure fs) {
+			return getMapped(fs, BratEntity.class, true);
+		}
+
+		private BratEvent getEvent(FeatureStructure fs, boolean require) {
+			return getMapped(fs, BratEvent.class, require);
+		}
+
+		@SuppressWarnings("unchecked")
+		private <B extends BratAnnotation<?>> B getMapped(
+				FeatureStructure fs, Class<B> targetClass, boolean require) {
+			BratAnnotation<?> result = mappedAnnos.get(fs);
+			if (result == null) {
+				if (require) {
+					throw new IllegalStateException(String.format(
+							"Can't find mapped instance for %s in %s",
+							toPrettyString(fs), currentDocName));
+				}
+				return null;
+			}
+			if (!targetClass.isInstance(result)) {
+				throw new IllegalStateException(String.format(
+						"Unexpected mapped instance type for %s:\n required: %s\n actual:%s",
+						toPrettyString(fs), targetClass.getName(), result.getClass().getName()));
+			}
+			return (B) result;
+		}
+
+		private void mapped(AnnotationFS uAnno, BratAnnotation<?> bAnno) {
+			mappedAnnos.put(uAnno, bAnno);
+		}
+	}
+}
+
+class EntityDefinitionValue {
+	private static final String P_NAME_MAPPING = "([.\\p{Alnum}]+)(=>(\\p{Alnum}+))?";
+	static final Pattern ENTITY_TYPE_MAPPING_PATTERN = Pattern.compile(P_NAME_MAPPING);
+
+	static EntityDefinitionValue fromString(String str) {
+		Matcher matcher = ENTITY_TYPE_MAPPING_PATTERN.matcher(str);
+		if (matcher.matches()) {
+			String uimaTypeName = matcher.group(1);
+			String bratTypeName = matcher.group(3);
+			return new EntityDefinitionValue(uimaTypeName, bratTypeName);
+		} else {
+			throw new IllegalStateException(String.format(
+					"Can't parse entity mapping param value:\n%s", str));
 		}
 	}
 
-	public enum BratTypes {
-		ENTITY, EVENT, RELATION, ATTRIBUTE
+	final String uimaTypeName;
+	final String bratTypeName;
+
+	EntityDefinitionValue(String uimaTypeName, String bratTypeName) {
+		this.uimaTypeName = uimaTypeName;
+		this.bratTypeName = bratTypeName;
+	}
+}
+
+// base for events and relations
+class StructureDefinitionValue {
+	private static final Pattern BEFORE_ROLES = Pattern.compile(":\\s*");
+
+	static StructureDefinitionValue fromString(String _src) {
+		String src = _src;
+		Matcher typeNamesMatcher = EntityDefinitionValue.ENTITY_TYPE_MAPPING_PATTERN.matcher(src);
+		if (typeNamesMatcher.lookingAt()) {
+			String uimaTypeName = typeNamesMatcher.group(1);
+			String bratTypeName = typeNamesMatcher.group(3);
+			src = skip(src, BEFORE_ROLES);
+			// split by comma
+			String[] roleDeclStrings = src.split("\\s*,\\s*");
+			List<RoleDefinitionValue> roleDefs = Lists.newLinkedList();
+			for (String roleDeclStr : roleDeclStrings) {
+				try {
+					roleDefs.add(RoleDefinitionValue.fromString(roleDeclStr));
+				} catch (Exception e) {
+					throw new IllegalArgumentException(String.format(
+							"Can't parse: %s", _src),
+							e);
+				}
+			}
+			return new StructureDefinitionValue(uimaTypeName, bratTypeName, roleDefs);
+		} else {
+			throw new IllegalArgumentException(String.format(
+					"Can't parse structure mapping param value:\n%s", _src));
+		}
+	}
+
+	/**
+	 * @param src
+	 * @param pattern
+	 * @return src without prefix matched by pattern
+	 * @throws IllegalArgumentException
+	 *             if pattern does not match prefix
+	 */
+	private static String skip(String src, Pattern pattern) {
+		Matcher m = pattern.matcher(src);
+		if (m.lookingAt()) {
+			return src.substring(m.end());
+		} else {
+			throw new IllegalArgumentException(String.format(
+					"'%s' prefix was expected in '%s'", pattern, src));
+		}
+	}
+
+	final String uimaTypeName;
+	final String bratTypeName;
+	final List<RoleDefinitionValue> roleDefinitions;
+
+	StructureDefinitionValue(String uimaTypeName, String bratTypeName,
+			List<RoleDefinitionValue> roleDefinitions) {
+		this.uimaTypeName = uimaTypeName;
+		this.bratTypeName = bratTypeName;
+		this.roleDefinitions = ImmutableList.copyOf(roleDefinitions);
+	}
+
+}
+
+class RoleDefinitionValue {
+	private static final Pattern ROLE_DEF_PATTERN = Pattern.compile(
+			"(\\p{Alnum}+)(\\s+as\\s+(\\p{Alnum}+))?");
+
+	static RoleDefinitionValue fromString(String src) {
+		Matcher m = ROLE_DEF_PATTERN.matcher(src);
+		if (m.matches()) {
+			String featureName = m.group(1);
+			String asTypeName = m.group(3);
+			return new RoleDefinitionValue(featureName, asTypeName);
+		} else {
+			throw new IllegalArgumentException(String.format(
+					"Can't parse role definition: %s", src));
+		}
+	}
+
+	final String featureName;
+	final String asTypeName;
+
+	RoleDefinitionValue(String featureName, String asTypeName) {
+		this.featureName = featureName;
+		this.asTypeName = asTypeName;
 	}
 }

@@ -4,6 +4,8 @@
 package org.nlplab.brat.configuration;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * @author Rinat Gareev
@@ -35,5 +37,11 @@ public class BratEntityType extends BratType {
 		BratEntityType that = (BratEntityType) obj;
 		return new EqualsBuilder().append(this.name, that.name)
 				.append(this.parentType, that.parentType).isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("name", name).append("parentType", parentType).toString();
 	}
 }

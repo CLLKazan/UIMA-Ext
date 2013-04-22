@@ -197,7 +197,7 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 
 				txt = FileUtils.readFileToString(txtFile);
 
-			} catch (CASRuntimeException | IOException e1) {
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -373,37 +373,38 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 					Type tp = jcas.getTypeSystem().getType(object.getClass().getName());
 
 					BiMap<String, String> bm = HashBiMap.create();
-					int b,ei;
+					int b, ei;
 
-					System.out.println(ens.get(s.split("\t")[1].split(" ")[0].split(":")[1])+" setting range of event annotation of " +s.split("\t")[1].split(" ")[0].split(":")[1]);
-					
+					System.out.println(ens.get(s.split("\t")[1].split(" ")[0].split(":")[1])
+							+ " setting range of event annotation of "
+							+ s.split("\t")[1].split(" ")[0].split(":")[1]);
+
 					if (ens.get(s.split("\t")[1].split(" ")[0].split(":")[1]) != null) {
-						
+
 						Object evObj = ens.get(s.split("\t")[1].split(" ")[0].split(":")[1]);
-						System.out.println(evObj+"setting range of event annotation");
+						System.out.println(evObj + "setting range of event annotation");
 						evObj = Class.forName(uimaClassName).cast(evObj);
-						
-//						HL_Acquisition hl = new HL_Acquisition(jcas);
-//						
-//						hl.getBegin();
-//						
-						
+
+						//						HL_Acquisition hl = new HL_Acquisition(jcas);
+						//						
+						//						hl.getBegin();
+						//						
+
 						getBegin = evObj.getClass().getMethod("getBegin", null);
 						getEnd = evObj.getClass().getMethod("getEnd", null);
-						
-						
-						b = (int)getBegin.invoke(evObj);
-						
+
+						b = (int) getBegin.invoke(evObj);
+
 						begin = object.getClass().getMethod("setBegin", int.class);
-						
+
 						begin.invoke(object, b);
-						
+
 						// System.out.println("parsing ..."
 						// + s.split("\t")[1].split(" ")[2]);
 						end = object.getClass().getMethod("setEnd", int.class);
-						
-                        ei = (int)getEnd.invoke(evObj);
-						
+
+						ei = (int) getEnd.invoke(evObj);
+
 						end.invoke(object, ei);
 					}
 
