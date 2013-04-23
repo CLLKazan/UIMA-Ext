@@ -43,10 +43,12 @@ import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.configuration.EventRole;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.CasUtil;
 
 import ru.kfu.itis.issst.uima.brat.UimaBratMapping.Builder;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -68,7 +70,7 @@ import com.google.common.collect.Maps;
  * @author pathfinder
  * @author Rinat Gareev (Kazan Federal University)
  */
-
+@OperationalProperties(modifiesCas = false, multipleDeploymentAllowed = false)
 public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 
 	public final static String BRAT_OUT = "BratOutputDir";
@@ -325,7 +327,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				roleValue = context.getEvent(roleFS, false);
 				if (roleValue == null) {
 					// means that a sub-event has not been mapped yet
-					// TODO
+					// TODO implement nested event mapping
 					throw new UnsupportedOperationException(
 							"Nested event mapping is not supported yet");
 				}
@@ -498,7 +500,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 }
 
 class EntityDefinitionValue {
-	private static final String P_NAME_MAPPING = "([.\\p{Alnum}]+)(=>(\\p{Alnum}+))?";
+	private static final String P_NAME_MAPPING = "([._\\p{Alnum}]+)\\s*(=>\\s*([_\\p{Alnum}]+))?";
 	static final Pattern ENTITY_TYPE_MAPPING_PATTERN = Pattern.compile(P_NAME_MAPPING);
 
 	static EntityDefinitionValue fromString(String str) {
@@ -524,7 +526,7 @@ class EntityDefinitionValue {
 
 // base for events and relations
 class StructureDefinitionValue {
-	private static final Pattern BEFORE_ROLES = Pattern.compile(":\\s*");
+	private static final Pattern BEFORE_ROLES = Pattern.compile("\\s*:\\s*");
 
 	static StructureDefinitionValue fromString(String _src) {
 		String src = _src;
@@ -532,9 +534,13 @@ class StructureDefinitionValue {
 		if (typeNamesMatcher.lookingAt()) {
 			String uimaTypeName = typeNamesMatcher.group(1);
 			String bratTypeName = typeNamesMatcher.group(3);
-			src = skip(src, BEFORE_ROLES);
+			src = skip(src.substring(typeNamesMatcher.end()), BEFORE_ROLES);
 			// split by comma
 			String[] roleDeclStrings = src.split("\\s*,\\s*");
+			// trim trailing whitespace in last string 
+			roleDeclStrings[roleDeclStrings.length - 1] =
+					roleDeclStrings[roleDeclStrings.length - 1].trim();
+
 			List<RoleDefinitionValue> roleDefs = Lists.newLinkedList();
 			for (String roleDeclStr : roleDeclStrings) {
 				try {
@@ -584,7 +590,7 @@ class StructureDefinitionValue {
 
 class RoleDefinitionValue {
 	private static final Pattern ROLE_DEF_PATTERN = Pattern.compile(
-			"(\\p{Alnum}+)(\\s+as\\s+(\\p{Alnum}+))?");
+			"(\\p{Alnum}+)(\\s+as\\s+([_\\p{Alnum}]+))?");
 
 	static RoleDefinitionValue fromString(String src) {
 		Matcher m = ROLE_DEF_PATTERN.matcher(src);
@@ -604,5 +610,20 @@ class RoleDefinitionValue {
 	RoleDefinitionValue(String featureName, String asTypeName) {
 		this.featureName = featureName;
 		this.asTypeName = asTypeName;
+	}
+
+	@Override
+	public int hashCode() {
+		return featureName.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof RoleDefinitionValue)) {
+			return false;
+		}
+		RoleDefinitionValue that = (RoleDefinitionValue) obj;
+		return Objects.equal(this.featureName, that.featureName)
+				&& Objects.equal(this.asTypeName, that.asTypeName);
 	}
 }

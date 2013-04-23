@@ -9,15 +9,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -26,7 +23,6 @@ import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
-import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
@@ -37,14 +33,11 @@ import org.apache.uima.util.Logger;
 import org.apache.uima.util.XMLSerializer;
 import org.xml.sax.SAXException;
 
+import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+import ru.kfu.itis.issst.ner.typesystem.iBirthPlace;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
-import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
-import ru.kfu.itis.cll.uima.consumer.XmiWriter;
-import ru.kfu.itis.issst.ner.typesystem.iBirthPlace;
-import ru.kfu.itis.issst.ner.typesystem.iCity;
-import ru.kfu.itis.issst.ner.typesystem.iPerson;
 
 /**
  * Brat 2 UIMA Annotator is CAS Annotator to convert Brat standoff format
@@ -208,44 +201,19 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 				// RECOGNIZE THE TYPE OF ANNOTATION
 				// Replace numbers
 				String symb = s.split("\t")[0].replaceAll("[0-9]*$", "");
-				switch (symb) {
-				case TEXTBOUND_ANN:
-					// Set entity annotation
-					try {
+				try {
+					if (TEXTBOUND_ANN.equals(symb)) {
 						makeEntityAnnotation(s);
-					} catch (ClassNotFoundException | InstantiationException
-							| IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException | NoSuchMethodException
-							| SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					break;
-				case RELATION_ANN:
-					// Set relation annotation
-					try {
+					} else if (RELATION_ANN.equals(symb)) {
+						// Set relation annotation
 						makeRelationAnnotation(s);
-					} catch (ClassNotFoundException | NoSuchMethodException
-							| SecurityException | InstantiationException
-							| IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					break;
-				case EVENT_ANN:
-					// Set event annotation
-					try {
+					} else if (EVENT_ANN.equals(symb)) {
+						// Set event annotation
 						makeEventAnnotation(s);
-					} catch (IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException
-							| ClassNotFoundException | NoSuchMethodException
-							| SecurityException | InstantiationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
-					break;
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 
@@ -393,7 +361,7 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 						getBegin = evObj.getClass().getMethod("getBegin", null);
 						getEnd = evObj.getClass().getMethod("getEnd", null);
 
-						b = (int) getBegin.invoke(evObj);
+						b = (Integer) getBegin.invoke(evObj);
 
 						begin = object.getClass().getMethod("setBegin", int.class);
 
@@ -403,7 +371,7 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 						// + s.split("\t")[1].split(" ")[2]);
 						end = object.getClass().getMethod("setEnd", int.class);
 
-						ei = (int) getEnd.invoke(evObj);
+						ei = (Integer) getEnd.invoke(evObj);
 
 						end.invoke(object, ei);
 					}
@@ -781,14 +749,11 @@ public class Brat2UIMAAnnotator extends CasAnnotator_ImplBase {
 			// readingConfiguration();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (UIMAIllegalArgumentException e) {
-			e.printStackTrace();
 		}
 
 	}
 
-	private void convertToBratTypes(String[] typesToBrat) throws IOException,
-			UIMAIllegalArgumentException {
+	private void convertToBratTypes(String[] typesToBrat) throws IOException {
 
 		// Generate entities to brat configuration file
 		LOGGER.log(Level.INFO, "Creating brat types config file.");

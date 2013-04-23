@@ -7,21 +7,21 @@ import java.util.Map;
 
 import org.nlplab.brat.configuration.BratEventType;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class BratEvent extends BratAnnotation<BratEventType> {
+public class BratEvent extends BratStructureAnnotation<BratEventType> {
 
 	private BratEventTrigger trigger;
-	private Map<String, BratAnnotation<?>> roleAnnotations;
 
 	public BratEvent(BratEventType type, BratEventTrigger trigger,
 			Map<String, BratAnnotation<?>> roleAnnotations) {
-		super(type);
+		super(type, roleAnnotations);
 		this.trigger = trigger;
-		this.roleAnnotations = ImmutableMap.copyOf(roleAnnotations);
+	}
+
+	public BratEventTrigger getTrigger() {
+		return trigger;
 	}
 }

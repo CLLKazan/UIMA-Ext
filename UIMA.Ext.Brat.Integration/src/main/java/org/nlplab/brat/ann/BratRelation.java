@@ -7,19 +7,23 @@ import java.util.Map;
 
 import org.nlplab.brat.configuration.BratRelationType;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class BratRelation extends BratAnnotation<BratRelationType> {
-
-	private BratEntity arg1;
-	private BratEntity arg2;
+public class BratRelation extends BratStructureAnnotation<BratRelationType> {
 
 	public BratRelation(BratRelationType type, BratEntity arg1, BratEntity arg2) {
-		super(type);
-		this.arg1 = arg1;
-		this.arg2 = arg2;
+		super(type, ImmutableMap.<String, BratEntity> of());
+		checkArgVal(arg1);
+		checkArgVal(arg2);
+		Builder<String, BratEntity> b = ImmutableMap.builder();
+		b.put(type.getArg1Name(), arg1);
+		b.put(type.getArg2Name(), arg2);
+		setRoleAnnotations(b.build());
 	}
 
 	/**
@@ -30,13 +34,19 @@ public class BratRelation extends BratAnnotation<BratRelationType> {
 	 * @param arg2
 	 */
 	public BratRelation(BratRelationType type, Map<String, BratEntity> argMap) {
-		super(type);
+		super(type, argMap);
 		BratEntity arg1Val = argMap.get(type.getArg1Name());
 		checkArgVal(arg1Val);
-		this.arg1 = arg1Val;
 		BratEntity arg2Val = argMap.get(type.getArg2Name());
 		checkArgVal(arg2Val);
-		this.arg2 = arg2Val;
+	}
+
+	public BratEntity getArg1() {
+		return (BratEntity) getRoleAnnotations().get(getType().getArg1Name());
+	}
+
+	public BratEntity getArg2() {
+		return (BratEntity) getRoleAnnotations().get(getType().getArg2Name());
 	}
 
 	private void checkArgVal(BratEntity anno) {

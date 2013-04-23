@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?><xmi:XMI xmlns:typesystem="http:///ru/kfu/itis/issst/ner/typesystem.ecore" xmlns:cas="http:///uima/cas.ecore" xmlns:temporal="http:///ru/kfu/itis/issst/ner/typesystem/temporal.ecore" xmlns:type2="http:///de/uniwue/tm/type.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:typesystem2="http:///ru/kfu/itis/issst/ner/typesystem.ecore" xmlns:tcas="http:///uima/tcas.ecore" xmlns:type="http:///de/uniwue/tm/textmarker/kernel/type.ecore" xmi:version="2.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:commons="http:///ru/kfu/itis/cll/uima/commons.ecore" xmlns:test="http:///issst/test.ecore" xmi:version="2.0">
     <cas:NULL xmi:id="0"/>
     <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="&#10;Правительство поздно вечером в четверг, 5 июля 2012 г. опубликовало постановление премьер-министра Дмитрия Медведева о назначении замминистра связи и массовых коммуникаций Денис Свердлова. До недавнего времени Свердлов был гендиректором группы Yota, оказывающей услуги беспроводного доступа в интернет по технологиям WiMAX и LTE в России и ряде других стран. Свердлов от комментариев отказался. CNews сообщал о возможном назначении Свердлова еще 1 июля.&#10;Круг полномочий Свердлова в постановлении не уточняется. Но для топ-мененджера телекоммуникационной компании было бы логично, чтобы он отвечал именно за регулирование отрасли связи. До сих пор за данную сферу в Минкомсвязи отвечал замминистра Наум Мардер. Сам Мардер заявил CNews, что продолжает работать и не планирует уходить со своего поста.&#10;Участники рынка ранее уже высказывали предположения, что Мардер покинет Минкомсвязи. «Предыдущий министр Игорь Щеголев, возглавив Минкомсвязи, не разбирался в телекоммуникационной отрасли, и Мардер выступал для него своего рода наставником, - отмечает источник из числа бывших руководителей ведомства. - Новый же министр  Николай Никифоров в этом не нуждается (до прихода в правительство России он уже был министром связи Татарстана, - прим. CNews)».&#10;Уход Свердлова в Минкомсвязи ставит под вопрос будущее Yota, которой новый замминистра руководил с момента основания. Буквально недавно акционеры Yota, госкорпорация «Ростехнологии» и фонд Telconet договорились с контролирующим акционером «Мегафона» Алишером Усмановым о создании общего телекоммуникационного холдинга. В Yota заявили, что компания не будет присоединена к «Мегафону», а о ее новом руководителе будет объявлено позже.&#10;"/>
     <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="1684" language="x-unspecified"/>
-    <typesystem2:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" confidence="0.0" uri="file:/home/pathfinder/Documents/NIIMM/HP/HPBEE/docs/all_events/cnews/cn_8.txt" offset="-1" documentSize="1684" lastSegment="false" encoding="UTF-8" startProcessingTicks="0" stopProcessingTicks="0"/>
-    <typesystem:HL_Resignation xmi:id="29" sofa="1" begin="190" end="359" confidence="0.0" person="39" position="51" company="63"/>
-    <typesystem:HL_Position xmi:id="39" sofa="1" begin="211" end="219" confidence="0.0"/>
-    <typesystem:HL_Position xmi:id="45" sofa="1" begin="897" end="904" confidence="0.0"/>
-    <typesystem:HL_Person xmi:id="51" sofa="1" begin="224" end="237" confidence="0.0"/>
-    <typesystem:HL_Company xmi:id="63" sofa="1" begin="245" end="249" confidence="0.0"/>
-    <cas:View sofa="1" members="8 13 29 39 45 51 63"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/home/pathfinder/Documents/NIIMM/HP/HPBEE/docs/all_events/cnews/cn_8.txt" offsetInSource="-1" documentSize="1684" startProcessingTime="0"/>
+    <test:HL_Resignation xmi:id="21" sofa="1" begin="220" end="223" person="29" position="37" company="41"/>
+    <test:HL_Position xmi:id="29" sofa="1" begin="211" end="219"/>
+    <test:HL_Position xmi:id="33" sofa="1" begin="897" end="904"/>
+    <test:HL_Person xmi:id="37" sofa="1" begin="224" end="237"/>
+    <test:HL_Company xmi:id="41" sofa="1" begin="245" end="249"/>
+    <cas:View sofa="1" members="8 13 21 29 33 37 41"/>
 </xmi:XMI>

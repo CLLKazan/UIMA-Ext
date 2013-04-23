@@ -1,5 +1,5 @@
 #
-#Tue May 15 18:18:27 MSK 2012
+#Tue Apr 23 18:26:33 MSK 2013
 de.uniwue.tm.type.NBSP.style=color\=-12717507;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.ALL.style=color\=-859331;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_GeneralPersonIndicator.style=color\=-856650;layer\=0;strategy\=BACKGROUND;
@@ -38,10 +38,12 @@ com.hp.hplabs.lim2.ie.text.typesystem.HL_LastName.style=color\=-870730;layer\=0;
 com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_PossibleDayNumber.style=color\=-856650;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_PossibleYear.style=color\=-870730;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.textmarker.kernel.type.FalsePositive.style=color\=-870700;layer\=0;strategy\=BACKGROUND;
+issst.test.HL_Acquisition.style=color\=-65536;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.BasicAnnotation.style=color\=-8785287;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_CompanyIndicator1.style=color\=-859331;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_EntityReference.style=color\=-12717386;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_ResignationIndicator.style=color\=-870791;layer\=0;strategy\=BACKGROUND;
+issst.test.BirthPlace.style=color\=-8355840;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.SEMICOLON.style=color\=-4787651;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.MARKUP.style=color\=-12740622;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_PriceUnit.style=color\=-8785287;layer\=0;strategy\=BACKGROUND;
@@ -76,13 +78,13 @@ com.hp.hplabs.lim2.ie.text.typesystem.HL_City.style=color\=-2197006;layer\=0;str
 com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Day.style=color\=-4787651;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.DocumentMetaInformation.style=color\=-1526030;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.PM.style=color\=-878787;layer\=0;strategy\=BACKGROUND;
-de.uniwue.tm.textmarker.kernel.type.TextMarkerAnnotation.style=color\=-4147470;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.textmarker.kernel.type.DebugScriptApply.style=color\=-7505422;layer\=0;strategy\=BACKGROUND;
+de.uniwue.tm.textmarker.kernel.type.TextMarkerAnnotation.style=color\=-4147470;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.textmarker.kernel.type.DebugBlockApply.style=color\=-870791;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Season.style=color\=-4787530;layer\=0;strategy\=BACKGROUND;
-de.uniwue.tm.type.COLON.style=color\=-870700;layer\=0;strategy\=BACKGROUND;
-com.hp.hplabs.lim2.ie.text.typesystem.HL_PositionChange.style=color\=-886407;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.W.style=color\=-10797582;layer\=0;strategy\=BACKGROUND;
+com.hp.hplabs.lim2.ie.text.typesystem.HL_PositionChange.style=color\=-886407;layer\=0;strategy\=BACKGROUND;
+de.uniwue.tm.type.COLON.style=color\=-870700;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.SENTENCEEND.style=color\=-901737;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.Document.style=color\=-2197006;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_CountryCode.style=color\=-2867726;layer\=0;strategy\=BACKGROUND;
@@ -92,9 +94,9 @@ de.uniwue.tm.type.CW.style=color\=-4147470;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.textmarker.kernel.type.TextMarkerBasic.style=color\=-857991;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.temporal.TE_Duration.style=color\=-12717386;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_Resignation.style=color\=-2197006;layer\=0;strategy\=BACKGROUND;
-com.hp.hplabs.lim2.ie.text.typesystem.HL_AcquisitionIndicatorS.style=color\=-4147470;layer\=0;strategy\=BACKGROUND;
-de.uniwue.tm.textmarker.kernel.type.DebugFailedRuleMatch.style=color\=-870730;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_Acquisition.style=color\=-870700;layer\=0;strategy\=BACKGROUND;
+de.uniwue.tm.textmarker.kernel.type.DebugFailedRuleMatch.style=color\=-870730;layer\=0;strategy\=BACKGROUND;
+com.hp.hplabs.lim2.ie.text.typesystem.HL_AcquisitionIndicatorS.style=color\=-4147470;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.textmarker.kernel.type.TruePositive.style=color\=-8800526;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.textmarker.kernel.type.ProfiledAnnotation.style=color\=-4787490;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_PersonReference.style=color\=-4787490;layer\=0;strategy\=BACKGROUND;
@@ -104,7 +106,7 @@ com.hp.hplabs.lim2.ie.text.typesystem.HL_AcquisitionIndicator.style=color\=-4787
 com.hp.hplabs.lim2.ie.text.typesystem.HL_Time.style=color\=-886346;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.NamedEntity.style=color\=-7505422;layer\=0;strategy\=BACKGROUND;
 de.uniwue.tm.type.WS.style=color\=-856650;layer\=0;strategy\=BACKGROUND;
-de.uniwue.tm.textmarker.kernel.type.DebugRuleApply.style=color\=-4787530;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.HL_Location.style=color\=-4795150;layer\=0;strategy\=BACKGROUND;
-com.hp.hplabs.lim2.ie.text.typesystem.HL_Money.style=color\=-1526030;layer\=0;strategy\=BACKGROUND;
+de.uniwue.tm.textmarker.kernel.type.DebugRuleApply.style=color\=-4787530;layer\=0;strategy\=BACKGROUND;
 com.hp.hplabs.lim2.ie.text.typesystem.ParseNode.style=color\=-859331;layer\=0;strategy\=BACKGROUND;
+com.hp.hplabs.lim2.ie.text.typesystem.HL_Money.style=color\=-1526030;layer\=0;strategy\=BACKGROUND;

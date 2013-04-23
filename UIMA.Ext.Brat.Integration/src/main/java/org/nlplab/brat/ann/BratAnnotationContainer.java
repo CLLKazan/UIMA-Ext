@@ -8,11 +8,14 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.nlplab.brat.configuration.BratEventType;
+import org.nlplab.brat.configuration.BratRelationType;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -75,19 +78,58 @@ public class BratAnnotationContainer {
 		// write entities
 		List<BratEntity> entities = getSortedByType(BratEntity.class);
 		for (BratEntity e : entities) {
-			StringBuilder sb = new StringBuilder(e.getId());
-			sb.append('\t');
-			sb.append(e.getType().getName())
-					.append(' ').append(e.getBegin())
-					.append(' ').append(e.getEnd());
-			sb.append('\t');
-			sb.append(escapeAnnotationSpannedText(e.getSpannedText()));
-			out.println(sb);
+			String eStr = makeTextBoundAnnotationString(e);
+			out.println(eStr);
 		}
 		// write relations
-		// TODO
+		List<BratRelation> relations = getSortedByType(BratRelation.class);
+		for (BratRelation r : relations) {
+			StringBuilder sb = new StringBuilder(r.getId());
+			sb.append('\t');
+			BratRelationType rt = r.getType();
+			sb.append(rt.getName()).append(' ');
+			appendRoleValues(sb, r.getRoleAnnotations());
+			out.println(sb);
+		}
 		// write events
-		// TODO
+		List<BratEvent> events = getSortedByType(BratEvent.class);
+		for (BratEvent e : events) {
+			BratEventType et = e.getType();
+			// write trigger line
+			BratEventTrigger trig = e.getTrigger();
+			String trigStr = makeTextBoundAnnotationString(trig);
+			out.println(trigStr);
+			// write roles line
+			StringBuilder sb = new StringBuilder(e.getId());
+			sb.append('\t');
+			sb.append(et.getName()).append(':').append(trig.getId()).append(' ');
+			appendRoleValues(sb, e.getRoleAnnotations());
+			out.println(sb);
+		}
+	}
+
+	private void appendRoleValues(StringBuilder target,
+			Map<String, ? extends BratAnnotation<?>> roleAnnotations) {
+		Iterator<String> roleNamesIter = roleAnnotations.keySet().iterator();
+		while (roleNamesIter.hasNext()) {
+			String roleName = roleNamesIter.next();
+			BratAnnotation<?> rv = roleAnnotations.get(roleName);
+			target.append(roleName).append(':').append(rv.getId());
+			if (roleNamesIter.hasNext()) {
+				target.append(' ');
+			}
+		}
+	}
+
+	private String makeTextBoundAnnotationString(BratTextBoundAnnotation<?> e) {
+		StringBuilder sb = new StringBuilder(e.getId());
+		sb.append('\t');
+		sb.append(e.getType().getName())
+				.append(' ').append(e.getBegin())
+				.append(' ').append(e.getEnd());
+		sb.append('\t');
+		sb.append(escapeAnnotationSpannedText(e.getSpannedText()));
+		return sb.toString();
 	}
 
 	private static String escapeAnnotationSpannedText(String txt) {
