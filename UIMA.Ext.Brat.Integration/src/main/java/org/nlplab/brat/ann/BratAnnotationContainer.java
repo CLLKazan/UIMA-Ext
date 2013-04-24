@@ -3,7 +3,10 @@
  */
 package org.nlplab.brat.ann;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
+import org.nlplab.brat.configuration.BratTypesConfiguration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -106,6 +110,43 @@ public class BratAnnotationContainer {
 			appendRoleValues(sb, e.getRoleAnnotations());
 			out.println(sb);
 		}
+	}
+
+	public void readFrom(BratTypesConfiguration typesCfg, Reader srcReader) throws IOException {
+		BufferedReader reader = new BufferedReader(srcReader);
+		String line;
+		Map<String, BratEventTrigger> eventTriggers = Maps.newHashMap();
+		while ((line = reader.readLine()) != null) {
+			line = line.trim();
+			if (line.isEmpty()) {
+				continue;
+			}
+			if (line.startsWith(ENTITY_ID_PREFIX)) {
+				BratTextBoundAnnotation<?> textSpan = parseTextBoundAnnotation(line, typesCfg);
+				if (textSpan instanceof BratEntity) {
+					add(textSpan);
+				} else if (textSpan instanceof BratEventTrigger) {
+					eventTriggers.put(textSpan.getId(), (BratEventTrigger) textSpan);
+				} else {
+					throw new UnsupportedOperationException(String.format(
+							"Unknown BratTextBoundAnnotation subtype: %s", textSpan));
+				}
+			} else if (line.startsWith(RELATION_ID_PREFIX)) {
+				BratRelation rel = parseRelation(line, typesCfg);
+				add(rel);
+			} else if (line.startsWith(EVENT_ID_PREFIX)) {
+				BratEvent event = parseEvent(line, typesCfg, eventTriggers);
+				add(event);
+			} else {
+				throw new UnsupportedOperationException(String.format(
+						"Can't parse line:\n%s", line));
+			}
+		}
+	}
+
+	private BratTextBoundAnnotation<?> parseTextBoundAnnotation(String str,
+			BratTypesConfiguration typesCfg) {
+		
 	}
 
 	private void appendRoleValues(StringBuilder target,

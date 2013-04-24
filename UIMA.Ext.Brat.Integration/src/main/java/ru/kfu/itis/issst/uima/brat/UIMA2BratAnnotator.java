@@ -2,6 +2,7 @@ package ru.kfu.itis.issst.uima.brat;
 
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+import static ru.kfu.itis.issst.uima.brat.BratConstants.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -80,9 +81,6 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	public final static String DOC_META_TYPE = "DocumentMetadataType";
 	public final static String DOC_META_URI_FEATURE = "DocumentMetadataUriFeature";
 	public final static String CONF_FILE = "annotation.conf";
-	public final static String ENCODING = "UTF-8";
-	public final static String TXT_FILE_FORMAT = ".txt";
-	public final static String ANN_FILE_FORMAT = ".ann";
 
 	// annotator configuration fields
 	@ConfigurationParameter(name = BRAT_OUT, mandatory = true)
@@ -173,7 +171,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				bratDirectory.mkdirs();
 			File annotationConfFile = new File(bratDirectory, CONF_FILE);
 			acWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(annotationConfFile), ENCODING));
+					new FileOutputStream(annotationConfFile), ANNOTATION_CONF_ENCODING));
 			bratTypesConfig.writeTo(acWriter);
 		} catch (IOException e) {
 			throw new AnalysisEngineProcessException(e);
@@ -186,11 +184,12 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	public void process(CAS cas) throws AnalysisEngineProcessException {
 		// extract target file name
 		currentDocName = extractDocName(cas);
+		// prepare paths
+		BratDocument bratDoc = new BratDocument(bratDirectory, currentDocName);
 		// write doc text
-		File txtFile = new File(bratDirectory, currentDocName + TXT_FILE_FORMAT);
 		String txt = cas.getDocumentText();
 		try {
-			FileUtils.write(txtFile, txt, ENCODING);
+			FileUtils.write(bratDoc.getTxtFile(), txt, TXT_FILES_ENCODING);
 		} catch (IOException e) {
 			throw new AnalysisEngineProcessException(e);
 		}
@@ -220,11 +219,10 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			}
 		}
 		// write .ann file
-		File annFile = new File(bratDirectory, currentDocName + ANN_FILE_FORMAT);
 		Writer annWriter = null;
 		try {
 			annWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(annFile), ENCODING));
+					new FileOutputStream(bratDoc.getAnnFile()), ANN_FILES_ENCODING));
 			bac.writeTo(annWriter);
 		} catch (IOException e) {
 			throw new AnalysisEngineProcessException(e);
