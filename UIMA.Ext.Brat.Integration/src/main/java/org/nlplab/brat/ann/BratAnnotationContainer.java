@@ -9,20 +9,27 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.nlplab.brat.configuration.BratEntityType;
 import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
+import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -34,12 +41,63 @@ public class BratAnnotationContainer {
 	public static final String RELATION_ID_PREFIX = "R";
 	public static final String EVENT_ID_PREFIX = "E";
 
+	// configuration fields
+	private BratTypesConfiguration typesCfg;
+	// state fields
 	private MutableInt entityIdCounter = new MutableInt(0);
 	private MutableInt relationIdCounter = new MutableInt(0);
 	private MutableInt eventIdCounter = new MutableInt(0);
+	// indexes
 	private Map<String, BratAnnotation<?>> id2Anno = Maps.newHashMap();
+	private Multimap<String, BratAnnotation<?>> type2Anno = HashMultimap.create();
 
-	public <B extends BratAnnotation<?>> B add(B anno) {
+	public BratAnnotationContainer(BratTypesConfiguration typesCfg) {
+		this.typesCfg = typesCfg;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends BratType, A extends BratAnnotation<T>> Collection<A> getAnnotations(T type) {
+		// sanity check
+		checkTypeRegistration(type);
+		return (Collection<A>) type2Anno.get(type.getName());
+	}
+
+	public Collection<BratEntity> getEntities(BratEntityType type) {
+		return getAnnotations(type);
+	}
+
+	public Collection<BratRelation> getRelations(BratRelationType type) {
+		return getAnnotations(type);
+	}
+
+	public BratAnnotation<?> getAnnotation(String id) {
+		return getAnnotation(id, true);
+	}
+
+	public BratAnnotation<?> getAnnotation(String id, boolean mustExist) {
+		BratAnnotation<?> result = id2Anno.get(id);
+		if (result == null && mustExist) {
+			throw new IllegalStateException(String.format(
+					"There is no annotation with id=%s", id));
+		}
+		return result;
+	}
+
+	/**
+	 * Assign id to given annotation, add it to this container and return it.
+	 * 
+	 * @param anno
+	 * @return given anno with assigned id.
+	 */
+	public <B extends BratAnnotation<?>> B register(B anno) {
+		// sanity check 1
+		if (anno.getId() != null) {
+			throw new IllegalArgumentException(String.format(
+					"Can not register anno %s with non-null id", anno.getId()));
+		}
+		// sanity check 2
+		checkTypeRegistration(anno.getType());
+		// calc id
 		MutableInt counter = getCounterForTypeOf(anno);
 		String idPrefix = getPrefixForTypeOf(anno);
 		counter.increment();
@@ -47,8 +105,31 @@ public class BratAnnotationContainer {
 		anno.setNumId(counter.longValue());
 		anno.setId(idPrefix + counter);
 		// memorize
-		id2Anno.put(anno.getId(), anno);
+		add(anno);
 		return anno;
+	}
+
+	private void checkTypeRegistration(BratType t) {
+		BratType registeredType = typesCfg.getType(t.getName());
+		if (registeredType != t) {
+			throw new IllegalStateException(String.format(
+					"Type %s is different from registered one: %s",
+					t, registeredType));
+		}
+	}
+
+	private void add(BratAnnotation<?> anno) {
+		String annoId = anno.getId();
+		if (annoId == null) {
+			throw new NullPointerException();
+		}
+		if (id2Anno.containsKey(anno.getId())) {
+			throw new IllegalStateException(String.format(
+					"Duplicate annotation id: %s", anno.getId()));
+		}
+		id2Anno.put(anno.getId(), anno);
+		// TODO what about parent types if any?
+		type2Anno.put(anno.getType().getName(), anno);
 	}
 
 	private MutableInt getCounterForTypeOf(BratAnnotation<?> anno) {
@@ -112,7 +193,7 @@ public class BratAnnotationContainer {
 		}
 	}
 
-	public void readFrom(BratTypesConfiguration typesCfg, Reader srcReader) throws IOException {
+	public void readFrom(Reader srcReader) throws IOException {
 		BufferedReader reader = new BufferedReader(srcReader);
 		String line;
 		Map<String, BratEventTrigger> eventTriggers = Maps.newHashMap();
@@ -122,7 +203,7 @@ public class BratAnnotationContainer {
 				continue;
 			}
 			if (line.startsWith(ENTITY_ID_PREFIX)) {
-				BratTextBoundAnnotation<?> textSpan = parseTextBoundAnnotation(line, typesCfg);
+				BratTextBoundAnnotation<?> textSpan = parseTextBoundAnnotation(line);
 				if (textSpan instanceof BratEntity) {
 					add(textSpan);
 				} else if (textSpan instanceof BratEventTrigger) {
@@ -132,10 +213,10 @@ public class BratAnnotationContainer {
 							"Unknown BratTextBoundAnnotation subtype: %s", textSpan));
 				}
 			} else if (line.startsWith(RELATION_ID_PREFIX)) {
-				BratRelation rel = parseRelation(line, typesCfg);
+				BratRelation rel = parseRelation(line);
 				add(rel);
 			} else if (line.startsWith(EVENT_ID_PREFIX)) {
-				BratEvent event = parseEvent(line, typesCfg, eventTriggers);
+				BratEvent event = parseEvent(line, eventTriggers);
 				add(event);
 			} else {
 				throw new UnsupportedOperationException(String.format(
@@ -144,9 +225,88 @@ public class BratAnnotationContainer {
 		}
 	}
 
-	private BratTextBoundAnnotation<?> parseTextBoundAnnotation(String str,
-			BratTypesConfiguration typesCfg) {
-		
+	private static final Pattern ID_PATTERN = Pattern.compile("\\w\\d+");
+	private static final Pattern TAB_PATTERN = Pattern.compile("\\t");
+	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
+	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^\\s]+");
+	private static final Pattern OFFSETS_PATTERN = Pattern.compile("(\\d+)\\s+(\\d+)");
+	private static final Pattern ROLE_VALUE_PATTERN = Pattern.compile("([^:]+):(\\w\\d+)");
+
+	private BratTextBoundAnnotation<?> parseTextBoundAnnotation(String str) {
+		StringParser p = new StringParser(str);
+		String id = p.consume1(ID_PATTERN);
+		assert id.startsWith(ENTITY_ID_PREFIX);
+		p.skip(TAB_PATTERN);
+		String typeName = p.consume1(TYPE_NAME_PATTERN);
+		p.skip(SPACE_PATTERN);
+		String[] offsetStrings = p.consume(OFFSETS_PATTERN);
+		Integer begin = Integer.valueOf(offsetStrings[1]);
+		Integer end = Integer.valueOf(offsetStrings[2]);
+		p.skip(TAB_PATTERN);
+		String refText = p.getCurrentString();
+
+		BratType type = typesCfg.getType(typeName);
+		BratTextBoundAnnotation<?> result;
+		if (type instanceof BratEntityType) {
+			result = new BratEntity((BratEntityType) type, begin, end, refText);
+		} else if (type instanceof BratEventType) {
+			result = new BratEventTrigger((BratEventType) type, begin, end, refText);
+		} else {
+			throw new IllegalStateException(String.format(
+					"Unexpected type of annotation %s", str));
+		}
+		result.setId(id);
+		return result;
+	}
+
+	private BratRelation parseRelation(String str) {
+		StringParser p = new StringParser(str);
+		String id = p.consume1(ID_PATTERN);
+		assert id.startsWith(RELATION_ID_PREFIX);
+		p.skip(TAB_PATTERN);
+		String typeName = p.consume1(TYPE_NAME_PATTERN);
+		p.skip(SPACE_PATTERN);
+		String[] arg1rv = p.consume(ROLE_VALUE_PATTERN);
+		p.skip(SPACE_PATTERN);
+		String[] arg2rv = p.consume(ROLE_VALUE_PATTERN);
+		if (!StringUtils.isBlank(p.getCurrentString())) {
+			throw new IllegalStateException(String.format(
+					"Illegal ending of relation line '%s' in:\n%s", p.getCurrentString(), str));
+		}
+
+		BratRelationType type = typesCfg.getType(typeName, BratRelationType.class);
+		Map<String, BratAnnotation<?>> argMap = Maps.newHashMap();
+		argMap.put(arg1rv[1].trim(), getAnnotation(arg1rv[2]));
+		argMap.put(arg2rv[1].trim(), getAnnotation(arg2rv[2]));
+		BratRelation relation = new BratRelation(type, argMap);
+		relation.setId(id);
+		return relation;
+	}
+
+	private BratEvent parseEvent(String str, Map<String, BratEventTrigger> eventTriggers) {
+		StringParser p = new StringParser(str);
+		String id = p.consume1(ID_PATTERN);
+		assert id.startsWith(EVENT_ID_PREFIX);
+		p.skip(TAB_PATTERN);
+		String[] triggerRef = p.consume(ROLE_VALUE_PATTERN);
+		String typeName = triggerRef[1];
+		String triggerId = triggerRef[2];
+		p.skip(SPACE_PATTERN);
+		Map<String, BratAnnotation<?>> roleMap = Maps.newHashMap();
+		while (!StringUtils.isBlank(p.getCurrentString())) {
+			String rv[] = p.consume(ROLE_VALUE_PATTERN);
+			roleMap.put(rv[1].trim(), getAnnotation(rv[2]));
+		}
+		BratEventType type = typesCfg.getType(typeName, BratEventType.class);
+		BratEventTrigger trigger = eventTriggers.get(triggerId);
+		if (trigger == null) {
+			throw new IllegalStateException(String.format(
+					"Can't find trigger with id '%s' for event line:\n%s",
+					triggerId, str));
+		}
+		BratEvent event = new BratEvent(type, trigger, roleMap);
+		event.setId(id);
+		return event;
 	}
 
 	private void appendRoleValues(StringBuilder target,
@@ -200,4 +360,52 @@ public class BratAnnotationContainer {
 			return Long.valueOf(o1.getNumId()).compareTo(o2.getNumId());
 		}
 	};
+}
+
+/**
+ * Utility class to facilitate Brat *.ann files parsing.
+ * 
+ * @author Rinat Gareev
+ * 
+ */
+class StringParser {
+	private String srcString;
+
+	StringParser(String srcString) {
+		this.srcString = srcString;
+	}
+
+	public String getCurrentString() {
+		return srcString;
+	}
+
+	public String consume1(Pattern pattern) {
+		return consume(pattern)[0];
+	}
+
+	public String[] consume(Pattern pattern) {
+		Matcher m = pattern.matcher(srcString);
+		if (m.lookingAt()) {
+			String[] result = new String[m.groupCount() + 1];
+			result[0] = m.group();
+			for (int i = 1; i <= m.groupCount(); i++) {
+				result[i] = m.group(i);
+			}
+			srcString = srcString.substring(m.end());
+			return result;
+		} else {
+			throw new IllegalStateException(String.format(
+					"'%s' expected in the beginning of '%s'", pattern, srcString));
+		}
+	}
+
+	public void skip(Pattern pattern) {
+		Matcher m = pattern.matcher(srcString);
+		if (m.lookingAt()) {
+			srcString = srcString.substring(m.end());
+		} else {
+			throw new IllegalStateException(String.format(
+					"'%s' expected in the beginning of '%s'", pattern, srcString));
+		}
+	}
 }

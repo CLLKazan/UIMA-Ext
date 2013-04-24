@@ -16,7 +16,7 @@ public class BratEvent extends BratStructureAnnotation<BratEventType> {
 	private BratEventTrigger trigger;
 
 	public BratEvent(BratEventType type, BratEventTrigger trigger,
-			Map<String, BratAnnotation<?>> roleAnnotations) {
+			Map<String, ? extends BratAnnotation<?>> roleAnnotations) {
 		super(type, roleAnnotations);
 		this.trigger = trigger;
 	}

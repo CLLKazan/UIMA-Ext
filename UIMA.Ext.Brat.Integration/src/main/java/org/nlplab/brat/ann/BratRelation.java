@@ -18,8 +18,10 @@ public class BratRelation extends BratStructureAnnotation<BratRelationType> {
 
 	public BratRelation(BratRelationType type, BratEntity arg1, BratEntity arg2) {
 		super(type, ImmutableMap.<String, BratEntity> of());
-		checkArgVal(arg1);
-		checkArgVal(arg2);
+		if (!checkArgVal(arg1) || !checkArgVal(arg2)) {
+			throw new IllegalArgumentException(String.format(
+					"Relation %s arguments: %s, %s", type, arg1, arg2));
+		}
 		Builder<String, BratEntity> b = ImmutableMap.builder();
 		b.put(type.getArg1Name(), arg1);
 		b.put(type.getArg2Name(), arg2);
@@ -33,12 +35,15 @@ public class BratRelation extends BratStructureAnnotation<BratRelationType> {
 	 * @param arg1
 	 * @param arg2
 	 */
-	public BratRelation(BratRelationType type, Map<String, BratEntity> argMap) {
+	public BratRelation(BratRelationType type, Map<String, ? extends BratAnnotation<?>> argMap) {
 		super(type, argMap);
-		BratEntity arg1Val = argMap.get(type.getArg1Name());
-		checkArgVal(arg1Val);
-		BratEntity arg2Val = argMap.get(type.getArg2Name());
-		checkArgVal(arg2Val);
+		boolean checked = checkArgVal(argMap.get(type.getArg1Name()))
+				&& checkArgVal(argMap.get(type.getArg2Name()))
+				&& argMap.size() == 2;
+		if (!checked) {
+			throw new IllegalArgumentException(String.format(
+					"Relation %s arguments: %s", type, argMap));
+		}
 	}
 
 	public BratEntity getArg1() {
@@ -49,10 +54,7 @@ public class BratRelation extends BratStructureAnnotation<BratRelationType> {
 		return (BratEntity) getRoleAnnotations().get(getType().getArg2Name());
 	}
 
-	private void checkArgVal(BratEntity anno) {
-		if (anno == null) {
-			throw new IllegalArgumentException(
-					"Relation argument is NULL");
-		}
+	private boolean checkArgVal(BratAnnotation<?> anno) {
+		return anno instanceof BratEntity;
 	}
 }

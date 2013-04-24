@@ -195,7 +195,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		}
 
 		// populate Brat annotation container
-		bac = new BratAnnotationContainer();
+		bac = new BratAnnotationContainer(bratTypesConfig);
 		context = new ToBratMappingContext();
 		// start with entities
 		for (Type uType : mapping.getEntityUimaTypes()) {
@@ -243,7 +243,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		BratEntity bEntity = new BratEntity(bType,
 				uEntity.getBegin(), uEntity.getEnd(), uEntity.getCoveredText());
 		// add to container - it assigns ID
-		bEntity = bac.add(bEntity);
+		bEntity = bac.register(bEntity);
 		// remember that it was mapped => put into mappedAnnos
 		context.mapped(uEntity, bEntity);
 	}
@@ -261,7 +261,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		// create
 		BratRelation bRelation = new BratRelation(bType, argMap);
 		// assign id
-		bRelation = bac.add(bRelation);
+		bRelation = bac.register(bRelation);
 		// memorize
 		context.mapped(uRelation, bRelation);
 	}
@@ -275,14 +275,14 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		BratEventTrigger trigger = new BratEventTrigger(bType,
 				uEvent.getBegin(), uEvent.getEnd(), uEvent.getCoveredText());
 		// assign id to trigger
-		trigger = bac.add(trigger);
+		trigger = bac.register(trigger);
 		// fill slots
 		Map<String, BratAnnotation<?>> roleAnnotations = makeRoleMap(
 				uEvent, bType, evMapping.roleFeatures);
 		// create
 		BratEvent bEvent = new BratEvent(bType, trigger, roleAnnotations);
 		// assign id
-		bEvent = bac.add(bEvent);
+		bEvent = bac.register(bEvent);
 		// memorize
 		context.mapped(uEvent, bEvent);
 	}
