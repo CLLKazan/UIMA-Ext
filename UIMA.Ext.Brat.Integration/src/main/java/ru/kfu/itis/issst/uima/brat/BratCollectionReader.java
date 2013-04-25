@@ -1,36 +1,51 @@
 package ru.kfu.itis.issst.uima.brat;
 
+import static org.nlplab.brat.BratConstants.*;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
+import org.apache.uima.util.ProgressImpl;
 import org.nlplab.brat.ann.BratAnnotation;
 import org.nlplab.brat.ann.BratAnnotationContainer;
 import org.nlplab.brat.ann.BratEntity;
+import org.nlplab.brat.ann.BratEvent;
+import org.nlplab.brat.ann.BratEventTrigger;
 import org.nlplab.brat.ann.BratRelation;
+import org.nlplab.brat.ann.BratStructureAnnotation;
 import org.nlplab.brat.configuration.BratEntityType;
+import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
+import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.uimafit.component.CasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 
-import com.google.common.collect.Maps;
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 
-import static ru.kfu.itis.issst.uima.brat.BratConstants.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Brat 2 UIMA Annotator is CAS Annotator to convert Brat standoff format
@@ -53,25 +68,63 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 	private File bratCollectionDir;
 
 	// config fields
-	// TODO init
 	private BratTypesConfiguration bratTypesCfg;
 	private BratUimaMapping mapping;
+	private Feature beginFeature;
+	private Feature endFeature;
+	// fields derived from config
+	private int totalDocsNum = -1;
 	// state fields
 	private Iterator<BratDocument> bratDocIter;
+	private int docsRead = 0;
 	// per-CAS state fields
 	private String currentDocName;
 	private FromBratMappingContext mappingCtx;
+	private CAS cas;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		// TODO make bratDocIter 
+		// make bratDocIter
+		File[] annFiles = bratCollectionDir.listFiles(
+				(FileFilter) FileFilterUtils.suffixFileFilter(BratDocument.ANN_FILE_SUFFIX));
+		List<BratDocument> bratDocs = Lists.newArrayListWithExpectedSize(annFiles.length);
+		for (File annFile : annFiles) {
+			String docBaseName = FilenameUtils.getBaseName(annFile.getPath());
+			BratDocument bratDoc = new BratDocument(bratCollectionDir, docBaseName);
+			if (bratDoc.exists()) {
+				bratDocs.add(bratDoc);
+			} else {
+				throw new IllegalStateException(String.format(
+						"Missing txt file for %s", annFile));
+			}
+		}
+		totalDocsNum = bratDocs.size();
+		bratDocIter = bratDocs.iterator();
 	}
 
 	@Override
 	public void typeSystemInit(TypeSystem ts) throws ResourceInitializationException {
-		// TODO Auto-generated method stub
 		super.typeSystemInit(ts);
+		// memorize Annotation begin and end features
+		Type annotationType = ts.getType("uima.cas.Annotation");
+		beginFeature = annotationType.getFeatureByBaseName("begin");
+		assert beginFeature != null;
+		endFeature = annotationType.getFeatureByBaseName("end");
+		assert endFeature != null;
+		// initialize BratTypesConfiguration
+		File annotationConfFile = new File(bratCollectionDir, ANNOTATION_CONF_FILE);
+		if (!annotationConfFile.isFile()) {
+			throw new IllegalStateException(String.format(
+					"%s is missing", annotationConfFile));
+		}
+		try {
+			bratTypesCfg = BratTypesConfiguration.readFrom(annotationConfFile);
+		} catch (IOException e) {
+			throw new ResourceInitializationException(e);
+		}
+		// initialize Brat -> UIMA mapping
+		// TODO
 	}
 
 	@Override
@@ -81,7 +134,9 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 
 	@Override
 	public void getNext(CAS cas) throws IOException, CollectionException {
+		this.cas = cas;
 		BratDocument bratDoc = bratDocIter.next();
+		this.currentDocName = bratDoc.getDocumentName();
 		// read and set text
 		String txt = FileUtils.readFileToString(bratDoc.getTxtFile(), TXT_FILES_ENCODING);
 		cas.setDocumentText(txt);
@@ -112,22 +167,76 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		}
 		// map relation types
 		for (BratRelationType bType : mapping.getRelationTypes()) {
-			Type uType = mapping.getRelationUimaType(bType);
+			BratUimaRelationMapping relMapping = mapping.getRelationMapping(bType);
 			for (BratRelation bRelation : bratContainer.getRelations(bType)) {
-				// TODO
+				AnnotationFS uRelation = mapStructureRoles(bRelation, relMapping);
+				List<AnnotationFS> uRelationArgs = getRelationArgs(uRelation,
+						relMapping.featureRoles.keySet());
+				// set UIMA relation begin to minimal begin offset of arguments
+				int uRelationBegin = FSUtils.intMinBy(uRelationArgs, beginFeature);
+				uRelation.setIntValue(beginFeature, uRelationBegin);
+				// set UIMA relation end to maximal end offset of arguments
+				int uRelationEnd = FSUtils.intMaxBy(uRelationArgs, endFeature);
+				uRelation.setIntValue(endFeature, uRelationEnd);
+				cas.addFsToIndexes(uRelation);
 			}
 		}
 		// map event types
-		// TODO
+		for (BratEventType bType : mapping.getEventTypes()) {
+			BratUimaEventMapping evMapping = mapping.getEventMapping(bType);
+			for (BratEvent bEvent : bratContainer.getEvents(bType)) {
+				BratEventTrigger bTrigger = bEvent.getTrigger();
+				AnnotationFS uEvent = mapStructureRoles(bEvent, evMapping);
+				// set UIMA event begin to trigger begin
+				uEvent.setIntValue(beginFeature, bTrigger.getBegin());
+				// set UIMA event end to trigger end
+				uEvent.setIntValue(endFeature, bTrigger.getEnd());
+				cas.addFsToIndexes(uEvent);
+			}
+		}
+		// increase progress counter
+		docsRead++;
 		// clean per-CAS state
 		currentDocName = null;
 		mappingCtx = null;
+		this.cas = null;
 	}
 
 	@Override
 	public Progress[] getProgress() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Progress[] {
+				new ProgressImpl(docsRead, totalDocsNum, Progress.ENTITIES)
+		};
+	}
+
+	private List<AnnotationFS> getRelationArgs(AnnotationFS anno, Set<Feature> argFeatures) {
+		List<AnnotationFS> result = Lists.newLinkedList();
+		assert argFeatures.size() == 2;
+		for (Feature f : argFeatures) {
+			AnnotationFS argAnno = (AnnotationFS) anno.getFeatureValue(f);
+			if (argAnno == null) {
+				throw new IllegalStateException();
+			}
+			result.add(argAnno);
+		}
+		return result;
+	}
+
+	private <BT extends BratType, BA extends BratStructureAnnotation<BT>> AnnotationFS mapStructureRoles(
+			BA bAnno, BratUimaStructureMapping<BT> strMapping) {
+		AnnotationFS result = cas.createAnnotation(strMapping.uimaType, 0, 0);
+		for (Feature roleFeature : strMapping.featureRoles.keySet()) {
+			String roleName = strMapping.featureRoles.get(roleFeature);
+			BratAnnotation<?> roleBratAnno = bAnno.getRoleAnnotations().get(roleName);
+			if (roleBratAnno == null) {
+				continue;
+			}
+			AnnotationFS roleUimaAnno = mappingCtx.getMapped(roleBratAnno);
+			if (roleUimaAnno != null) {
+				result.setFeatureValue(roleFeature, roleUimaAnno);
+			}
+		}
+		return result;
 	}
 
 	private class FromBratMappingContext {
@@ -135,6 +244,10 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 
 		private boolean isMapped(BratAnnotation<?> bAnno) {
 			return mappedAnnotations.containsKey(bAnno.getId());
+		}
+
+		private AnnotationFS getMapped(BratAnnotation<?> bAnno) {
+			return mappedAnnotations.get(bAnno.getId());
 		}
 
 		private void mapped(BratAnnotation<?> bAnno, AnnotationFS uAnno) {

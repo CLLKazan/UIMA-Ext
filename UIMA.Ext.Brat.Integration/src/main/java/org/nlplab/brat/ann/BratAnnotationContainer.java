@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +24,7 @@ import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
+import org.nlplab.brat.util.StringParser;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -67,6 +67,10 @@ public class BratAnnotationContainer {
 	}
 
 	public Collection<BratRelation> getRelations(BratRelationType type) {
+		return getAnnotations(type);
+	}
+
+	public Collection<BratEvent> getEvents(BratEventType type) {
 		return getAnnotations(type);
 	}
 
@@ -269,10 +273,7 @@ public class BratAnnotationContainer {
 		String[] arg1rv = p.consume(ROLE_VALUE_PATTERN);
 		p.skip(SPACE_PATTERN);
 		String[] arg2rv = p.consume(ROLE_VALUE_PATTERN);
-		if (!StringUtils.isBlank(p.getCurrentString())) {
-			throw new IllegalStateException(String.format(
-					"Illegal ending of relation line '%s' in:\n%s", p.getCurrentString(), str));
-		}
+		p.ensureBlank();
 
 		BratRelationType type = typesCfg.getType(typeName, BratRelationType.class);
 		Map<String, BratAnnotation<?>> argMap = Maps.newHashMap();
@@ -360,52 +361,4 @@ public class BratAnnotationContainer {
 			return Long.valueOf(o1.getNumId()).compareTo(o2.getNumId());
 		}
 	};
-}
-
-/**
- * Utility class to facilitate Brat *.ann files parsing.
- * 
- * @author Rinat Gareev
- * 
- */
-class StringParser {
-	private String srcString;
-
-	StringParser(String srcString) {
-		this.srcString = srcString;
-	}
-
-	public String getCurrentString() {
-		return srcString;
-	}
-
-	public String consume1(Pattern pattern) {
-		return consume(pattern)[0];
-	}
-
-	public String[] consume(Pattern pattern) {
-		Matcher m = pattern.matcher(srcString);
-		if (m.lookingAt()) {
-			String[] result = new String[m.groupCount() + 1];
-			result[0] = m.group();
-			for (int i = 1; i <= m.groupCount(); i++) {
-				result[i] = m.group(i);
-			}
-			srcString = srcString.substring(m.end());
-			return result;
-		} else {
-			throw new IllegalStateException(String.format(
-					"'%s' expected in the beginning of '%s'", pattern, srcString));
-		}
-	}
-
-	public void skip(Pattern pattern) {
-		Matcher m = pattern.matcher(srcString);
-		if (m.lookingAt()) {
-			srcString = srcString.substring(m.end());
-		} else {
-			throw new IllegalStateException(String.format(
-					"'%s' expected in the beginning of '%s'", pattern, srcString));
-		}
-	}
 }

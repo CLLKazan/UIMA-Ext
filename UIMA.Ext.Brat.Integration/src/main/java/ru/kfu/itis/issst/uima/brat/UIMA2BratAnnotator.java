@@ -1,8 +1,8 @@
 package ru.kfu.itis.issst.uima.brat;
 
+import static org.nlplab.brat.BratConstants.*;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
-import static ru.kfu.itis.issst.uima.brat.BratConstants.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -80,7 +80,6 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	public final static String EVENTS_TO_BRAT = "EventsToBrat";
 	public final static String DOC_META_TYPE = "DocumentMetadataType";
 	public final static String DOC_META_URI_FEATURE = "DocumentMetadataUriFeature";
-	public final static String CONF_FILE = "annotation.conf";
 
 	// annotator configuration fields
 	@ConfigurationParameter(name = BRAT_OUT, mandatory = true)
@@ -169,7 +168,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		try {
 			if (!bratDirectory.isDirectory())
 				bratDirectory.mkdirs();
-			File annotationConfFile = new File(bratDirectory, CONF_FILE);
+			File annotationConfFile = new File(bratDirectory, ANNOTATION_CONF_FILE);
 			acWriter = new BufferedWriter(new OutputStreamWriter(
 					new FileOutputStream(annotationConfFile), ANNOTATION_CONF_ENCODING));
 			bratTypesConfig.writeTo(acWriter);
@@ -400,17 +399,17 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				bratTypeName = uimaType.getShortName();
 			}
 			Map<String, Feature> argFeatures = Maps.newHashMap();
-			Map<String, BratEntityType> argTypes = Maps.newLinkedHashMap();
+			Map<String, String> argTypeNames = Maps.newLinkedHashMap();
 			for (RoleDefinitionValue rdv : relationDef.roleDefinitions) {
 				String argFeatName = rdv.featureName;
 				Feature argFeat = featureExist(uimaType, argFeatName);
 				argFeatures.put(argFeatName, argFeat);
 				Type argUimaType = detectRoleUimaType(mpBuilder, argFeat, rdv.asTypeName);
 				BratEntityType argBratType = mpBuilder.getEntityType(argUimaType);
-				argTypes.put(argFeatName, argBratType);
+				argTypeNames.put(argFeatName, argBratType.getName());
 			}
 
-			BratRelationType brt = tcBuilder.addRelationType(bratTypeName, argTypes);
+			BratRelationType brt = tcBuilder.addRelationType(bratTypeName, argTypeNames);
 			mpBuilder.addRelationMapping(uimaType, brt, argFeatures);
 		}
 		// configure event types
@@ -423,7 +422,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				bratTypeName = uimaType.getShortName();
 			}
 			Map<String, Feature> roleFeatures = Maps.newHashMap();
-			Map<String, BratType> roleTypes = Maps.newLinkedHashMap();
+			Map<String, String> roleTypeNames = Maps.newLinkedHashMap();
 
 			for (RoleDefinitionValue rdv : eventDef.roleDefinitions) {
 				String roleFeatName = rdv.featureName;
@@ -431,10 +430,10 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				roleFeatures.put(roleFeatName, roleFeat);
 				Type roleUimaType = detectRoleUimaType(mpBuilder, roleFeat, rdv.asTypeName);
 				BratType roleBratType = mpBuilder.getType(roleUimaType);
-				roleTypes.put(roleFeatName, roleBratType);
+				roleTypeNames.put(roleFeatName, roleBratType.getName());
 			}
 
-			BratEventType bet = tcBuilder.addEventType(bratTypeName, roleTypes);
+			BratEventType bet = tcBuilder.addEventType(bratTypeName, roleTypeNames);
 			mpBuilder.addEventMapping(uimaType, bet, roleFeatures);
 		}
 		bratTypesConfig = tcBuilder.build();

@@ -145,7 +145,7 @@ abstract class UimaBratStructureMapping<BT extends BratType> {
 
 	public UimaBratStructureMapping(BT bratType, Map<String, Feature> roleFeatures) {
 		this.bratType = bratType;
-		this.roleFeatures = roleFeatures;
+		this.roleFeatures = ImmutableMap.copyOf(roleFeatures);
 	}
 }
 

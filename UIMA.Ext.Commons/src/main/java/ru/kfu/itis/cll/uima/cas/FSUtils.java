@@ -20,6 +20,7 @@ import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.FSMatchConstraint;
 import org.apache.uima.cas.FSTypeConstraint;
+import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.StringArrayFS;
 import org.apache.uima.cas.Type;
@@ -154,6 +155,44 @@ public class FSUtils {
 			destCol.add(srcIter.get());
 			srcIter.moveToNext();
 		}
+	}
+
+	/*
+	 * Note that getIntValue will return 0 if feature value is not set.
+	 */
+	public static int intMinBy(Iterable<? extends FeatureStructure> fsCollection, Feature intFeat) {
+		Integer min = Integer.MIN_VALUE;
+		boolean hasResult = false;
+		for (FeatureStructure fs : fsCollection) {
+			int intValue = fs.getIntValue(intFeat);
+			hasResult = true;
+			if (intValue < min) {
+				min = intValue;
+			}
+		}
+		if (!hasResult) {
+			throw new IllegalArgumentException("fsCollection is empty");
+		}
+		return min;
+	}
+
+	/*
+	 * Note that getIntValue will return 0 if feature value is not set.
+	 */
+	public static int intMaxBy(Iterable<? extends FeatureStructure> fsCollection, Feature intFeat) {
+		Integer max = Integer.MAX_VALUE;
+		boolean hasResult = false;
+		for (FeatureStructure fs : fsCollection) {
+			int intValue = fs.getIntValue(intFeat);
+			hasResult = true;
+			if (intValue > max) {
+				max = intValue;
+			}
+		}
+		if (!hasResult) {
+			throw new IllegalArgumentException("fsCollection is empty");
+		}
+		return max;
 	}
 
 	private FSUtils() {

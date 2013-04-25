@@ -24,7 +24,6 @@ public class U2BTest {
 
 	@Test
 	public void test() throws Exception {
-
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setMaxProcessingUnitThreatCount(1);
 
