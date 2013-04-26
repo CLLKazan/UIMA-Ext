@@ -152,19 +152,32 @@ public class BratTypesConfiguration {
 		}
 	};
 
+	private static final Map<Cardinality, String> cardinalityStrings =
+			ImmutableMap.<Cardinality, String> builder()
+					.put(Cardinality.ONE, "")
+					.put(Cardinality.OPTIONAL, "?")
+					.put(Cardinality.ARRAY, "*")
+					.put(Cardinality.NON_EMPTY_ARRAY, "+").build();
+
 	private static String toPrint(Cardinality c) {
-		switch (c) {
-		case ONE:
-			return "";
-		case OPTIONAL:
-			return "?";
-		case ARRAY:
-			return "*";
-		case NON_EMPTY_ARRAY:
-			return "+";
-		default:
-			throw new UnsupportedOperationException(String.valueOf(c));
+		String result = cardinalityStrings.get(c);
+		if (result == null) {
+			throw new UnsupportedOperationException();
 		}
+		return result;
+	}
+
+	private static Cardinality parseCardinality(String str) {
+		if (str == null) {
+			return Cardinality.ONE;
+		}
+		for (Cardinality c : cardinalityStrings.keySet()) {
+			String cStr = cardinalityStrings.get(c);
+			if (cStr.equals(str)) {
+				return c;
+			}
+		}
+		throw new IllegalArgumentException("Unknown cardinality string: " + str);
 	}
 
 	public static Builder builder() {
@@ -219,6 +232,17 @@ public class BratTypesConfiguration {
 		}
 
 		public BratEventType addEventType(String typeName, Map<String, String> roleTypeNames) {
+			Map<String, Cardinality> roleCardinalities = Maps.newHashMapWithExpectedSize(
+					roleTypeNames.size());
+			for (String roleName : roleTypeNames.keySet()) {
+				roleCardinalities.put(roleName, Cardinality.OPTIONAL);
+			}
+			return addEventType(typeName, roleTypeNames, roleCardinalities);
+		}
+
+		public BratEventType addEventType(String typeName,
+				Map<String, String> roleTypeNames,
+				Map<String, Cardinality> roleCardinalities) {
 			Map<String, EventRole> roles = Maps.newHashMapWithExpectedSize(roleTypeNames.size());
 			// check that role ranges are either Entity or Event
 			for (String roleName : roleTypeNames.keySet()) {
@@ -227,7 +251,8 @@ public class BratTypesConfiguration {
 					throw new IllegalArgumentException(String.format(
 							"Illegal event role range type: %s", roleRange));
 				}
-				roles.put(roleName, new EventRole(roleName, roleRange, Cardinality.OPTIONAL));
+				Cardinality roleCard = roleCardinalities.get(roleName);
+				roles.put(roleName, new EventRole(roleName, roleRange, roleCard));
 			}
 			BratEventType bet = new BratEventType(typeName, roles);
 			addType(bet);
@@ -307,14 +332,15 @@ public class BratTypesConfiguration {
 
 	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^\\s]+");
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
-	private static final Pattern TABS_PATTERN = Pattern.compile("\\t+");
-	private static final Pattern ROLE_DEF_PATTERN = Pattern.compile("([^:\\s]+):([^,\\s]+)");
+	private static final Pattern OPTIONAL_TABS_PATTERN = Pattern.compile("\\t*");
+	private static final Pattern ROLE_DEF_PATTERN = Pattern
+			.compile("([-_\\p{Alnum}]+)([?+*]?):([^,\\s]+)");
 	private static final Pattern ROLE_SEP_PATTERN = Pattern.compile("\\s*,\\s*");
 
 	private static void parseEntityLine(Builder b, String line,
 			Map<Integer, BratEntityType> hierBranch) {
 		StringParser p = new StringParser(line);
-		String tabs = p.consume1(TABS_PATTERN);
+		String tabs = p.consume1(OPTIONAL_TABS_PATTERN);
 		int inheritanceDepth = getPrefixCharNum('\t', tabs);
 		String parentTypeName;
 		if (inheritanceDepth == 0) {
@@ -340,13 +366,22 @@ public class BratTypesConfiguration {
 		String typeName = p.consume1(TYPE_NAME_PATTERN);
 		p.skip(SPACE_PATTERN);
 		Map<String, String> argTypeNames = Maps.newLinkedHashMap();
-		String[] argDef = p.consume(ROLE_DEF_PATTERN);
-		argTypeNames.put(argDef[1], argDef[2]);
+		String[] argDef = parseRelationArgDef(p, line);
+		argTypeNames.put(argDef[1], argDef[3]);
 		p.skip(ROLE_SEP_PATTERN);
-		argDef = p.consume(ROLE_DEF_PATTERN);
-		argTypeNames.put(argDef[1], argDef[2]);
+		argDef = parseRelationArgDef(p, line);
+		argTypeNames.put(argDef[1], argDef[3]);
 		p.ensureBlank();
 		b.addRelationType(typeName, argTypeNames);
+	}
+
+	private static String[] parseRelationArgDef(StringParser p, String line) {
+		String[] argDef = p.consume(ROLE_DEF_PATTERN);
+		if (!StringUtils.isBlank(argDef[2])) {
+			throw new IllegalStateException(String.format(
+					"Illegal relation arg quantifier in:\n%s", line));
+		}
+		return argDef;
 	}
 
 	private static void parseEventLine(Builder b, String line) {
@@ -354,16 +389,23 @@ public class BratTypesConfiguration {
 		String typeName = p.consume1(TYPE_NAME_PATTERN);
 		p.skip(SPACE_PATTERN);
 		Map<String, String> roleTypeNames = Maps.newLinkedHashMap();
+		Map<String, Cardinality> roleCardinalities = Maps.newHashMap();
 		// parse first role definition
-		String[] roleDef = p.consume(ROLE_DEF_PATTERN);
-		roleTypeNames.put(roleDef[1], roleDef[2]);
+		parseEventRoleDef(p, roleTypeNames, roleCardinalities);
 		// parse remaining role definitions
 		while (!StringUtils.isBlank(p.getCurrentString())) {
 			p.skip(ROLE_SEP_PATTERN);
-			roleDef = p.consume(ROLE_DEF_PATTERN);
-			roleTypeNames.put(roleDef[1], roleDef[2]);
+			parseEventRoleDef(p, roleTypeNames, roleCardinalities);
 		}
-		b.addEventType(typeName, roleTypeNames);
+		b.addEventType(typeName, roleTypeNames, roleCardinalities);
+	}
+
+	private static void parseEventRoleDef(StringParser p, Map<String, String> roleTypeNames,
+			Map<String, Cardinality> roleCardinalities) {
+		String roleDef[] = p.consume(ROLE_DEF_PATTERN);
+		String roleName = roleDef[1];
+		roleTypeNames.put(roleName, roleDef[3]);
+		roleCardinalities.put(roleName, parseCardinality(roleDef[2]));
 	}
 
 	private static int getPrefixCharNum(char ch, String str) {

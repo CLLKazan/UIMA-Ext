@@ -1,0 +1,5 @@
+T1	Person 182 232	Алексея Волина, Дениса Свердлова и Марка Шмулевича
+T2	Position 159 180	заместителей министра
+T3	Company 7 18	Минкомсвязи
+T4	PositionChange 81 91	представил
+E1	PositionChange:T4 newPosition:T2 person:T1 newCompany:T3

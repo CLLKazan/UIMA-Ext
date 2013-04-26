@@ -1,0 +1,3 @@
+T1	Person 658 667	Марии Кан
+T2	HL_PersonAnnouncement 638 657	говорится в заметке
+E1	HL_PersonAnnouncement:T2 person:T1

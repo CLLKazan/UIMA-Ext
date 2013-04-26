@@ -16,6 +16,7 @@ import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 /**
  * @author Rinat Gareev
@@ -26,6 +27,9 @@ public class BratUimaMapping {
 	private Map<BratEntityType, Type> entityTypeMappings;
 	private Map<BratRelationType, BratUimaRelationMapping> relationTypeMappings;
 	private Map<BratEventType, BratUimaEventMapping> eventTypeMappings;
+
+	private BratUimaMapping() {
+	}
 
 	public Set<BratEntityType> getEntityTypes() {
 		return entityTypeMappings.keySet();
@@ -49,6 +53,62 @@ public class BratUimaMapping {
 
 	public BratUimaEventMapping getEventMapping(BratEventType bType) {
 		return eventTypeMappings.get(bType);
+	}
+
+	public static BratUimaMapping reverse(UimaBratMapping src) {
+		BratUimaMapping result = new BratUimaMapping();
+		result.entityTypeMappings = Maps.newHashMap();
+		result.relationTypeMappings = Maps.newHashMap();
+		result.eventTypeMappings = Maps.newHashMap();
+		//
+		for (Type uType : src.getEntityUimaTypes()) {
+			BratEntityType bType = src.getBratEntityType(uType);
+			if (result.entityTypeMappings.put(bType, uType) != null) {
+				reportAmbiguousReversal(bType);
+			}
+		}
+		//
+		for (Type uType : src.getRelationUimaTypes()) {
+			UimaBratRelationMapping srcRelMapping = src.getRelationMapping(uType);
+			BratRelationType bType = srcRelMapping.bratType;
+			BratUimaRelationMapping relMapping = new BratUimaRelationMapping(
+					bType, uType, reverseMap(srcRelMapping.roleFeatures));
+			if (result.relationTypeMappings.put(bType, relMapping) != null) {
+				reportAmbiguousReversal(bType);
+			}
+		}
+		//
+		for (Type uType : src.getEventUimaTypes()) {
+			UimaBratEventMapping srcEvMapping = src.getEventMapping(uType);
+			BratEventType bType = srcEvMapping.bratType;
+			BratUimaEventMapping evMapping = new BratUimaEventMapping(
+					bType, uType, reverseMap(srcEvMapping.roleFeatures));
+			if (result.eventTypeMappings.put(bType, evMapping) != null) {
+				reportAmbiguousReversal(bType);
+			}
+		}
+		//
+		result.entityTypeMappings = ImmutableMap.copyOf(result.entityTypeMappings);
+		result.relationTypeMappings = ImmutableMap.copyOf(result.relationTypeMappings);
+		result.eventTypeMappings = ImmutableMap.copyOf(result.eventTypeMappings);
+		return result;
+	}
+
+	private static void reportAmbiguousReversal(BratType bType) {
+		throw new IllegalStateException(String.format(
+				"Ambiguous mapping for Brat type: %s", bType));
+	}
+
+	private static <K, V> Map<V, K> reverseMap(Map<K, V> srcMap) {
+		Map<V, K> resultMap = Maps.newHashMapWithExpectedSize(srcMap.size());
+		for (K key : srcMap.keySet()) {
+			V value = srcMap.get(key);
+			if (resultMap.put(value, key) != null) {
+				throw new IllegalArgumentException(String.format(
+						"Can't reverse map %s", srcMap));
+			}
+		}
+		return resultMap;
 	}
 }
 

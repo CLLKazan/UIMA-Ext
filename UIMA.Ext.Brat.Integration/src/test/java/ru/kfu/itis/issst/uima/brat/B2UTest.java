@@ -12,30 +12,30 @@ import org.uimafit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
-import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 
 import static org.junit.Assert.*;
 
-public class U2BTest {
+public class B2UTest {
 
-	private static final String inputFileXMIDir = "data/news.xmi";
-	public static final String U2BAggregateDesc = "desc/aggregates/u2b-test-aggregate.xml";
+	private static final String inputBratDir = "data/news.brat";
+	private static final String B2UAggregateDesc = "desc/aggregates/b2u-test-aggregate.xml";
 
 	@Test
 	public void test() throws Exception {
 		CpeBuilder cpeBuilder = new CpeBuilder();
-		cpeBuilder.setMaxProcessingUnitThreatCount(1);
+		cpeBuilder.setMaxProcessingUnitThreatCount(2);
 
 		TypeSystemDescription tsd = TypeSystemDescriptionFactory
 				.createTypeSystemDescription("desc.types.test-TypeSystem");
 
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
-				XmiCollectionReader.class, tsd,
-				XmiCollectionReader.PARAM_INPUTDIR, inputFileXMIDir);
+				BratCollectionReader.class, tsd,
+				BratCollectionReader.PARAM_BRAT_COLLECTION_DIR, inputBratDir,
+				BratCollectionReader.PARAM_U2B_DESC_PATH, U2BTest.U2BAggregateDesc);
 
 		cpeBuilder.setReader(colReaderDesc);
 		// configure AE
-		XMLInputSource aeDescInput = new XMLInputSource(U2BAggregateDesc);
+		XMLInputSource aeDescInput = new XMLInputSource(B2UAggregateDesc);
 		AnalysisEngineDescription aeDesc = UIMAFramework.getXMLParser()
 				.parseAnalysisEngineDescription(aeDescInput);
 		cpeBuilder.addAnalysisEngine(aeDesc);

@@ -15,13 +15,23 @@ import com.google.common.collect.ImmutableMap;
  * @author Rinat Gareev
  * 
  */
-public class BratEventType extends BratType {
+public class BratEventType extends BratType implements HasRoles {
 
 	private Map<String, EventRole> roles;
 
 	public BratEventType(String name, Map<String, EventRole> roles) {
 		super(name);
 		this.roles = ImmutableMap.copyOf(roles);
+	}
+
+	@Override
+	public boolean isLegalAssignment(String roleName, BratType t) {
+		if (!hasRole(roleName)) {
+			throw new IllegalArgumentException(String.format(
+					"Unknown role '%s' in %s", roleName, this));
+		}
+		EventRole role = roles.get(roleName);
+		return role.getRange().getName().equals(t.getName());
 	}
 
 	public boolean hasRole(String role) {

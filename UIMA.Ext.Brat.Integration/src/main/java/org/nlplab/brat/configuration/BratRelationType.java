@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Rinat Gareev
  * 
  */
-public class BratRelationType extends BratType {
+public class BratRelationType extends BratType implements HasRoles {
 
 	private String arg1Name;
 	private Set<BratEntityType> arg1Types;
@@ -48,6 +48,24 @@ public class BratRelationType extends BratType {
 
 	public String getArg2Name() {
 		return arg2Name;
+	}
+
+	@Override
+	public boolean isLegalAssignment(String roleName, BratType t) {
+		Set<BratEntityType> roleTypes;
+		if (arg1Name.equals(roleName)) {
+			roleTypes = arg1Types;
+		} else if (arg2Name.equals(roleName)) {
+			roleTypes = arg2Types;
+		} else {
+			throw new IllegalArgumentException("Unknown role " + roleName);
+		}
+		for (BratEntityType roleType : roleTypes) {
+			if (roleType.getName().equals(t.getName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

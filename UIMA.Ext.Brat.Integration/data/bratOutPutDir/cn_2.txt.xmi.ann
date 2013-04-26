@@ -1,6 +1,0 @@
-T1	PositionChange 2 117	Марк Шмулевич, ранее работавший в корпорации "Российские космические системы", стал заместителем главы Минкомсвязи.
-T2	Person 2 15	Марк Шмулевич
-E1	PositionChange:T1 Person-EArg1:T2
-T4	iPerson 1116 1124	Шмулевич
-T5	iCity 1285 1291	России
-R1	iBirthPlace Arg1:T4 Arg2:T5

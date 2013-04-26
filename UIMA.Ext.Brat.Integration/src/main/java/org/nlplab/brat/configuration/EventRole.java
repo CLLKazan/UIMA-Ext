@@ -3,6 +3,7 @@
  */
 package org.nlplab.brat.configuration;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -19,6 +20,9 @@ public class EventRole {
 		this.role = role;
 		this.range = range;
 		this.cardinality = cardinality;
+		if (role == null || range == null || cardinality == null) {
+			throw new NullPointerException();
+		}
 	}
 
 	public String getRole() {
@@ -31,6 +35,22 @@ public class EventRole {
 
 	public Cardinality getCardinality() {
 		return cardinality;
+	}
+
+	@Override
+	public int hashCode() {
+		return role.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof EventRole)) {
+			return false;
+		}
+		EventRole that = (EventRole) obj;
+		return new EqualsBuilder().append(this.role, that.role)
+				.append(this.range, that.range)
+				.append(this.cardinality, that.cardinality).isEquals();
 	}
 
 	@Override

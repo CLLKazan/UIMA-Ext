@@ -1,5 +1,0 @@
-T1	PositionChange 1 104	Эдуард Макарьев вступил в должность главы офиса «NEC Нева Коммуникационные Системы» в Санкт-Петербурге.
-T2	Position 1 16	Эдуард Макарьев
-T3	Position 37 48	главы офиса
-T4	Company 49 84	«NEC Нева Коммуникационные Системы»
-E1	PositionChange:T1 Company-EArg3:T4 Position-EArg1:T2 Position-EArg2:T3

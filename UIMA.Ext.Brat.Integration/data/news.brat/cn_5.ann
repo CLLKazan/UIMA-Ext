@@ -1,0 +1,7 @@
+T1	Person 586 601	Патрика Цаммита
+T2	Company 10 15	Avnet
+T3	Company 184 205	Altron GmbH & Co. KG 
+T4	HL_PersonAnnouncement 576 585	По словам
+E1	HL_PersonAnnouncement:T4 person:T1
+T5	Acquisition 127 175	объявила о подписании соглашении о приобретении 
+E2	Acquisition:T5 slot2:T3 slot1:T2

@@ -1,6 +1,9 @@
 package ru.kfu.itis.issst.uima.brat;
 
-import static org.nlplab.brat.BratConstants.*;
+import static org.nlplab.brat.BratConstants.ANNOTATION_CONF_ENCODING;
+import static org.nlplab.brat.BratConstants.ANNOTATION_CONF_FILE;
+import static org.nlplab.brat.BratConstants.ANN_FILES_ENCODING;
+import static org.nlplab.brat.BratConstants.TXT_FILES_ENCODING;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
 
@@ -14,8 +17,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -39,7 +40,6 @@ import org.nlplab.brat.ann.BratRelation;
 import org.nlplab.brat.configuration.BratEntityType;
 import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
-import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.configuration.EventRole;
 import org.uimafit.component.CasAnnotator_ImplBase;
@@ -47,9 +47,6 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.CasUtil;
 
-import ru.kfu.itis.issst.uima.brat.UimaBratMapping.Builder;
-
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -367,92 +364,34 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		return docName;
 	}
 
-	/*
-	 * syntax for EntitiesToBrat strings:
-	 * <UIMA_TYPE_NAME> ("=>" <BRAT_TYPE_NAME>)?
-	 * syntax for RelationsToBrat strings:
-	 * <UIMA_TYPE_NAME> ("=>" <BRAT_TYPE_NAME>)? ":" <Arg1FeatureName> (" as " <UIMA_TYPE_SHORT_NAME>)? "," <Arg2FeatureName> (" as " <UIMA_TYPE_SHORT_NAME>)?
-	 */
 	private void createBratTypesConfiguration() throws AnalysisEngineProcessException {
-		// mapping builder
-		UimaBratMapping.Builder mpBuilder = UimaBratMapping.builder();
 		// type configuration builder
-		BratTypesConfiguration.Builder tcBuilder = BratTypesConfiguration.builder();
-		// configure entity types
-		for (EntityDefinitionValue entityDef : entitiesToBrat) {
-			Type uimaType = ts.getType(entityDef.uimaTypeName);
-			annotationTypeExist(entityDef.uimaTypeName, uimaType);
-			String bratTypeName = entityDef.bratTypeName;
-			if (bratTypeName == null) {
-				bratTypeName = uimaType.getShortName();
-			}
-			BratEntityType bratType = tcBuilder.addEntityType(bratTypeName);
-			mpBuilder.addEntityMapping(uimaType, bratType);
-		}
-		// configure relation types
-		for (StructureDefinitionValue relationDef : relationsToBrat) {
-			String uimaTypeName = relationDef.uimaTypeName;
-			Type uimaType = ts.getType(uimaTypeName);
-			annotationTypeExist(uimaTypeName, uimaType);
-			String bratTypeName = relationDef.bratTypeName;
-			if (bratTypeName == null) {
-				bratTypeName = uimaType.getShortName();
-			}
-			Map<String, Feature> argFeatures = Maps.newHashMap();
-			Map<String, String> argTypeNames = Maps.newLinkedHashMap();
-			for (RoleDefinitionValue rdv : relationDef.roleDefinitions) {
-				String argFeatName = rdv.featureName;
-				Feature argFeat = featureExist(uimaType, argFeatName);
-				argFeatures.put(argFeatName, argFeat);
-				Type argUimaType = detectRoleUimaType(mpBuilder, argFeat, rdv.asTypeName);
-				BratEntityType argBratType = mpBuilder.getEntityType(argUimaType);
-				argTypeNames.put(argFeatName, argBratType.getName());
+		final BratTypesConfiguration.Builder tcBuilder = BratTypesConfiguration.builder();
+		/* 
+		 * define mapping initializer that will incrementally build
+		 * required Brat type system as side effect
+		 */
+		UimaBratMappingInitializer initializer = new UimaBratMappingInitializer(ts,
+				entitiesToBrat, relationsToBrat, eventsToBrat) {
+
+			@Override
+			protected BratEntityType getEntityType(String typeName) {
+				return tcBuilder.addEntityType(typeName);
 			}
 
-			BratRelationType brt = tcBuilder.addRelationType(bratTypeName, argTypeNames);
-			mpBuilder.addRelationMapping(uimaType, brt, argFeatures);
-		}
-		// configure event types
-		for (StructureDefinitionValue eventDef : eventsToBrat) {
-			String uimaTypeName = eventDef.uimaTypeName;
-			Type uimaType = ts.getType(uimaTypeName);
-			annotationTypeExist(uimaTypeName, uimaType);
-			String bratTypeName = eventDef.bratTypeName;
-			if (bratTypeName == null) {
-				bratTypeName = uimaType.getShortName();
-			}
-			Map<String, Feature> roleFeatures = Maps.newHashMap();
-			Map<String, String> roleTypeNames = Maps.newLinkedHashMap();
-
-			for (RoleDefinitionValue rdv : eventDef.roleDefinitions) {
-				String roleFeatName = rdv.featureName;
-				Feature roleFeat = featureExist(uimaType, roleFeatName);
-				roleFeatures.put(roleFeatName, roleFeat);
-				Type roleUimaType = detectRoleUimaType(mpBuilder, roleFeat, rdv.asTypeName);
-				BratType roleBratType = mpBuilder.getType(roleUimaType);
-				roleTypeNames.put(roleFeatName, roleBratType.getName());
+			@Override
+			protected BratRelationType getRelationType(String typeName,
+					Map<String, String> argTypeNames) {
+				return tcBuilder.addRelationType(typeName, argTypeNames);
 			}
 
-			BratEventType bet = tcBuilder.addEventType(bratTypeName, roleTypeNames);
-			mpBuilder.addEventMapping(uimaType, bet, roleFeatures);
-		}
+			@Override
+			protected BratEventType getEventType(String typeName, Map<String, String> roleTypeNames) {
+				return tcBuilder.addEventType(typeName, roleTypeNames);
+			}
+		};
+		mapping = initializer.create();
 		bratTypesConfig = tcBuilder.build();
-		mapping = mpBuilder.build();
-	}
-
-	private Type detectRoleUimaType(Builder mpBuilder, Feature roleFeat,
-			String shortTypeNameHint) {
-		Type uRoleType;
-		if (shortTypeNameHint == null) {
-			uRoleType = roleFeat.getRange();
-		} else {
-			uRoleType = mpBuilder.getUimaTypeByShortName(shortTypeNameHint);
-			if (!ts.subsumes(roleFeat.getRange(), uRoleType)) {
-				throw new IllegalStateException(String.format(
-						"%s is not subtype of %s", uRoleType, roleFeat.getRange()));
-			}
-		}
-		return uRoleType;
 	}
 
 	private class ToBratMappingContext {
@@ -493,134 +432,5 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		private void mapped(AnnotationFS uAnno, BratAnnotation<?> bAnno) {
 			mappedAnnos.put(uAnno, bAnno);
 		}
-	}
-}
-
-class EntityDefinitionValue {
-	private static final String P_NAME_MAPPING = "([._\\p{Alnum}]+)\\s*(=>\\s*([_\\p{Alnum}]+))?";
-	static final Pattern ENTITY_TYPE_MAPPING_PATTERN = Pattern.compile(P_NAME_MAPPING);
-
-	static EntityDefinitionValue fromString(String str) {
-		Matcher matcher = ENTITY_TYPE_MAPPING_PATTERN.matcher(str);
-		if (matcher.matches()) {
-			String uimaTypeName = matcher.group(1);
-			String bratTypeName = matcher.group(3);
-			return new EntityDefinitionValue(uimaTypeName, bratTypeName);
-		} else {
-			throw new IllegalStateException(String.format(
-					"Can't parse entity mapping param value:\n%s", str));
-		}
-	}
-
-	final String uimaTypeName;
-	final String bratTypeName;
-
-	EntityDefinitionValue(String uimaTypeName, String bratTypeName) {
-		this.uimaTypeName = uimaTypeName;
-		this.bratTypeName = bratTypeName;
-	}
-}
-
-// base for events and relations
-class StructureDefinitionValue {
-	private static final Pattern BEFORE_ROLES = Pattern.compile("\\s*:\\s*");
-
-	static StructureDefinitionValue fromString(String _src) {
-		String src = _src;
-		Matcher typeNamesMatcher = EntityDefinitionValue.ENTITY_TYPE_MAPPING_PATTERN.matcher(src);
-		if (typeNamesMatcher.lookingAt()) {
-			String uimaTypeName = typeNamesMatcher.group(1);
-			String bratTypeName = typeNamesMatcher.group(3);
-			src = skip(src.substring(typeNamesMatcher.end()), BEFORE_ROLES);
-			// split by comma
-			String[] roleDeclStrings = src.split("\\s*,\\s*");
-			// trim trailing whitespace in last string 
-			roleDeclStrings[roleDeclStrings.length - 1] =
-					roleDeclStrings[roleDeclStrings.length - 1].trim();
-
-			List<RoleDefinitionValue> roleDefs = Lists.newLinkedList();
-			for (String roleDeclStr : roleDeclStrings) {
-				try {
-					roleDefs.add(RoleDefinitionValue.fromString(roleDeclStr));
-				} catch (Exception e) {
-					throw new IllegalArgumentException(String.format(
-							"Can't parse: %s", _src),
-							e);
-				}
-			}
-			return new StructureDefinitionValue(uimaTypeName, bratTypeName, roleDefs);
-		} else {
-			throw new IllegalArgumentException(String.format(
-					"Can't parse structure mapping param value:\n%s", _src));
-		}
-	}
-
-	/**
-	 * @param src
-	 * @param pattern
-	 * @return src without prefix matched by pattern
-	 * @throws IllegalArgumentException
-	 *             if pattern does not match prefix
-	 */
-	private static String skip(String src, Pattern pattern) {
-		Matcher m = pattern.matcher(src);
-		if (m.lookingAt()) {
-			return src.substring(m.end());
-		} else {
-			throw new IllegalArgumentException(String.format(
-					"'%s' prefix was expected in '%s'", pattern, src));
-		}
-	}
-
-	final String uimaTypeName;
-	final String bratTypeName;
-	final List<RoleDefinitionValue> roleDefinitions;
-
-	StructureDefinitionValue(String uimaTypeName, String bratTypeName,
-			List<RoleDefinitionValue> roleDefinitions) {
-		this.uimaTypeName = uimaTypeName;
-		this.bratTypeName = bratTypeName;
-		this.roleDefinitions = ImmutableList.copyOf(roleDefinitions);
-	}
-
-}
-
-class RoleDefinitionValue {
-	private static final Pattern ROLE_DEF_PATTERN = Pattern.compile(
-			"(\\p{Alnum}+)(\\s+as\\s+([_\\p{Alnum}]+))?");
-
-	static RoleDefinitionValue fromString(String src) {
-		Matcher m = ROLE_DEF_PATTERN.matcher(src);
-		if (m.matches()) {
-			String featureName = m.group(1);
-			String asTypeName = m.group(3);
-			return new RoleDefinitionValue(featureName, asTypeName);
-		} else {
-			throw new IllegalArgumentException(String.format(
-					"Can't parse role definition: %s", src));
-		}
-	}
-
-	final String featureName;
-	final String asTypeName;
-
-	RoleDefinitionValue(String featureName, String asTypeName) {
-		this.featureName = featureName;
-		this.asTypeName = asTypeName;
-	}
-
-	@Override
-	public int hashCode() {
-		return featureName.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof RoleDefinitionValue)) {
-			return false;
-		}
-		RoleDefinitionValue that = (RoleDefinitionValue) obj;
-		return Objects.equal(this.featureName, that.featureName)
-				&& Objects.equal(this.asTypeName, that.asTypeName);
 	}
 }
