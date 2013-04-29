@@ -80,7 +80,7 @@
 				<name>EventsToBrat</name>
 				<value>
 					<array>
-						<string>issst.test.HL_Acquisition=>Acquisition: slot1 as HL_Company, slot2 as HL_Company</string>
+						<string>issst.test.HL_Acquisition=>Acquisition: slotFirst as HL_Company, slotSecond as HL_Company</string>
 			            <string>issst.test.HL_Resignation=>Resignation: person as HL_Person, company as HL_Company, position as HL_Position, approvedBy as HL_Person</string>
 			            <string>issst.test.HL_CompanyAnnouncement=>CompanyAnnouncement: company</string>
 			            <string>issst.test.HL_PositionChange=>PositionChange: person as HL_Person, newPosition as HL_Position, oldPosition as HL_Position, newCompany as HL_Company, oldCompany as HL_Company</string>

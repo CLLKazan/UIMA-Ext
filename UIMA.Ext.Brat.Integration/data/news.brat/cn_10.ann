@@ -1,5 +1,5 @@
 T1	Company 49 84	«NEC Нева Коммуникационные Системы»
-T2	Position 1 16	Эдуард Макарьев
-T3	Position 37 48	главы офиса
+T2	Position 37 48	главы офиса
+T3	Person 1 16	Эдуард Макарьев
 T4	PositionChange 17 36	вступил в должность
-E1	PositionChange:T4 newPosition:T3 person:T2 newCompany:T1
+E1	PositionChange:T4 newPosition:T2 person:T3 newCompany:T1

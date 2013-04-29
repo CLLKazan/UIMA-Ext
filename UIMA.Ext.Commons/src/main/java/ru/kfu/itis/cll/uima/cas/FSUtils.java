@@ -161,7 +161,7 @@ public class FSUtils {
 	 * Note that getIntValue will return 0 if feature value is not set.
 	 */
 	public static int intMinBy(Iterable<? extends FeatureStructure> fsCollection, Feature intFeat) {
-		Integer min = Integer.MIN_VALUE;
+		Integer min = Integer.MAX_VALUE;
 		boolean hasResult = false;
 		for (FeatureStructure fs : fsCollection) {
 			int intValue = fs.getIntValue(intFeat);
@@ -180,7 +180,7 @@ public class FSUtils {
 	 * Note that getIntValue will return 0 if feature value is not set.
 	 */
 	public static int intMaxBy(Iterable<? extends FeatureStructure> fsCollection, Feature intFeat) {
-		Integer max = Integer.MAX_VALUE;
+		Integer max = Integer.MIN_VALUE;
 		boolean hasResult = false;
 		for (FeatureStructure fs : fsCollection) {
 			int intValue = fs.getIntValue(intFeat);

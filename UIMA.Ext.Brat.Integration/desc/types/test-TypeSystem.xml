@@ -64,12 +64,12 @@
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
-          <name>slot1</name>
+          <name>slotFirst</name>
           <description/>
           <rangeTypeName>uima.tcas.Annotation</rangeTypeName>
         </featureDescription>
         <featureDescription>
-          <name>slot2</name>
+          <name>slotSecond</name>
           <description/>
           <rangeTypeName>uima.tcas.Annotation</rangeTypeName>
         </featureDescription>

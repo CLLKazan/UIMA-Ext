@@ -7,9 +7,9 @@ T6	Company 790 803	«Ростелекома»
 T7	Position 388 399	Гендиректор
 T8	Person 465 477	Андрей Ляпин
 T9	Acquisition 16 25	поглощает
-E1	Acquisition:T9 slot2:T2 slot1:T1
+E1	Acquisition:T9 slotFirst:T1 slotSecond:T2
 T10	Acquisition 171 176	начал
-E2	Acquisition:T10 slot2:T4 slot1:T3
+E2	Acquisition:T10 slotFirst:T3 slotSecond:T4
 T11	Resignation 478 495	покинул свой пост
 E3	Resignation:T11 position:T7 person:T8 company:T5
 T12	CompanyAnnouncement 766 774	сообщили
