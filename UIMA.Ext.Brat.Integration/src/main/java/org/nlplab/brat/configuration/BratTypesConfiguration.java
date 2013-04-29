@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.nlplab.brat.BratConstants;
 import org.nlplab.brat.configuration.EventRole.Cardinality;
 import org.nlplab.brat.util.StringParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -185,6 +187,8 @@ public class BratTypesConfiguration {
 	}
 
 	public static class Builder {
+		private static final Logger log = LoggerFactory.getLogger(Builder.class);
+
 		private BratTypesConfiguration instance = new BratTypesConfiguration();
 
 		private Builder() {
@@ -246,6 +250,7 @@ public class BratTypesConfiguration {
 			Map<String, EventRole> roles = Maps.newHashMapWithExpectedSize(roleTypeNames.size());
 			// check that role ranges are either Entity or Event
 			for (String roleName : roleTypeNames.keySet()) {
+				checkRoleName(roleName);
 				BratType roleRange = instance.getType(roleTypeNames.get(roleName));
 				if (!(roleRange instanceof BratEntityType) && !(roleRange instanceof BratEventType)) {
 					throw new IllegalArgumentException(String.format(
@@ -262,6 +267,20 @@ public class BratTypesConfiguration {
 		public BratTypesConfiguration build() {
 			instance.name2Type = ImmutableMap.copyOf(instance.name2Type);
 			return instance;
+		}
+
+		private void checkRoleName(String roleName) {
+			if (roleName == null) {
+				throw new NullPointerException("roleName");
+			}
+			if (!roleName.equals(roleName.trim())) {
+				throw new IllegalArgumentException(String.format(
+						"Role name '%s' has leading or trailing whitespace(s)",
+						roleName));
+			}
+			if (Character.isDigit(roleName.charAt(roleName.length() - 1))) {
+				log.warn("Role name '{}' is discouraged because it has a trailing digit", roleName);
+			}
 		}
 
 		private void addType(BratType type) {
