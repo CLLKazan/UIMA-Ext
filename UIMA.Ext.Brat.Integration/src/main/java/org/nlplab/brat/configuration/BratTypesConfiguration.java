@@ -106,6 +106,10 @@ public class BratTypesConfiguration {
 					Collections2.transform(bet.getRoles().values(), eventRoleToPrint));
 			out.println(sb);
 		}
+		
+		// write at least empty attributes section to avoid brat warnings
+		out.println();
+		out.println("[attributes]");
 	}
 
 	private Collection<BratEntityType> getEntityTypes() {

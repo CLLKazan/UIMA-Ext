@@ -59,9 +59,9 @@ public class UimaBratMapping {
 		private Map<String, Type> shortName2Type = Maps.newHashMap();
 
 		private Builder() {
-			instance.entityTypeMappings = Maps.newHashMap();
-			instance.relationTypeMappings = Maps.newHashMap();
-			instance.eventTypeMappings = Maps.newHashMap();
+			instance.entityTypeMappings = Maps.newLinkedHashMap();
+			instance.relationTypeMappings = Maps.newLinkedHashMap();
+			instance.eventTypeMappings = Maps.newLinkedHashMap();
 		}
 
 		public void addEntityMapping(Type uType, BratEntityType bType) {
