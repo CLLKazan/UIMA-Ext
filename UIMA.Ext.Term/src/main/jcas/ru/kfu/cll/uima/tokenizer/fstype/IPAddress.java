@@ -3,7 +3,7 @@
 /* First created by JCasGen Wed Feb 27 15:40:38 SAMT 2013 */
 package ru.kfu.cll.uima.tokenizer.fstype;
 
-import org.apache.uima.jcas.JCas; 
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
 

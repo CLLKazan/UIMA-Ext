@@ -3,25 +3,19 @@
  */
 package ru.ksu.niimm.cll.uima.term;
 
-import static java.lang.System.currentTimeMillis;
-
-import java.io.File;
-import java.io.IOException;
-
-import junit.framework.TestCase;
-
-
 import org.apache.commons.io.FileUtils;
-
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.examples.SourceDocumentInformation;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
+
+import java.io.File;
+import java.io.IOException;
+
+import static java.lang.System.currentTimeMillis;
 
 
 /**
