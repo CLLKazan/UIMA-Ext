@@ -1,3 +1,5 @@
+package ru.kfu.cll.uima.stemmer;
+
 /**
  * Created with IntelliJ IDEA.
  * User: marsel
