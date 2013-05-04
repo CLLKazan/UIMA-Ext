@@ -9,19 +9,20 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
 import ru.kfu.cll.uima.stemmer.types.StemID;
-import ru.kfu.cll.uima.tokenizer.types.Letters;
+import ru.kfu.cll.uima.tokenizer.types.RussianWord;
+
 
 public class StemmingAnnotator extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
-        AnnotationIndex<Annotation> ai = aJCas.getAnnotationIndex(Letters.typeIndexID);
+        AnnotationIndex<Annotation> ai = aJCas.getAnnotationIndex(RussianWord.typeIndexID);
         FSIterator<Annotation> iterator = ai.iterator();
         while (iterator.hasNext()) {
-            Annotation currentAnnotation = iterator.next();
+            RussianWord currentWord = (RussianWord)iterator.next();
             StemID currentStemID = new StemID(aJCas);
-            currentStemID.setIndex(currentAnnotation.getCoveredText());
-            currentStemID.setBegin(currentAnnotation.getBegin());
-            currentStemID.setEnd(currentAnnotation.getEnd());
+            currentStemID.setIndex(currentWord.getText());
+            currentStemID.setBegin(currentWord.getBegin());
+            currentStemID.setEnd(currentWord.getEnd());
             currentStemID.addToIndexes();
         }
     }
