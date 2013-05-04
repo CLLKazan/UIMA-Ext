@@ -9,6 +9,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
 import ru.kfu.cll.uima.stemmer.types.StemID;
+import ru.kfu.cll.uima.tokenizer.types.Letters;
 
 public class StemmingAnnotator extends JCasAnnotator_ImplBase {
     @Override
@@ -17,7 +18,7 @@ public class StemmingAnnotator extends JCasAnnotator_ImplBase {
         FSIterator<Annotation> iterator = ai.iterator();
         while (iterator.hasNext()) {
             Annotation currentAnnotation = iterator.next();
-            StemID currentStemID = new StemID(cas);
+            StemID currentStemID = new StemID(aJCas);
             currentStemID.setIndex(currentAnnotation.getCoveredText());
             currentStemID.setBegin(currentAnnotation.getBegin());
             currentStemID.setEnd(currentAnnotation.getEnd());
