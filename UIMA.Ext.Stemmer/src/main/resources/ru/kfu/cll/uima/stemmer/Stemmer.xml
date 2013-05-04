@@ -3,23 +3,20 @@
     <primitive>true</primitive>
     <annotatorImplementationName>ru.kfu.cll.uima.stemmer.StemmingAnnotator</annotatorImplementationName>
     <analysisEngineMetaData>
-        <name>Stemmer</name>
+        <name>ru.kfu.cll.uima.tokenizer.StemmingAnnotator</name>
         <description/>
         <version>1.0</version>
         <vendor/>
         <configurationParameters/>
         <configurationParameterSettings/>
+        <typeSystemDescription>
+            <imports>
+                <import name="ru.kfu.cll.uima.stemmer.stemmer-ts"/>
+            </imports>
+        </typeSystemDescription>
         <typePriorities/>
         <fsIndexCollection/>
-        <capabilities>
-            <capability>
-                <inputs/>
-                <outputs>
-                    <type allAnnotatorFeatures="true">ru.kfu.cll.uima.stemmer.types.StemID</type>
-                </outputs>
-                <languagesSupported/>
-            </capability>
-        </capabilities>
+        <capabilities/>
         <operationalProperties>
             <modifiesCas>true</modifiesCas>
             <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
