@@ -1,13 +1,24 @@
 package ru.kfu.cll.uima.stemmer;
 
-/**
- * Created with IntelliJ IDEA.
- * User: marsel
- * Date: 04.05.13
- * Time: 22:48
- * To change this template use File | Settings | File Templates.
- */
+import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
-
-public class StemmingAnnotator {
+public class StemmingAnnotator extends JCasAnnotator_ImplBase {
+    @Override
+    public void process(JCas aJCas) throws AnalysisEngineProcessException {
+        AnnotationIndex<Annotation> ai = aJCas.getAnnotationIndex(Letters.typeIndexID);
+        FSIterator<Annotation> iterator = ai.iterator();
+        while (iterator.hasNext()) {
+            Annotation currentAnnotation = iterator.next();
+            StemID currentStemID = new StemID(cas);
+            currentStemID.setText(currentAnnotation.getCoveredText());
+            currentStemID.setBegin(currentAnnotation.getBegin());
+            currentStemID.setEnd(currentAnnotation.getEnd());
+            currentStemID.addToIndexes();
+        }
+    }
 }
