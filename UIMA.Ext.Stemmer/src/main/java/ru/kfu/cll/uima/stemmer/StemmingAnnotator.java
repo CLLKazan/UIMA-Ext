@@ -1,11 +1,14 @@
 package ru.kfu.cll.uima.stemmer;
 
+
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+
+import ru.kfu.cll.uima.stemmer.types.StemID;
 
 public class StemmingAnnotator extends JCasAnnotator_ImplBase {
     @Override
@@ -15,7 +18,7 @@ public class StemmingAnnotator extends JCasAnnotator_ImplBase {
         while (iterator.hasNext()) {
             Annotation currentAnnotation = iterator.next();
             StemID currentStemID = new StemID(cas);
-            currentStemID.setText(currentAnnotation.getCoveredText());
+            currentStemID.setIndex(currentAnnotation.getCoveredText());
             currentStemID.setBegin(currentAnnotation.getBegin());
             currentStemID.setEnd(currentAnnotation.getEnd());
             currentStemID.addToIndexes();
