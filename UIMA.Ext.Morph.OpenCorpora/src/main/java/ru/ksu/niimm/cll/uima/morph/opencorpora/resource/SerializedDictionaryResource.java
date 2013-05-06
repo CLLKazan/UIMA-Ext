@@ -45,13 +45,14 @@ public class SerializedDictionaryResource implements SharedResourceObject {
 			}
 			log.info("Deserialization of MorphDictionary finished in {} ms",
 					currentTimeMillis() - timeBefore);
+			dict.setWfPredictor(new DummyWordformPredictor(dict));
+			log.info("DummyWordformPredictor was set in Deserialized MorphDictionary");
 		} catch (Exception e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
 
 	public MorphDictionary getDictionary() {
-        dict.setWfPredictor(new DummyWordformPredictor(dict));
 		return dict;
 	}
 }
