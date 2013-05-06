@@ -1,6 +1,8 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Iterators;
+
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 import java.io.Serializable;
@@ -10,7 +12,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class WordformTST implements Serializable {
-    private Node rootNode;
+	private static final long serialVersionUID = 6643426248422366315L;
+	
+	private Node rootNode;
 
     private static int compareChars(char first, char second) {
         return first - second;
@@ -87,18 +91,26 @@ public class WordformTST implements Serializable {
         if (nodeLongestPrefixMatchResult == null)
             return null;
         // if match exact return iterator over wordforms in just result node
-        if (nodeLongestPrefixMatchResult.getMatchLength() == key.length() &&
+        int matchLength = nodeLongestPrefixMatchResult.getMatchLength();
+		if (matchLength == key.length() &&
                     nodeLongestPrefixMatchResult.getResultNode().iterator().hasNext())
             return new WordformTSTSearchResult(true, key.length(),
                     nodeLongestPrefixMatchResult.getResultNode().iterator());
         // otherwise, iterate over wordforms in subtree with root in result node
-        else
-            return new WordformTSTSearchResult(false, nodeLongestPrefixMatchResult.getMatchLength(),
+        else {
+        	if(matchLength <= 0){
+        		// no matched chars
+        		return new WordformTSTSearchResult(false, matchLength, Iterators.<Wordform>emptyIterator());
+        	}
+            return new WordformTSTSearchResult(false, matchLength,
                     new SubtreeIterator(nodeLongestPrefixMatchResult.getResultNode()));
+        }
     }
 
     private static class Node implements Serializable, Iterable<Wordform> {
-        private char splitchar;
+		private static final long serialVersionUID = 4788009136446395268L;
+
+		private char splitchar;
 
         private Wordform[] data;
 

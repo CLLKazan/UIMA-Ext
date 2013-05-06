@@ -26,6 +26,7 @@ public class WordformTSTSearchResult implements Iterable<Wordform>{
 
     @Override
     public Iterator<Wordform> iterator() {
+    	// FIXME return new (fresh) instance each time!!! 
         return wordformIterator;
     }
 }
