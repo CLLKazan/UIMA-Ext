@@ -7,19 +7,15 @@ import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescripti
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
 import org.xml.sax.SAXException;
 
 import ru.kfu.cll.uima.segmentation.SentenceSplitter;
@@ -32,19 +28,14 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryReso
  */
 public class GenerateBasicAggregateDescriptor {
 
-	/**
-	 * @param args
-	 * @throws ResourceInitializationException
-	 */
+	public static final String MORPH_DICT_URL = "file:dict.opcorpora.ser";
+
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		if (args.length != 1) {
-			System.err.println("Usage: <path-to-dictionary-resource>");
-			return;
-		}
-		String morphDictPath = args[0];
-		URL morphDictUrl = new File(morphDictPath).toURI().toURL();
+		// NOTE! A file URL for generated SerializedDictionaryResource description assumes 
+		// that the required dictionary file is within one of UIMA datapath folders.
+		// So users of the generated aggregate descriptor should setup 'uima.datapath' properly .
 		ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				SerializedDictionaryResource.class, morphDictUrl);
+				SerializedDictionaryResource.class, MORPH_DICT_URL);
 
 		TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
 		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(

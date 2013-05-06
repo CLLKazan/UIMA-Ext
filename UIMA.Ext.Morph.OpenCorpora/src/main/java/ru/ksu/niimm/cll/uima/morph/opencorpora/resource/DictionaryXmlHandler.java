@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
-import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -25,7 +24,9 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 class DictionaryXmlHandler extends DefaultHandler {
 
@@ -362,9 +363,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 	private class LemmaHandler extends ElementHandlerBase {
 		private Lemma.Builder builder;
-		// index 0 - wf string
-		// index 1 - wf object
-		private List<Object[]> wordforms;
+		// wf string => set of wf objects
+		private Multimap<String, Wordform> wordforms;
 
 		LemmaHandler() {
 			super(ELEM_LEMMA);
@@ -373,7 +373,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 		@Override
 		protected void startSelf(Attributes attrs) {
 			builder = Lemma.builder(dict, requiredInt(attrs, ATTR_LEMMA_ID));
-			wordforms = newLinkedList();
+			wordforms = LinkedHashMultimap.create();
 		}
 
 		@Override
@@ -384,10 +384,12 @@ class DictionaryXmlHandler extends DefaultHandler {
 		@Override
 		protected void endSelf() {
 			Lemma lemma = builder.build();
-			if (acceptLemma(lemma)) {
+			if (postProcessLemma(lemma, wordforms)) {
 				dict.addLemma(lemma);
-				for (Object[] tuple : wordforms) {
-					dict.addWordform((String) tuple[0], (Wordform) tuple[1]);
+				for (String wfStr : wordforms.keySet()) {
+					for (Wordform wf : wordforms.get(wfStr)) {
+						dict.addWordform(wfStr, wf);
+					}
 				}
 				acceptedLemmaCounter++;
 			} else {
@@ -402,7 +404,9 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 
 		void addWordform(String text, Wordform wf) {
-			wordforms.add(new Object[] { text, wf });
+			if (!wordforms.put(text, wf)) {
+				throw new IllegalStateException(String.format("Duplicate pair <%s, %s>"));
+			}
 		}
 	}
 
@@ -560,7 +564,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 	}
 
 	// config fields
-	private List<LemmaFilter> lemmaFilters = Lists.newLinkedList();
+	private List<LemmaPostProcessor> lemmaPostProcessors = Lists.newLinkedList();
 	// state fields
 	private MorphDictionaryImpl dict;
 	private Deque<String> elemStack = Lists.newLinkedList();
@@ -573,8 +577,14 @@ class DictionaryXmlHandler extends DefaultHandler {
 	DictionaryXmlHandler() {
 	}
 
-	public void addLemmaFilter(LemmaFilter lemmaFilter) {
-		lemmaFilters.add(lemmaFilter);
+	/**
+	 * NOTE! Order of LemmaPostProcessor instances may be crucial!
+	 * 
+	 * @param lemmaPP
+	 *            instance to add
+	 */
+	public void addLemmaPostProcessor(LemmaPostProcessor lemmaPP) {
+		lemmaPostProcessors.add(lemmaPP);
 	}
 
 	@Override
@@ -672,9 +682,17 @@ class DictionaryXmlHandler extends DefaultHandler {
 		return dict;
 	}
 
-	private boolean acceptLemma(Lemma lemma) {
-		for (LemmaFilter filter : lemmaFilters) {
-			if (!filter.accept(dict, lemma)) {
+	/**
+	 * Invoke lemma post-processors
+	 * 
+	 * @param lemma
+	 * @param wfMap
+	 *            mutable map of wordform_string => set_of_wordform_objects
+	 * @return true if given lemma must be accepted, false - otherwise.
+	 */
+	private boolean postProcessLemma(Lemma lemma, Multimap<String, Wordform> wfMap) {
+		for (LemmaPostProcessor filter : lemmaPostProcessors) {
+			if (!filter.process(dict, lemma, wfMap)) {
 				return false;
 			}
 		}

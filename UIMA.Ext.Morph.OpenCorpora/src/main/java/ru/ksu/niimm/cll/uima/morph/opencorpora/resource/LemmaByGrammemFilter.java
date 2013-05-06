@@ -7,15 +7,17 @@ import java.util.BitSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class LemmaByGrammemFilter implements LemmaFilter {
+public class LemmaByGrammemFilter implements LemmaPostProcessor {
 
 	private Set<String> grammemsToReject;
 
@@ -24,7 +26,7 @@ public class LemmaByGrammemFilter implements LemmaFilter {
 	}
 
 	@Override
-	public boolean accept(MorphDictionary dict, Lemma lemma) {
+	public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
 		BitSet grBits = lemma.getGrammems();
 		for (int i = grBits.nextSetBit(0); i >= 0; i = grBits.nextSetBit(i + 1)) {
 			Grammeme gr = dict.getGrammem(i);
