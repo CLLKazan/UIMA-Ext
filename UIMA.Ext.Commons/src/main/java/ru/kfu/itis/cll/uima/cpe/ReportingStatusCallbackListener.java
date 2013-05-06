@@ -10,6 +10,8 @@ import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.EntityProcessStatus;
 import org.apache.uima.collection.StatusCallbackListener;
 
+import ru.kfu.itis.cll.uima.util.DocumentUtils;
+
 /**
  * Source code has been borrowed from UIMA examples - SimpleRunCPE.java
  * 
@@ -134,6 +136,8 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 	 */
 	public void entityProcessComplete(CAS aCas, EntityProcessStatus aStatus) {
 		if (aStatus.isException()) {
+			String docURI = getDocumentURI(aCas);
+			System.err.println(String.format("During the processing of %s", docURI));
 			List<Exception> exceptions = aStatus.getExceptions();
 			for (int i = 0; i < exceptions.size(); i++) {
 				((Throwable) exceptions.get(i)).printStackTrace();
@@ -148,5 +152,10 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 		if (entityReportingInterval != 0 && entityCount % entityReportingInterval == 0) {
 			System.out.println(String.format("% entities have been processed", entityCount));
 		}
+	}
+
+	// TO OVERRIDE
+	protected String getDocumentURI(CAS cas) {
+		return DocumentUtils.getDocumentUri(cas);
 	}
 }
