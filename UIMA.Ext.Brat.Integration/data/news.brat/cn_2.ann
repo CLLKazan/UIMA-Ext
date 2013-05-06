@@ -1,0 +1,9 @@
+T1	Company 47 79	"Российские космические системы"
+T2	Company 105 116	Минкомсвязи
+T3	Position 86 104	заместителем главы
+T4	Person 2 15	Марк Шмулевич
+T5	Person 1116 1124	Шмулевич
+T6	City 1285 1291	России
+R1	BirthPlace person:T5 city:T6
+T7	PositionChange 81 85	стал
+E1	PositionChange:T7 newPosition:T3 oldCompany:T1 person:T4 newCompany:T2

@@ -1,0 +1,4 @@
+T1	Position 78 150	заместителем министра связи и массовых коммуникаций Российской Федерации
+T2	Person 63 77	Алексея Волина
+T3	PositionChange 54 62	назначил
+E1	PositionChange:T3 newPosition:T1 person:T2

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="U2B">
+			<import name="ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator" />
+		</delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+	<analysisEngineMetaData>
+		<name>U2B-test-aggregate</name>
+		<description />
+		<version>1.0</version>
+		<vendor>Kazan Federal University</vendor>
+		<configurationParameters>
+			<configurationParameter>
+				<name>BratOutputDir</name>
+				<type>String</type>
+				<mandatory>true</mandatory>
+				<overrides>
+					<parameter>U2B/BratOutputDir</parameter>
+				</overrides>
+			</configurationParameter>
+			<configurationParameter>
+                <name>EntitiesToBrat</name>
+                <description/>
+                <type>String</type>
+                <multiValued>true</multiValued>
+                <overrides>
+                	<parameter>U2B/EntitiesToBrat</parameter>
+                </overrides>
+            </configurationParameter>
+            <configurationParameter>
+                <name>RelationsToBrat</name>
+                <description/>
+                <type>String</type>
+                <multiValued>true</multiValued>
+                <overrides>
+                	<parameter>U2B/RelationsToBrat</parameter>
+                </overrides>
+            </configurationParameter>
+            <configurationParameter>
+                <name>EventsToBrat</name>
+                <description/>
+                <type>String</type>
+                <multiValued>true</multiValued>
+                <overrides>
+                	<parameter>U2B/EventsToBrat</parameter>
+                </overrides>
+            </configurationParameter>
+		</configurationParameters>
+		<configurationParameterSettings>
+			<nameValuePair>
+				<name>BratOutputDir</name>
+				<value>
+					<string>target/test-uima2brat-output</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>EntitiesToBrat</name>
+				<value>
+					<array>
+						<string>issst.test.HL_Company=>Company</string>
+			            <string>issst.test.HL_Position=>Position</string>
+			            <string>issst.test.HL_Person=>Person</string>
+			            <string>issst.test.HL_City=>City</string>
+			            <string>issst.test.TE</string>
+					</array>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>RelationsToBrat</name>
+				<value>
+					<array>
+						<string>issst.test.BirthPlace=>BirthPlace: person, city</string>
+					</array>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>EventsToBrat</name>
+				<value>
+					<array>
+						<string>issst.test.HL_Acquisition=>Acquisition: slotFirst as HL_Company, slotSecond as HL_Company</string>
+			            <string>issst.test.HL_Resignation=>Resignation: person as HL_Person, company as HL_Company, position as HL_Position, approvedBy as HL_Person</string>
+			            <string>issst.test.HL_CompanyAnnouncement=>CompanyAnnouncement: company</string>
+			            <string>issst.test.HL_PositionChange=>PositionChange: person as HL_Person, newPosition as HL_Position, oldPosition as HL_Position, newCompany as HL_Company, oldCompany as HL_Company</string>
+			            <string>issst.test.HL_PersonAnnouncement: person</string>
+					</array>
+				</value>
+			</nameValuePair>
+		</configurationParameterSettings>
+		<flowConstraints>
+			<fixedFlow>
+				<node>U2B</node>
+			</fixedFlow>
+		</flowConstraints>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>false</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<resourceManagerConfiguration />
+</analysisEngineDescription>

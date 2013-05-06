@@ -1,0 +1,6 @@
+T1	Person 1375 1394	Александр Афанасьев
+T2	Person 2636 2652	Игоря Агамирзяна
+T3	HL_PersonAnnouncement 1395 1405	подчеркнул
+E1	HL_PersonAnnouncement:T3 person:T1
+T4	HL_PersonAnnouncement 2626 2635	По словам
+E2	HL_PersonAnnouncement:T4 person:T2

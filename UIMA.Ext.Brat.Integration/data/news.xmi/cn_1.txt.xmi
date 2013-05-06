@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:commons="http:///ru/kfu/itis/cll/uima/commons.ecore" xmlns:test="http:///issst/test.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="&#10;Акции компании Yandex NV, владеющей российским поисковиком «Яндекс», на бирже Nasdaq в Нью-Йорке достигли наивысшей отметки за последние пять недель.&#10;&#10;Как передает агентство Bloomberg, это произошло благодаря рекомендации покупать акции «Яндекса» от аналитиков Bank of America. Акции Yandex NV подорожали уже на 3,4% после публикации нового прогноза от Bank of America, достигнув показателя в $19,91 за акцию – это самая высокая отметка с конца мая текущего года.&#10;&#10;«Мы ожидаем, что в конце июля «Яндекс» продемонстрирует сильные показатели за второй квартал 2012 г., показав высокую прибыль и уверенный рост по основным направлениям», - говорится в заметке Марии Кан (Mariya Kahn), аналитика Bank of America.&#10;&#10;"/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="711" language="x-unspecified"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/home/pathfinder/Documents/NIIMM/HP/HPBEE/docs/all_events/cnews/cn_1.txt" offsetInSource="-1" documentSize="711" startProcessingTime="0"/>
+    <test:HL_PersonAnnouncement xmi:id="21" sofa="1" begin="638" end="657" person="27"/>
+    <test:HL_Person xmi:id="27" sofa="1" begin="658" end="667"/>
+    <cas:View sofa="1" members="8 13 21 27"/>
+</xmi:XMI>

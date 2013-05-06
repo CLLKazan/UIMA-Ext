@@ -1,0 +1,16 @@
+T1	Company 4 14	Ростелеком
+T2	Company 27 36	Скай Линк
+T3	Company 158 170	«Ростелеком»
+T4	Company 198 209	«Скай Линк»
+T5	Company 400 426	«Московской сотовой связи»
+T6	Company 790 803	«Ростелекома»
+T7	Position 388 399	Гендиректор
+T8	Person 465 477	Андрей Ляпин
+T9	Acquisition 16 25	поглощает
+E1	Acquisition:T9 slotFirst:T1 slotSecond:T2
+T10	Acquisition 171 176	начал
+E2	Acquisition:T10 slotFirst:T3 slotSecond:T4
+T11	Resignation 478 495	покинул свой пост
+E3	Resignation:T11 position:T7 person:T8 company:T5
+T12	CompanyAnnouncement 766 774	сообщили
+E4	CompanyAnnouncement:T12 company:T6

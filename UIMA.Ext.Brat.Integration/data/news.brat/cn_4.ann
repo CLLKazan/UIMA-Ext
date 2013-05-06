@@ -1,0 +1,3 @@
+T1	Person 1334 1350	Сергей Устюжанин
+T2	HL_PersonAnnouncement 1278 1285	говорит
+E1	HL_PersonAnnouncement:T2 person:T1

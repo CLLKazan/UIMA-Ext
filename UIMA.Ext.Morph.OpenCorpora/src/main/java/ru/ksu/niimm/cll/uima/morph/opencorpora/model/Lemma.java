@@ -5,16 +5,13 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.model;
 
 import java.io.Serializable;
 import java.util.BitSet;
-import java.util.Set;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -73,13 +70,26 @@ public class Lemma implements Serializable {
 
 	private int id;
 	private String string;
-	private BitSet grammems;
+
+    public Lemma() {
+    }
+
+    public Lemma(String string, BitSet grammems) {
+        this.string = string;
+        this.grammems = grammems;
+    }
+
+    private BitSet grammems;
 
 	public int getId() {
 		return id;
 	}
 
-	public String getString() {
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getString() {
 		return string;
 	}
 
@@ -92,4 +102,23 @@ public class Lemma implements Serializable {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 				.append(string).append("id", id).toString();
 	}
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(string).append(grammems).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Lemma)) {
+            return false;
+        }
+        Lemma that = (Lemma) obj;
+        return new EqualsBuilder().append(this.string, that.string)
+                .append(this.grammems, that.grammems).isEquals();
+    }
+
+    public Lemma cloneWithoutIdAndString() {
+        return new Lemma("", grammems);
+    }
 }

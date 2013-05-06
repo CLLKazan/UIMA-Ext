@@ -6,14 +6,10 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 import static com.google.common.collect.ImmutableMap.copyOf;
 import static com.google.common.collect.Tables.unmodifiableTable;
 import static java.lang.System.currentTimeMillis;
-import static java.util.Collections.unmodifiableMap;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +49,16 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private transient Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
 	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
 
-	private TernarySearchTree<Wordform> wfByString = new TernarySearchTree<Wordform>();;
-	// wf indexes
+	private WordformTST wfByString = new WordformTST();
+
+    @Override
+    public void setWfPredictor(WordformPredictor wfPredictor) {
+        this.wfPredictor = wfPredictor;
+    }
+
+    // wf indexes
 	// by string
+    private transient WordformPredictor wfPredictor;
 
 	// grammem indexes
 	// by parent
@@ -66,7 +69,11 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public List<Wordform> getEntries(String str) {
-		return ImmutableList.copyOf(wfByString.get(str));
+        WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
+        if (result.isMatchExact())
+            return Lists.newArrayList(result);
+        else
+	    	return ImmutableList.copyOf(wfPredictor.predict(str, result));
 	}
 
 	/**
@@ -116,6 +123,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 	}
 
+    @Override
 	public void addLemma(Lemma l) {
 		if (lemmaMap.put(l.getId(), l) != null) {
 			throw new IllegalStateException(String.format(
@@ -304,7 +312,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private void makeUnmodifiable() {
 		gramMap = copyOf(gramMap);
 		numToGram = ImmutableSortedMap.copyOf(numToGram);
-		lemmaMap = unmodifiableMap(lemmaMap);
+//		lemmaMap = unmodifiableMap(lemmaMap);
 		lemmaLinkTypeMap = copyOf(lemmaLinkTypeMap);
 		lemmaLinkTable = unmodifiableTable(lemmaLinkTable);
 	}

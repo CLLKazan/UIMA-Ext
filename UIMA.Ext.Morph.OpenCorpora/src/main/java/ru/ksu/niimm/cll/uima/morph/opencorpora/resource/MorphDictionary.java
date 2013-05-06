@@ -18,6 +18,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
  */
 public interface MorphDictionary {
 
+    void setWfPredictor(WordformPredictor wfPredictor);
+
 	List<Wordform> getEntries(String str);
 
 	String getVersion();
@@ -38,7 +40,9 @@ public interface MorphDictionary {
 	 * @throws IllegalStateException
 	 *             if lemma with given id is not found
 	 */
-	Lemma getLemma(int lemmaId);
+    Lemma getLemma(int lemmaId);
+
+    void addLemma(Lemma lemma);
 
 	String getPos(Lemma lemma);
 
