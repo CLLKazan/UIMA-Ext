@@ -45,7 +45,9 @@ public class XmlDictionaryParser {
 
 		DictionaryXmlHandler dictHandler = new DictionaryXmlHandler();
 		// LEMMA FILTERING
-		dictHandler.addLemmaFilter(new LemmaByGrammemFilter("Surn", "Patr", "Orgn"));
+		dictHandler.addLemmaPostProcessor(new LemmaByGrammemFilter("Surn", "Patr", "Orgn"));
+		// LEMMA POSTPROCESSING
+		dictHandler.addLemmaPostProcessor(YoLemmaPostProcessor.INSTANCE);
 
 		xmlReader.setContentHandler(dictHandler);
 		InputSource xmlSource = new InputSource(in);
