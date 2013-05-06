@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
+import ru.kfu.cll.uima.tokenizer.PostTokenizer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource;
 
 /**
@@ -40,6 +41,8 @@ public class GenerateBasicAggregateDescriptor {
 		TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
 		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
 				InitialTokenizer.class, tokenizerTsDesc);
+		AnalysisEngineDescription postTokenizerDesc = createPrimitiveDescription(
+				PostTokenizer.class, tokenizerTsDesc);
 
 		TypeSystemDescription ssTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
 		AnalysisEngineDescription ssDesc = createPrimitiveDescription(SentenceSplitter.class,
@@ -53,7 +56,7 @@ public class GenerateBasicAggregateDescriptor {
 
 		String outputPath = "src/test/resources/basic-aggregate.xml";
 		AnalysisEngineDescription desc = AnalysisEngineFactory.createAggregateDescription(
-				tokenizerDesc, ssDesc, morphDesc);
+				tokenizerDesc, postTokenizerDesc, ssDesc, morphDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
 			desc.toXML(out);
