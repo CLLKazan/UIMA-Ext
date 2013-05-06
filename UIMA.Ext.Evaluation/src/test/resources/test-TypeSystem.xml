@@ -15,5 +15,46 @@
 			<description />
 			<supertypeName>uima.tcas.Annotation</supertypeName>
 		</typeDescription>
+		<typeDescription>
+			<name>test.Chunk</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>chunkType</name>
+					<description />
+					<rangeTypeName>test.ChunkType</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>head</name>
+					<description />
+					<rangeTypeName>test.Word</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>dependents</name>
+					<description />
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>test.Word</elementType>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		<typeDescription>
+			<name>test.ChunkType</name>
+			<description />
+			<supertypeName>uima.cas.String</supertypeName>
+			<allowedValues>
+				<value>
+					<string>VP</string>
+				</value>
+				<value>
+					<string>NP</string>
+				</value>
+			</allowedValues>
+		</typeDescription>
+		<typeDescription>
+			<name>test.Word</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
 	</types>
 </typeSystemDescription>

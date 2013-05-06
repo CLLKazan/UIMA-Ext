@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>uima-ext-phrase-recognizer</name>
+	<description />
+	<version>0.1</version>
+	<vendor>Intelligent Search Systems &amp; Semantic Technologies Lab @ Kazan Federal University</vendor>
+	<imports>
+		<import name="org.opencorpora.morphology-ts" />
+	</imports>
+	<types>
+		<typeDescription>
+			<name>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</name>
+			<description>
+				Represents typed 'phrase', i.e. a head word with its dependents.
+				Phrase annotation should have the same borders with its head word. 
+			</description>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>head</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>dependents</name>
+					<description />
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>org.opencorpora.cas.Word</elementType>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		<typeDescription>
+			<name>ru.kfu.itis.issst.uima.phrrecog.cas.NounPhrase</name>
+			<description>Represents Noun Phrase</description>
+			<supertypeName>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</supertypeName>
+			<features>
+				<featureDescription>
+					<name>preposition</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>particle</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		<typeDescription>
+			<name>ru.kfu.itis.issst.uima.phrrecog.cas.VerbPhrase</name>
+			<description>Represents Verb Phrase</description>
+			<supertypeName>ru.kfu.itis.issst.uima.phrrecog.cas.Phrase</supertypeName>
+		</typeDescription>
+	</types>
+</typeSystemDescription>

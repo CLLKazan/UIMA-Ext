@@ -1,0 +1,6 @@
+T1	Company 245 249	Yota
+T2	Position 224 237	гендиректором
+T3	Position 897 904	министр
+T4	Person 211 219	Свердлов
+T5	Resignation 220 223	был
+E1	Resignation:T5 position:T2 person:T4 company:T1

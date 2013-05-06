@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:commons="http:///ru/kfu/itis/cll/uima/commons.ecore" xmlns:test="http:///issst/test.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="&#10;Глава Минкомсвязи России Николай Никифоров 9 июля в ходе оперативного совещания представил руководству министерства и подведомственных агентств и служб новых заместителей министра: Алексея Волина, Дениса Свердлова и Марка Шмулевича.&#10;Алексей Волин будет отвечать за государственную политику в сфере медиа, Денис Свердлов – в отрасли связи, а Марк Шмулевич займется развитием информационных технологий. «От нас ждут многого, а времени мало», - отметил Николай Никифоров.&#10;Заместитель министра Наум Мардер в ходе того же совещания сообщил о том, что планирует покинуть министерство.&#10;"/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="580" language="x-unspecified"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/home/pathfinder/Documents/NIIMM/HP/HPBEE/docs/all_events/cnews/cn_6.txt" offsetInSource="-1" documentSize="580" startProcessingTime="0"/>
+    <test:HL_PositionChange xmi:id="21" sofa="1" begin="81" end="91" person="30" newPosition="34" newCompany="38"/>
+    <test:HL_Person xmi:id="30" sofa="1" begin="182" end="232"/>
+    <test:HL_Position xmi:id="34" sofa="1" begin="159" end="180"/>
+    <test:HL_Company xmi:id="38" sofa="1" begin="7" end="18"/>
+    <cas:View sofa="1" members="8 13 21 30 34 38"/>
+</xmi:XMI>

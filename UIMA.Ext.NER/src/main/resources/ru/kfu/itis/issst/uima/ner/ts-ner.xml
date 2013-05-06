@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>uima-ext-ner</name>
+	<description />
+	<version>0.1</version>
+	<vendor>Intelligent Search Systems &amp; Semantic Technologies Lab @ Kazan Federal University</vendor>
+	<imports>
+		<import name="org.opencorpora.morphology-ts" />
+	</imports>
+	<types>
+		<typeDescription>
+			<name>ru.kfu.itis.issst.uima.ner.cas.PossibleNE</name>
+			<description>Possible Named Entity, represents boundaries of a name</description>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>words</name>
+					<description />
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>org.opencorpora.cas.Word</elementType>
+				</featureDescription>
+				<featureDescription>
+					<name>head</name>
+					<description />
+					<rangeTypeName>org.opencorpora.cas.Word</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+	</types>
+</typeSystemDescription>

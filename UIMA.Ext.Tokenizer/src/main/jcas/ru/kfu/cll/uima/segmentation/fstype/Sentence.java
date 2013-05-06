@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Thu Sep 06 21:29:01 MSK 2012 */
+/* First created by JCasGen Sat Feb 16 15:24:33 MSK 2013 */
 package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,7 +11,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Thu Sep 06 21:29:01 MSK 2012
+ * Updated by JCasGen Sat Feb 16 15:24:33 MSK 2013
  * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
  * @generated */
 public class Sentence extends Annotation {

@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Sep 06 21:29:01 MSK 2012 */
+/* First created by JCasGen Sat Feb 16 15:24:33 MSK 2013 */
 package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas;
@@ -12,7 +12,7 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Thu Sep 06 21:29:01 MSK 2012
+ * Updated by JCasGen Sat Feb 16 15:24:33 MSK 2013
  * @generated */
 public class Sentence_Type extends Annotation_Type {
   /** @generated */

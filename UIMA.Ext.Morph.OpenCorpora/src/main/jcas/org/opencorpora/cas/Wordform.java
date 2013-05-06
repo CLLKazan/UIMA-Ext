@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Tue Jul 24 17:36:26 MSK 2012 */
+/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,24 +12,27 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** 
- * Updated by JCasGen Tue Jul 24 17:36:26 MSK 2012
+ * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
  * XML source: D:/projects/uima-ext/UIMA.Ext.Morph.OpenCorpora/src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class Wordform extends TOP {
   /** @generated
    * @ordered 
    */
+  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(Wordform.class);
   /** @generated
    * @ordered 
    */
+  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
+  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected Wordform() {}
+  protected Wordform() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -48,7 +51,7 @@ public class Wordform extends TOP {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {}
+  private void readObject() {/*default - does nothing empty block */}
      
  
     

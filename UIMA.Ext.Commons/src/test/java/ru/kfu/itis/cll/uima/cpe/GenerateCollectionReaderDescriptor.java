@@ -4,12 +4,14 @@
 package ru.kfu.itis.cll.uima.cpe;
 
 import static org.uimafit.factory.CollectionReaderFactory.createDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.xml.sax.SAXException;
 
 /**
@@ -19,12 +21,12 @@ import org.xml.sax.SAXException;
 public class GenerateCollectionReaderDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		if (args.length != 1) {
-			System.err.println("Usage: <output-path>");
-			return;
-		}
-		String outputPath = args[0];
-		CollectionReaderDescription crDesc = createDescription(LinesCollectionReader.class);
+		String outputPath = "src/main/resources/ru/kfu/itis/cll/uima/cpe/FileDirectoryCollectionReader.xml";
+		TypeSystemDescription tsd = createTypeSystemDescription(
+				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem");
+		CollectionReaderDescription crDesc = createDescription(
+				FileDirectoryCollectionReader.class,
+				tsd);
 
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
@@ -33,5 +35,4 @@ public class GenerateCollectionReaderDescriptor {
 			out.close();
 		}
 	}
-
 }

@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Tue Jul 24 17:36:26 MSK 2012 */
+/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -14,10 +14,11 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.cas.TOP_Type;
 
 /** 
- * Updated by JCasGen Tue Jul 24 17:36:26 MSK 2012
+ * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
  * @generated */
 public class Wordform_Type extends TOP_Type {
   /** @generated */
+  @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
   private final FSGenerator fsGenerator = 
@@ -36,9 +37,11 @@ public class Wordform_Type extends TOP_Type {
   	  }
     };
   /** @generated */
+  @SuppressWarnings ("hiding")
   public final static int typeIndexID = Wordform.typeIndexID;
   /** @generated 
      @modifiable */
+  @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("org.opencorpora.cas.Wordform");
  
   /** @generated */

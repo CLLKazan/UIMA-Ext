@@ -5,10 +5,14 @@ package ru.kfu.itis.cll.uima.cas;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
-import java.util.LinkedList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIntConstraint;
 import org.apache.uima.cas.FSIterator;
@@ -16,10 +20,12 @@ import org.apache.uima.cas.FSMatchConstraint;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.uimafit.util.CasUtil;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -82,8 +88,8 @@ public class AnnotationUtils {
 	 * @return iterator over annotations overlapping with targetAnno from source
 	 *         iterator
 	 */
-	public static FSIterator<Annotation> getOverlapping(JCas cas, FSIterator<Annotation> iter,
-			Annotation targetAnno) {
+	public static <T extends FeatureStructure> FSIterator<T> getOverlapping(CAS cas,
+			FSIterator<T> iter, AnnotationFS targetAnno) {
 		ConstraintFactory cf = ConstraintFactory.instance();
 		FSMatchConstraint firstDisjunct;
 		{
@@ -106,13 +112,38 @@ public class AnnotationUtils {
 		return cas.createFilteredIterator(iter, overlapConstraint);
 	}
 
+	/**
+	 * @deprecated use {@link FSUtils#fill(FSIterator, Collection)} instead
+	 */
+	@Deprecated
+	public static <FST extends FeatureStructure> void fill(FSIterator<FST> srcIter,
+			Collection<FST> destCol) {
+		FSUtils.fill(srcIter, destCol);
+	}
+
+	/**
+	 * @deprecated use {@link FSUtils#toList(FSIterator)} instead
+	 */
+	@Deprecated
 	public static <FST extends FeatureStructure> List<FST> toList(FSIterator<FST> iter) {
-		LinkedList<FST> result = new LinkedList<FST>();
-		iter.moveToFirst();
-		while (iter.isValid()) {
-			result.add(iter.get());
-			iter.moveToNext();
-		}
+		return FSUtils.toList(iter);
+	}
+
+	/**
+	 * @deprecated use {@link FSUtils#toSet(FSIterator)} instead
+	 */
+	@Deprecated
+	public static <FST extends FeatureStructure> Set<FST> toSet(FSIterator<FST> iter) {
+		return FSUtils.toSet(iter);
+	}
+
+	/**
+	 * @param iter
+	 * @return linked hashset to preserve iteration order
+	 */
+	public static <FST extends FeatureStructure> Set<FST> toLinkedHashSet(FSIterator<FST> iter) {
+		HashSet<FST> result = newLinkedHashSet();
+		fill(iter, result);
 		return result;
 	}
 
@@ -146,16 +177,55 @@ public class AnnotationUtils {
 	 *         is no such annotation method will return null.
 	 */
 	public static String getStringValue(JCas cas, Type type, Feature feature) {
-		AnnotationIndex<Annotation> metaIdx = cas.getAnnotationIndex(type);
+		return getStringValue(cas.getCas(), type, feature);
+	}
+
+	/**
+	 * @param cas
+	 * @param type
+	 * @param feature
+	 * @return feature value of the first annotation of given type from given
+	 *         CAS. E.g., it is useful to get document metadata values. If there
+	 *         is no such annotation method will return null.
+	 */
+	public static String getStringValue(CAS cas, Type type, Feature feature) {
+		AnnotationIndex<AnnotationFS> metaIdx = cas.getAnnotationIndex(type);
 		if (metaIdx.size() > 0) {
-			Annotation meta = metaIdx.iterator().next();
+			AnnotationFS meta = metaIdx.iterator().next();
 			return meta.getFeatureValueAsString(feature);
 		} else {
 			return null;
 		}
 	}
 
-	private AnnotationUtils() {
+	@SuppressWarnings("unchecked")
+	public static <A extends AnnotationFS> A getSingleAnnotation(JCas cas, Class<A> typeJCasClass) {
+		Type annoType = CasUtil.getAnnotationType(cas.getCas(), typeJCasClass);
+		AnnotationIndex<Annotation> annoIdx = cas.getAnnotationIndex(annoType);
+		if (annoIdx.size() == 0) {
+			return null;
+		} else if (annoIdx.size() == 1) {
+			return (A) annoIdx.iterator().next();
+		} else {
+			throw new IllegalStateException(String.format(
+					"Too much (>1) annotations of type %s", annoType));
+		}
 	}
 
+	// TODO test
+	public static FSMatchConstraint getCoveredConstraint(AnnotationFS coveringAnnotation) {
+		ConstraintFactory cf = ConstraintFactory.instance();
+
+		FSIntConstraint beginConstraint = cf.createIntConstraint();
+		beginConstraint.geq(coveringAnnotation.getBegin());
+
+		FSIntConstraint endConstraint = cf.createIntConstraint();
+		endConstraint.leq(coveringAnnotation.getEnd());
+
+		return cf.and(cf.embedConstraint(newArrayList("begin"), beginConstraint),
+				cf.embedConstraint(newArrayList("end"), endConstraint));
+	}
+
+	private AnnotationUtils() {
+	}
 }

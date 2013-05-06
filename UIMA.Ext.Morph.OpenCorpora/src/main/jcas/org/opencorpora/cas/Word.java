@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Tue Jul 24 17:36:26 MSK 2012 */
+/* First created by JCasGen Mon Feb 18 23:12:24 MSK 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,24 +12,27 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Jul 24 17:36:26 MSK 2012
+ * Updated by JCasGen Mon Feb 18 23:12:24 MSK 2013
  * XML source: D:/projects/uima-ext/UIMA.Ext.Morph.OpenCorpora/src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class Word extends Annotation {
   /** @generated
    * @ordered 
    */
+  @SuppressWarnings ("hiding")
   public final static int typeIndexID = JCasRegistry.register(Word.class);
   /** @generated
    * @ordered 
    */
+  @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
   /** @generated  */
+  @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
    * @generated */
-  protected Word() {}
+  protected Word() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
    * @generated */
@@ -56,7 +59,7 @@ public class Word extends Annotation {
     * Write your own initialization here
     * <!-- end-user-doc -->
   @generated modifiable */
-  private void readObject() {}
+  private void readObject() {/*default - does nothing empty block */}
      
  
     
@@ -92,6 +95,24 @@ public class Word extends Annotation {
       jcasType.jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
     jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((Word_Type)jcasType).casFeatCode_wordforms), i);
     jcasType.ll_cas.ll_setRefArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Word_Type)jcasType).casFeatCode_wordforms), i, jcasType.ll_cas.ll_getFSRef(v));}
+   
+    
+  //*--------------*
+  //* Feature: token
+
+  /** getter for token - gets 
+   * @generated */
+  public Annotation getToken() {
+    if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_token == null)
+      jcasType.jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
+    return (Annotation)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Word_Type)jcasType).casFeatCode_token)));}
+    
+  /** setter for token - sets  
+   * @generated */
+  public void setToken(Annotation v) {
+    if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_token == null)
+      jcasType.jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
+    jcasType.ll_cas.ll_setRefValue(addr, ((Word_Type)jcasType).casFeatCode_token, jcasType.ll_cas.ll_getFSRef(v));}    
   }
 
     

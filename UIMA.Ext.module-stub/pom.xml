@@ -4,10 +4,10 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>1.0</version>
+		<version>0.2-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-REPLACE</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<name>UIMA.Ext.REPLACE</name>
 	<description>UIMA REPLACE</description>
 
@@ -38,10 +38,6 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -72,11 +68,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

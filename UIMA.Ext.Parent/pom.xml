@@ -16,6 +16,8 @@
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.Search</module>
+		<module>../UIMA.Ext.PhraseRecognizer</module>
+		<module>../UIMA.Ext.NER</module>
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
@@ -65,8 +67,38 @@
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.13</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.4</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.7</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.2.1</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.scala-tools</groupId>
+					<artifactId>maven-scala-plugin</artifactId>
+					<version>2.15.2</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.scalatest</groupId>
+					<artifactId>scalatest-maven-plugin</artifactId>
+					<version>1.0-M2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -91,7 +123,17 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-eval</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-morph-opencorpora</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-phrase-recognizer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -125,18 +167,38 @@
 				<version>2.3</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jdbc</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>1.7.2</version>
 			</dependency>
-			<!-- replaced by logback 
 			<dependency>
 				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
+				<artifactId>jcl-over-slf4j</artifactId>
 				<version>1.7.2</version>
-				<optional>true</optional>
 			</dependency>
-			-->
+			<!-- replaced by logback <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
+				<version>1.7.2</version> <optional>true</optional> </dependency> -->
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
@@ -154,9 +216,15 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${spring.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.10</version>
+				<version>4.11</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
@@ -193,6 +261,7 @@
 	<properties>
 		<uima.version>2.4.0</uima.version>
 		<scala.version>2.9.2</scala.version>
+		<spring.version>3.2.1.RELEASE</spring.version>
 	</properties>
 
 	<scm>
