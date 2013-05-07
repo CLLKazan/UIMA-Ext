@@ -287,3 +287,22 @@ class RoleDefinitionValue {
 				&& Objects.equal(this.asTypeName, that.asTypeName);
 	}
 }
+
+class NoteMapperDefinitionValue {
+	// TODO >>>
+	// TODO use StringParser for parsing all *DefinitionValue instances from strings
+	// TODO <<<
+	// private static Pattern NOTE_MAPPER_DEF_PATTERN = Pattern.compile("")
+	static NoteMapperDefinitionValue fromString(String str) {
+		throw new UnsupportedOperationException();
+		// TODO
+	}
+
+	final String uimaType;
+	final String mapperClassName;
+
+	public NoteMapperDefinitionValue(String uimaType, String mapperClassName) {
+		this.uimaType = uimaType;
+		this.mapperClassName = mapperClassName;
+	}
+}
