@@ -20,8 +20,8 @@ import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
 
+import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.CW;
 import ru.kfu.cll.uima.tokenizer.fstype.EXCLAMATION;
 import ru.kfu.cll.uima.tokenizer.fstype.PERIOD;
@@ -37,21 +37,16 @@ import com.google.common.collect.ImmutableSet;
  */
 public class SentenceSplitter extends CasAnnotator_ImplBase {
 
-	@ConfigurationParameter(name = "sentenceType")
-	private String sentenceTypeName = "ru.kfu.cll.uima.segmentation.fstype.Sentence";
 	private final String[] sentenceEndTokenTypeNames = new String[] {
 			PERIOD.class.getName(), EXCLAMATION.class.getName(),
 			QUESTION.class.getName()
 	};
 	// derived
-	private Type sentenceType;
 	private Set<Type> sentenceEndTokenTypes;
 
 	@Override
 	public void typeSystemInit(TypeSystem ts) throws AnalysisEngineProcessException {
 		super.typeSystemInit(ts);
-		sentenceType = ts.getType(sentenceTypeName);
-		annotationTypeExist(sentenceTypeName, sentenceType);
 
 		sentenceEndTokenTypes = new HashSet<Type>();
 		for (String curTypeName : sentenceEndTokenTypeNames) {
@@ -84,12 +79,12 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 		FSIterator<Annotation> tokensIter = tokenIdx.iterator();
 		// get first sentence start
 		tokensIter.moveToFirst();
-		Annotation lastSentenceStart = tokensIter.get();
+		Token lastSentenceStart = (Token) tokensIter.get();
 		tokensIter.moveToNext();
 
 		while (tokensIter.isValid()) {
-			Annotation token = tokensIter.get();
-			Annotation nextToken = lookupNext(tokensIter);
+			Token token = (Token) tokensIter.get();
+			Token nextToken = (Token) lookupNext(tokensIter);
 			if (sentenceEndTokenTypes.contains(token.getType()) &&
 					(nextToken == null
 							||
@@ -106,7 +101,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 				makeSentence(cas, lastSentenceStart, token);
 				tokensIter.moveToNext();
 				if (tokensIter.isValid()) {
-					lastSentenceStart = tokensIter.get();
+					lastSentenceStart = (Token) tokensIter.get();
 				} else {
 					lastSentenceStart = null;
 				}
@@ -117,7 +112,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 		if (lastSentenceStart != null) {
 			// here tokensIter is INVALID so we should call moveToLast
 			tokensIter.moveToLast();
-			Annotation token = tokensIter.get();
+			Token token = (Token) tokensIter.get();
 			makeSentence(cas, lastSentenceStart, token);
 			lastSentenceStart = null;
 		}
@@ -140,7 +135,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 		return tokenAfter.getTypeIndexID() == SW.type;
 	}
 
-	private void makeSentence(JCas cas, Annotation firstToken, Annotation lastToken) {
+	private void makeSentence(JCas cas, Token firstToken, Token lastToken) {
 		int begin = firstToken.getBegin();
 		int end = lastToken.getEnd();
 		if (end <= begin) {
@@ -148,8 +143,10 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 					"Illegal start and end token for sentence: %s, %s",
 					firstToken, lastToken));
 		}
-		AnnotationFS sentence = cas.getCas().createAnnotation(sentenceType, begin, end);
-		cas.addFsToIndexes(sentence);
+		Sentence sentence = new Sentence(cas, begin, end);
+		sentence.setFirstToken(firstToken);
+		sentence.setLastToken(lastToken);
+		sentence.addToIndexes();
 	}
 
 	/**

@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Sat Feb 16 15:24:33 MSK 2013 */
+/* First created by JCasGen Tue May 07 16:55:51 MSD 2013 */
 package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** Annotate content between two line separators
- * Updated by JCasGen Sat Feb 16 15:24:33 MSK 2013
- * XML source: D:/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
+ * Updated by JCasGen Tue May 07 16:55:51 MSD 2013
+ * XML source: /home/rgareev/projects/uima-ext/UIMA.Ext.Tokenizer/src/main/resources/ru/kfu/cll/uima/segmentation/segmentation-TypeSystem.xml
  * @generated */
 public class Paragraph extends Annotation {
   /** @generated

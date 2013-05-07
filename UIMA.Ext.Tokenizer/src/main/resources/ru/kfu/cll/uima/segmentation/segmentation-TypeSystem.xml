@@ -2,8 +2,11 @@
 <typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
 	<name>UIMA.Ext.Tokenizer type system</name>
 	<description />
-	<version>1.0</version>
-	<vendor />
+	<version>1.1</version>
+	<vendor>Kazan Federal University - Intelligent Search Systems and Semantic Technologies Lab</vendor>
+	<imports>
+		<import name="ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem"/>
+	</imports>
 	<types>
 		<typeDescription>
 			<name>ru.kfu.cll.uima.segmentation.fstype.Paragraph</name>
@@ -14,6 +17,18 @@
 			<name>ru.kfu.cll.uima.segmentation.fstype.Sentence</name>
 			<description />
 			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>firstToken</name>
+					<description>the first token of a sentence</description>
+					<rangeTypeName>ru.kfu.cll.uima.tokenizer.fstype.TokenBase</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>lastToken</name>
+					<description>the last token of a sentence</description>
+					<rangeTypeName>ru.kfu.cll.uima.tokenizer.fstype.TokenBase</rangeTypeName>
+				</featureDescription>
+			</features>
 		</typeDescription>
 		<typeDescription>
 			<name>ru.kfu.cll.uima.segmentation.fstype.QSegment</name>

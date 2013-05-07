@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Sat Feb 16 15:24:33 MSK 2013 */
+/* First created by JCasGen Tue May 07 16:55:51 MSD 2013 */
 package ru.kfu.cll.uima.segmentation.fstype;
 
 import org.apache.uima.jcas.JCas;
@@ -12,7 +12,7 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Annotate content between two line separators
- * Updated by JCasGen Sat Feb 16 15:24:33 MSK 2013
+ * Updated by JCasGen Tue May 07 16:55:51 MSD 2013
  * @generated */
 public class Paragraph_Type extends Annotation_Type {
   /** @generated */
