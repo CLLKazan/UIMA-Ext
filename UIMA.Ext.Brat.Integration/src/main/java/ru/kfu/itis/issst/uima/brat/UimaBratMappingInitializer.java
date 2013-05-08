@@ -8,9 +8,9 @@ import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
@@ -19,6 +19,7 @@ import org.nlplab.brat.configuration.BratEntityType;
 import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
+import org.nlplab.brat.util.StringParser;
 
 import ru.kfu.itis.issst.uima.brat.UimaBratMapping.Builder;
 
@@ -159,19 +160,41 @@ abstract class UimaBratMappingInitializer {
 	}
 }
 
-class EntityDefinitionValue {
-	private static final String P_NAME_MAPPING = "([._\\p{Alnum}]+)\\s*(=>\\s*([_\\p{Alnum}]+))?";
-	static final Pattern ENTITY_TYPE_MAPPING_PATTERN = Pattern.compile(P_NAME_MAPPING);
+/**
+ * this is just auxiliary interface to hold pattern constants
+ * 
+ */
+interface MappingConfigurationPatterns {
+	Pattern JAVA_CLASS_PATTERN = Pattern.compile("[._\\p{Alnum}]+");
+	Pattern UIMA_TYPE_PATTERN = JAVA_CLASS_PATTERN;
+	Pattern OPTIONAL_SPACE_PATTERN = Pattern.compile("\\s*");
+	Pattern MAP_DELIM_PATTERN = Pattern.compile("=>");
+	Pattern BRAT_TYPE_PATTERN = Pattern.compile("[_\\p{Alnum}]+");
+	Pattern BEFORE_ROLES_PATTERN = Pattern.compile("\\s*:\\s*");
+	String ROLE_SEP_PATTERN_STRING = "\\s*,\\s*";
+	Pattern FEATURE_NAME_PATTERN = Pattern.compile("\\p{Alnum}+");
+	Pattern FEATURE_CAST_PATTERN = Pattern.compile("\\s+as\\s+([_\\p{Alnum}]+)");
+	Pattern BEFORE_NOTE_MAPPER_PATTERN = Pattern.compile("\\s*:\\s*");
+}
+
+class EntityDefinitionValue implements MappingConfigurationPatterns {
 
 	static EntityDefinitionValue fromString(String str) {
-		Matcher matcher = ENTITY_TYPE_MAPPING_PATTERN.matcher(str);
-		if (matcher.matches()) {
-			String uimaTypeName = matcher.group(1);
-			String bratTypeName = matcher.group(3);
+		StringParser p = new StringParser(str);
+		try {
+			String uimaTypeName = p.consume1(UIMA_TYPE_PATTERN);
+			p.skip(OPTIONAL_SPACE_PATTERN);
+			String bratTypeName = null;
+			if (!StringUtils.isBlank(p.getCurrentString())) {
+				p.skip(MAP_DELIM_PATTERN);
+				p.skip(OPTIONAL_SPACE_PATTERN);
+				bratTypeName = p.consume1(BRAT_TYPE_PATTERN);
+			}
+			p.ensureBlank();
 			return new EntityDefinitionValue(uimaTypeName, bratTypeName);
-		} else {
+		} catch (Exception e) {
 			throw new IllegalStateException(String.format(
-					"Can't parse entity mapping param value:\n%s", str));
+					"Can't parse entity mapping param value:\n%s", str), e);
 		}
 	}
 
@@ -185,53 +208,34 @@ class EntityDefinitionValue {
 }
 
 // base for events and relations
-class StructureDefinitionValue {
-	private static final Pattern BEFORE_ROLES = Pattern.compile("\\s*:\\s*");
+class StructureDefinitionValue implements MappingConfigurationPatterns {
 
-	static StructureDefinitionValue fromString(String _src) {
-		String src = _src;
-		Matcher typeNamesMatcher = EntityDefinitionValue.ENTITY_TYPE_MAPPING_PATTERN.matcher(src);
-		if (typeNamesMatcher.lookingAt()) {
-			String uimaTypeName = typeNamesMatcher.group(1);
-			String bratTypeName = typeNamesMatcher.group(3);
-			src = skip(src.substring(typeNamesMatcher.end()), BEFORE_ROLES);
-			// split by comma
-			String[] roleDeclStrings = src.split("\\s*,\\s*");
+	static StructureDefinitionValue fromString(String src) {
+		StringParser p = new StringParser(src);
+		try {
+			String uimaTypeName = p.consume1(UIMA_TYPE_PATTERN);
+			p.skip(OPTIONAL_SPACE_PATTERN);
+			String bratTypeName = null;
+			if (p.consumeOptional(MAP_DELIM_PATTERN) != null) {
+				p.skip(OPTIONAL_SPACE_PATTERN);
+				bratTypeName = p.consume1(BRAT_TYPE_PATTERN);
+			}
+			p.skip(BEFORE_ROLES_PATTERN);
+			String roleDeclarationsSrc = p.getCurrentString();
+			// parse role declarations
+			String[] roleDeclStrings = roleDeclarationsSrc.split(ROLE_SEP_PATTERN_STRING);
 			// trim trailing whitespace in last string 
 			roleDeclStrings[roleDeclStrings.length - 1] =
 					roleDeclStrings[roleDeclStrings.length - 1].trim();
 
 			List<RoleDefinitionValue> roleDefs = Lists.newLinkedList();
 			for (String roleDeclStr : roleDeclStrings) {
-				try {
-					roleDefs.add(RoleDefinitionValue.fromString(roleDeclStr));
-				} catch (Exception e) {
-					throw new IllegalArgumentException(String.format(
-							"Can't parse: %s", _src),
-							e);
-				}
+				roleDefs.add(RoleDefinitionValue.fromString(roleDeclStr));
 			}
 			return new StructureDefinitionValue(uimaTypeName, bratTypeName, roleDefs);
-		} else {
+		} catch (Exception e) {
 			throw new IllegalArgumentException(String.format(
-					"Can't parse structure mapping param value:\n%s", _src));
-		}
-	}
-
-	/**
-	 * @param src
-	 * @param pattern
-	 * @return src without prefix matched by pattern
-	 * @throws IllegalArgumentException
-	 *             if pattern does not match prefix
-	 */
-	private static String skip(String src, Pattern pattern) {
-		Matcher m = pattern.matcher(src);
-		if (m.lookingAt()) {
-			return src.substring(m.end());
-		} else {
-			throw new IllegalArgumentException(String.format(
-					"'%s' prefix was expected in '%s'", pattern, src));
+					"Can't parse structure mapping param value:\n%s", src), e);
 		}
 	}
 
@@ -248,19 +252,22 @@ class StructureDefinitionValue {
 
 }
 
-class RoleDefinitionValue {
-	private static final Pattern ROLE_DEF_PATTERN = Pattern.compile(
-			"(\\p{Alnum}+)(\\s+as\\s+([_\\p{Alnum}]+))?");
+class RoleDefinitionValue implements MappingConfigurationPatterns {
 
 	static RoleDefinitionValue fromString(String src) {
-		Matcher m = ROLE_DEF_PATTERN.matcher(src);
-		if (m.matches()) {
-			String featureName = m.group(1);
-			String asTypeName = m.group(3);
+		StringParser p = new StringParser(src);
+		try {
+			String featureName = p.consume1(FEATURE_NAME_PATTERN);
+			String[] castDecl = p.consumeOptional(FEATURE_CAST_PATTERN);
+			String asTypeName = null;
+			if (castDecl != null) {
+				asTypeName = castDecl[1];
+			}
+			p.ensureBlank();
 			return new RoleDefinitionValue(featureName, asTypeName);
-		} else {
+		} catch (Exception e) {
 			throw new IllegalArgumentException(String.format(
-					"Can't parse role definition: %s", src));
+					"Can't parse role definition: %s", src), e);
 		}
 	}
 
@@ -288,14 +295,14 @@ class RoleDefinitionValue {
 	}
 }
 
-class NoteMapperDefinitionValue {
-	// TODO >>>
-	// TODO use StringParser for parsing all *DefinitionValue instances from strings
-	// TODO <<<
-	// private static Pattern NOTE_MAPPER_DEF_PATTERN = Pattern.compile("")
+class NoteMapperDefinitionValue implements MappingConfigurationPatterns {
+
 	static NoteMapperDefinitionValue fromString(String str) {
-		throw new UnsupportedOperationException();
-		// TODO
+		StringParser p = new StringParser(str);
+		String uimaType = p.consume1(UIMA_TYPE_PATTERN);
+		p.skip(BEFORE_NOTE_MAPPER_PATTERN);
+		String mapperClassName = p.consume1(JAVA_CLASS_PATTERN);
+		return new NoteMapperDefinitionValue(uimaType, mapperClassName);
 	}
 
 	final String uimaType;
