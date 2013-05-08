@@ -3,6 +3,8 @@
  */
 package org.nlplab.brat.configuration;
 
+import static org.nlplab.brat.BratConstants.UI_NOTE_TYPE_NAME;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +66,11 @@ public class BratTypesConfiguration {
 		return (T) t;
 	}
 
+	// aux method
+	public BratNoteType getUiNoteType() {
+		return getType(UI_NOTE_TYPE_NAME, BratNoteType.class);
+	}
+
 	public void writeTo(Writer writer) {
 		PrintWriter out = new PrintWriter(writer, true);
 		out.println("[entities]");
@@ -106,7 +113,7 @@ public class BratTypesConfiguration {
 					Collections2.transform(bet.getRoles().values(), eventRoleToPrint));
 			out.println(sb);
 		}
-		
+
 		// write at least empty attributes section to avoid brat warnings
 		out.println();
 		out.println("[attributes]");
@@ -197,6 +204,9 @@ public class BratTypesConfiguration {
 
 		private Builder() {
 			instance.name2Type = Maps.newLinkedHashMap();
+			// register built-in types
+			BratNoteType uiNoteType = new BratNoteType(UI_NOTE_TYPE_NAME);
+			addType(uiNoteType);
 		}
 
 		public BratEntityType addEntityType(String typeName) {

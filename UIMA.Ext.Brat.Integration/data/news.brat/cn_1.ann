@@ -1,3 +1,5 @@
 T1	Person 658 667	Марии Кан
-T2	HL_PersonAnnouncement 638 657	говорится в заметке
-E1	HL_PersonAnnouncement:T2 person:T1
+T2	City 88 97	Нью-Йорке
+T3	HL_PersonAnnouncement 638 657	говорится в заметке
+E1	HL_PersonAnnouncement:T3 person:T1
+#1	AnnotatorNotes T2	40:73

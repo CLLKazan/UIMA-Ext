@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.nlplab.brat.configuration.BratEntityType;
 import org.nlplab.brat.configuration.BratEventType;
+import org.nlplab.brat.configuration.BratNoteType;
 import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
@@ -40,6 +41,7 @@ public class BratAnnotationContainer {
 	public static final String ENTITY_ID_PREFIX = "T";
 	public static final String RELATION_ID_PREFIX = "R";
 	public static final String EVENT_ID_PREFIX = "E";
+	public static final String NOTE_ID_PREFIX = "#";
 
 	// configuration fields
 	private BratTypesConfiguration typesCfg;
@@ -47,9 +49,12 @@ public class BratAnnotationContainer {
 	private MutableInt entityIdCounter = new MutableInt(0);
 	private MutableInt relationIdCounter = new MutableInt(0);
 	private MutableInt eventIdCounter = new MutableInt(0);
+	private MutableInt noteIdCounter = new MutableInt(0);
 	// indexes
 	private Map<String, BratAnnotation<?>> id2Anno = Maps.newHashMap();
 	private Multimap<String, BratAnnotation<?>> type2Anno = HashMultimap.create();
+	// map a note's target annotation id to the note itself
+	private Multimap<String, BratNoteAnnotation> targetId2Note = HashMultimap.create();
 
 	public BratAnnotationContainer(BratTypesConfiguration typesCfg) {
 		this.typesCfg = typesCfg;
@@ -87,6 +92,10 @@ public class BratAnnotationContainer {
 		return result;
 	}
 
+	public Collection<BratNoteAnnotation> getNotes(BratAnnotation<?> targetAnno) {
+		return targetId2Note.get(targetAnno.getId());
+	}
+
 	/**
 	 * Assign id to given annotation, add it to this container and return it.
 	 * 
@@ -122,6 +131,11 @@ public class BratAnnotationContainer {
 		}
 	}
 
+	/**
+	 * Add given anno to indexes. Assume that annotation has been assigned ID.
+	 * 
+	 * @param anno
+	 */
 	private void add(BratAnnotation<?> anno) {
 		String annoId = anno.getId();
 		if (annoId == null) {
@@ -134,6 +148,11 @@ public class BratAnnotationContainer {
 		id2Anno.put(anno.getId(), anno);
 		// TODO what about parent types if any?
 		type2Anno.put(anno.getType().getName(), anno);
+		// modify type-specific indexes
+		if (anno instanceof BratNoteAnnotation) {
+			BratNoteAnnotation note = (BratNoteAnnotation) anno;
+			targetId2Note.put(note.getTargetAnnotation().getId(), note);
+		}
 	}
 
 	private MutableInt getCounterForTypeOf(BratAnnotation<?> anno) {
@@ -145,6 +164,9 @@ public class BratAnnotationContainer {
 		}
 		if (anno instanceof BratEvent) {
 			return eventIdCounter;
+		}
+		if (anno instanceof BratNoteAnnotation) {
+			return noteIdCounter;
 		}
 		throw new IllegalArgumentException("Unknown type of instance: " + anno);
 	}
@@ -158,6 +180,9 @@ public class BratAnnotationContainer {
 		}
 		if (anno instanceof BratEvent) {
 			return EVENT_ID_PREFIX;
+		}
+		if (anno instanceof BratNoteAnnotation) {
+			return NOTE_ID_PREFIX;
 		}
 		throw new IllegalArgumentException("Unknown type of instance: " + anno);
 	}
@@ -195,6 +220,17 @@ public class BratAnnotationContainer {
 			appendRoleValues(sb, e.getRoleAnnotations());
 			out.println(sb);
 		}
+		// write notes
+		List<BratNoteAnnotation> notes = getSortedByType(BratNoteAnnotation.class);
+		for (BratNoteAnnotation n : notes) {
+			BratNoteType nt = n.getType();
+			StringBuilder sb = new StringBuilder(n.getId());
+			sb.append('\t');
+			sb.append(nt.getName()).append(' ').append(n.getTargetAnnotation().getId());
+			sb.append('\t');
+			sb.append(escapeAnnotationSpannedText(n.getContent()));
+			out.println(sb);
+		}
 	}
 
 	public void readFrom(Reader srcReader) throws IOException {
@@ -222,6 +258,9 @@ public class BratAnnotationContainer {
 			} else if (line.startsWith(EVENT_ID_PREFIX)) {
 				BratEvent event = parseEvent(line, eventTriggers);
 				add(event);
+			} else if (line.startsWith(NOTE_ID_PREFIX)) {
+				BratNoteAnnotation note = parseNote(line);
+				add(note);
 			} else {
 				throw new UnsupportedOperationException(String.format(
 						"Can't parse line:\n%s", line));
@@ -229,7 +268,7 @@ public class BratAnnotationContainer {
 		}
 	}
 
-	private static final Pattern ID_PATTERN = Pattern.compile("\\w\\d+");
+	private static final Pattern ID_PATTERN = Pattern.compile("[#\\w]\\d+");
 	private static final Pattern TAB_PATTERN = Pattern.compile("\\t");
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
 	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^\\s]+");
@@ -308,6 +347,24 @@ public class BratAnnotationContainer {
 		BratEvent event = new BratEvent(type, trigger, roleMap);
 		event.setId(id);
 		return event;
+	}
+
+	private BratNoteAnnotation parseNote(String str) {
+		StringParser p = new StringParser(str);
+		String id = p.consume1(ID_PATTERN);
+		assert id.startsWith(NOTE_ID_PREFIX);
+		p.skip(TAB_PATTERN);
+		String typeName = p.consume1(TYPE_NAME_PATTERN);
+		p.skip(SPACE_PATTERN);
+		String targetId = p.consume1(ID_PATTERN);
+		p.skip(TAB_PATTERN);
+		String content = p.getCurrentString();
+
+		BratAnnotation<?> targetAnno = getAnnotation(targetId);
+		BratNoteType type = typesCfg.getType(typeName, BratNoteType.class);
+		BratNoteAnnotation note = new BratNoteAnnotation(type, targetAnno, content);
+		note.setId(id);
+		return note;
 	}
 
 	private void appendRoleValues(StringBuilder target,

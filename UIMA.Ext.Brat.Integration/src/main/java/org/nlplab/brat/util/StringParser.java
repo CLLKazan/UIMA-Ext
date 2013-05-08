@@ -39,6 +39,25 @@ public class StringParser {
 	}
 
 	public String[] consume(Pattern pattern) {
+		String[] result = consumeOptional(pattern);
+		if (result == null) {
+			throw new IllegalStateException(String.format(
+					"'%s' expected in the beginning of '%s'", pattern, currentString));
+		}
+		return result;
+	}
+
+	/**
+	 * Try to parse a prefix of current string by given pattern. If succeed
+	 * current string will be replaced by remaining suffix. Else will return
+	 * null and current string will not change.
+	 * 
+	 * @param pattern
+	 * @return array of matcher groups if pattern successfully matches prefix of
+	 *         current string, otherwise - null. First element of returned array
+	 *         (index - 0) contains whole string matched by given pattern.
+	 */
+	public String[] consumeOptional(Pattern pattern) {
 		Matcher m = pattern.matcher(currentString);
 		if (m.lookingAt()) {
 			String[] result = new String[m.groupCount() + 1];
@@ -49,8 +68,7 @@ public class StringParser {
 			currentString = currentString.substring(m.end());
 			return result;
 		} else {
-			throw new IllegalStateException(String.format(
-					"'%s' expected in the beginning of '%s'", pattern, currentString));
+			return null;
 		}
 	}
 

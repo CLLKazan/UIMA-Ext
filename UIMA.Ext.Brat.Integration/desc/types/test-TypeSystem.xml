@@ -38,6 +38,16 @@
     	<name>issst.test.HL_City</name>
     	<description/>
     	<supertypeName>uima.tcas.Annotation</supertypeName>
+    	<features>
+    		<featureDescription>
+    			<name>latitude</name>
+    			<rangeTypeName>uima.cas.Integer</rangeTypeName>
+    		</featureDescription>
+    		<featureDescription>
+    			<name>longitude</name>
+    			<rangeTypeName>uima.cas.Integer</rangeTypeName>
+    		</featureDescription>
+    	</features>
     </typeDescription>
   
     <typeDescription>

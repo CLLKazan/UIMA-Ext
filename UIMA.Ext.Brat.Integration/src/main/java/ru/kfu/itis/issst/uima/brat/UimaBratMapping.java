@@ -22,7 +22,7 @@ import com.google.common.collect.Maps;
  */
 public class UimaBratMapping {
 
-	private Map<Type, BratEntityType> entityTypeMappings;
+	private Map<Type, UimaBratEntityMapping> entityTypeMappings;
 	private Map<Type, UimaBratRelationMapping> relationTypeMappings;
 	private Map<Type, UimaBratEventMapping> eventTypeMappings;
 
@@ -30,7 +30,7 @@ public class UimaBratMapping {
 		return entityTypeMappings.keySet();
 	}
 
-	public BratEntityType getBratEntityType(Type uType) {
+	public UimaBratEntityMapping getEntityMapping(Type uType) {
 		return entityTypeMappings.get(uType);
 	}
 
@@ -64,8 +64,8 @@ public class UimaBratMapping {
 			instance.eventTypeMappings = Maps.newLinkedHashMap();
 		}
 
-		public void addEntityMapping(Type uType, BratEntityType bType) {
-			instance.entityTypeMappings.put(uType, bType);
+		public void addEntityMapping(Type uType, BratEntityType bType, BratNoteMapper noteMapper) {
+			instance.entityTypeMappings.put(uType, new UimaBratEntityMapping(bType, noteMapper));
 			memorizeShortName(uType);
 		}
 
@@ -79,7 +79,8 @@ public class UimaBratMapping {
 		}
 
 		public BratEntityType getEntityType(Type uType) {
-			BratEntityType bet = instance.entityTypeMappings.get(uType);
+			UimaBratEntityMapping eMapping = instance.entityTypeMappings.get(uType);
+			BratEntityType bet = eMapping.bratType;
 			if (bet == null) {
 				throw new IllegalArgumentException(String.format(
 						"Can't find Brat entity type for %s", uType));
@@ -88,7 +89,13 @@ public class UimaBratMapping {
 		}
 
 		public BratType getType(Type uimaType) {
-			BratType result = instance.entityTypeMappings.get(uimaType);
+			BratType result = null;
+			{
+				UimaBratEntityMapping em = instance.entityTypeMappings.get(uimaType);
+				if (em != null) {
+					result = em.bratType;
+				}
+			}
 			if (result == null) {
 				UimaBratRelationMapping rm = instance.relationTypeMappings.get(uimaType);
 				if (rm != null) {
@@ -109,15 +116,15 @@ public class UimaBratMapping {
 		}
 
 		public void addRelationMapping(Type uType, BratRelationType bType,
-				Map<String, Feature> argFeatures) {
-			UimaBratRelationMapping mp = new UimaBratRelationMapping(bType, argFeatures);
+				Map<String, Feature> argFeatures, BratNoteMapper noteMapper) {
+			UimaBratRelationMapping mp = new UimaBratRelationMapping(bType, argFeatures, noteMapper);
 			instance.relationTypeMappings.put(uType, mp);
 			memorizeShortName(uType);
 		}
 
 		public void addEventMapping(Type uType, BratEventType bType,
-				Map<String, Feature> roleFeatures) {
-			UimaBratEventMapping mp = new UimaBratEventMapping(bType, roleFeatures);
+				Map<String, Feature> roleFeatures, BratNoteMapper noteMapper) {
+			UimaBratEventMapping mp = new UimaBratEventMapping(bType, roleFeatures, noteMapper);
 			instance.eventTypeMappings.put(uType, mp);
 			memorizeShortName(uType);
 		}
@@ -139,19 +146,36 @@ public class UimaBratMapping {
 	}
 }
 
-abstract class UimaBratStructureMapping<BT extends BratType> {
+abstract class UimaBratTypeMappingBase<BT extends BratType> {
 	final BT bratType;
+	final BratNoteMapper noteMapper;
+
+	public UimaBratTypeMappingBase(BT bratType, BratNoteMapper noteMapper) {
+		this.bratType = bratType;
+		this.noteMapper = noteMapper;
+	}
+}
+
+class UimaBratEntityMapping extends UimaBratTypeMappingBase<BratEntityType> {
+	public UimaBratEntityMapping(BratEntityType bratType, BratNoteMapper noteMapper) {
+		super(bratType, noteMapper);
+	}
+}
+
+abstract class UimaBratStructureMapping<BT extends BratType> extends UimaBratTypeMappingBase<BT> {
 	final Map<String, Feature> roleFeatures;
 
-	public UimaBratStructureMapping(BT bratType, Map<String, Feature> roleFeatures) {
-		this.bratType = bratType;
+	public UimaBratStructureMapping(BT bratType, Map<String, Feature> roleFeatures,
+			BratNoteMapper noteMapper) {
+		super(bratType, noteMapper);
 		this.roleFeatures = ImmutableMap.copyOf(roleFeatures);
 	}
 }
 
 class UimaBratRelationMapping extends UimaBratStructureMapping<BratRelationType> {
-	UimaBratRelationMapping(BratRelationType bratType, Map<String, Feature> argFeatures) {
-		super(bratType, argFeatures);
+	UimaBratRelationMapping(BratRelationType bratType, Map<String, Feature> argFeatures,
+			BratNoteMapper noteMapper) {
+		super(bratType, argFeatures, noteMapper);
 		// check
 		if (argFeatures.size() != 2) {
 			throw new IllegalStateException(String.format(
@@ -161,7 +185,8 @@ class UimaBratRelationMapping extends UimaBratStructureMapping<BratRelationType>
 }
 
 class UimaBratEventMapping extends UimaBratStructureMapping<BratEventType> {
-	public UimaBratEventMapping(BratEventType bratType, Map<String, Feature> roleFeatures) {
-		super(bratType, roleFeatures);
+	public UimaBratEventMapping(BratEventType bratType, Map<String, Feature> roleFeatures,
+			BratNoteMapper noteMapper) {
+		super(bratType, roleFeatures, noteMapper);
 	}
 }

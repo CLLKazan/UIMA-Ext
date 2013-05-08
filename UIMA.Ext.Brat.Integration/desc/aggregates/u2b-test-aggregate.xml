@@ -48,6 +48,14 @@
                 	<parameter>U2B/EventsToBrat</parameter>
                 </overrides>
             </configurationParameter>
+            <configurationParameter>
+            	<name>BratNoteMappers</name>
+            	<type>String</type>
+            	<multiValued>true</multiValued>
+            	<overrides>
+            		<parameter>U2B/BratNoteMappers</parameter>
+            	</overrides>
+            </configurationParameter>
 		</configurationParameters>
 		<configurationParameterSettings>
 			<nameValuePair>
@@ -85,6 +93,14 @@
 			            <string>issst.test.HL_CompanyAnnouncement=>CompanyAnnouncement: company</string>
 			            <string>issst.test.HL_PositionChange=>PositionChange: person as HL_Person, newPosition as HL_Position, oldPosition as HL_Position, newCompany as HL_Company, oldCompany as HL_Company</string>
 			            <string>issst.test.HL_PersonAnnouncement: person</string>
+					</array>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>BratNoteMappers</name>
+				<value>
+					<array>
+						<string>issst.test.HL_City : ru.kfu.itis.issst.uima.brat.test.CityNoteMapper</string>
 					</array>
 				</value>
 			</nameValuePair>

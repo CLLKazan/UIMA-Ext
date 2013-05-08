@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
  */
 public class BratUimaMapping {
 
-	private Map<BratEntityType, Type> entityTypeMappings;
+	private Map<BratEntityType, BratUimaEntityMapping> entityTypeMappings;
 	private Map<BratRelationType, BratUimaRelationMapping> relationTypeMappings;
 	private Map<BratEventType, BratUimaEventMapping> eventTypeMappings;
 
@@ -35,7 +35,7 @@ public class BratUimaMapping {
 		return entityTypeMappings.keySet();
 	}
 
-	public Type getEntityUimaType(BratEntityType bType) {
+	public BratUimaEntityMapping getEntityMapping(BratEntityType bType) {
 		return entityTypeMappings.get(bType);
 	}
 
@@ -62,8 +62,11 @@ public class BratUimaMapping {
 		result.eventTypeMappings = Maps.newHashMap();
 		//
 		for (Type uType : src.getEntityUimaTypes()) {
-			BratEntityType bType = src.getBratEntityType(uType);
-			if (result.entityTypeMappings.put(bType, uType) != null) {
+			UimaBratEntityMapping srcEntMapping = src.getEntityMapping(uType);
+			BratEntityType bType = srcEntMapping.bratType;
+			BratUimaEntityMapping entMapping = new BratUimaEntityMapping(bType, uType,
+					srcEntMapping.noteMapper);
+			if (result.entityTypeMappings.put(bType, entMapping) != null) {
 				reportAmbiguousReversal(bType);
 			}
 		}
@@ -72,7 +75,7 @@ public class BratUimaMapping {
 			UimaBratRelationMapping srcRelMapping = src.getRelationMapping(uType);
 			BratRelationType bType = srcRelMapping.bratType;
 			BratUimaRelationMapping relMapping = new BratUimaRelationMapping(
-					bType, uType, reverseMap(srcRelMapping.roleFeatures));
+					bType, uType, reverseMap(srcRelMapping.roleFeatures), srcRelMapping.noteMapper);
 			if (result.relationTypeMappings.put(bType, relMapping) != null) {
 				reportAmbiguousReversal(bType);
 			}
@@ -82,7 +85,7 @@ public class BratUimaMapping {
 			UimaBratEventMapping srcEvMapping = src.getEventMapping(uType);
 			BratEventType bType = srcEvMapping.bratType;
 			BratUimaEventMapping evMapping = new BratUimaEventMapping(
-					bType, uType, reverseMap(srcEvMapping.roleFeatures));
+					bType, uType, reverseMap(srcEvMapping.roleFeatures), srcEvMapping.noteMapper);
 			if (result.eventTypeMappings.put(bType, evMapping) != null) {
 				reportAmbiguousReversal(bType);
 			}
@@ -112,14 +115,31 @@ public class BratUimaMapping {
 	}
 }
 
-abstract class BratUimaStructureMapping<BT extends BratType> {
+abstract class BratUimaTypeMappingBase<BT extends BratType> {
 	final BT bratType;
 	final Type uimaType;
-	final Map<Feature, String> featureRoles;
+	final BratNoteMapper noteMapper;
 
-	BratUimaStructureMapping(BT bratType, Type uimaType, Map<Feature, String> featureRoles) {
+	public BratUimaTypeMappingBase(BT bratType, Type uimaType, BratNoteMapper noteMapper) {
 		this.bratType = bratType;
 		this.uimaType = uimaType;
+		this.noteMapper = noteMapper;
+	}
+}
+
+class BratUimaEntityMapping extends BratUimaTypeMappingBase<BratEntityType> {
+	public BratUimaEntityMapping(BratEntityType bratType, Type uimaType, BratNoteMapper noteMapper) {
+		super(bratType, uimaType, noteMapper);
+	}
+}
+
+abstract class BratUimaStructureMapping<BT extends BratType> extends BratUimaTypeMappingBase<BT> {
+
+	final Map<Feature, String> featureRoles;
+
+	BratUimaStructureMapping(BT bratType, Type uimaType, Map<Feature, String> featureRoles,
+			BratNoteMapper noteMapper) {
+		super(bratType, uimaType, noteMapper);
 		this.featureRoles = ImmutableMap.copyOf(featureRoles);
 		// sanity check
 		List<Feature> utFeatures = uimaType.getFeatures();
@@ -142,8 +162,8 @@ abstract class BratUimaStructureMapping<BT extends BratType> {
 class BratUimaRelationMapping extends BratUimaStructureMapping<BratRelationType> {
 
 	public BratUimaRelationMapping(BratRelationType bratType, Type uimaType,
-			Map<Feature, String> featureRoles) {
-		super(bratType, uimaType, featureRoles);
+			Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
+		super(bratType, uimaType, featureRoles, noteMapper);
 		Collection<String> argNames = featureRoles.values();
 		if (featureRoles.size() != 2 || !argNames.contains(bratType.getArg1Name())
 				|| !argNames.contains(bratType.getArg2Name())) {
@@ -155,8 +175,8 @@ class BratUimaRelationMapping extends BratUimaStructureMapping<BratRelationType>
 class BratUimaEventMapping extends BratUimaStructureMapping<BratEventType> {
 
 	public BratUimaEventMapping(BratEventType bratType, Type uimaType,
-			Map<Feature, String> featureRoles) {
-		super(bratType, uimaType, featureRoles);
+			Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
+		super(bratType, uimaType, featureRoles, noteMapper);
 		for (String roleName : featureRoles.values()) {
 			if (!bratType.hasRole(roleName)) {
 				raiseIllegalMapping();

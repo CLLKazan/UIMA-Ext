@@ -6,5 +6,6 @@
     <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/home/pathfinder/Documents/NIIMM/HP/HPBEE/docs/all_events/cnews/cn_1.txt" offsetInSource="-1" documentSize="711" startProcessingTime="0"/>
     <test:HL_PersonAnnouncement xmi:id="21" sofa="1" begin="638" end="657" person="27"/>
     <test:HL_Person xmi:id="27" sofa="1" begin="658" end="667"/>
-    <cas:View sofa="1" members="8 13 21 27"/>
+    <test:HL_City xmi:id="31" sofa="1" begin="88" end="97" latitude="40" longitude="73"/>
+    <cas:View sofa="1" members="8 13 21 27 31"/>
 </xmi:XMI>

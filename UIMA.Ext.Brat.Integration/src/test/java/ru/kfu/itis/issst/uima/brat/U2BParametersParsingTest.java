@@ -59,5 +59,36 @@ public class U2BParametersParsingTest {
 				new RoleDefinitionValue("secondSlot", "KFU_Company")),
 				// actual
 				sdv.roleDefinitions);
+		
+		sdv = StructureDefinitionValue.fromString(
+				"test.KFU_Acq : firstSlot, secondSlot as KFU_Company ");
+		assertEquals("test.KFU_Acq", sdv.uimaTypeName);
+		assertEquals(null, sdv.bratTypeName);
+		assertEquals(Lists.newArrayList(
+				new RoleDefinitionValue("firstSlot", null),
+				new RoleDefinitionValue("secondSlot", "KFU_Company")),
+				// actual
+				sdv.roleDefinitions);
+	}
+	
+	@Test
+	public void testNoteMapperDefinitionParsing() {
+		// 1
+		NoteMapperDefinitionValue ndv = NoteMapperDefinitionValue.fromString(
+				"test.ISSST_Word:ru.ksu.TestNoteMapper");
+		assertEquals("test.ISSST_Word", ndv.uimaType);
+		assertEquals("ru.ksu.TestNoteMapper", ndv.mapperClassName);
+		
+		//2
+		ndv = NoteMapperDefinitionValue.fromString(
+				"test.ISSST_Word :  ru.ksu.TestNoteMapper");
+		assertEquals("test.ISSST_Word", ndv.uimaType);
+		assertEquals("ru.ksu.TestNoteMapper", ndv.mapperClassName);
+		
+		//3
+		ndv = NoteMapperDefinitionValue.fromString(
+				"Word :TestNoteMapper");
+		assertEquals("Word", ndv.uimaType);
+		assertEquals("TestNoteMapper", ndv.mapperClassName);
 	}
 }
