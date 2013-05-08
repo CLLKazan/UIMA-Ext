@@ -5,6 +5,8 @@ package org.nlplab.brat.ann;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.nlplab.brat.configuration.BratRelationType;
 
 import com.google.common.collect.ImmutableMap;
@@ -52,6 +54,13 @@ public class BratRelation extends BratStructureAnnotation<BratRelationType> {
 
 	public BratEntity getArg2() {
 		return (BratEntity) getRoleAnnotations().get(getType().getArg2Name());
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("id", getId()).append("type", getType())
+				.append("roleAnnotation", getRoleAnnotations()).toString();
 	}
 
 	private boolean checkArgVal(BratAnnotation<?> anno) {

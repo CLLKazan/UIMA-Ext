@@ -53,6 +53,8 @@ public class BratAnnotationContainer {
 	// indexes
 	private Map<String, BratAnnotation<?>> id2Anno = Maps.newHashMap();
 	private Multimap<String, BratAnnotation<?>> type2Anno = HashMultimap.create();
+	// map a note's target annotation id to the note itself
+	private Multimap<String, BratNoteAnnotation> targetId2Note = HashMultimap.create();
 
 	public BratAnnotationContainer(BratTypesConfiguration typesCfg) {
 		this.typesCfg = typesCfg;
@@ -88,6 +90,10 @@ public class BratAnnotationContainer {
 					"There is no annotation with id=%s", id));
 		}
 		return result;
+	}
+
+	public Collection<BratNoteAnnotation> getNotes(BratAnnotation<?> targetAnno) {
+		return targetId2Note.get(targetAnno.getId());
 	}
 
 	/**
@@ -142,6 +148,11 @@ public class BratAnnotationContainer {
 		id2Anno.put(anno.getId(), anno);
 		// TODO what about parent types if any?
 		type2Anno.put(anno.getType().getName(), anno);
+		// modify type-specific indexes
+		if (anno instanceof BratNoteAnnotation) {
+			BratNoteAnnotation note = (BratNoteAnnotation) anno;
+			targetId2Note.put(note.getTargetAnnotation().getId(), note);
+		}
 	}
 
 	private MutableInt getCounterForTypeOf(BratAnnotation<?> anno) {

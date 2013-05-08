@@ -36,10 +36,12 @@ import org.nlplab.brat.ann.BratAnnotationContainer;
 import org.nlplab.brat.ann.BratEntity;
 import org.nlplab.brat.ann.BratEvent;
 import org.nlplab.brat.ann.BratEventTrigger;
+import org.nlplab.brat.ann.BratNoteAnnotation;
 import org.nlplab.brat.ann.BratRelation;
 import org.nlplab.brat.configuration.BratEntityType;
 import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
+import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.configuration.EventRole;
 import org.uimafit.component.CasAnnotator_ImplBase;
@@ -52,6 +54,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
+ * TODO adjust this top javadoc
+ * <p>
  * UIMA Annotator is CAS Annotator to convert UIMA annotations to brat standoff
  * format annotations. 1) defines input, ouput files directories 2) reading
  * annotator descriptor file and converts parameters to brat configuration file
@@ -65,8 +69,8 @@ import com.google.common.collect.Maps;
  * For event annotation you have to add additional info about event entities
  * into desc file
  * 
- * @author pathfinder
  * @author Rinat Gareev (Kazan Federal University)
+ * @author pathfinder
  */
 @OperationalProperties(modifiesCas = false, multipleDeploymentAllowed = false)
 public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
@@ -75,6 +79,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	public final static String ENTITIES_TO_BRAT = "EntitiesToBrat";
 	public final static String RELATIONS_TO_BRAT = "RelationsToBrat";
 	public final static String EVENTS_TO_BRAT = "EventsToBrat";
+	public final static String BRAT_NOTE_MAPPERS = "BratNoteMappers";
 	public final static String DOC_META_TYPE = "DocumentMetadataType";
 	public final static String DOC_META_URI_FEATURE = "DocumentMetadataUriFeature";
 
@@ -90,6 +95,9 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	@ConfigurationParameter(name = EVENTS_TO_BRAT)
 	private String[] eventsToBratRaw;
 	private List<StructureDefinitionValue> eventsToBrat;
+	@ConfigurationParameter(name = BRAT_NOTE_MAPPERS)
+	private String[] noteMappersDefinitionsRaw;
+	private List<NoteMapperDefinitionValue> noteMappersDefinitions;
 	@ConfigurationParameter(name = DOC_META_TYPE, defaultValue = "ru.kfu.itis.cll.uima.commons.DocumentMetadata")
 	private String docMetaTypeName;
 	private Type docMetaType;
@@ -147,6 +155,15 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			}
 			eventsToBrat = ImmutableList.copyOf(eventsToBrat);
 		}
+		if (noteMappersDefinitionsRaw == null) {
+			noteMappersDefinitions = ImmutableList.of();
+		} else {
+			noteMappersDefinitions = Lists.newLinkedList();
+			for (String defStr : noteMappersDefinitionsRaw) {
+				noteMappersDefinitions.add(NoteMapperDefinitionValue.fromString(defStr));
+			}
+			noteMappersDefinitions = ImmutableList.copyOf(noteMappersDefinitions);
+		}
 	}
 
 	@Override
@@ -195,9 +212,9 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		context = new ToBratMappingContext();
 		// start with entities
 		for (Type uType : mapping.getEntityUimaTypes()) {
-			BratEntityType bType = mapping.getBratEntityType(uType);
+			UimaBratEntityMapping entMapping = mapping.getEntityMapping(uType);
 			for (AnnotationFS uEntity : cas.getAnnotationIndex(uType)) {
-				mapEntity(bType, uEntity);
+				mapEntity(entMapping, uEntity);
 			}
 		}
 		// then relations
@@ -231,16 +248,19 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		context = null;
 	}
 
-	private void mapEntity(BratEntityType bType, AnnotationFS uEntity) {
+	private void mapEntity(UimaBratEntityMapping entMapping, AnnotationFS uEntity) {
 		if (context.isMapped(uEntity)) {
 			return;
 		}
+		BratEntityType bType = entMapping.bratType;
 		// create brat annotation instance
 		BratEntity bEntity = new BratEntity(bType,
 				uEntity.getBegin(), uEntity.getEnd(), uEntity.getCoveredText());
 		// add to container - it assigns ID
 		bEntity = bac.register(bEntity);
-		// remember that it was mapped => put into mappedAnnos
+		// map to note
+		mapNotes(entMapping, bEntity, uEntity);
+		// memorize
 		context.mapped(uEntity, bEntity);
 	}
 
@@ -258,6 +278,8 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		BratRelation bRelation = new BratRelation(bType, argMap);
 		// assign id
 		bRelation = bac.register(bRelation);
+		// map to note
+		mapNotes(relMapping, bRelation, uRelation);
 		// memorize
 		context.mapped(uRelation, bRelation);
 	}
@@ -279,6 +301,8 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		BratEvent bEvent = new BratEvent(bType, trigger, roleAnnotations);
 		// assign id
 		bEvent = bac.register(bEvent);
+		// map to note
+		mapNotes(evMapping, bEvent, uEvent);
 		// memorize
 		context.mapped(uEvent, bEvent);
 	}
@@ -331,6 +355,23 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		return roleAnnotations;
 	}
 
+	/*
+	 * PRECONDITIONS: bAnno must have ID
+	 */
+	private <BT extends BratType> void mapNotes(UimaBratTypeMappingBase<BT> mapping,
+			BratAnnotation<BT> bAnno, AnnotationFS uAnno) {
+		assert bAnno.getId() != null;
+		BratNoteMapper noteMapper = mapping.noteMapper;
+		if (noteMapper != null) {
+			String noteContent = noteMapper.makeNote(uAnno);
+			if (noteContent != null) {
+				BratNoteAnnotation noteAnno = new BratNoteAnnotation(
+						bratTypesConfig.getUiNoteType(), bAnno, noteContent);
+				noteAnno = bac.register(noteAnno);
+			}
+		}
+	}
+
 	private String toPrettyString(AnnotationFS anno) {
 		return String.format("<%s, offset %s in %s>", anno.getCoveredText(), anno.getBegin(),
 				currentDocName);
@@ -372,7 +413,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		 * required Brat type system as side effect
 		 */
 		UimaBratMappingInitializer initializer = new UimaBratMappingInitializer(ts,
-				entitiesToBrat, relationsToBrat, eventsToBrat) {
+				entitiesToBrat, relationsToBrat, eventsToBrat, noteMappersDefinitions) {
 
 			@Override
 			protected BratEntityType getEntityType(String typeName) {

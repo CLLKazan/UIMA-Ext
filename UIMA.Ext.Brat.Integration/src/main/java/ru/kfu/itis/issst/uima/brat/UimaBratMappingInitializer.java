@@ -47,19 +47,48 @@ import com.google.common.collect.Maps;
  */
 abstract class UimaBratMappingInitializer {
 
+	// config fields
 	private TypeSystem ts;
 	private List<EntityDefinitionValue> entityDefinitions;
 	private List<StructureDefinitionValue> relationDefinitions;
 	private List<StructureDefinitionValue> eventDefinitions;
+	private Map<Type, BratNoteMapper> type2NoteMapper;
 
+	@SuppressWarnings("unchecked")
 	public UimaBratMappingInitializer(TypeSystem ts,
 			List<EntityDefinitionValue> entityDefinitions,
 			List<StructureDefinitionValue> relationDefinitions,
-			List<StructureDefinitionValue> eventDefinitions) {
+			List<StructureDefinitionValue> eventDefinitions,
+			List<NoteMapperDefinitionValue> noteMapperDefinitions)
+			throws AnalysisEngineProcessException {
 		this.ts = ts;
 		this.entityDefinitions = entityDefinitions;
 		this.relationDefinitions = relationDefinitions;
 		this.eventDefinitions = eventDefinitions;
+		//
+		type2NoteMapper = Maps.newHashMap();
+		for (NoteMapperDefinitionValue ndv : noteMapperDefinitions) {
+			Type type = ts.getType(ndv.uimaType);
+			annotationTypeExist(ndv.uimaType, type);
+			if (type2NoteMapper.containsKey(type)) {
+				throw new IllegalStateException(String.format(
+						"Duplicate note mapper declaration for %s", type));
+			}
+			Class<? extends BratNoteMapper> noteMapperClass;
+			try {
+				noteMapperClass = (Class<? extends BratNoteMapper>) Class
+						.forName(ndv.mapperClassName);
+				// create instance
+				BratNoteMapper mapperInstance = noteMapperClass.newInstance();
+				// initialize via interface method
+				mapperInstance.typeSystemInit(ts);
+				// memorize
+				type2NoteMapper.put(type, mapperInstance);
+			} catch (Exception e) {
+				throw new IllegalStateException(String.format(
+						"Can't initialize note mapper for %s", type), e);
+			}
+		}
 	}
 
 	protected abstract BratEntityType getEntityType(String typeName);
@@ -83,7 +112,8 @@ abstract class UimaBratMappingInitializer {
 			}
 			BratEntityType bratType = getEntityType(bratTypeName);
 			checkBratType(bratType, bratTypeName);
-			mpBuilder.addEntityMapping(uimaType, bratType);
+			BratNoteMapper noteMapper = type2NoteMapper.get(uimaType);
+			mpBuilder.addEntityMapping(uimaType, bratType, noteMapper);
 		}
 		// configure relation types
 		for (StructureDefinitionValue relationDef : relationDefinitions) {
@@ -107,7 +137,8 @@ abstract class UimaBratMappingInitializer {
 
 			BratRelationType brt = getRelationType(bratTypeName, argTypeNames);
 			checkBratType(brt, bratTypeName);
-			mpBuilder.addRelationMapping(uimaType, brt, argFeatures);
+			BratNoteMapper noteMapper = type2NoteMapper.get(uimaType);
+			mpBuilder.addRelationMapping(uimaType, brt, argFeatures, noteMapper);
 		}
 		// configure event types
 		for (StructureDefinitionValue eventDef : eventDefinitions) {
@@ -132,7 +163,8 @@ abstract class UimaBratMappingInitializer {
 
 			BratEventType bet = getEventType(bratTypeName, roleTypeNames);
 			checkBratType(bet, bratTypeName);
-			mpBuilder.addEventMapping(uimaType, bet, roleFeatures);
+			BratNoteMapper noteMapper = type2NoteMapper.get(uimaType);
+			mpBuilder.addEventMapping(uimaType, bet, roleFeatures, noteMapper);
 		}
 		return mpBuilder.build();
 	}

@@ -3,6 +3,8 @@
  */
 package org.nlplab.brat.ann;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.nlplab.brat.configuration.BratNoteType;
 
 import com.google.common.base.Objects;
@@ -28,6 +30,14 @@ public class BratNoteAnnotation extends BratAnnotation<BratNoteType> {
 
 	public String getContent() {
 		return content;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("id", getId()).append("type", getType())
+				.append("targetAnnotation", targetAnnotation).append("content", content)
+				.toString();
 	}
 
 	@Override

@@ -38,6 +38,13 @@
                 <mandatory>false</mandatory>
             </configurationParameter>
             <configurationParameter>
+                <name>BratNoteMappers</name>
+                <description/>
+                <type>String</type>
+                <multiValued>true</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
+            <configurationParameter>
                 <name>DocumentMetadataType</name>
                 <description/>
                 <type>String</type>

@@ -5,6 +5,7 @@ import static org.nlplab.brat.BratConstants.ANN_FILES_ENCODING;
 import static org.nlplab.brat.BratConstants.TXT_FILES_ENCODING;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.BRAT_NOTE_MAPPERS;
 import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.ENTITIES_TO_BRAT;
 import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.EVENTS_TO_BRAT;
 import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.RELATIONS_TO_BRAT;
@@ -16,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,7 @@ import org.nlplab.brat.ann.BratAnnotationContainer;
 import org.nlplab.brat.ann.BratEntity;
 import org.nlplab.brat.ann.BratEvent;
 import org.nlplab.brat.ann.BratEventTrigger;
+import org.nlplab.brat.ann.BratNoteAnnotation;
 import org.nlplab.brat.ann.BratRelation;
 import org.nlplab.brat.ann.BratStructureAnnotation;
 import org.nlplab.brat.configuration.BratEntityType;
@@ -65,6 +68,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
+ * TODO adjust this top javadoc
+ * <p>
  * Brat 2 UIMA Annotator is CAS Annotator to convert Brat standoff format
  * annotations to UIMA annotations. 1) defines input, ouput files directories of
  * .txt and .ann files 2) reading files and process its content using specified
@@ -104,10 +109,10 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 	private Iterator<BratDocument> bratDocIter;
 	private int docsRead = 0;
 	// per-CAS state fields
-	@SuppressWarnings("unused")
 	private String currentDocName;
 	private FromBratMappingContext mappingCtx;
 	private CAS cas;
+	private BratAnnotationContainer bratContainer;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -222,8 +227,19 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 				eventsToBrat.add(StructureDefinitionValue.fromString(s));
 			}
 		}
+		String[] noteMapperDefStrings = (String[]) u2bParamSettings
+				.getParameterValue(BRAT_NOTE_MAPPERS);
+		List<NoteMapperDefinitionValue> noteMapperDefs;
+		if (noteMapperDefStrings == null) {
+			noteMapperDefs = ImmutableList.of();
+		} else {
+			noteMapperDefs = Lists.newLinkedList();
+			for (String s : noteMapperDefStrings) {
+				noteMapperDefs.add(NoteMapperDefinitionValue.fromString(s));
+			}
+		}
 		UimaBratMappingInitializer initializer = new UimaBratMappingInitializer(ts,
-				entitiesToBrat, relationsToBrat, eventsToBrat) {
+				entitiesToBrat, relationsToBrat, eventsToBrat, noteMapperDefs) {
 			@Override
 			protected BratEntityType getEntityType(String typeName) {
 				return bratTypesCfg.getType(typeName, BratEntityType.class);
@@ -275,8 +291,7 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		// set DocumentMetadata
 		setDocumentMetadata(cas, bratDoc.getTxtFile().toURI(), txt.length());
 
-		// read Brat annotations
-		BratAnnotationContainer bratContainer = new BratAnnotationContainer(bratTypesCfg);
+		bratContainer = new BratAnnotationContainer(bratTypesCfg);
 		BufferedReader annReader = new BufferedReader(new InputStreamReader(
 				new FileInputStream(bratDoc.getAnnFile()), ANN_FILES_ENCODING));
 		try {
@@ -288,21 +303,28 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		mappingCtx = new FromBratMappingContext();
 		// map entity types
 		for (BratEntityType bType : mapping.getEntityTypes()) {
-			Type uType = mapping.getEntityUimaType(bType);
+			BratUimaEntityMapping entMapping = mapping.getEntityMapping(bType);
+			Type uType = entMapping.uimaType;
 			for (BratEntity bEntity : bratContainer.getEntities(bType)) {
 				if (mappingCtx.isMapped(bEntity)) {
 					continue;
 				}
 				AnnotationFS uAnno = cas.createAnnotation(uType,
 						bEntity.getBegin(), bEntity.getEnd());
-				mappingCtx.mapped(bEntity, uAnno);
+
+				mapNote(entMapping, bEntity, uAnno);
+
 				cas.addFsToIndexes(uAnno);
+				mappingCtx.mapped(bEntity, uAnno);
 			}
 		}
 		// map relation types
 		for (BratRelationType bType : mapping.getRelationTypes()) {
 			BratUimaRelationMapping relMapping = mapping.getRelationMapping(bType);
 			for (BratRelation bRelation : bratContainer.getRelations(bType)) {
+				if (mappingCtx.isMapped(bRelation)) {
+					continue;
+				}
 				AnnotationFS uRelation = mapStructureRoles(bRelation, relMapping);
 				List<AnnotationFS> uRelationArgs = getRelationArgs(uRelation,
 						relMapping.featureRoles.keySet());
@@ -312,7 +334,11 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 				// set UIMA relation end to maximal end offset of arguments
 				int uRelationEnd = FSUtils.intMaxBy(uRelationArgs, endFeature);
 				uRelation.setIntValue(endFeature, uRelationEnd);
+				// map note
+				mapNote(relMapping, bRelation, uRelation);
+				// memorize
 				cas.addFsToIndexes(uRelation);
+				mappingCtx.mapped(bRelation, uRelation);
 			}
 		}
 		// map event types
@@ -325,7 +351,11 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 				uEvent.setIntValue(beginFeature, bTrigger.getBegin());
 				// set UIMA event end to trigger end
 				uEvent.setIntValue(endFeature, bTrigger.getEnd());
+				// map note
+				mapNote(evMapping, bEvent, uEvent);
+				// memorize
 				cas.addFsToIndexes(uEvent);
+				mappingCtx.mapped(bEvent, uEvent);
 			}
 		}
 		// increase progress counter
@@ -334,6 +364,24 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		currentDocName = null;
 		mappingCtx = null;
 		this.cas = null;
+		bratContainer = null;
+	}
+
+	private <BT extends BratType> void mapNote(BratUimaTypeMappingBase<BT> typeMapping,
+			BratAnnotation<BT> bAnno, AnnotationFS uAnno) {
+		BratNoteMapper noteMapper = typeMapping.noteMapper;
+		if (noteMapper == null) {
+			return;
+		}
+		Collection<BratNoteAnnotation> notes = bratContainer.getNotes(bAnno);
+		for (BratNoteAnnotation note : notes) {
+			try {
+				noteMapper.parseNote(uAnno, note.getContent());
+			} catch (Exception e) {
+				throw new IllegalStateException(String.format(
+						"Can't parse note %s in document %s", note, currentDocName));
+			}
+		}
 	}
 
 	private void setDocumentMetadata(CAS cas, URI docUri, int docSize) {
