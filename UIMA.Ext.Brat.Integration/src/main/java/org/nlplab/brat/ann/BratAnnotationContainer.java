@@ -28,6 +28,7 @@ import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.util.StringParser;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -64,7 +65,11 @@ public class BratAnnotationContainer {
 	public <T extends BratType, A extends BratAnnotation<T>> Collection<A> getAnnotations(T type) {
 		// sanity check
 		checkTypeRegistration(type);
-		return (Collection<A>) type2Anno.get(type.getName());
+		ImmutableList.Builder<A> resultBuilder = ImmutableList.builder();
+		for (BratAnnotation<?> bAnno : type2Anno.get(type.getName())) {
+			resultBuilder.add((A) bAnno);
+		}
+		return resultBuilder.build();
 	}
 
 	public Collection<BratEntity> getEntities(BratEntityType type) {
