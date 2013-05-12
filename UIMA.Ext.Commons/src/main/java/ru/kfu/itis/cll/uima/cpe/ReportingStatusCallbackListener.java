@@ -150,7 +150,7 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 			size += docText.length();
 		}
 		if (entityReportingInterval != 0 && entityCount % entityReportingInterval == 0) {
-			System.out.println(String.format("% entities have been processed", entityCount));
+			System.out.println(String.format("%s entities have been processed", entityCount));
 		}
 	}
 
