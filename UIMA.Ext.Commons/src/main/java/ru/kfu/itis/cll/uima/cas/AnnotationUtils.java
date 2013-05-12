@@ -33,6 +33,16 @@ import org.uimafit.util.CasUtil;
  */
 public class AnnotationUtils {
 
+	/**
+	 * @param anno
+	 * @return string containing given annotation offset and covered text
+	 */
+	public static String toPrettyString(AnnotationFS anno) {
+		return new StringBuilder("(").append(anno.getBegin()).append(",'")
+				.append(anno.getCoveredText()).append("')")
+				.toString();
+	}
+
 	public static int length(Annotation anno) {
 		return anno.getEnd() - anno.getBegin();
 	}
