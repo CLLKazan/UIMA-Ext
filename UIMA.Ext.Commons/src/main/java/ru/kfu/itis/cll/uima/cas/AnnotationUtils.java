@@ -38,6 +38,7 @@ public class AnnotationUtils {
 	}
 
 	/**
+	 * TODO what if first.begin == first.end || second.begin == second.end ?
 	 * 
 	 * @param first
 	 * @param second

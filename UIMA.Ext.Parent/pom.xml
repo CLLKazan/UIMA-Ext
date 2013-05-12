@@ -19,6 +19,7 @@
 		<module>../UIMA.Ext.PhraseRecognizer</module>
 		<module>../UIMA.Ext.NER</module>
 		<module>../UIMA.Ext.CasAccessObject</module>
+		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
 	</modules>
