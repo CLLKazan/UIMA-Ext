@@ -243,8 +243,7 @@ public class BratAnnotationContainer {
 		String line;
 		Map<String, BratEventTrigger> eventTriggers = Maps.newHashMap();
 		while ((line = reader.readLine()) != null) {
-			line = line.trim();
-			if (line.isEmpty()) {
+			if (StringUtils.isBlank(line)) {
 				continue;
 			}
 			if (line.startsWith(ENTITY_ID_PREFIX)) {
