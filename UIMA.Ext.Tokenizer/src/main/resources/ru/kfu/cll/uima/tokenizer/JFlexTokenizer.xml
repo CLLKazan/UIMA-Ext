@@ -16,7 +16,24 @@
     </typeSystemDescription>
     <capabilities>
         <capability>
-
+            <outputs>
+                <type>ru.kfu.cll.uima.tokenizer.types.RussianWord</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Token</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Abbrevation</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Bracket</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.ComplexWord</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Currensy</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Date</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Email</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Letters</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Measurement</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Number</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Percent</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.PM</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Range</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Separator</type>
+                <type>ru.kfu.cll.uima.tokenizer.types.Symbol</type>
+            </outputs>
         </capability>
     </capabilities>
 
