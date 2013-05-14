@@ -14,9 +14,12 @@
             <import name="ru.kfu.cll.uima.tokenizer.jflex-tokenizer-ts"/>
         </imports>
     </typeSystemDescription>
-    <typePriorities/>
-    <fsIndexCollection/>
-    <capabilities/>
+    <capabilities>
+        <capability>
+
+        </capability>
+    </capabilities>
+
     <operationalProperties>
       <modifiesCas>true</modifiesCas>
       <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
