@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -21,6 +20,10 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
 import org.apache.uima.util.XMLSerializer;
+import org.uimafit.component.CasAnnotator_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.descriptor.OperationalProperties;
+import org.uimafit.descriptor.TypeCapability;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
@@ -31,6 +34,8 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
+@TypeCapability(inputs = "ru.kfu.itis.cll.uima.commons.DocumentMetadata")
+@OperationalProperties(modifiesCas = false)
 public class XmiWriter extends CasAnnotator_ImplBase {
 
 	/**
@@ -38,8 +43,16 @@ public class XmiWriter extends CasAnnotator_ImplBase {
 	 * directory into which the output files will be written.
 	 */
 	public static final String PARAM_OUTPUTDIR = "OutputDirectory";
+	/**
+	 * Name of configuration parameter that controls whether output XMI XML will
+	 * be formatted.
+	 */
+	public static final String PARAM_XML_FORMATTED = "XmlFormatted";
 
+	@ConfigurationParameter(name = PARAM_OUTPUTDIR, mandatory = true)
 	private File mOutputDir;
+	@ConfigurationParameter(name = PARAM_XML_FORMATTED, defaultValue = "true")
+	private boolean xmlFormatted;
 
 	private int mDocNum;
 
@@ -47,9 +60,11 @@ public class XmiWriter extends CasAnnotator_ImplBase {
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
 		mDocNum = 0;
-		mOutputDir = new File((String) ctx.getConfigParameterValue(PARAM_OUTPUTDIR));
-		if (!mOutputDir.exists()) {
-			mOutputDir.mkdirs();
+		if (!mOutputDir.isDirectory()) {
+			if (!mOutputDir.mkdirs()) {
+				throw new IllegalStateException(String.format(
+						"Can't create output directory %s", mOutputDir));
+			}
 		}
 	}
 
@@ -122,7 +137,7 @@ public class XmiWriter extends CasAnnotator_ImplBase {
 			// write XMI
 			out = new FileOutputStream(name);
 			XmiCasSerializer ser = new XmiCasSerializer(aCas.getTypeSystem());
-			XMLSerializer xmlSer = new XMLSerializer(out, false);
+			XMLSerializer xmlSer = new XMLSerializer(out, xmlFormatted);
 			ser.serialize(aCas, xmlSer.getContentHandler());
 		} finally {
 			if (out != null) {
