@@ -57,7 +57,7 @@
                             <name>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource-0</name>
                             <description/>
                             <configurableDataResourceSpecifier>
-                                <url>file:dict.opcorpora.ser</url>
+                                <url>file:${opencorpora.morph.dictionary.serialized}</url>
                                 <resourceMetaData>
                                     <name/>
                                     <configurationParameters/>
