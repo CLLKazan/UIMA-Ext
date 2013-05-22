@@ -113,11 +113,11 @@ public class OpenCorporaAccuracyMeasurer {
     private static void calculateCounts(org.opencorpora.cas.Wordform predictedWf, org.opencorpora.cas.Wordform fromDictWf) {
 
         String fromDictPos = fromDictWf.getPos();
-        Set<String> fromDictGrammems = FSUtils.grammemsToSet(fromDictWf.getGrammems());
+        Set<String> fromDictGrammems = FSUtils.toSet(fromDictWf.getGrammems());
         fromDictGrammems = Sets.intersection(fromDictGrammems, IMPORTANT_GRAMMEMS);
 
         String predictedPos = predictedWf.getPos();
-        Set<String> predictedGrammems = FSUtils.grammemsToSet(predictedWf.getGrammems());
+        Set<String> predictedGrammems = FSUtils.toSet(predictedWf.getGrammems());
         predictedGrammems = Sets.intersection(predictedGrammems, IMPORTANT_GRAMMEMS);
 
         if (predictedPos.equals(fromDictPos)) {

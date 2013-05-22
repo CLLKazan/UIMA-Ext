@@ -189,12 +189,6 @@ public class FSUtils {
 		return max;
 	}
 
-    public static final Set<String> grammemsToSet(StringArray grammemsSA) {
-        String[] grammemsArray = new String[grammemsSA.size()];
-        grammemsSA.copyToArray(0, grammemsArray, 0, grammemsArray.length);
-        return new HashSet<String>(Arrays.asList(grammemsArray));
-    }
-
 	private FSUtils() {
 	}
 
