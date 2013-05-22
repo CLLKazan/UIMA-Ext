@@ -27,6 +27,13 @@
                 	<parameter>morphTagger/treeTaggerModelName</parameter>
                 </overrides>
             </configurationParameter>
+            <configurationParameter>
+            	<name>tagMapperClass</name>
+            	<type>String</type>
+            	<overrides>
+            		<parameter>morphTagger/tagMapperClass</parameter>
+            	</overrides>
+            </configurationParameter>
 		</configurationParameters>
 		<configurationParameterSettings>
 			<nameValuePair>
@@ -35,6 +42,12 @@
 					<string>c:\rinat\data\treetagger-sharoff\russian.par:UTF-8</string>
 				</value>
 			</nameValuePair>
+			<!-- <nameValuePair>
+				<name>tagMapperClass</name>
+				<value>
+					<string/>
+				</value>
+			</nameValuePair> -->
 		</configurationParameterSettings>
 		<flowConstraints>
 			<fixedFlow>

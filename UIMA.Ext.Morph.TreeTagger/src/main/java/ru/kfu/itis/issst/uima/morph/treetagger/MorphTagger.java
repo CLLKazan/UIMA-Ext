@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.annolab.tt4j.TokenHandler;
 import org.annolab.tt4j.TreeTaggerWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -20,7 +21,9 @@ import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.util.JCasUtil;
 
+import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.cll.uima.tokenizer.fstype.W;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -29,15 +32,30 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 public class MorphTagger extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_TREETAGGER_MODEL_NAME = "treeTaggerModelName";
+	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
 	// config
 	@ConfigurationParameter(name = PARAM_TREETAGGER_MODEL_NAME, mandatory = true)
 	private String ttModelName;
+	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS, defaultValue = "ru.kfu.itis.issst.uima.morph.treetagger.MTETagMapper")
+	private String tagMapperClassName;
 	// state fields
+	private TagMapper tagMapper;
 	private TreeTaggerWrapper<Token> treeTagger;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
+
+		if (!StringUtils.isBlank(tagMapperClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<TagMapper> tagMapperClass = (Class<TagMapper>) Class
+						.forName(tagMapperClassName);
+				tagMapper = tagMapperClass.newInstance();
+			} catch (Exception e) {
+				throw new ResourceInitializationException(e);
+			}
+		}
 
 		treeTagger = new TreeTaggerWrapper<Token>();
 		treeTagger.setAdapter(new TokenAdapter());
@@ -58,16 +76,23 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 			@Override
 			public void token(Token token, String pos, String lemma) {
 				synchronized (jCas) {
-					if (pos != null) {
+					// do not create Wordform on punctuation and special tokens
+					// TODO MTE Rus TreeTagger also outputs tag 'SENT' for sentence end?
+					if (pos != null && (token instanceof W || token instanceof NUM)) {
 						pos = pos.intern();
 						Word w = new Word(jCas, token.getBegin(), token.getEnd());
 						w.setToken(token);
 
 						Wordform wf = new Wordform(jCas);
-						wf.setPos(pos);
 						if (lemma != null) {
 							wf.setLemma(lemma);
 						}
+						if (tagMapper == null) {
+							wf.setPos(pos);
+						} else {
+							tagMapper.parseTag(pos, wf, token.getCoveredText());
+						}
+
 						wf.setWord(w);
 						FSArray wfArr = new FSArray(jCas, 1);
 						wfArr.set(0, wf);
@@ -89,7 +114,9 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 
 			// save annotations
 			for (Word w : words) {
-				w.addToIndexes();
+				if (w != null) {
+					w.addToIndexes();
+				}
 			}
 			// just to clear reference to current CAS
 			treeTagger.setHandler(null);
