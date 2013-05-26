@@ -92,7 +92,7 @@
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-tokenizer</artifactId>
-			<scope>test</scope>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	
