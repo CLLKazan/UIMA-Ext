@@ -8,9 +8,13 @@ import static java.lang.System.exit;
 import java.io.File;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.Type;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.collection.EntityProcessStatus;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.opencorpora.cas.Word;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
@@ -18,6 +22,7 @@ import org.uimafit.factory.TypeSystemDescriptionFactory;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
+import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 
 /**
@@ -61,10 +66,28 @@ public class RusCorporaParserBootstrap {
 		cpeBuilder.setReader(colReaderDesc);
 		cpeBuilder.addAnalysisEngine(xmiWriterDesc);
 		cpeBuilder.setMaxProcessingUnitThreatCount(3);
-		CollectionProcessingEngine cpe = cpeBuilder.createCpe();
+		final CollectionProcessingEngine cpe = cpeBuilder.createCpe();
 		//
 		cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(
 				cpe, 50));
+		cpe.addStatusCallbackListener(new WordCountingListener());
 		cpe.process();
+	}
+
+	private static class WordCountingListener extends StatusCallbackListenerAdapter {
+
+		private int wordCounter;
+
+		@Override
+		public void collectionProcessComplete() {
+			System.out.println(String.format("%s words have been parsed", wordCounter));
+		}
+
+		@Override
+		public void entityProcessComplete(CAS cas, EntityProcessStatus aStatus) {
+			Type wordType = cas.getTypeSystem().getType(Word.class.getName());
+			wordCounter += cas.getAnnotationIndex(wordType).size();
+		}
+
 	}
 }

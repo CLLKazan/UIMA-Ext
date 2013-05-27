@@ -21,12 +21,12 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
+import org.apache.uima.util.ProgressImpl;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import ru.kfu.cll.uima.segmentation.fstype.Paragraph;
@@ -64,6 +64,7 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 	private XMLReader xmlReader;
 	private int lastReadFileIndex = -1;
 	private String curFileName;
+	private int wordCounter;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -146,6 +147,7 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 			wf.setWord(w);
 			w.setWordforms(FSUtils.toFSArray(jCas, wf));
 			w.addToIndexes();
+			wordCounter++;
 		}
 		// clear per-CAS state
 		curFileName = null;
@@ -198,7 +200,16 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 
 	@Override
 	public Progress[] getProgress() {
-		// TODO Auto-generated method stub
-		return null;
+		int filesRead = lastReadFileIndex + 1;
+		return new Progress[] {
+				new ProgressImpl(filesRead, inputFiles.size(), Progress.ENTITIES)
+		};
+	}
+
+	@Override
+	public void close() throws IOException {
+		getLogger().info(String.format(
+				"Words parsed: %s", wordCounter));
+		super.close();
 	}
 }

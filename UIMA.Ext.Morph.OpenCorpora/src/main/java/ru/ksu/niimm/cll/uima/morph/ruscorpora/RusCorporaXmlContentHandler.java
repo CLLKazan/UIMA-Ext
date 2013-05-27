@@ -6,6 +6,7 @@ package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
@@ -14,6 +15,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -23,16 +25,23 @@ import com.google.common.collect.Sets;
  */
 class RusCorporaXmlContentHandler extends DefaultHandler {
 
+	private static final String E_BR = "br";
 	private static final String E_ANA = "ana";
 	private static final String E_WORD = "w";
 	private static final String E_SENTENCE = "se";
+	private static final String E_SPAN = "span";
 	private static final String E_PARAGRAPH = "p";
 	private static final String E_BODY = "body";
 	private static final String E_HEAD = "head";
 	private static final String E_HTML = "html";
+	private static final Set<String> ELEMENTS_TO_IGNORE = ImmutableSet.of(
+			"i", "b", "em", "formula");
+	private static final Set<String> ELEMENTS_TO_SKIP = ImmutableSet.of(
+			"sup", "sub", "table");
+	// config fields
 	private Locator locator;
 	// state fields
-	private LinkedList<String> elemStack = Lists.newLinkedList();
+	private LinkedList<ElementTuple> elemStack = Lists.newLinkedList();
 	private StringBuilder textBuilder;
 	private boolean skipElements = false;
 	private Integer paragraphStart;
@@ -67,7 +76,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 	public void startElement(String uri, String localName, String qName, Attributes attributes)
 			throws SAXException {
 		String elemName = getElementName(uri, localName, qName);
-		elemStack.push(elemName);
+		elemStack.push(new ElementTuple(elemName));
 		if (skipElements) {
 			return;
 		}
@@ -85,6 +94,14 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			onWordStart();
 		} else if (E_ANA.equals(elemName)) {
 			onAnaStart(attributes);
+		} else if (ELEMENTS_TO_IGNORE.contains(elemName)) {
+			// simply avoid
+		} else if (ELEMENTS_TO_SKIP.contains(elemName)) {
+			skipCurrentElementContent();
+		} else if (E_SPAN.equals(elemName)) {
+			onSpanStart(attributes);
+		} else if (E_BR.equals(elemName)) {
+			onBrStart();
 		} else {
 			throw new IllegalStateException(String.format(
 					"Unknown element '%s' at %s", elemName, getLocationString()));
@@ -94,26 +111,38 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		String elemName = getElementName(uri, localName, qName);
-		if (E_HTML.equals(elemName)) {
-			onHtmlEnd();
-		} else if (E_HEAD.equals(elemName)) {
-			onHeadEnd();
-		} else if (E_BODY.equals(elemName)) {
-			onBodyEnd();
-		} else if (E_PARAGRAPH.equals(elemName)) {
-			onParagraphEnd();
-		} else if (E_SENTENCE.equals(elemName)) {
-			onSentenceEnd();
-		} else if (E_WORD.equals(elemName)) {
-			onWordEnd();
-		} else if (E_ANA.equals(elemName)) {
-			onAnaEnd();
-		} else if (!skipElements) {
-			throw new IllegalStateException(String.format(
-					"End of unknown element '%s' at %s", elemName, getLocationString()));
+		if (!skipElements) {
+			if (E_HTML.equals(elemName)) {
+				onHtmlEnd();
+			} else if (E_HEAD.equals(elemName)) {
+				onHeadEnd();
+			} else if (E_BODY.equals(elemName)) {
+				onBodyEnd();
+			} else if (E_PARAGRAPH.equals(elemName)) {
+				onParagraphEnd();
+			} else if (E_SENTENCE.equals(elemName)) {
+				onSentenceEnd();
+			} else if (E_WORD.equals(elemName)) {
+				onWordEnd();
+			} else if (E_ANA.equals(elemName)) {
+				onAnaEnd();
+			} else if (ELEMENTS_TO_IGNORE.contains(elemName)) {
+				// do nothing
+			} else if (E_SPAN.equals(elemName)) {
+				onSpanEnd();
+			} else if (E_BR.equals(elemName)) {
+				onBrEnd();
+			} else {
+				throw new IllegalStateException(String.format(
+						"End of unknown element '%s' at %s", elemName, getLocationString()));
+			}
 		}
-		if (!elemName.equals(elemStack.pop())) {
+		ElementTuple elemTuple = elemStack.pop();
+		if (!elemName.equals(elemTuple.elementName)) {
 			throw new IllegalStateException();
+		}
+		for (ElementListener elemListener : elemTuple.listeners) {
+			elemListener.onElementEnd(elemName);
 		}
 	}
 
@@ -126,7 +155,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			throw new IllegalStateException(String.format(
 					"Could not determine element name at %s", getLocationString()));
 		}
-		return elemName;
+		return elemName.toLowerCase();
 	}
 
 	@Override
@@ -198,11 +227,22 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 
 	private void onHeadStart() {
 		// ignore content of <head>
-		skipElements = true;
+		skipCurrentElementContent();
 	}
 
 	private void onHeadEnd() {
-		skipElements = false;
+		// do nothing - listener will set skipElements back to false
+	}
+
+	private void skipCurrentElementContent() {
+		skipElements = true;
+		// add listener waiting for end of current element
+		elemStack.peek().listeners.add(new ElementListener() {
+			@Override
+			public void onElementEnd(String elementName) {
+				skipElements = false;
+			}
+		});
 	}
 
 	private void onBodyStart() {
@@ -210,6 +250,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			throw new IllegalStateException("Duplicate <body> element");
 		}
 		textBuilder = new StringBuilder();
+		readCharacters = true;
 	}
 
 	private void onBodyEnd() {
@@ -217,6 +258,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			throw new IllegalStateException();
 		}
 		text = textBuilder.toString();
+		readCharacters = false;
 	}
 
 	private void onParagraphStart() {
@@ -256,7 +298,6 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			}
 		}
 		sentenceStart = textBuilder.length();
-		readCharacters = true;
 	}
 
 	private void onSentenceEnd() {
@@ -267,7 +308,6 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 		sentences.add(new RusCorporaAnnotation(sentenceStart, sentenceEnd));
 		// clear
 		sentenceStart = null;
-		readCharacters = false;
 	}
 
 	private void onWordStart() {
@@ -347,9 +387,45 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 		// nothing
 	}
 
+	private void onSpanStart(Attributes attrs) {
+		if ("note".equals(attrs.getValue("class"))) {
+			// skip content of notes in spoken docs
+			skipCurrentElementContent();
+		} else {
+			throw new IllegalStateException(String.format(
+					"Unknown <span> with attributes %s at %s",
+					attrs, getLocationString()));
+		}
+	}
+
+	private void onSpanEnd() {
+		// do nothing
+	}
+
+	private void onBrStart() {
+		textBuilder.append('\n');
+	}
+
+	private void onBrEnd() {
+		// do nothing
+	}
+
 	private String getLocationString() {
 		return String.format("(%s, %s)",
 				locator.getLineNumber(),
 				locator.getColumnNumber());
+	}
+
+	private class ElementTuple {
+		private final String elementName;
+		private final LinkedList<ElementListener> listeners = Lists.newLinkedList();
+
+		public ElementTuple(String elementName) {
+			this.elementName = elementName;
+		}
+	}
+
+	private interface ElementListener {
+		void onElementEnd(String elementName);
 	}
 }
