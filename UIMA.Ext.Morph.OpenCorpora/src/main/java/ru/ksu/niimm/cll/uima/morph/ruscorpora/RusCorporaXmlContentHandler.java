@@ -177,6 +177,8 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 
 	@Override
 	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+		// do nothing
+		/*
 		if (skipElements) {
 			return;
 		}
@@ -184,11 +186,12 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			String newChars = String.valueOf(ch, start, length);
 			textBuilder.append(preprocessChars(newChars));
 		}
+		*/
 	}
 
 	private String preprocessChars(String str) {
 		// normalize line endings
-		return StringUtils.replace(str, "\r\n", "\n");
+		return StringUtils.replaceChars(str, "\r\n", "");
 	}
 
 	private void ensureFinished() {
@@ -291,13 +294,17 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 					"Nested sentences at %s", getLocationString()));
 		}
 		// add whitespace if required
+		ensureTrailingWhitespace();
+		sentenceStart = textBuilder.length();
+	}
+
+	private void ensureTrailingWhitespace() {
 		if (textBuilder.length() > 0) {
 			char lastChar = textBuilder.charAt(textBuilder.length() - 1);
 			if (!Character.isWhitespace(lastChar)) {
 				textBuilder.append(' ');
 			}
 		}
-		sentenceStart = textBuilder.length();
 	}
 
 	private void onSentenceEnd() {
@@ -315,6 +322,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			throw new IllegalStateException(String.format(
 					"Nested wordform at %s", getLocationString()));
 		}
+		ensureTrailingWhitespace();
 		wordStart = textBuilder.length();
 		RusCorporaWordform wf = new RusCorporaWordform(wordStart);
 		wordforms.add(wf);

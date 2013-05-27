@@ -6,6 +6,7 @@ package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 import static java.lang.System.exit;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CAS;
@@ -76,7 +77,7 @@ public class RusCorporaParserBootstrap {
 
 	private static class WordCountingListener extends StatusCallbackListenerAdapter {
 
-		private int wordCounter;
+		private AtomicInteger wordCounter = new AtomicInteger(0);
 
 		@Override
 		public void collectionProcessComplete() {
@@ -86,7 +87,7 @@ public class RusCorporaParserBootstrap {
 		@Override
 		public void entityProcessComplete(CAS cas, EntityProcessStatus aStatus) {
 			Type wordType = cas.getTypeSystem().getType(Word.class.getName());
-			wordCounter += cas.getAnnotationIndex(wordType).size();
+			wordCounter.addAndGet(cas.getAnnotationIndex(wordType).size());
 		}
 
 	}
