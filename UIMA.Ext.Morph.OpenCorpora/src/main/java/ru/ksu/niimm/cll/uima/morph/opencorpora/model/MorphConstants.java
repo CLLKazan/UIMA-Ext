@@ -98,6 +98,8 @@ public class MorphConstants {
 	public static final String VOic = "VOic"; // категория залога
 	public static final String actv = "actv"; // действительный залог
 	public static final String pssv = "pssv"; // страдательный залог
+	public static final String Prnt = "Prnt"; // вводное слово
+	public static final String Dist = "Dist"; // искажение
 
 	private MorphConstants() {
 	}

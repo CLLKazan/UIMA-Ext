@@ -55,9 +55,8 @@ public class RusCorporaParserBootstrap {
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 				RusCorporaCollectionReader.class,
 				tsDesc,
-				RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath(),
-				RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS,
-				IdentityTagTagger.class.getName());
+				RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath());
+		//RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS, IdentityTagTagger.class.getName()
 		// 
 		AnalysisEngineDescription xmiWriterDesc = AnalysisEngineFactory.createPrimitiveDescription(
 				XmiWriter.class,

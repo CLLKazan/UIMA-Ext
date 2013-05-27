@@ -5,6 +5,8 @@ package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -54,5 +56,9 @@ class RusCorporaWordform extends RusCorporaAnnotation {
 
 	public void setWordformGrammems(Set<String> wordformGrammems) {
 		this.wordformGrammems = wordformGrammems;
+	}
+
+	public Set<String> getAllGrammems() {
+		return Sets.union(lexGrammems, wordformGrammems);
 	}
 }
