@@ -140,6 +140,7 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 			Token tok = makeToken(jCas,
 					docText.substring(wBegin, wEnd),
 					wBegin, wEnd);
+			tok.addToIndexes();
 			w.setToken(tok);
 			// make wordform anno 
 			Wordform wf = new Wordform(jCas);
