@@ -4,6 +4,7 @@
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import static java.lang.System.exit;
+import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,11 +21,15 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
+import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
+import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpan;
+import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpanAnnotator;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -33,8 +38,9 @@ import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 public class RusCorporaParserBootstrap {
 
 	public static void main(String[] args) throws Exception {
-		if (args.length != 2) {
-			System.err.println("Usage: <ruscorpora-text-dir> <output-xmi-dir>");
+		if (args.length != 3) {
+			System.err
+					.println("Usage: <ruscorpora-text-dir> <output-xmi-dir> <output-premorph-xmi-dir>");
 			exit(1);
 		}
 		File ruscorporaTextDir = new File(args[0]);
@@ -42,29 +48,56 @@ public class RusCorporaParserBootstrap {
 			System.err.println(String.format("%s is not existing directory", ruscorporaTextDir));
 			exit(1);
 		}
-		String xmiOutputDir = args[1];
+		String xmiOutput1Dir = args[1];
+		String xmiOutput2Dir = args[2];
 		// setup logging
 		Slf4jLoggerImpl.forceUsingThisImplementation();
-		// TypeSystem 
-		TypeSystemDescription tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(
-				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"org.opencorpora.morphology-ts");
 		//
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
-				RusCorporaCollectionReader.class,
-				tsDesc,
-				RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath());
-		//RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS, IdentityTagTagger.class.getName()
+		CollectionReaderDescription colReaderDesc;
+		{
+			TypeSystemDescription tsDesc = TypeSystemDescriptionFactory
+					.createTypeSystemDescription(
+							"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
+							"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
+							"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+							"org.opencorpora.morphology-ts");
+			//
+			colReaderDesc = CollectionReaderFactory.createDescription(
+					RusCorporaCollectionReader.class,
+					tsDesc,
+					RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath());
+			//RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS, IdentityTagTagger.class.getName()
+		}
 		// 
-		AnalysisEngineDescription xmiWriterDesc = AnalysisEngineFactory.createPrimitiveDescription(
+		AnalysisEngineDescription xmiWriter1Desc = createPrimitiveDescription(
 				XmiWriter.class,
-				XmiWriter.PARAM_OUTPUTDIR, xmiOutputDir);
-		// 
+				XmiWriter.PARAM_OUTPUTDIR, xmiOutput1Dir);
+		AnalysisEngineDescription xmiWriter2Desc = createPrimitiveDescription(
+				XmiWriter.class,
+				XmiWriter.PARAM_OUTPUTDIR, xmiOutput2Dir);
+		// make NonTokenizedSpanAnnotator
+		AnalysisEngineDescription ntsAnnotatorDesc;
+		{
+			TypeSystemDescription tsDesc = TypeSystemDescriptionFactory
+					.createTypeSystemDescription("ru.ksu.niimm.cll.uima.morph.util.ts-util");
+			ntsAnnotatorDesc = createPrimitiveDescription(NonTokenizedSpanAnnotator.class, tsDesc);
+		}
+		// make InitialTokenizer for NonTokenizedSpans
+		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
+				InitialTokenizer.class,
+				InitialTokenizer.PARAM_SPAN_TYPE, NonTokenizedSpan.class.getName());
+		// make AnnotationRemover
+		AnalysisEngineDescription morphRemover = createPrimitiveDescription(
+				AnnotationRemover.class,
+				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE, new String[] { "org.opencorpora.cas",
+						"ru.ksu.niimm.cll.uima.morph.util" });
+		// make AGGREGATE
+		AnalysisEngineDescription aggregateDesc = AnalysisEngineFactory.createAggregateDescription(
+				xmiWriter1Desc, ntsAnnotatorDesc, tokenizerDesc, morphRemover, xmiWriter2Desc);
+		//
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setReader(colReaderDesc);
-		cpeBuilder.addAnalysisEngine(xmiWriterDesc);
+		cpeBuilder.addAnalysisEngine(aggregateDesc);
 		cpeBuilder.setMaxProcessingUnitThreatCount(3);
 		final CollectionProcessingEngine cpe = cpeBuilder.createCpe();
 		//
