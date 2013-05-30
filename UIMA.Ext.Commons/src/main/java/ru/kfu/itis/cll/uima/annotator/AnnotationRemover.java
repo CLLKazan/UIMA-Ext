@@ -39,10 +39,13 @@ public class AnnotationRemover extends CasAnnotator_ImplBase {
 	private String[] typeNamesToRemove;
 	// derived config
 	private Set<Type> typesToRemove;
+	private Type annotationType;
 
 	@Override
 	public void typeSystemInit(TypeSystem ts) throws AnalysisEngineProcessException {
 		super.typeSystemInit(ts);
+		annotationType = ts.getType("uima.tcas.Annotation");
+		annotationTypeExist("uima.tcas.Annotation", annotationType);
 		typesToRemove = Sets.newHashSet();
 		// process namespaces
 		if (namespacesToRemove != null) {
@@ -50,9 +53,11 @@ public class AnnotationRemover extends CasAnnotator_ImplBase {
 			Iterator<Type> typeIter = ts.getTypeIterator();
 			while (typeIter.hasNext()) {
 				Type t = typeIter.next();
-				Set<String> tNamespaces = FSTypeUtils.getNamespaces(t);
-				if (!Sets.intersection(tNamespaces, namespacesToRemove).isEmpty()) {
-					typesToRemove.add(t);
+				if (isAnnotationType(t, ts)) {
+					Set<String> tNamespaces = FSTypeUtils.getNamespaces(t);
+					if (!Sets.intersection(tNamespaces, namespacesToRemove).isEmpty()) {
+						typesToRemove.add(t);
+					}
 				}
 			}
 		}
@@ -61,12 +66,16 @@ public class AnnotationRemover extends CasAnnotator_ImplBase {
 			for (String tName : typeNamesToRemove) {
 				Type t = ts.getType(tName);
 				annotationTypeExist(tName, t);
-				typesToRemove.add(t);
+				if (isAnnotationType(t, ts)) {
+					typesToRemove.add(t);
+				} else {
+					getLogger().warn(String.format("%s is not annotation type", t));
+				}
 			}
 		}
 		if (typesToRemove.isEmpty()) {
 			getLogger().warn(
-					"Configuration of AnnotationRemover yiels empty set of types to remove.");
+					"Configuration of AnnotationRemover yields empty set of types to remove.");
 		} else if (getLogger().isInfoEnabled()) {
 			StringBuilder msgBuilder = new StringBuilder(
 					"Annotations of the following types will be removed from CAS:\n");
@@ -74,6 +83,10 @@ public class AnnotationRemover extends CasAnnotator_ImplBase {
 			getLogger().info(msgBuilder.toString());
 		}
 		typesToRemove = ImmutableSet.copyOf(typesToRemove);
+	}
+
+	private boolean isAnnotationType(Type t, TypeSystem ts) {
+		return ts.subsumes(annotationType, t);
 	}
 
 	@Override
