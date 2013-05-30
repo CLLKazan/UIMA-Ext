@@ -100,6 +100,16 @@ public class FSUtils {
 		return resultBuilder.build();
 	}
 
+	public static List<String> toList(StringArrayFS fsArr) {
+		if (fsArr == null)
+			return ImmutableList.of();
+		ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
+		for (int i = 0; i < fsArr.size(); i++) {
+			resultBuilder.add(fsArr.get(i));
+		}
+		return resultBuilder.build();
+	}
+
 	public static FSTypeConstraint getTypeConstraint(Type firstType, Type... otherTypes) {
 		FSTypeConstraint constr = ConstraintFactory.instance().createTypeConstraint();
 		constr.add(firstType);
