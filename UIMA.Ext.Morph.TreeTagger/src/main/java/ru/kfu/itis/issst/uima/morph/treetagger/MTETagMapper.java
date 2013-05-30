@@ -235,6 +235,8 @@ public class MTETagMapper implements TagMapper {
 		table.put(2, 'c', noOp);
 		// case 
 		table.put(3, '-', noOp);
+		// preposition for nominative case?!?
+		table.put(3, 'n', noOp);
 		table.put(3, 'g', noOp);
 		table.put(3, 'd', noOp);
 		table.put(3, 'a', noOp);
