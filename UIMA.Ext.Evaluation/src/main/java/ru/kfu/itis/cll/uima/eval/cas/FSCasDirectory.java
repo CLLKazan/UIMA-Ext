@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.uima.UIMAException;
@@ -91,9 +92,26 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 	 */
 	@Override
 	public Iterator<CAS> iterator() {
-		IOFileFilter xmiFileFilter = FileFilterUtils.suffixFileFilter(".xmi");
-		Iterator<File> xmiFileIter = Iterators.forArray(dir.listFiles((FileFilter) xmiFileFilter));
+		Iterator<File> xmiFileIter = Iterators.forArray(getXmiFiles());
 		return Iterators.transform(xmiFileIter, deserializeFunc());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int size() {
+		return getXmiFiles().length;
+	}
+
+	private File[] xmiFiles;
+
+	private File[] getXmiFiles() {
+		if (xmiFiles == null) {
+			IOFileFilter xmiFileFilter = FileFilterUtils.suffixFileFilter(".xmi");
+			xmiFiles = dir.listFiles((FileFilter) xmiFileFilter);
+		}
+		return xmiFiles;
 	}
 
 	private Function<File, CAS> deserializeFunc() {
@@ -111,7 +129,12 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 
 	private CAS deserialize(File xmiFile) throws UIMAException, SAXException, IOException {
 		CAS cas = createCas();
-		XmiCasDeserializer.deserialize(openStream(xmiFile), cas);
+		InputStream is = openStream(xmiFile);
+		try {
+			XmiCasDeserializer.deserialize(is, cas);
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		return cas;
 	}
 

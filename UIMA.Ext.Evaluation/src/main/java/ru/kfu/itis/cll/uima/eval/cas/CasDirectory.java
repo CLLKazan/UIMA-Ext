@@ -17,6 +17,11 @@ public interface CasDirectory {
 
 	Iterator<CAS> iterator();
 
+	/**
+	 * @return the count of CAS instances or -1 if it is not available.
+	 */
+	int size();
+
 	void setTypeSystem(TypeSystem ts);
 
 	void init();

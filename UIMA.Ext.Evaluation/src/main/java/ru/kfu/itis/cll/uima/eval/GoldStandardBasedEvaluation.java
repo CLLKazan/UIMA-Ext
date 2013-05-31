@@ -6,6 +6,7 @@ package ru.kfu.itis.cll.uima.eval;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newLinkedHashSet;
+import static java.lang.System.currentTimeMillis;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,6 +18,8 @@ import javax.annotation.Resource;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.text.AnnotationFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
@@ -33,6 +36,8 @@ import ru.kfu.itis.cll.uima.eval.cas.CasDirectory;
  */
 public class GoldStandardBasedEvaluation {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	@Resource(name = "systemCasDirectory")
 	private CasDirectory systemOutputDir;
 	@Resource(name = "goldCasDirectory")
@@ -48,19 +53,26 @@ public class GoldStandardBasedEvaluation {
 
 	public void run() throws Exception {
 		Iterator<CAS> iter = goldStandardDir.iterator();
+		int processedCasCounter = 0;
+		final int casDirSize = goldStandardDir.size();
 		while (iter.hasNext()) {
 			CAS goldCas = iter.next();
-			String docUri = docMetaExtractor.getDocumentUri(goldCas);
+			final String docUri = docMetaExtractor.getDocumentUri(goldCas);
 			CAS sysCas = systemOutputDir.getCas(docUri);
 			if (sysCas == null) {
 				throw new IllegalStateException("No CAS from system output for doc uri: " + docUri);
 			}
 			evalCtx.setCurrentDocUri(docUri);
+			final long timeBeforeCas = currentTimeMillis();
 			try {
 				evaluate(goldCas, sysCas);
 			} finally {
 				// reset uri
 				evalCtx.setCurrentDocUri(null);
+				processedCasCounter++;
+				log.info("[{}/{}] {} has been processed in {}ms", new Object[] {
+						processedCasCounter, casDirSize, docUri,
+						currentTimeMillis() - timeBeforeCas });
 			}
 		}
 		evalCtx.reportEvaluationComplete();
