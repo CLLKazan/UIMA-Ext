@@ -39,15 +39,9 @@
 			<nameValuePair>
 				<name>treeTaggerModelName</name>
 				<value>
-					<string>c:\rinat\data\treetagger-sharoff\russian.par:UTF-8</string>
+					<string>russian.par:UTF-8</string>
 				</value>
 			</nameValuePair>
-			<!-- <nameValuePair>
-				<name>tagMapperClass</name>
-				<value>
-					<string/>
-				</value>
-			</nameValuePair> -->
 		</configurationParameterSettings>
 		<flowConstraints>
 			<fixedFlow>
