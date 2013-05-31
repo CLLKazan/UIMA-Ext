@@ -33,7 +33,7 @@ public class JFlex_Tokenizer {
   public static final int YYEOF = -1;
 
   /** initial size of the lookahead buffer */
-  private static final int ZZ_BUFFERSIZE = 16384;
+  private static final int ZZ_BUFFERSIZE = 999999;
 
   /** lexical states */
   public static final int IN_DATE_YMD = 10;
