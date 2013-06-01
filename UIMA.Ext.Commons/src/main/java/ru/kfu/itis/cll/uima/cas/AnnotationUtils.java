@@ -9,6 +9,7 @@ import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -235,6 +236,10 @@ public class AnnotationUtils {
 
 		return cf.and(cf.embedConstraint(newArrayList("begin"), beginConstraint),
 				cf.embedConstraint(newArrayList("end"), endConstraint));
+	}
+
+	public static <A extends AnnotationFS> OverlapIndex<A> createOverlapIndex(Iterator<A> srcIter) {
+		return TreeMapOverlapIndex.from(srcIter);
 	}
 
 	private AnnotationUtils() {

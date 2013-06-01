@@ -62,6 +62,7 @@ public class GoldStandardBasedEvaluation {
 			if (sysCas == null) {
 				throw new IllegalStateException("No CAS from system output for doc uri: " + docUri);
 			}
+			matchingStrategy.changeCas(sysCas);
 			evalCtx.setCurrentDocUri(docUri);
 			final long timeBeforeCas = currentTimeMillis();
 			try {
@@ -69,6 +70,7 @@ public class GoldStandardBasedEvaluation {
 			} finally {
 				// reset uri
 				evalCtx.setCurrentDocUri(null);
+				matchingStrategy.changeCas(null);
 				processedCasCounter++;
 				log.info("[{}/{}] {} has been processed in {}ms", new Object[] {
 						processedCasCounter, casDirSize, docUri,
@@ -94,7 +96,7 @@ public class GoldStandardBasedEvaluation {
 			matchesMap.put(goldAnno, mi);
 
 			Set<AnnotationFS> candidates = newLinkedHashSet(
-					matchingStrategy.searchCandidates(goldAnno, sysCas));
+					matchingStrategy.searchCandidates(goldAnno));
 
 			candidates.removeAll(sysMatched);
 			AnnotationFS exactSys = matchingStrategy.searchExactMatch(goldAnno, candidates);

@@ -3,9 +3,6 @@
  */
 package ru.kfu.itis.cll.uima.eval.anno.impl;
 
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.getOverlapping;
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toLinkedHashSet;
-
 import java.util.Iterator;
 import java.util.Set;
 
@@ -13,6 +10,8 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
+import ru.kfu.itis.cll.uima.cas.OverlapIndex;
 import ru.kfu.itis.cll.uima.eval.anno.AnnotationExtractor;
 import ru.kfu.itis.cll.uima.eval.anno.MatchingStrategy;
 
@@ -29,12 +28,25 @@ public abstract class OverlapMatchingStrategy implements MatchingStrategy {
 
 	@Autowired
 	private AnnotationExtractor annotationExtractor;
+	// state fields
+	private CAS sysCas;
+	private OverlapIndex<AnnotationFS> sysOverlapIdx;
 
 	@Override
-	public Set<AnnotationFS> searchCandidates(AnnotationFS goldAnno, CAS sysCas) {
-		// We return here LinkedHashSet because an appropriate comparator is unknown here
-		Set<AnnotationFS> result = toLinkedHashSet(getOverlapping(
-				sysCas, annotationExtractor.extract(sysCas), goldAnno));
+	public void changeCas(CAS newSysCas) {
+		sysCas = newSysCas;
+		// reset state related to previous CAS
+		sysOverlapIdx = null;
+		if (sysCas != null) {
+			sysOverlapIdx = AnnotationUtils.createOverlapIndex(annotationExtractor.extract(sysCas));
+		}
+	}
+
+	@Override
+	public Set<AnnotationFS> searchCandidates(AnnotationFS goldAnno) {
+		Set<AnnotationFS> result = sysOverlapIdx.getOverlapping(
+				goldAnno.getBegin(),
+				goldAnno.getEnd());
 		Iterator<AnnotationFS> resultIter = result.iterator();
 		while (resultIter.hasNext()) {
 			if (!isCandidate(goldAnno, resultIter.next())) {
