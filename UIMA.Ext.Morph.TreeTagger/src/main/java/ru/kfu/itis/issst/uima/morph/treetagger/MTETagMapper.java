@@ -120,8 +120,10 @@ public class MTETagMapper implements TagMapper {
 		table.put(8, 'f', setPos(PRTF));
 		// aspect
 		table.put(9, '-', noOp);
-		table.put(9, 'p', addGram(impf));
-		table.put(9, 'e', addGram(perf));
+		// XXX this is contradictory with Rus MTE docs, but seems to give
+		// much more accurate mapping
+		table.put(9, 'p', addGram(perf));
+		table.put(9, 'e', addGram(impf));
 		// TODO ignore in evaluation 
 		table.put(9, 'b', addGram(perf, impf));
 		// case
