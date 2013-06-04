@@ -37,6 +37,8 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 			Dist);
 
 	private static final Set<String> ANIMACY_TAGS = ImmutableSet.of(anim, inan);
+	private static final Set<String> GENDER_TAGS = ImmutableSet.of(femn, masc, neut);
+	private static final Set<String> ADJ_POSES = ImmutableSet.of(ADJF, ADJS, PRTF, PRTS);
 
 	@Override
 	protected void postProcessCAS(CAS cas) {
@@ -77,6 +79,9 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 		boolean changed = tagList.removeAll(FILTERED_GRAM_TAGS);
 		if (!NOUN.equals(pos)) {
 			changed |= tagList.removeAll(ANIMACY_TAGS);
+		}
+		if (ADJ_POSES.contains(pos) && tagList.contains(plur)) {
+			changed |= tagList.removeAll(GENDER_TAGS);
 		}
 		return changed;
 	}
