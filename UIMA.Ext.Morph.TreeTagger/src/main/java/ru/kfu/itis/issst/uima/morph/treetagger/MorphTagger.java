@@ -38,6 +38,8 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 	private String ttModelName;
 	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS, defaultValue = "ru.kfu.itis.issst.uima.morph.treetagger.MTETagMapper")
 	private String tagMapperClassName;
+	// monitors
+	private final Object casMon = new Object();
 	// state fields
 	private TagMapper tagMapper;
 	private TreeTaggerWrapper<Token> treeTagger;
@@ -75,7 +77,8 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 		treeTagger.setHandler(new TokenHandler<Token>() {
 			@Override
 			public void token(Token token, String pos, String lemma) {
-				synchronized (jCas) {
+				// should be synchronized on the same object with TokenAdapter#getText (see below)
+				synchronized (casMon) {
 					// do not create Wordform on punctuation and special tokens
 					// TODO MTE Rus TreeTagger also outputs tag 'SENT' for sentence end?
 					if (pos != null && (token instanceof W || token instanceof NUM)) {
@@ -142,10 +145,12 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 		super.finalize();
 	}
 
-	private static class TokenAdapter implements org.annolab.tt4j.TokenAdapter<Token> {
+	private class TokenAdapter implements org.annolab.tt4j.TokenAdapter<Token> {
 		@Override
 		public String getText(Token t) {
-			return t.getCoveredText();
+			synchronized (casMon) {
+				return t.getCoveredText();
+			}
 		}
 	}
 }
