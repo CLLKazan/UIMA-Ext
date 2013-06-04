@@ -32,7 +32,9 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 	private static final Set<String> FILTERED_GRAM_TAGS = ImmutableSet.of(
 			Fixd,
 			Qual, Poss,
-			tran, intr);
+			tran, intr,
+			Name, Patr, Surn,
+			Dist);
 
 	private static final Set<String> ANIMACY_TAGS = ImmutableSet.of(anim, inan);
 
