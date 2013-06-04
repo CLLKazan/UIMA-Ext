@@ -104,6 +104,16 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 		return getXmiFiles().length;
 	}
 
+	/**
+	 * Subclasses may override this to perform alignment, filtering,
+	 * transformation and etc. operations on deserialized CAS.
+	 * 
+	 * @param cas
+	 */
+	protected void postProcessCAS(CAS cas) {
+		// default impl do nothing
+	}
+
 	private File[] xmiFiles;
 
 	private File[] getXmiFiles() {
@@ -135,6 +145,7 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 		} finally {
 			IOUtils.closeQuietly(is);
 		}
+		postProcessCAS(cas);
 		return cas;
 	}
 
