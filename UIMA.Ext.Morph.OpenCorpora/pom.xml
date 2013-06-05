@@ -51,9 +51,11 @@
 				</includes>
 			</testResource>
 		</testResources>
+		<!-- 
 		<filters>
 			<filter>tests-filtering.properties</filter>
 		</filters>
+		 -->
 	</build>
 
 	<dependencies>
