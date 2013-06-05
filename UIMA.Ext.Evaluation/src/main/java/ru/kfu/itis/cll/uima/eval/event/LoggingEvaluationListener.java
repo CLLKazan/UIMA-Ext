@@ -37,8 +37,8 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 
 	// derived
 	private AnnotationPrinter annoPrinter;
-	// state
-	private String currentDocUri;
+	// state fields
+	//
 	// collect system annotations that partially match gold ones
 	// this is necessary to avoid their duplications as Spurious
 	private Set<AnnotationFS> partiallyMatched;

@@ -38,7 +38,7 @@ public abstract class BestMatchEvaluatorBase extends TypedPrintingEvaluationList
 	public void setOptimizeBy(OptimizationTarget optimizeBy) {
 		this.optimizeBy = optimizeBy;
 	}
-	
+
 	RecognitionMeasures getMeasures() {
 		return measures;
 	}
@@ -51,6 +51,7 @@ public abstract class BestMatchEvaluatorBase extends TypedPrintingEvaluationList
 
 	@Override
 	public void onDocumentChange(String docUri) {
+		super.onDocumentChange(docUri);
 		// report bestMatches, report other matches as spurious
 		for (AnnotationFS goldAnno : bestMatchesMap.keySet()) {
 			AnnoEvalTuple bestMatch = bestMatchesMap.get(goldAnno);

@@ -21,6 +21,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,14 +52,14 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	private WordformTST wfByString = new WordformTST();
 
-    @Override
-    public void setWfPredictor(WordformPredictor wfPredictor) {
-        this.wfPredictor = wfPredictor;
-    }
+	@Override
+	public void setWfPredictor(WordformPredictor wfPredictor) {
+		this.wfPredictor = wfPredictor;
+	}
 
-    // wf indexes
+	// wf indexes
 	// by string
-    private transient WordformPredictor wfPredictor;
+	private transient WordformPredictor wfPredictor;
 
 	// grammem indexes
 	// by parent
@@ -69,11 +70,11 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public List<Wordform> getEntries(String str) {
-        WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
-        if (result.isMatchExact())
-            return Lists.newArrayList(result);
-        else
-	    	return ImmutableList.copyOf(wfPredictor.predict(str, result));
+		WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
+		if (result.isMatchExact())
+			return Lists.newArrayList(result);
+		else
+			return ImmutableList.copyOf(wfPredictor.predict(str, result));
 	}
 
 	/**
@@ -123,7 +124,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 	}
 
-    @Override
+	@Override
 	public void addLemma(Lemma l) {
 		if (lemmaMap.put(l.getId(), l) != null) {
 			throw new IllegalStateException(String.format(
@@ -214,14 +215,27 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		if (targetGram == null) {
 			return null;
 		}
+		return getGrammemWithChildrenBits(targetGram, includeTarget);
+	}
+
+	private BitSet getGrammemWithChildrenBits(Grammeme gram, boolean includeTarget) {
 		BitSet result = new BitSet(getGrammemMaxNumId());
 		if (includeTarget) {
-			result.set(targetGram.getNumId());
+			result.set(gram.getNumId());
 		}
-		for (Grammeme childGram : gramByParent.get(gramId)) {
-			result.set(childGram.getNumId());
+		for (Grammeme childGram : gramByParent.get(gram.getId())) {
+			result.or(getGrammemWithChildrenBits(childGram, true));
 		}
 		return result;
+	}
+
+	@Override
+	public Set<String> getTopGrammems() {
+		ImmutableSet.Builder<String> resultBuilder = ImmutableSet.builder();
+		for (Grammeme gr : gramByParent.get(null)) {
+			resultBuilder.add(gr.getId());
+		}
+		return resultBuilder.build();
 	}
 
 	@Override
@@ -312,7 +326,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private void makeUnmodifiable() {
 		gramMap = copyOf(gramMap);
 		numToGram = ImmutableSortedMap.copyOf(numToGram);
-//		lemmaMap = unmodifiableMap(lemmaMap);
+		//		lemmaMap = unmodifiableMap(lemmaMap);
 		lemmaLinkTypeMap = copyOf(lemmaLinkTypeMap);
 		lemmaLinkTable = unmodifiableTable(lemmaLinkTable);
 	}

@@ -17,7 +17,7 @@ import javax.annotation.PreDestroy;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public abstract class PrintingEvaluationListener implements EvaluationListener {
+public abstract class PrintingEvaluationListener extends DocumentUriHoldingEvaluationListener {
 
 	// config
 	private File outputFile;

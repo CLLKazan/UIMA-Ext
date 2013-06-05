@@ -24,10 +24,6 @@ public class StrictPrecisionRecallListener extends TypedPrintingEvaluationListen
 		super.init();
 	}
 
-	@Override
-	public void onDocumentChange(String docUri) {
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
