@@ -112,7 +112,7 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		if (resultSet.isEmpty()) {
 			return null;
 		}
-		if (resultSet.size() > 2) {
+		if (resultSet.size() > 1) {
 			log.warn("Several grammems of category '{}' in {}: {}", new Object[] {
 					cat, toPrettyString(word), sysGrams });
 		}

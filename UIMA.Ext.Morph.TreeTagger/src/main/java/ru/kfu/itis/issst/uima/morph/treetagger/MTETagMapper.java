@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,8 +71,8 @@ public class MTETagMapper implements TagMapper {
 		table.put(5, 'y', addGram(anim));
 		table.put(5, '-', addGram(ANim));
 		// case-mod
-		table.put(6, 'p', addGram(gen2));
-		table.put(6, 'l', addGram(loc2));
+		table.put(6, 'p', and(removeGram(nomn, gent, datv, accs, voct, loct, ablt), addGram(gen2)));
+		table.put(6, 'l', and(removeGram(nomn, gent, datv, accs, voct, loct, ablt), addGram(loc2)));
 		cat2Table.put('N', Tables.unmodifiableRowSortedTable(table));
 		// -------------------------------------------------------
 		// VERB
@@ -362,6 +363,19 @@ public class MTETagMapper implements TagMapper {
 				for (TagCodeHandler h : handlers) {
 					h.apply(wb);
 				}
+			}
+		};
+	}
+
+	private static TagCodeHandler removeGram(final String... grs) {
+		if (grs.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		return new TagCodeHandler() {
+			@Override
+			public void apply(WordformBuilder wb) {
+				HashSet<String> grsSet = Sets.newHashSet(grs);
+				wb.grammems.removeAll(grsSet);
 			}
 		};
 	}
