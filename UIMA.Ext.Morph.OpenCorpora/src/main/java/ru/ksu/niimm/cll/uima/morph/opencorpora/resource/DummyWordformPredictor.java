@@ -15,7 +15,7 @@ public class DummyWordformPredictor implements WordformPredictor{
     private int pseudoLemmaIdCounter = -1;
     private Map<Lemma, Lemma> uniqPseudoLemmaMap = Maps.newHashMap();
 
-    private Lemma addPseudoLemma(Lemma l) {
+    private synchronized Lemma addPseudoLemma(Lemma l) {
         if (uniqPseudoLemmaMap.containsKey(l)) {
             return uniqPseudoLemmaMap.get(l);
         } else {

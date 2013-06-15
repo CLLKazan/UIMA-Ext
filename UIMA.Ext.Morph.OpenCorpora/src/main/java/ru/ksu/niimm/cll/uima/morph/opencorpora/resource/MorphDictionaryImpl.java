@@ -124,7 +124,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
     @Override
-	public void addLemma(Lemma l) {
+	public synchronized void addLemma(Lemma l) {
 		if (lemmaMap.put(l.getId(), l) != null) {
 			throw new IllegalStateException(String.format(
 					"Duplicate lemma id - %s", l.getId()));
