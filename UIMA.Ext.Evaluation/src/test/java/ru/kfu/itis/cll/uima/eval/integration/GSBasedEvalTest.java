@@ -87,13 +87,13 @@ public class GSBasedEvalTest extends AbstractJUnit4SpringContextTests {
 
 		{
 			RecognitionMeasures softMetrics = softEvalListener.getMeasures();
-			assertEquals(3.048f, softMetrics.getMatchedScore(), 0.001f);
-			assertEquals(4.571f, softMetrics.getSpuriousScore(), 0.001f);
-			assertEquals(4.381f, softMetrics.getMissedScore(), 0.001f);
+			assertEquals(4.152f, softMetrics.getMatchedScore(), 0.001f);
+			assertEquals(12.083f, softMetrics.getSpuriousScore(), 0.001f);
+			assertEquals(4.848f, softMetrics.getMissedScore(), 0.001f);
 
-			assertEquals(0.40f, softMetrics.getPrecision(), 0.01f);
-			assertEquals(0.41f, softMetrics.getRecall(), 0.01f);
-			assertEquals(0.405f, softMetrics.getF1(), 0.001f);
+			assertEquals(0.256f, softMetrics.getPrecision(), 0.001f);
+			assertEquals(0.461f, softMetrics.getRecall(), 0.001f);
+			assertEquals(0.329f, softMetrics.getF1(), 0.001f);
 		}
 
 		{

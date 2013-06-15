@@ -96,9 +96,9 @@ public class BestMatchEvaluatorBaseTest extends AbstractJUnit4SpringContextTests
 		evaluator.onPartialMatch(g1, s1);
 		evaluator.onDocumentChange(null);
 		RecognitionMeasures m = evaluator.getMeasures();
-		assertEquals(0.9f, m.getMatchedScore(), 0.01f);
-		assertEquals(0.1f, m.getSpuriousScore(), 0.01f);
-		assertEquals(0f, m.getMissedScore(), 0.01f);
+		assertEquals(1, m.getMatchedScore(), 0.001f);
+		assertEquals(1f / 9, m.getSpuriousScore(), 0.001f);
+		assertEquals(0f, m.getMissedScore(), 0.001f);
 	}
 
 	@Test
@@ -118,9 +118,9 @@ public class BestMatchEvaluatorBaseTest extends AbstractJUnit4SpringContextTests
 		evaluator.onMissing(g1);
 		evaluator.onDocumentChange(null);
 		RecognitionMeasures m = evaluator.getMeasures();
-		assertEquals(0.5f, m.getMatchedScore(), 0.01f);
-		assertEquals(2.5f, m.getSpuriousScore(), 0.01f);
-		assertEquals(0f, m.getMissedScore(), 0.01f);
+		assertEquals(1, m.getMatchedScore(), 0.001f);
+		assertEquals(3, m.getSpuriousScore(), 0.001f);
+		assertEquals(0, m.getMissedScore(), 0.001f);
 	}
 
 	@Test
@@ -140,9 +140,9 @@ public class BestMatchEvaluatorBaseTest extends AbstractJUnit4SpringContextTests
 		evaluator.onPartialMatch(g1, s3);
 		evaluator.onDocumentChange(null);
 		RecognitionMeasures m = evaluator.getMeasures();
-		assertEquals(1f, m.getMatchedScore(), 0.01f);
-		assertEquals(2f, m.getSpuriousScore(), 0.01f);
-		assertEquals(0f, m.getMissedScore(), 0.01f);
+		assertEquals(1f, m.getMatchedScore(), 0.001f);
+		assertEquals(2f, m.getSpuriousScore(), 0.001f);
+		assertEquals(0f, m.getMissedScore(), 0.001f);
 	}
 
 	private static final String TXT;

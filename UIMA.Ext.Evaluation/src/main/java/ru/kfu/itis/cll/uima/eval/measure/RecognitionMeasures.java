@@ -56,7 +56,10 @@ public class RecognitionMeasures {
 		return missingCounter;
 	}
 
-	public float getTotatScore() {
-		return matchingCounter + spuriousCounter + missingCounter;
+	/**
+	 * @return matchingScore + missingScore
+	 */
+	public float getGoldScore() {
+		return matchingCounter + missingCounter;
 	}
 }

@@ -15,8 +15,12 @@ public class OverlapHelper {
 
 	public static void evaluateOverlap(AnnotationFS gold, AnnotationFS sys,
 			RecognitionMeasures measures) {
+		if (gold.getEnd() <= sys.getBegin() || sys.getEnd() <= gold.getBegin()) {
+			throw new IllegalArgumentException(String.format(
+					"Annotations %s and %s do not overlap!", gold, sys));
+		}
 		// sanity check - one gold anno must give 1 score in total to the counters
-		float totalBefore = measures.getTotatScore();
+		float goldBefore = measures.getGoldScore();
 
 		// legend for schemas below: s - spurious, ! - matched, m - missing
 		// Example 1.
@@ -25,21 +29,20 @@ public class OverlapHelper {
 		// Example 2.
 		// golden ................sss|!!!!!!!|ssss..........
 		// system ...............|................|.........
-		float unionLength = Math.max(sys.getEnd(), gold.getEnd())
-				- Math.min(sys.getBegin(), gold.getBegin());
+		float goldLength = gold.getEnd() - gold.getBegin();
 
 		int deltaBefore = sys.getBegin() - gold.getBegin();
 		if (deltaBefore > 0) {
-			measures.incrementMissing(deltaBefore / unionLength);
+			measures.incrementMissing(deltaBefore / goldLength);
 		} else {
-			measures.incrementSpurious(-deltaBefore / unionLength);
+			measures.incrementSpurious(-deltaBefore / goldLength);
 		}
 
 		int deltaAfter = sys.getEnd() - gold.getEnd();
 		if (deltaAfter > 0) {
-			measures.incrementSpurious(deltaAfter / unionLength);
+			measures.incrementSpurious(deltaAfter / goldLength);
 		} else {
-			measures.incrementMissing(-deltaAfter / unionLength);
+			measures.incrementMissing(-deltaAfter / goldLength);
 		}
 
 		float overlapLength = Math.min(sys.getEnd(), gold.getEnd())
@@ -48,13 +51,13 @@ public class OverlapHelper {
 		if (overlapLength <= 0) {
 			throw new IllegalStateException("Overlap length = " + overlapLength);
 		}
-		measures.incrementMatching(overlapLength / unionLength);
+		measures.incrementMatching(overlapLength / goldLength);
 
 		// sanity check
-		float totalAfter = measures.getTotatScore();
-		if (totalAfter - totalBefore - 1 > 0.01f) {
-			throw new IllegalStateException("Sanity check failed: totalAfter - totalBefore = "
-					+ (totalAfter - totalBefore));
+		float goldAfter = measures.getGoldScore();
+		if (goldAfter - goldBefore - 1 > 0.01f) {
+			throw new IllegalStateException("Sanity check failed: goldAfter - goldBefore = "
+					+ (goldAfter - goldBefore));
 		}
 	}
 

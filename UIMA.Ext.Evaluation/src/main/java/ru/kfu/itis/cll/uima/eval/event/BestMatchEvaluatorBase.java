@@ -38,7 +38,7 @@ public abstract class BestMatchEvaluatorBase extends TypedPrintingEvaluationList
 	public void setOptimizeBy(OptimizationTarget optimizeBy) {
 		this.optimizeBy = optimizeBy;
 	}
-	
+
 	RecognitionMeasures getMeasures() {
 		return measures;
 	}
@@ -67,8 +67,8 @@ public abstract class BestMatchEvaluatorBase extends TypedPrintingEvaluationList
 	}
 
 	private RecognitionMeasures normalize(RecognitionMeasures src) {
-		float total = src.getTotatScore();
-		if (Math.abs(total - 1) < 0.01f) {
+		float total = src.getGoldScore();
+		if (Math.abs(total - 1) < 0.001f) {
 			// consider as already normalized
 			return src;
 		} else {
@@ -77,7 +77,7 @@ public abstract class BestMatchEvaluatorBase extends TypedPrintingEvaluationList
 			result.incrementMissing(src.getMissedScore() / total);
 			result.incrementSpurious(src.getSpuriousScore() / total);
 			// sanity check
-			if (Math.abs(result.getTotatScore() - 1) > 0.01f) {
+			if (Math.abs(result.getGoldScore() - 1) > 0.001f) {
 				throw new IllegalStateException("Sanity check failed. Check code!");
 			}
 			return result;
