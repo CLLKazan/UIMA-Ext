@@ -1,5 +1,7 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
@@ -23,101 +25,110 @@ import java.util.Set;
  * change this template use File | Settings | File Templates.
  */
 public class OpenCorporaAccuracyMeasurer {
-	public static void main(String[] args) throws IOException, UIMAException {
-		if (args.length != 3) {
-			System.err
-					.println("Usage: <opcorpora-dict-without-test-selection> <opcorpora-test-selection-dict> "
-							+
-							"<opcorpora-test-selection-textfile>");
-			return;
-		}
+    private static Set<String> IMPORTANT_GRAMMEMS = ImmutableSet.of(
+            "masc", "femn", "neut",
 
-		XMLInputSource aeDescInputBig = new XMLInputSource(
-				"target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
-		AnalysisEngineDescription aeDescBig = UIMAFramework.getXMLParser()
-				.parseAnalysisEngineDescription(aeDescInputBig);
+            "nomn", "voct",
+            "gent", "gen1", "gen2",
+            "datv",
+            "accs", "acc2",
+            "ablt",
+            "loct", "loc1", "loc2",
 
-		XMLInputSource aeDescInputSmall = new XMLInputSource(
-				"target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
-		AnalysisEngineDescription aeDescSmall = UIMAFramework.getXMLParser()
-				.parseAnalysisEngineDescription(aeDescInputSmall);
+            "sing", "plur",
+            "pres", "futr", "past",
+            "impr",
+            "INFN",
+            "PRTF", "PRTS",
+            "GRND",
+            "actv", "pssv",
+            "1per", "2per", "3per"
+    );
 
-		//        ExternalResourceDescription dictDescription = new
-		((FileResourceSpecifier) aeDescBig.getResourceManagerConfiguration().getExternalResources()[0]
-				.getResourceSpecifier()).setFileUrl(args[0]);
-		((FileResourceSpecifier) aeDescSmall.getResourceManagerConfiguration()
-				.getExternalResources()[0].getResourceSpecifier()).setFileUrl(args[1]);
+    private static final int POS_WEIGHT = 3;
+    private static int tp, fp, fn;
 
-		AnalysisEngine aeBig = UIMAFramework.produceAnalysisEngine(aeDescBig);
-		AnalysisEngine aeSmall = UIMAFramework.produceAnalysisEngine(aeDescSmall);
+    public static void main(String[] args) throws IOException, UIMAException {
+        if (args.length != 3) {
+            System.err.println("Usage: <opcorpora-dict-without-test-selection> <opcorpora-test-selection-dict> " +
+                    "<opcorpora-test-selection-textfile>");
+            return;
+        }
 
-		JCas casBig = aeBig.newJCas();
-		JCas casSmall = aeSmall.newJCas();
+        XMLInputSource aeDescInputBig = new XMLInputSource(
+                "target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
+        AnalysisEngineDescription aeDescBig = UIMAFramework.getXMLParser()
+                .parseAnalysisEngineDescription(aeDescInputBig);
 
-		String textString = IOUtils.toString(new FileReader(args[2]));
-		casBig.setDocumentText(textString);
-		casSmall.setDocumentText(textString);
+        XMLInputSource aeDescInputSmall = new XMLInputSource(
+                "target/test-classes/opencorpora/ae-ru-cvd-MorphAnnotator.xml");
+        AnalysisEngineDescription aeDescSmall = UIMAFramework.getXMLParser()
+                .parseAnalysisEngineDescription(aeDescInputSmall);
 
-		aeBig.process(casBig);
-		aeSmall.process(casSmall);
+//        ExternalResourceDescription dictDescription = new
+        ((FileResourceSpecifier)aeDescBig.getResourceManagerConfiguration().getExternalResources()[0].getResourceSpecifier()).setFileUrl(args[0]);
+        ((FileResourceSpecifier)aeDescSmall.getResourceManagerConfiguration().getExternalResources()[0].getResourceSpecifier()).setFileUrl(args[1]);
 
-		AnnotationIndex<Annotation> wordIdxPredicted = casBig.getAnnotationIndex(Word.type);
-		AnnotationIndex<Annotation> wordIdxFromDict = casSmall.getAnnotationIndex(Word.type);
+        AnalysisEngine aeBig = UIMAFramework.produceAnalysisEngine(aeDescBig);
+        AnalysisEngine aeSmall = UIMAFramework.produceAnalysisEngine(aeDescSmall);
 
-		int t = 0;
-		int n = 0;
 
-		Iterator<Annotation> predictedIterator = wordIdxPredicted.iterator();
-		Iterator<Annotation> fromDictIterator = wordIdxFromDict.iterator();
+        JCas casBig = aeBig.newJCas();
+        JCas casSmall = aeSmall.newJCas();
 
-		while (predictedIterator.hasNext()) {
-			n++;
+        String textString = IOUtils.toString(new FileReader(args[2]));
+        casBig.setDocumentText(textString);
+        casSmall.setDocumentText(textString);
 
-			Word predicted = (Word) predictedIterator.next();
-			Word fromDict = (Word) fromDictIterator.next();
+        aeBig.process(casBig);
+        aeSmall.process(casSmall);
 
-			if (hasCommon(predicted, fromDict)) {
-				t++;
-			}
-		}
+        AnnotationIndex<Annotation> wordIdxPredicted = casBig.getAnnotationIndex(Word.type);
+        AnnotationIndex<Annotation> wordIdxFromDict = casSmall.getAnnotationIndex(Word.type);
 
-		System.out.println("Accuracy: " + (double) t / n);
-	}
+        Iterator<Annotation> predictedIterator = wordIdxPredicted.iterator();
+        Iterator<Annotation> fromDictIterator = wordIdxFromDict.iterator();
 
-	private static boolean hasCommon(Word predicted, Word fromDict) {
-		System.out.println("#################################");
-		System.out.println(predicted.getCoveredText());
-		System.out.println(fromDict.getCoveredText());
+        tp = fp = fn = 0;
 
-		for (int i = 0; i < predicted.getWordforms().size(); ++i) {
-			org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(i);
-			String predictedPos = predictedWf.getPos();
-			Set<String> predictedGrammems = FSUtils.toSet(predictedWf.getGrammems());
+        while (predictedIterator.hasNext()) {
 
-			System.out.println("------------");
-			System.out.println(predictedPos);
-			System.out.println(predictedGrammems);
-			System.out.println("^^^^^^^^^^^^");
+            Word predicted = (Word)predictedIterator.next();
+            Word fromDict = (Word)fromDictIterator.next();
 
-			for (int j = 0; j < fromDict.getWordforms().size(); ++j) {
-				org.opencorpora.cas.Wordform secondWf = fromDict.getWordforms(j);
-				String fromDictPos = secondWf.getPos();
+            for (int i = 0; i < fromDict.getWordforms().size(); ++i) {
+                org.opencorpora.cas.Wordform fromDictWf = fromDict.getWordforms(i);
 
-				System.out.println(fromDictPos);
+                for (int j = 0; j < predicted.getWordforms().size(); ++j) {
+                    org.opencorpora.cas.Wordform predictedWf = predicted.getWordforms(j);
 
-				if (!fromDictPos.equals(predictedPos))
-					continue;
-				Set<String> fromDictGrammems = FSUtils.toSet(secondWf.getGrammems());
+                    calculateCounts(predictedWf, fromDictWf);
+                }
+            }
+        }
 
-				System.out.println(fromDictGrammems);
+        System.out.println("Accuracy: " + (double)tp / (tp + fn + fp));
+    }
 
-				if (predictedGrammems.containsAll(fromDictGrammems)) {
-					return true;
-				}
-			}
-		}
+    private static void calculateCounts(org.opencorpora.cas.Wordform predictedWf, org.opencorpora.cas.Wordform fromDictWf) {
 
-		System.out.println("NOT PREDICTED");
-		return false;
-	}
+        String fromDictPos = fromDictWf.getPos();
+        Set<String> fromDictGrammems = FSUtils.toSet(fromDictWf.getGrammems());
+        fromDictGrammems = Sets.intersection(fromDictGrammems, IMPORTANT_GRAMMEMS);
+
+        String predictedPos = predictedWf.getPos();
+        Set<String> predictedGrammems = FSUtils.toSet(predictedWf.getGrammems());
+        predictedGrammems = Sets.intersection(predictedGrammems, IMPORTANT_GRAMMEMS);
+
+        if (predictedPos.equals(fromDictPos)) {
+            tp += POS_WEIGHT;
+        } else {
+            fp += POS_WEIGHT;
+            fn += POS_WEIGHT;
+        }
+
+        tp += Sets.intersection(predictedGrammems, fromDictGrammems).size();
+        fp += Sets.difference(predictedGrammems, fromDictGrammems).size();
+        fn += Sets.difference(fromDictGrammems, predictedGrammems).size();
+    }
 }

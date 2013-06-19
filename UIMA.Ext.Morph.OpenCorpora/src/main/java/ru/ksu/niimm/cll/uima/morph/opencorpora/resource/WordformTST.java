@@ -94,20 +94,14 @@ public class WordformTST implements Serializable {
         int matchLength = nodeLongestPrefixMatchResult.getMatchLength();
 		if (matchLength == key.length() &&
                     nodeLongestPrefixMatchResult.getResultNode().iterator().hasNext())
-            return new WordformTSTSearchResult(true, key.length(),
-                    nodeLongestPrefixMatchResult.getResultNode().iterator());
+            return new WordformTSTSearchResult(true, nodeLongestPrefixMatchResult.getResultNode());
         // otherwise, iterate over wordforms in subtree with root in result node
         else {
-        	if(matchLength <= 0){
-        		// no matched chars
-        		return new WordformTSTSearchResult(false, matchLength, Iterators.<Wordform>emptyIterator());
-        	}
-            return new WordformTSTSearchResult(false, matchLength,
-                    new SubtreeIterator(nodeLongestPrefixMatchResult.getResultNode()));
+            return new WordformTSTSearchResult(false, nodeLongestPrefixMatchResult.getResultNode());
         }
     }
 
-    private static class Node implements Serializable, Iterable<Wordform> {
+    public static class Node implements Serializable, Iterable<Wordform> {
 		private static final long serialVersionUID = 4788009136446395268L;
 
 		private char splitchar;
@@ -182,12 +176,12 @@ public class WordformTST implements Serializable {
         }
     }
 
-    private class SubtreeIterator extends AbstractIterator<Wordform> {
+    public static class SubtreeIterator extends AbstractIterator<Wordform> {
         private Node rootNode;
         private Iterator<Wordform> currentNodeIterator;
         private Deque<Node> nodeStack = new ArrayDeque<Node>();
 
-        private SubtreeIterator(Node rootNode) {
+        public SubtreeIterator(Node rootNode) {
             this.rootNode = rootNode;
             nodeStack.addFirst(rootNode);
         }

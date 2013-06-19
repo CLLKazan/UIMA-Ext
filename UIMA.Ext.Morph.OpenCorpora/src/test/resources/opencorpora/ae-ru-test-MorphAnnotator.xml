@@ -65,7 +65,7 @@
 				<name>SerializedOpenCorporaMorphDictionary</name>
 				<description />
 				<fileResourceSpecifier>
-					<fileUrl>file:${opencorpora.morph.dictionary.serialized}</fileUrl>
+					<fileUrl>file:dict.opcorpora.ser</fileUrl>
 				</fileResourceSpecifier>
 				<implementationName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource</implementationName>
 			</externalResource>

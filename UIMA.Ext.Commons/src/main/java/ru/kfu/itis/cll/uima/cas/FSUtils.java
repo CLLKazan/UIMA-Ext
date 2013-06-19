@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.cll.uima.cas;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
+
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 
