@@ -6,6 +6,7 @@ import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
 
 import java.io.File;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -69,28 +71,46 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 	}
 
 	@Override
-	public void onPartialMatch(AnnotationFS goldAnno, AnnotationFS sysAnno) {
-		FeatureStructure goldWf = getWordform(goldAnno);
-		FeatureStructure sysWf = getWordform(sysAnno);
-		Set<String> goldGrams = getGrammems(goldWf);
+	public void onPartialMatch(final AnnotationFS goldAnno, final AnnotationFS sysAnno) {
+		final FeatureStructure goldWf = getWordform(goldAnno);
+		final FeatureStructure sysWf = getWordform(sysAnno);
+		final Set<String> goldGrams = getGrammems(goldWf);
 		String goldPos = getPos(goldWf);
-		Set<String> sysGrams = getGrammems(sysWf);
+		final Set<String> sysGrams = getGrammems(sysWf);
 		String sysPos = getPos(sysWf);
 		// check POS
 		checkTags(goldPos, sysPos);
 		// iterate through gold grammems
 		Set<String> sysGramsHandled = Sets.newHashSet();
+		Set<String> goldGramsHandled = Sets.newHashSet();
 		for (String goldGr : goldGrams) {
-			String grCat = getGramCat(goldGr);
-			String sysGr = getGramOfCat(goldAnno, sysGrams, grCat);
-			checkTags(toTag(goldPos, goldGr), toTag(sysPos, sysGr));
-			if (sysGr != null) {
-				sysGramsHandled.add(sysGr);
+			if (goldGramsHandled.contains(goldGr)) {
+				continue;
 			}
+			// category
+			String grCat = getGramCat(goldGr);
+			// category gold grams
+			Set<String> goldGrs = getGramsOfCat(goldAnno, goldGrams, grCat);
+			// category sys grams
+			Set<String> sysGrs = getGramsOfCat(sysAnno, sysGrams, grCat);
+			// check
+			checkTags(toTag(goldPos, goldGrs), toTag(sysPos, sysGrs));
+			// mark as handled
+			if (sysGrs != null) {
+				sysGramsHandled.addAll(sysGrs);
+			}
+			goldGramsHandled.addAll(goldGrs);
 		}
 		// report spurious grammems
-		for (String sysGr : Sets.difference(sysGramsHandled, sysGramsHandled)) {
-			checkTags(toTag(goldPos, null), toTag(sysPos, sysGr));
+		Set<String> nonHandledSys = Sets.newHashSet(Sets.difference(sysGrams, sysGramsHandled));
+		for (String sysGr : nonHandledSys) {
+			if (sysGramsHandled.contains(sysGr)) {
+				continue;
+			}
+			String grCat = getGramCat(sysGr);
+			Set<String> sysGrs = getGramsOfCat(sysAnno, sysGrams, grCat);
+			checkTags(toTag(goldPos, null), toTag(sysPos, sysGrs));
+			sysGramsHandled.addAll(sysGrs);
 		}
 	}
 
@@ -103,7 +123,7 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		return cat;
 	}
 
-	private String getGramOfCat(AnnotationFS word, Set<String> sysGrams, String cat) {
+	private Set<String> getGramsOfCat(AnnotationFS word, Set<String> sysGrams, String cat) {
 		Set<String> catGrams = gramCategoryContent.get(cat);
 		if (catGrams == null) {
 			throw new IllegalStateException();
@@ -112,15 +132,23 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		if (resultSet.isEmpty()) {
 			return null;
 		}
-		if (resultSet.size() > 1) {
-			log.warn("Several grammems of category '{}' in {}: {}", new Object[] {
-					cat, toPrettyString(word), sysGrams });
-		}
-		return resultSet.iterator().next();
+		return resultSet;
 	}
 
-	private String toTag(String pos, String gram) {
-		return new StringBuilder(pos).append('_').append(gram).toString();
+	private static Joiner grJoiner = Joiner.on('_');
+
+	private String toTag(String pos, Set<String> grams) {
+		String gramsStr;
+		if (grams == null || grams.isEmpty()) {
+			gramsStr = "null";
+		} else if (grams.size() == 1) {
+			gramsStr = grams.iterator().next();
+		} else {
+			List<String> sortedGrams = Lists.newArrayList(grams);
+			Collections.sort(sortedGrams);
+			gramsStr = grJoiner.join(sortedGrams);
+		}
+		return new StringBuilder(pos).append('_').append(gramsStr).toString();
 	}
 
 	private void checkTags(String goldTag, String sysTag) {

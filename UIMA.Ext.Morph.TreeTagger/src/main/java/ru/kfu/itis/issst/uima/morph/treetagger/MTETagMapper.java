@@ -112,7 +112,7 @@ public class MTETagMapper implements TagMapper {
 		// voice
 		table.put(7, '-', noOp);
 		// TODO ignore 'medial' in evaluation
-		table.put(7, 'm', addGram(actv));
+		table.put(7, 'm', addGram(actv, pssv));
 		table.put(7, 'a', addGram(actv));
 		table.put(7, 'p', addGram(pssv));
 		// definiteness
