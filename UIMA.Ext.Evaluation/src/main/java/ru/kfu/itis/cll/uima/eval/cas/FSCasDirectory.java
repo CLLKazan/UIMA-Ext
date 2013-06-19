@@ -37,7 +37,7 @@ import com.google.common.collect.Iterators;
  */
 public class FSCasDirectory implements CasDirectory, BeanNameAware {
 
-	private String beanName;
+	protected String beanName;
 	private File dir;
 	@Autowired
 	private TypeSystem ts;

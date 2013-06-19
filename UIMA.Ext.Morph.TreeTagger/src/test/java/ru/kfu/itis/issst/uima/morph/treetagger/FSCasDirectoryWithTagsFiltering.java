@@ -40,6 +40,8 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 	private static final Set<String> GENDER_TAGS = ImmutableSet.of(femn, masc, neut);
 	private static final Set<String> ADJ_POSES = ImmutableSet.of(ADJF, ADJS, PRTF, PRTS);
 
+	private DirType dirType;
+
 	@Override
 	protected void postProcessCAS(CAS cas) {
 		try {
@@ -63,6 +65,11 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 	}
 
 	private void postProcess(JCas jCas, Wordform wf) {
+		// alignment rule 4
+		if (isGoldDirectory() && PRED.equals(wf.getPos())) {
+			wf.setPos(ADVB);
+		}
+		// 
 		if (wf.getGrammems() != null) {
 			List<String> tagList = Lists.newLinkedList(FSUtils.toList(wf.getGrammems()));
 			if (filterGramTags(wf.getPos(), tagList)) {
@@ -76,13 +83,44 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 	}
 
 	private boolean filterGramTags(String pos, List<String> tagList) {
+		// alignment rule 1
 		boolean changed = tagList.removeAll(FILTERED_GRAM_TAGS);
+		// alignment rule 2
 		if (!NOUN.equals(pos)) {
 			changed |= tagList.removeAll(ANIMACY_TAGS);
 		}
+		// alignment rule 3
 		if (ADJ_POSES.contains(pos) && tagList.contains(plur)) {
 			changed |= tagList.removeAll(GENDER_TAGS);
 		}
 		return changed;
+	}
+
+	private static enum DirType {
+		SYSTEM, GOLD;
+	}
+
+	private boolean isSystemDirectory() {
+		if (dirType == null) {
+			initDirType();
+		}
+		return dirType.equals(DirType.SYSTEM);
+	}
+
+	private boolean isGoldDirectory() {
+		if (dirType == null) {
+			initDirType();
+		}
+		return dirType.equals(DirType.GOLD);
+	}
+
+	private void initDirType() {
+		if (beanName.startsWith("gold")) {
+			dirType = DirType.GOLD;
+		} else if (beanName.startsWith("system")) {
+			dirType = DirType.SYSTEM;
+		} else {
+			throw new IllegalStateException("Can't assign DirType for bean named " + beanName);
+		}
 	}
 }
