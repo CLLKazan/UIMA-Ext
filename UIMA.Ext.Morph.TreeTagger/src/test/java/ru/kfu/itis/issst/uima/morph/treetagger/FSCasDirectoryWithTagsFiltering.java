@@ -36,9 +36,12 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 			Name, Patr, Surn,
 			Dist);
 
+	private static final Set<String> CASE_TAGS = ImmutableSet.of(
+			nomn, gent, gen1, gen2, datv, accs, ablt, loct, loc1, loc2, voct);
 	private static final Set<String> ANIMACY_TAGS = ImmutableSet.of(anim, inan);
 	private static final Set<String> GENDER_TAGS = ImmutableSet.of(femn, masc, neut);
 	private static final Set<String> ADJ_POSES = ImmutableSet.of(ADJF, ADJS, PRTF, PRTS);
+	private static final Set<String> SHORT_ADJ_POSES = ImmutableSet.of(ADJS, PRTS);
 
 	private DirType dirType;
 
@@ -92,6 +95,10 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 		// alignment rule 3
 		if (ADJ_POSES.contains(pos) && tagList.contains(plur)) {
 			changed |= tagList.removeAll(GENDER_TAGS);
+		}
+		// alignment rule 5
+		if (isSystemDirectory() && SHORT_ADJ_POSES.contains(pos)) {
+			changed |= tagList.removeAll(CASE_TAGS);
 		}
 		return changed;
 	}

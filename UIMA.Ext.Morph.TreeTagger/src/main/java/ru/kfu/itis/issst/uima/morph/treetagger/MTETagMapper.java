@@ -173,7 +173,7 @@ public class MTETagMapper implements TagMapper {
 		table.put(6, 'f', setPos(ADJF));
 		cat2Table.put('A', Tables.unmodifiableRowSortedTable(table));
 		// ---------------------------------------------
-		// 
+		// PRONOUN
 		// ---------------------------------------------
 		table = TreeBasedTable.create();
 		table.put(0, 'P', setPos(NPRO));
@@ -208,7 +208,6 @@ public class MTETagMapper implements TagMapper {
 		table.put(6, 'n', noOp);
 		table.put(6, 'a', and(setPos(ADJF), addGram(Apro)));
 		table.put(6, 'r', and(setPos(ADVB), addGram(Apro)));
-		// adverbial is intentionally ignored to look at an example of such wordform
 		// animate
 		table.put(7, '-', noOp);
 		table.put(7, 'n', addGram(inan));
