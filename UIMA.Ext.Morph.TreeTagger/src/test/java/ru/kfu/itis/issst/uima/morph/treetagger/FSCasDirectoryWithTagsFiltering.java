@@ -30,6 +30,7 @@ import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 
 	private static final Set<String> FILTERED_GRAM_TAGS = ImmutableSet.of(
+			Prnt,
 			Fixd,
 			Qual, Poss,
 			tran, intr,
@@ -72,9 +73,13 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 		if (isGoldDirectory() && PRED.equals(wf.getPos())) {
 			wf.setPos(ADVB);
 		}
-		// 
+		//
 		if (wf.getGrammems() != null) {
 			List<String> tagList = Lists.newLinkedList(FSUtils.toList(wf.getGrammems()));
+			// arguable alignment rule 6
+			if (isGoldDirectory() && wf.getPos() == null && tagList.contains(Prnt)) {
+				wf.setPos(ADVB);
+			}
 			if (filterGramTags(wf.getPos(), tagList)) {
 				if (tagList.isEmpty()) {
 					wf.setGrammems(null);
