@@ -14,7 +14,9 @@ import org.apache.uima.cas.text.AnnotationFS;
  */
 public interface MatchingStrategy {
 
-	Set<AnnotationFS> searchCandidates(AnnotationFS goldAnno, CAS sysCas);
+	void changeCas(CAS newSysCas);
+
+	Set<AnnotationFS> searchCandidates(AnnotationFS goldAnno);
 
 	/**
 	 * 
@@ -23,6 +25,6 @@ public interface MatchingStrategy {
 	 * @return return the first candidate that exactly matches the given
 	 *         goldAnno
 	 */
-	AnnotationFS searchExactMatch(AnnotationFS godlAnno, Iterable<AnnotationFS> candidates);
+	AnnotationFS searchExactMatch(AnnotationFS goldAnno, Iterable<AnnotationFS> candidates);
 
 }

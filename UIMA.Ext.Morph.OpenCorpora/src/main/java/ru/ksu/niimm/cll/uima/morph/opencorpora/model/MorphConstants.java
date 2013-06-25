@@ -34,7 +34,7 @@ public class MorphConstants {
 	public static final String masc = "masc"; // мужской род
 	public static final String femn = "femn"; // женский род
 	public static final String neut = "neut"; // средний род
-	public static final String comgend = "ор";//	общий род	—
+	public static final String comgend = "Ms-f";//	общий род	—
 	public static final String NMbr = "NMbr"; // число
 	public static final String sing = "sing"; // единственное число
 	public static final String plur = "plur"; // множественное число
@@ -98,6 +98,8 @@ public class MorphConstants {
 	public static final String VOic = "VOic"; // категория залога
 	public static final String actv = "actv"; // действительный залог
 	public static final String pssv = "pssv"; // страдательный залог
+	public static final String Prnt = "Prnt"; // вводное слово
+	public static final String Dist = "Dist"; // искажение
 
 	private MorphConstants() {
 	}

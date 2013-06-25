@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="morphTagger">
+			<import name="ru.kfu.itis.issst.uima.morph.treetagger.MorphTagger" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="xmiWriter">
+			<import name="ru.kfu.itis.cll.uima.commons.an-XMIWriter"/>
+		</delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+
+	<analysisEngineMetaData>
+		<name>test-morph-treeTagger-aggregate</name>
+
+		<configurationParameters>
+			<configurationParameter>
+                <name>treeTaggerModelName</name>
+                <type>String</type>
+                <mandatory>true</mandatory>
+                <overrides>
+                	<parameter>morphTagger/treeTaggerModelName</parameter>
+                </overrides>
+            </configurationParameter>
+            <configurationParameter>
+            	<name>XmiOutputDir</name>
+            	<type>String</type>
+            	<mandatory>true</mandatory>
+            	<overrides>
+            		<parameter>xmiWriter/OutputDirectory</parameter>
+            	</overrides>
+            </configurationParameter>
+		</configurationParameters>
+		<configurationParameterSettings>
+			<nameValuePair>
+				<name>treeTaggerModelName</name>
+				<value>
+					<string>russian.par:UTF-8</string>
+				</value>
+			</nameValuePair>
+		</configurationParameterSettings>
+		<flowConstraints>
+			<fixedFlow>
+				<node>morphTagger</node>
+				<node>xmiWriter</node>
+			</fixedFlow>
+		</flowConstraints>
+	</analysisEngineMetaData>
+
+</analysisEngineDescription>

@@ -42,7 +42,9 @@ import com.google.common.collect.ImmutableList;
  */
 public class InitialTokenizer extends CasAnnotator_ImplBase {
 
-	@ConfigurationParameter(name = "spanType", mandatory = false)
+	public static final String PARAM_SPAN_TYPE = "spanType";
+
+	@ConfigurationParameter(name = PARAM_SPAN_TYPE, mandatory = false)
 	private String spanTypeName = "uima.tcas.DocumentAnnotation";
 
 	// derived

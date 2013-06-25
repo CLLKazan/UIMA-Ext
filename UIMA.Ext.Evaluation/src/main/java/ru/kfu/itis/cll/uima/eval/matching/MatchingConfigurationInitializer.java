@@ -210,9 +210,21 @@ public class MatchingConfigurationInitializer {
 						ignoreOrder = false;
 						subMatcherStrings.remove("ordered");
 					}
-					Builder<?> elemMatcherBuilder = parseSubMatcher(
-							subMatcherStrings, MatchingUtils.getComponentType(featRange));
-					builder.addFSCollectionFeatureMatcher(featName, elemMatcherBuilder, ignoreOrder);
+					Type componentType = MatchingUtils.getComponentType(featRange);
+					if (componentType.isPrimitive()) {
+						subMatcherStrings.remove("primitive");
+						if(!subMatcherStrings.isEmpty()){
+							throw new IllegalStateException(String.format(
+									"Illegal matcher description for primitive collection feature %s:\n%s",
+									feature, subMatcherStrings));
+						}
+						builder.addPrimitiveCollectionFeatureMatcher(featName, ignoreOrder);
+					} else {
+						Builder<?> elemMatcherBuilder = parseSubMatcher(
+								subMatcherStrings, componentType);
+						builder.addFSCollectionFeatureMatcher(featName, elemMatcherBuilder,
+								ignoreOrder);
+					}
 				} else {
 					// handle non-primitive-ranged feature
 					Builder<?> valueMatcherBuilder = parseSubMatcher(

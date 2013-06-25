@@ -15,6 +15,7 @@
 		<module>../UIMA.Ext.Tokenizer</module>
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
+		<module>../UIMA.Ext.Morph.TreeTagger</module>
 		<module>../UIMA.Ext.Morph.Search</module>
 		<module>../UIMA.Ext.PhraseRecognizer</module>
 		<module>../UIMA.Ext.NER</module>

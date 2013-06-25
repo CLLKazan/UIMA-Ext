@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>opencorpora-morphology</name>
+	<description />
+	<version>0.1</version>
+	<vendor>OpenCorpora.org &amp; Kazan Federal University</vendor>
+	<types>
+		<typeDescription>
+			<name>ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpan</name>
+			<description>Marks a span between two tokens that are explicitly defined in corpus markup.</description>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+	</types>
+</typeSystemDescription>

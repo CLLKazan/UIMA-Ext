@@ -26,6 +26,9 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 public class MorphLauncher {
 
 	/**
+	 * <b>NOTE!</b> uima.datapath system property must contain path to
+	 * serialized dictionary!
+	 * 
 	 * @param args
 	 * @throws IOException
 	 * @throws InvalidXMLException

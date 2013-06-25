@@ -160,6 +160,14 @@ public class CompositeMatcher<FST extends FeatureStructure> extends MatcherBase<
 			return this;
 		}
 
+		public Builder<FST> addPrimitiveCollectionFeatureMatcher(String featName,
+				boolean ignoreOrder) {
+			Feature feat = getFeature(targetType, featName, true);
+			instance.matchers.add(PrimitiveCollectionFeatureMatcher.<FST> forFeature(feat,
+					ignoreOrder));
+			return this;
+		}
+
 		public Type getTargetType() {
 			return targetType;
 		}

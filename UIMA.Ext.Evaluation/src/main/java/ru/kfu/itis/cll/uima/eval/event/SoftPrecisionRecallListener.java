@@ -39,6 +39,7 @@ public class SoftPrecisionRecallListener extends TypedPrintingEvaluationListener
 
 	@Override
 	public void onDocumentChange(String docUri) {
+		super.onDocumentChange(docUri);
 		sysPartiallyMatched.clear();
 		goldPartiallyMatched.clear();
 	}
