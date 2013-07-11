@@ -86,14 +86,19 @@ public class RusCorporaParserBootstrap {
 		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
 				InitialTokenizer.class,
 				InitialTokenizer.PARAM_SPAN_TYPE, NonTokenizedSpan.class.getName());
-		// make AnnotationRemover
+		// make AnnotationRemovers
+		AnalysisEngineDescription scaffoldRemover = createPrimitiveDescription(
+				AnnotationRemover.class,
+				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
+				new String[] { "ru.ksu.niimm.cll.uima.morph.util" });
 		AnalysisEngineDescription morphRemover = createPrimitiveDescription(
 				AnnotationRemover.class,
-				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE, new String[] { "org.opencorpora.cas",
-						"ru.ksu.niimm.cll.uima.morph.util" });
+				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
+				new String[] { "org.opencorpora.cas" });
 		// make AGGREGATE
 		AnalysisEngineDescription aggregateDesc = AnalysisEngineFactory.createAggregateDescription(
-				xmiWriter1Desc, ntsAnnotatorDesc, tokenizerDesc, morphRemover, xmiWriter2Desc);
+				ntsAnnotatorDesc, tokenizerDesc, scaffoldRemover, xmiWriter1Desc,
+				morphRemover, xmiWriter2Desc);
 		//
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setReader(colReaderDesc);

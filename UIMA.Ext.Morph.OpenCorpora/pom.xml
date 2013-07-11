@@ -58,10 +58,29 @@
 		 -->
 	</build>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.cleartk</groupId>
+				<artifactId>cleartk-release</artifactId>
+				<version>1.4.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-ext-commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml-crfsuite</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
@@ -98,7 +117,7 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-	
+
 	<profiles>
 		<profile>
 			<id>make-jcas</id>
@@ -144,7 +163,7 @@
 									<target>
 										<delete includeemptydirs="true" verbose="true">
 											<fileset dir="src/main/jcas">
-												<exclude name="org/opencorpora/cas/**/*.java"/>
+												<exclude name="org/opencorpora/cas/**/*.java" />
 											</fileset>
 										</delete>
 									</target>
