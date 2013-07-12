@@ -28,7 +28,7 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.google.common.collect.Lists;
 
@@ -46,7 +46,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
 	private String tokenTypeName;
 	@ExternalResource(key = RESOURCE_KEY_DICTIONARY)
-	private SerializedDictionaryResource dictResource;
+	private MorphDictionaryHolder dictHolder;
 	// derived
 	private Type tokenType;
 	private MorphDictionary dict;
@@ -64,7 +64,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
 		log = ctx.getLogger();
-		dict = dictResource.getDictionary();
+		dict = dictHolder.getDictionary();
 		if (dict == null) {
 			throw new IllegalStateException("dict is null");
 		}
@@ -108,18 +108,18 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 		for (Wordform wf : wfDictEntries) {
 			org.opencorpora.cas.Wordform casWf = new org.opencorpora.cas.Wordform(cas);
 
-            BitSet grammems = wf.getGrammems();
-            int lemmaId = wf.getLemmaId();
-            Lemma lemma = dict.getLemma(wf.getLemmaId());
-            // set lemma id
-            casWf.setLemmaId(lemma.getId());
-            // set lemma norm
-            casWf.setLemma(lemma.getString());
-            // set pos
-            casWf.setPos(dict.getPos(lemma));
-            // set grammems
-            grammems.or(lemma.getGrammems());
-            grammems.andNot(dict.getPosBits());
+			BitSet grammems = wf.getGrammems();
+			int lemmaId = wf.getLemmaId();
+			Lemma lemma = dict.getLemma(wf.getLemmaId());
+			// set lemma id
+			casWf.setLemmaId(lemma.getId());
+			// set lemma norm
+			casWf.setLemma(lemma.getString());
+			// set pos
+			casWf.setPos(dict.getPos(lemma));
+			// set grammems
+			grammems.or(lemma.getGrammems());
+			grammems.andNot(dict.getPosBits());
 			List<String> gramSet = dict.toGramSet(grammems);
 			casWf.setGrammems(FSUtils.toStringArray(cas, gramSet));
 

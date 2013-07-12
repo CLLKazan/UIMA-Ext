@@ -3,6 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import static java.util.Arrays.asList;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 
@@ -27,6 +28,7 @@ import org.cleartk.classifier.feature.function.LowerCaseFeatureFunction;
 import org.cleartk.classifier.feature.function.NumericTypeFeatureFunction;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
+import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.JCasUtil;
 
 import com.google.common.collect.Lists;
@@ -35,6 +37,9 @@ import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev
@@ -42,12 +47,20 @@ import ru.kfu.cll.uima.tokenizer.fstype.W;
  */
 public class CRFSuitePosSequenceAnnotator extends CleartkSequenceAnnotator<String> {
 
+	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
+	// config fields
+	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY)
+	private MorphDictionaryHolder morphDictHolder;
+	// derived
+	private MorphDictionary morphDictionary;
 	private SimpleFeatureExtractor tokenFeatureExtractor;
 	private CleartkExtractor contextFeatureExtractor;
+	private SimpleFeatureExtractor dictFeatureExtractor;
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
+		morphDictionary = morphDictHolder.getDictionary();
 
 		tokenFeatureExtractor = new FeatureFunctionExtractor(new CoveredTextExtractor(),
 				new LowerCaseFeatureFunction(),
@@ -57,6 +70,10 @@ public class CRFSuitePosSequenceAnnotator extends CleartkSequenceAnnotator<Strin
 
 		contextFeatureExtractor = new CleartkExtractor(Token.class, new SuffixFeatureExtractor(3),
 				new CleartkExtractor.Preceding(2), new CleartkExtractor.Following(2));
+
+		// initialize morph-dictionary-based feature extractor
+		dictFeatureExtractor = new DictionaryPossibleTagFeatureExtractor(
+				asList(MorphConstants.POST), morphDictionary);
 	}
 
 	@Override
@@ -96,6 +113,7 @@ public class CRFSuitePosSequenceAnnotator extends CleartkSequenceAnnotator<Strin
 					List<Feature> tokFeatures = Lists.newLinkedList();
 					tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, tok));
 					tokFeatures.addAll(contextFeatureExtractor.extract(jCas, tok));
+					tokFeatures.addAll(dictFeatureExtractor.extract(jCas, tok));
 					sentSeq.add(tokFeatures);
 				}
 			}

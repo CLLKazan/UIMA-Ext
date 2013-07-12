@@ -42,7 +42,7 @@
         <externalResourceDependency>
             <key>MorphDictionary</key>
             <description/>
-            <interfaceName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource</interfaceName>
+            <interfaceName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder</interfaceName>
             <optional>false</optional>
         </externalResourceDependency>
     </externalResourceDependencies>

@@ -45,8 +45,6 @@ public class DictionaryDeserializer {
 		}
 		log.info("Deserialization of MorphDictionary finished in {} ms",
 				currentTimeMillis() - timeBefore);
-		dict.setWfPredictor(new DummyWordformPredictor(dict));
-		log.info("DummyWordformPredictor was set in Deserialized MorphDictionary");
 		return dict;
 	}
 

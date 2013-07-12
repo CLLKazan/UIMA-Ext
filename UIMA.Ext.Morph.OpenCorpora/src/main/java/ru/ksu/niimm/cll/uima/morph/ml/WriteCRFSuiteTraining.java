@@ -10,15 +10,18 @@ import java.io.File;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
+import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 
 /**
  * @author Rinat Gareev
@@ -49,6 +52,11 @@ public class WriteCRFSuiteTraining {
 						CRFSuitePosSequenceAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 						CRFSuiteStringOutcomeDataWriterFactory.class.getName(),
 						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY, outputDir.getPath());
+		ExternalResourceDescription morphDictHolderDesc = ExternalResourceFactory
+				.createExternalResourceDescription(
+						ConfigurableSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
+		ExternalResourceFactory.bindResource(trainingSetExtractorDesc,
+				CRFSuitePosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY, morphDictHolderDesc);
 		//
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setReader(colReaderDesc);

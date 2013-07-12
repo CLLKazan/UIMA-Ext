@@ -10,9 +10,10 @@ import java.util.regex.Pattern;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-class WordUtils {
+// TODO name properly & move to morph.commons package
+public class WordUtils {
 
-	static boolean isRussianWord(String token) {
+	public static boolean isRussianWord(String token) {
 		if (token.isEmpty()) {
 			return false;
 		}
@@ -32,7 +33,7 @@ class WordUtils {
 		return UnicodeBlock.of(lastLetter).equals(UnicodeBlock.CYRILLIC);
 	}
 
-	static String normalizeToDictionaryForm(String str) {
+	public static String normalizeToDictionaryForm(String str) {
 		str = unicodeMarksPattern.matcher(str).replaceAll("");
 		str = str.trim().toLowerCase();
 		// str = StringUtils.replaceChars(str, "ёЁ", "еЕ");
@@ -43,5 +44,4 @@ class WordUtils {
 
 	private WordUtils() {
 	}
-
 }

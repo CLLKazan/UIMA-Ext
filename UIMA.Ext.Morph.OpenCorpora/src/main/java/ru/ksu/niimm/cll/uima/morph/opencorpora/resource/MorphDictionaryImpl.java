@@ -73,8 +73,12 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
 		if (result.isMatchExact())
 			return Lists.newArrayList(result);
-		else
+		else if (wfPredictor != null) {
 			return ImmutableList.copyOf(wfPredictor.predict(str, result));
+		} else {
+			// wfPredictor is not set
+			return ImmutableList.of();
+		}
 	}
 
 	/**
