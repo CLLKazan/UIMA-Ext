@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Tue Mar 26 15:39:15 MSK 2013 */
+/* First created by JCasGen Tue Jul 16 19:01:56 MSD 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.cas.TOP_Type;
 
 /** 
- * Updated by JCasGen Tue Mar 26 15:39:15 MSK 2013
+ * Updated by JCasGen Tue Jul 16 19:01:56 MSD 2013
  * @generated */
 public class Wordform_Type extends TOP_Type {
   /** @generated */
@@ -61,6 +61,43 @@ public class Wordform_Type extends TOP_Type {
     ll_cas.ll_setStringValue(addr, casFeatCode_pos, v);}
     
   
+ 
+  /** @generated */
+  final Feature casFeat_posBits;
+  /** @generated */
+  final int     casFeatCode_posBits;
+  /** @generated */ 
+  public int getPosBits(int addr) {
+        if (featOkTst && casFeat_posBits == null)
+      jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    return ll_cas.ll_getRefValue(addr, casFeatCode_posBits);
+  }
+  /** @generated */    
+  public void setPosBits(int addr, int v) {
+        if (featOkTst && casFeat_posBits == null)
+      jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    ll_cas.ll_setRefValue(addr, casFeatCode_posBits, v);}
+    
+   /** @generated */
+  public long getPosBits(int addr, int i) {
+        if (featOkTst && casFeat_posBits == null)
+      jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    if (lowLevelTypeChecks)
+      return ll_cas.ll_getLongArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_posBits), i, true);
+    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_posBits), i);
+	return ll_cas.ll_getLongArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_posBits), i);
+  }
+   
+  /** @generated */ 
+  public void setPosBits(int addr, int i, long v) {
+        if (featOkTst && casFeat_posBits == null)
+      jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    if (lowLevelTypeChecks)
+      ll_cas.ll_setLongArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_posBits), i, v, true);
+    jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_posBits), i);
+    ll_cas.ll_setLongArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_posBits), i, v);
+  }
+ 
  
   /** @generated */
   final Feature casFeat_lemma;
@@ -164,6 +201,10 @@ public class Wordform_Type extends TOP_Type {
  
     casFeat_pos = jcas.getRequiredFeatureDE(casType, "pos", "uima.cas.String", featOkTst);
     casFeatCode_pos  = (null == casFeat_pos) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_pos).getCode();
+
+ 
+    casFeat_posBits = jcas.getRequiredFeatureDE(casType, "posBits", "uima.cas.LongArray", featOkTst);
+    casFeatCode_posBits  = (null == casFeat_posBits) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_posBits).getCode();
 
  
     casFeat_lemma = jcas.getRequiredFeatureDE(casType, "lemma", "uima.cas.String", featOkTst);

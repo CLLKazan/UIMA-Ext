@@ -16,6 +16,11 @@
 					<rangeTypeName>uima.cas.String</rangeTypeName>
 				</featureDescription>
 				<featureDescription>
+					<name>posBits</name>
+					<description />
+					<rangeTypeName>uima.cas.LongArray</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
 					<name>lemma</name>
 					<description />
 					<rangeTypeName>uima.cas.String</rangeTypeName>

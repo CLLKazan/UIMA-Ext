@@ -1,18 +1,19 @@
 
 
-/* First created by JCasGen Tue Mar 26 15:39:15 MSK 2013 */
+/* First created by JCasGen Tue Jul 16 19:01:56 MSD 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas; 
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
 
+import org.apache.uima.jcas.cas.LongArray;
 import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.cas.StringArray;
 
 
 /** 
- * Updated by JCasGen Tue Mar 26 15:39:15 MSK 2013
+ * Updated by JCasGen Tue Jul 16 19:01:56 MSD 2013
  * XML source: src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class Wordform extends TOP {
@@ -71,6 +72,40 @@ public class Wordform extends TOP {
     if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_pos == null)
       jcasType.jcas.throwFeatMissing("pos", "org.opencorpora.cas.Wordform");
     jcasType.ll_cas.ll_setStringValue(addr, ((Wordform_Type)jcasType).casFeatCode_pos, v);}    
+   
+    
+  //*--------------*
+  //* Feature: posBits
+
+  /** getter for posBits - gets 
+   * @generated */
+  public LongArray getPosBits() {
+    if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_posBits == null)
+      jcasType.jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    return (LongArray)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_posBits)));}
+    
+  /** setter for posBits - sets  
+   * @generated */
+  public void setPosBits(LongArray v) {
+    if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_posBits == null)
+      jcasType.jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    jcasType.ll_cas.ll_setRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_posBits, jcasType.ll_cas.ll_getFSRef(v));}    
+    
+  /** indexed getter for posBits - gets an indexed value - 
+   * @generated */
+  public long getPosBits(int i) {
+    if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_posBits == null)
+      jcasType.jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_posBits), i);
+    return jcasType.ll_cas.ll_getLongArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_posBits), i);}
+
+  /** indexed setter for posBits - sets an indexed value - 
+   * @generated */
+  public void setPosBits(int i, long v) { 
+    if (Wordform_Type.featOkTst && ((Wordform_Type)jcasType).casFeat_posBits == null)
+      jcasType.jcas.throwFeatMissing("posBits", "org.opencorpora.cas.Wordform");
+    jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_posBits), i);
+    jcasType.ll_cas.ll_setLongArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Wordform_Type)jcasType).casFeatCode_posBits), i, v);}
    
     
   //*--------------*

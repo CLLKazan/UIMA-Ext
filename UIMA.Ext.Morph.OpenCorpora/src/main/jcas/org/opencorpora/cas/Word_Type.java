@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Tue Mar 26 15:39:15 MSK 2013 */
+/* First created by JCasGen Tue Jul 16 19:01:56 MSD 2013 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Tue Mar 26 15:39:15 MSK 2013
+ * Updated by JCasGen Tue Jul 16 19:01:56 MSD 2013
  * @generated */
 public class Word_Type extends Annotation_Type {
   /** @generated */
