@@ -16,12 +16,25 @@
                 <multiValued>false</multiValued>
                 <mandatory>false</mandatory>
             </configurationParameter>
+            <configurationParameter>
+                <name>AnnotationAdapterClass</name>
+                <description/>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>true</mandatory>
+            </configurationParameter>
         </configurationParameters>
         <configurationParameterSettings>
             <nameValuePair>
                 <name>TokenType</name>
                 <value>
                     <string>ru.kfu.cll.uima.tokenizer.fstype.Token</string>
+                </value>
+            </nameValuePair>
+            <nameValuePair>
+                <name>AnnotationAdapterClass</name>
+                <value>
+                    <string>ru.ksu.niimm.cll.uima.morph.opencorpora.DefaultAnnotationAdapter</string>
                 </value>
             </nameValuePair>
         </configurationParameterSettings>
