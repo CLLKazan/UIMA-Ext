@@ -22,6 +22,8 @@ import com.google.common.collect.Lists;
 /**
  * A simple collection reader that reads CASes in XMI format from a directory in
  * the filesystem.
+ * <p>
+ * TODO make it uses {@link XmiCollectionReaderBase}
  */
 public class XmiCollectionReader extends CasCollectionReader_ImplBase {
 	/**

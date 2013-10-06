@@ -41,21 +41,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
-		</testResources>
-		<!-- 
-		<filters>
-			<filter>tests-filtering.properties</filter>
-		</filters>
-		 -->
 	</build>
 
 	<dependencyManagement>
@@ -99,6 +84,11 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+			<version>1.32</version>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -110,6 +100,35 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.lab.uima.engine.cpe</artifactId>
+			<version>0.9.1</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.xmlgraphics</groupId>
+					<artifactId>batik-svggen</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.xmlgraphics</groupId>
+					<artifactId>batik-dom</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.xmlgraphics</groupId>
+					<artifactId>batik-gvt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.xmlgraphics</groupId>
+					<artifactId>fop</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-eval</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>

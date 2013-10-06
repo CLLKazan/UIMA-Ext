@@ -12,6 +12,7 @@
 	<logger name="net" level="INFO" />
 	<logger name="java" level="INFO" />
 	<logger name="javax" level="INFO" />
+	<logger name="de" level="INFO" />
 	<root level="TRACE">
 		<appender-ref ref="stdout" />
 	</root>

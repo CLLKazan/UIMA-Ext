@@ -14,7 +14,6 @@ import org.opencorpora.cas.Word;
 import com.google.common.collect.Lists;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.AnnotationAdapterBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
@@ -62,6 +61,12 @@ public class LongBitsAnnotationAdapter extends AnnotationAdapterBase {
 		word.setWordforms(FSUtils.toFSArray(jcas, casWfList));
 
 		word.addToIndexes();
+	}
+
+	@Override
+	public void apply(JCas jcas, Annotation token, Integer lexemeId, String lemma, BitSet posBits) {
+		// TODO
+		throw new UnsupportedOperationException();
 	}
 
 }

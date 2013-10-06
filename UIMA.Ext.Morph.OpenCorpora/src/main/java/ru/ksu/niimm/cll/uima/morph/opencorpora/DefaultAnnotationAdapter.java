@@ -12,17 +12,18 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.opencorpora.cas.Word;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.AnnotationAdapterBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
  * <p>
  * Uses Wordform.pos to set general lexical category, e.g., NOUN,VERB, etc.
  * <p>
- * Uses Wordform.grammems to set other grammatical categories.
+ * Uses Wordform.grammems to set all grammatical categories, including general
+ * one.
  * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -49,7 +50,6 @@ public class DefaultAnnotationAdapter extends AnnotationAdapterBase {
 			casWf.setPos(dict.getPos(lemma));
 			// set grammems
 			grammems.or(lemma.getGrammems());
-			grammems.andNot(dict.getPosBits());
 			List<String> gramSet = dict.toGramSet(grammems);
 			casWf.setGrammems(FSUtils.toStringArray(jcas, gramSet));
 
@@ -64,4 +64,38 @@ public class DefaultAnnotationAdapter extends AnnotationAdapterBase {
 		word.addToIndexes();
 	}
 
+	@Override
+	public void apply(JCas jcas, Annotation token,
+			Integer lexemeId, final String _lemma, BitSet posBits) {
+		Word word = new Word(jcas);
+		word.setBegin(token.getBegin());
+		word.setEnd(token.getEnd());
+		word.setToken(token);
+
+		org.opencorpora.cas.Wordform casWf = new org.opencorpora.cas.Wordform(jcas);
+		String lemma = null;
+		if (lexemeId != null) {
+			Lemma lex = dict.getLemma(lexemeId);
+			lemma = lex.getString();
+			casWf.setLemmaId(lexemeId);
+		} else if (_lemma != null) {
+			lemma = _lemma;
+		}
+		if (lemma != null) {
+			casWf.setLemma(lemma);
+		}
+		// TODO set 'pos' feature
+		// casWf.setPos(...);
+
+		List<String> gramSet = dict.toGramSet(posBits);
+		casWf.setGrammems(FSUtils.toStringArray(jcas, gramSet));
+
+		// set hosting word
+		casWf.setWord(word);
+
+		// set wordforms
+		word.setWordforms(FSUtils.toFSArray(jcas, ImmutableList.of(casWf)));
+
+		word.addToIndexes();
+	}
 }

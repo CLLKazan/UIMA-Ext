@@ -16,7 +16,6 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.TypeSystem;
@@ -38,11 +37,11 @@ import com.google.common.collect.Iterators;
 public class FSCasDirectory implements CasDirectory, BeanNameAware {
 
 	protected String beanName;
-	private File dir;
+	protected File dir;
 	@Autowired
-	private TypeSystem ts;
+	protected TypeSystem ts;
 	@Autowired
-	private Environment env;
+	protected Environment env;
 
 	@Override
 	public void setTypeSystem(TypeSystem ts) {
@@ -114,12 +113,21 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 		// default impl do nothing
 	}
 
+	/**
+	 * Subclasses may override this to provide additional filtering logic.
+	 * 
+	 * @return file filter for source files in the base dir
+	 */
+	protected FileFilter getSourceFileFilter() {
+		return FileFilterUtils.suffixFileFilter(".xmi");
+	}
+
 	private File[] xmiFiles;
 
 	private File[] getXmiFiles() {
 		if (xmiFiles == null) {
-			IOFileFilter xmiFileFilter = FileFilterUtils.suffixFileFilter(".xmi");
-			xmiFiles = dir.listFiles((FileFilter) xmiFileFilter);
+			FileFilter sourceFileFilter = getSourceFileFilter();
+			xmiFiles = dir.listFiles((FileFilter) sourceFileFilter);
 		}
 		return xmiFiles;
 	}

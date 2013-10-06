@@ -305,6 +305,13 @@ public class Slf4jLoggerImpl implements Logger {
 		}
 	}
 
+	@Override
+	public void log(String wrapperFQCN, Level level, String message, Throwable thrown) {
+		// FIXME
+		throw new UnsupportedOperationException();
+		// doLog(level, message, thrown);
+	}
+
 	public void setResourceManager(ResourceManager resourceManager) {
 		mResourceManager = resourceManager;
 	}

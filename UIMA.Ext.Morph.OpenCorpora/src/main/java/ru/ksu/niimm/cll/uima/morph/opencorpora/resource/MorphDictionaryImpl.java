@@ -290,6 +290,12 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		wfByString.put(text, wf);
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		// TODO remove
+		log.info("{}#finalize...", this);
+	}
+
 	void complete() {
 		if (complete) {
 			throw new IllegalStateException();

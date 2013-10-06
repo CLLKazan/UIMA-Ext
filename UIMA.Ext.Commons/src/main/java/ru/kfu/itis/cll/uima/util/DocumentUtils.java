@@ -12,6 +12,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
+import org.apache.uima.jcas.JCas;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
@@ -48,6 +49,11 @@ public class DocumentUtils {
 		} else {
 			return null;
 		}
+	}
+
+	public static String getDocumentUri(JCas jcas) {
+		// TODO is there more optimal solution?
+		return getDocumentUri(jcas.getCas());
 	}
 
 	private DocumentUtils() {

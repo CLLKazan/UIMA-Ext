@@ -1,9 +1,8 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph;
+package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.AnnotationAdapter;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**

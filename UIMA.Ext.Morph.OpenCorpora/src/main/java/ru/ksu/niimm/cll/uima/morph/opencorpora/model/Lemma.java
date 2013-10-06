@@ -14,6 +14,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
+ * TODO rename to Lexeme
+ * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
@@ -71,25 +73,25 @@ public class Lemma implements Serializable {
 	private int id;
 	private String string;
 
-    public Lemma() {
-    }
+	public Lemma() {
+	}
 
-    public Lemma(String string, BitSet grammems) {
-        this.string = string;
-        this.grammems = grammems;
-    }
+	public Lemma(String string, BitSet grammems) {
+		this.string = string;
+		this.grammems = grammems;
+	}
 
-    private BitSet grammems;
+	private BitSet grammems;
 
 	public int getId() {
 		return id;
 	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public String getString() {
+	public String getString() {
 		return string;
 	}
 
@@ -103,22 +105,22 @@ public class Lemma implements Serializable {
 				.append(string).append("id", id).toString();
 	}
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(string).append(grammems).toHashCode();
-    }
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(string).append(grammems).toHashCode();
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Lemma)) {
-            return false;
-        }
-        Lemma that = (Lemma) obj;
-        return new EqualsBuilder().append(this.string, that.string)
-                .append(this.grammems, that.grammems).isEquals();
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Lemma)) {
+			return false;
+		}
+		Lemma that = (Lemma) obj;
+		return new EqualsBuilder().append(this.string, that.string)
+				.append(this.grammems, that.grammems).isEquals();
+	}
 
-    public Lemma cloneWithoutIdAndString() {
-        return new Lemma("", grammems);
-    }
+	public Lemma cloneWithoutIdAndString() {
+		return new Lemma("", grammems);
+	}
 }

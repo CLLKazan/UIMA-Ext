@@ -4,6 +4,7 @@
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -56,7 +58,12 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 		}
 		//
 		targetWf.setPos(wb.pos);
-		targetWf.setGrammems(FSUtils.toStringArray(jCas, wb.grammems));
+		// fill grammems array
+		LinkedList<String> resultGrams = Lists.newLinkedList(wb.grammems);
+		if (wb.pos != null) {
+			resultGrams.addFirst(wb.pos);
+		}
+		targetWf.setGrammems(FSUtils.toStringArray(jCas, resultGrams));
 	}
 
 	private static final Submapper adjMapper = new Submapper() {
