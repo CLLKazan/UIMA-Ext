@@ -49,7 +49,7 @@ import ru.kfu.itis.cll.uima.eval.EvaluationLauncher;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.cll.uima.util.CorpusSplit;
 import ru.kfu.itis.cll.uima.util.CorpusUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmingAnnotator;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -142,10 +142,10 @@ public class DictionaryAwareBaselineLab {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				AnalysisEngineDescription posTrimmerDesc = createPrimitiveDescription(
-						PosTrimmer.class, inputTS,
-						PosTrimmer.PARAM_TARGET_POS_CATEGORIES, posCategories);
+						PosTrimmingAnnotator.class, inputTS,
+						PosTrimmingAnnotator.PARAM_TARGET_POS_CATEGORIES, posCategories);
 				try {
-					bindResource(posTrimmerDesc, PosTrimmer.RESOURCE_MORPH_DICTIONARY,
+					bindResource(posTrimmerDesc, PosTrimmingAnnotator.RESOURCE_MORPH_DICTIONARY,
 							morphDictDesc);
 				} catch (InvalidXMLException e) {
 					throw new ResourceInitializationException(e);
@@ -249,14 +249,13 @@ public class DictionaryAwareBaselineLab {
 						AnnotationRemover.class, inputTS,
 						AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 						Arrays.asList("org.opencorpora.cas"));
-				AnalysisEngineDescription taggerDesc = createPrimitiveDescription(DictionaryAwareBaselineTagger.class);
+				AnalysisEngineDescription taggerDesc = createPrimitiveDescription(
+						DictionaryAwareBaselineTagger.class,
+						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
 				// bind dictionary and wfStore resources
 				ExternalResourceDescription wfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
 						getModelFile(modelDir));
-				AnalysisEngineDescription posTrimmerDesc = createPrimitiveDescription(
-						PosTrimmer.class,
-						PosTrimmer.PARAM_TARGET_POS_CATEGORIES, posCategories);
 				AnalysisEngineDescription xmiWriterDesc = createPrimitiveDescription(
 						XmiWriter.class,
 						XmiWriter.PARAM_OUTPUTDIR, outputDir);
@@ -265,13 +264,10 @@ public class DictionaryAwareBaselineLab {
 							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, wfStoreDesc);
 					bindResource(taggerDesc,
 							DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-					bindResource(posTrimmerDesc, PosTrimmer.RESOURCE_MORPH_DICTIONARY,
-							morphDictDesc);
 				} catch (InvalidXMLException e) {
 					throw new ResourceInitializationException(e);
 				}
-				return createAggregateDescription(goldRemoverDesc, taggerDesc, posTrimmerDesc,
-						xmiWriterDesc);
+				return createAggregateDescription(goldRemoverDesc, taggerDesc, xmiWriterDesc);
 			}
 		};
 		// Create an evaluation task (use 'testing' as gold and analysis output as an evaluation target)

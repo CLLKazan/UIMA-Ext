@@ -6,6 +6,8 @@ import java.util.BitSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import com.google.common.base.Function;
+
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
@@ -43,11 +45,26 @@ public class Wordform implements Serializable {
 			if (instance.grammems == null) {
 				instance.grammems = EMPTY_BITSET;
 			} else {
-				instance.grammems = dict
-						.internWordformGrammems(instance.grammems);
+				instance.grammems = dict.internWordformGrammems(instance.grammems);
 			}
 			return instance;
 		}
+	}
+
+	public static BitSet getAllGramBits(Wordform wf, MorphDictionary dict) {
+		BitSet bs = wf.getGrammems();
+		// TODO how to detect null lemma ids?
+		bs.or(dict.getLemma(wf.getLemmaId()).getGrammems());
+		return bs;
+	}
+
+	public static Function<Wordform, BitSet> allGramBitsFunction(final MorphDictionary dict) {
+		return new Function<Wordform, BitSet>() {
+			@Override
+			public BitSet apply(Wordform arg) {
+				return getAllGramBits(arg, dict);
+			}
+		};
 	}
 
 	private int lemmaId;
@@ -56,18 +73,18 @@ public class Wordform implements Serializable {
 	private Wordform() {
 	}
 
-    public Wordform(int lemmaId, BitSet grammems) {
-        this.lemmaId = lemmaId;
-        this.grammems = grammems;
-    }
+	public Wordform(int lemmaId, BitSet grammems) {
+		this.lemmaId = lemmaId;
+		this.grammems = grammems;
+	}
 
-    public int getLemmaId() {
+	public int getLemmaId() {
 		return lemmaId;
 	}
 
-    public Wordform cloneWithLemmaId(int lemmaId) {
-        return new Wordform(lemmaId, grammems);
-    }
+	public Wordform cloneWithLemmaId(int lemmaId) {
+		return new Wordform(lemmaId, grammems);
+	}
 
 	public BitSet getGrammems() {
 		// !!!

@@ -7,78 +7,75 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.cas.StringArray;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.util.FSCollectionFactory;
-import org.uimafit.util.JCasUtil;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class PosTrimmer extends JCasAnnotator_ImplBase {
+public class PosTrimmer {
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public static final String RESOURCE_MORPH_DICTIONARY = "MorphDictionary";
-	public static final String PARAM_TARGET_POS_CATEGORIES = "targetPosCategories";
-
-	@ExternalResource(key = RESOURCE_MORPH_DICTIONARY)
-	private MorphDictionaryHolder dictHolder;
-	@ConfigurationParameter(name = PARAM_TARGET_POS_CATEGORIES, mandatory = true)
-	private String[] targetPosCategories;
+	private MorphDictionary dict;
+	private Set<String> targetPosCategories;
 	// derived
+	private final BitSet targetBits; // DO NOT MODIFY!
 	private Set<String> targetTags;
 
-	@Override
-	public void initialize(UimaContext ctx) throws ResourceInitializationException {
-		super.initialize(ctx);
-		MorphDictionary dict = dictHolder.getDictionary();
-		targetTags = Sets.newLinkedHashSet();
+	public PosTrimmer(MorphDictionary dict, String... targetPosCategories) {
+		this(dict, ImmutableSet.copyOf(targetPosCategories));
+	}
+
+	public PosTrimmer(MorphDictionary _dict, Set<String> _targetPosCategories) {
+		dict = _dict;
+		targetPosCategories = ImmutableSet.copyOf(_targetPosCategories);
+		//
+		targetBits = new BitSet();
 		for (String cat : targetPosCategories) {
 			BitSet catBS = dict.getGrammemWithChildrenBits(cat, true);
 			if (catBS == null) {
 				throw new IllegalStateException(String.format("Unknown grammeme %s", cat));
 			}
-			targetTags.addAll(dict.toGramSet(catBS));
+			targetBits.or(catBS);
 		}
 		// 
-		targetTags = ImmutableSet.copyOf(targetTags);
-		getLogger().info(String.format("PosTrimmer will retain following gram tags:\n%s",
-				targetTags));
+		targetTags = ImmutableSet.copyOf(dict.toGramSet(targetBits));
+		log.info("PosTrimmer will retain following gram tags:\n{}", targetTags);
 	}
 
-	@Override
-	public void process(JCas jcas) throws AnalysisEngineProcessException {
-		for (Word word : JCasUtil.select(jcas, Word.class)) {
-			FSArray wordformsFSArray = word.getWordforms();
-			if (wordformsFSArray == null) {
-				continue;
-			}
-			Collection<Wordform> wordforms = FSCollectionFactory.create(wordformsFSArray,
-					Wordform.class);
-			for (Wordform wf : wordforms) {
-				StringArray grammemsFS = wf.getGrammems();
-				Set<String> grammems = Sets.newLinkedHashSet(FSUtils.toSet(grammemsFS));
-				if (grammems.retainAll(targetTags)) {
-					wf.setGrammems(FSUtils.toStringArray(jcas, grammems));
-				}
-			}
+	public void trim(JCas jCas, Wordform wf) {
+		StringArray grammemsFS = wf.getGrammems();
+		Set<String> grammems = Sets.newLinkedHashSet(FSUtils.toSet(grammemsFS));
+		if (grammems.retainAll(targetTags)) {
+			wf.setGrammems(FSUtils.toStringArray(jCas, grammems));
 		}
 	}
 
+	public void trimInPlace(Collection<String> grammems) {
+		grammems.retainAll(targetTags);
+	}
+
+	public void trimInPlace(BitSet posBits) {
+		posBits.and(targetBits);
+	}
+
+	public Set<BitSet> trimAndMerge(Iterable<BitSet> srcCol) {
+		Set<BitSet> result = Sets.newHashSet();
+		for (final BitSet _posBits : srcCol) {
+			BitSet posBits = (BitSet) _posBits.clone();
+			trimInPlace(posBits);
+			result.add(posBits);
+		}
+		return result;
+	}
 }

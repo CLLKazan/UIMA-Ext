@@ -5,6 +5,7 @@ package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.getAllGramBits;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -101,7 +102,7 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 			}
 			org.opencorpora.cas.Wordform corpusWf = corpusWfs.iterator().next();
 			//
-			if (dictEntries == null) {
+			if (dictEntries == null || dictEntries.isEmpty()) {
 				reportUnknownWord(wordString);
 			} else if (dictEntries.size() == 1) {
 				// there is no ambiguity
@@ -120,7 +121,7 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 	private boolean isDictionaryCompliant(List<Wordform> dictEntries, BitSet _corpusWfGBS) {
 		for (Wordform de : dictEntries) {
 			BitSet corpusWfGBS = (BitSet) _corpusWfGBS.clone();
-			BitSet dictGBS = toGramBitSet(de);
+			BitSet dictGBS = getAllGramBits(de, dict);
 			corpusWfGBS.andNot(dictGBS);
 			if (corpusWfGBS.cardinality() == 0) {
 				return true;
@@ -140,12 +141,6 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);
 		}
-	}
-
-	private BitSet toGramBitSet(Wordform wf) {
-		BitSet bs = wf.getGrammems();
-		bs.or(dict.getLemma(wf.getLemmaId()).getGrammems());
-		return bs;
 	}
 
 	private BitSet toGramBitSet(org.opencorpora.cas.Wordform casWf) {

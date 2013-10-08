@@ -80,6 +80,10 @@ public class FSUtils {
 		return result;
 	}
 
+	public static StringArray toStringArray(JCas cas, String... srcArr) {
+		return toStringArray(cas, Arrays.asList(srcArr));
+	}
+
 	public static StringArray toStringArray(JCas cas, Collection<String> srcCol) {
 		StringArray result = new StringArray(cas, srcCol.size());
 		int i = 0;
