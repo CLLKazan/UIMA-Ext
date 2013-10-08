@@ -3,6 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
@@ -33,14 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Range;
-
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
@@ -49,8 +42,18 @@ import ru.kfu.itis.cll.uima.eval.EvaluationLauncher;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.cll.uima.util.CorpusSplit;
 import ru.kfu.itis.cll.uima.util.CorpusUtils;
+import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmingAnnotator;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Range;
+
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
@@ -87,6 +90,7 @@ public class DictionaryAwareBaselineLab {
 		 */
 		// read configuration from command line arguments
 		System.setProperty("DKPRO_HOME", "wrk");
+		Slf4jLoggerImpl.forceUsingThisImplementation();
 		DictionaryAwareBaselineLab lab = new DictionaryAwareBaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();
@@ -100,12 +104,15 @@ public class DictionaryAwareBaselineLab {
 	@Parameter(names = { "-c", "--corpus" }, required = true, description = "Path to corpus directory")
 	private File _srcCorpusDir;
 	@Parameter(names = { "-p", "--pos-categories" }, required = true)
+	private List<String> _posCategoriesList;
 	private Set<String> _posCategories;
 
 	private DictionaryAwareBaselineLab() {
 	}
 
 	private void run() throws IOException {
+		//
+		_posCategories = newHashSet(_posCategoriesList);
 		// prepare input TypeSystem
 		final TypeSystemDescription inputTS = createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
@@ -185,6 +192,8 @@ public class DictionaryAwareBaselineLab {
 			}
 			@Discriminator
 			int fold;
+			@Discriminator
+			Set<String> posCategories;
 
 			@Override
 			public CollectionReaderDescription getCollectionReaderDescription(TaskContext taskCtx)
@@ -203,6 +212,7 @@ public class DictionaryAwareBaselineLab {
 				File modelOutFile = getModelFile(modelDir);
 				AnalysisEngineDescription learnerDesc = createPrimitiveDescription(
 						DictionaryAwareBaselineLearner.class, inputTS,
+						DictionaryAwareBaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
 						DictionaryAwareBaselineLearner.PARAM_MODEL_OUTPUT_FILE, modelOutFile);
 				try {
 					bindResource(learnerDesc,

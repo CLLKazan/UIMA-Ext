@@ -3,15 +3,15 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
+import static org.apache.commons.io.FileUtils.openOutputStream;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.BitSet;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,17 +43,12 @@ class DefaultWordformStoreBuilder implements WordformStoreBuilder {
 
 	@Override
 	public void persist(File outFile) throws Exception {
-		// create parent directory
-		File outFileDir = outFile.getParentFile();
-		if (outFileDir != null) {
-			FileUtils.forceMkdir(outFileDir);
-		}
 		// build
 		DefaultWordformStore ws = build();
 		// serialize store object
 		ObjectOutputStream modelOS = null;
 		try {
-			OutputStream os = new BufferedOutputStream(new FileOutputStream(outFile));
+			OutputStream os = new BufferedOutputStream(openOutputStream(outFile));
 			modelOS = new ObjectOutputStream(os);
 			modelOS.writeObject(ws);
 		} finally {

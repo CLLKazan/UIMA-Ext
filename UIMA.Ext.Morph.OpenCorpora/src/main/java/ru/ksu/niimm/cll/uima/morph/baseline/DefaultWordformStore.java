@@ -21,4 +21,5 @@ class DefaultWordformStore implements WordformStore, Serializable {
 	public BitSet getPosBits(String wf) {
 		return strKeyMap.get(wf);
 	}
+
 }

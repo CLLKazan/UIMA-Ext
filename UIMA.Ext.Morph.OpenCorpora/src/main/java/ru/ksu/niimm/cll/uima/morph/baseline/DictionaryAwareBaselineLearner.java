@@ -5,7 +5,6 @@ package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.getAllGramBits;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,6 +15,7 @@ import java.io.PrintWriter;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
@@ -23,37 +23,28 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
-import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
 
-import com.google.common.base.Joiner;
-
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+
+import com.google.common.base.Joiner;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
 @OperationalProperties(multipleDeploymentAllowed = false)
-public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
+public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnotator {
 
-	public static final String RESOURCE_MORPH_DICTIONARY = "MorphDictionary";
 	public static final String PARAM_MODEL_OUTPUT_FILE = "modelOutputFile";
 
-	@ExternalResource(key = RESOURCE_MORPH_DICTIONARY)
-	private MorphDictionaryHolder dictHolder;
+	// config fields
 	@ConfigurationParameter(name = PARAM_MODEL_OUTPUT_FILE, mandatory = true)
 	private File modelOutputFile;
 	// derived
-	private MorphDictionary dict;
 	private File modelDir;
 	// state fields
 	private WordformStoreBuilder wfStoreBuilder;
@@ -68,7 +59,7 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 			// fallback to current directory
 			modelDir = new File(".");
 		}
-		dict = dictHolder.getDictionary();
+		//
 		try {
 			File unknownWordsFile = new File(modelDir, "unknown-words.txt");
 			unknownWordsOut = makePrintWriter(unknownWordsFile);
@@ -84,9 +75,7 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 	@Override
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
 		for (Word word : JCasUtil.select(jcas, Word.class)) {
-			String wordString = word.getCoveredText();
-			wordString = WordUtils.normalizeToDictionaryForm(wordString);
-			List<Wordform> dictEntries = dict.getEntries(wordString);
+			// check corpus word sanity
 			if (word.getWordforms() == null) {
 				continue;
 			}
@@ -102,6 +91,8 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 			}
 			org.opencorpora.cas.Wordform corpusWf = corpusWfs.iterator().next();
 			//
+			String wordString = normalizeToDictionary(word.getCoveredText());
+			Set<BitSet> dictEntries = trimAndMergePosBits(dict.getEntries(wordString));
 			if (dictEntries == null || dictEntries.isEmpty()) {
 				reportUnknownWord(wordString);
 			} else if (dictEntries.size() == 1) {
@@ -118,11 +109,10 @@ public class DictionaryAwareBaselineLearner extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	private boolean isDictionaryCompliant(List<Wordform> dictEntries, BitSet _corpusWfGBS) {
-		for (Wordform de : dictEntries) {
+	private boolean isDictionaryCompliant(Set<BitSet> dictEntries, BitSet _corpusWfGBS) {
+		for (BitSet deBits : dictEntries) {
 			BitSet corpusWfGBS = (BitSet) _corpusWfGBS.clone();
-			BitSet dictGBS = getAllGramBits(de, dict);
-			corpusWfGBS.andNot(dictGBS);
+			corpusWfGBS.andNot(deBits);
 			if (corpusWfGBS.cardinality() == 0) {
 				return true;
 			}
