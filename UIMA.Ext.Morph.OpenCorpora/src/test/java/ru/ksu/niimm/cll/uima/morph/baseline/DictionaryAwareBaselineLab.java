@@ -78,7 +78,8 @@ public class DictionaryAwareBaselineLab {
 	private static final String KEY_MODEL_DIR = "ModelDir";
 	private static final String KEY_OUTPUT_DIR = "OutputDir";
 	private static final String PLACEHOLDER_OUTPUT_BASE_DIR = "outputBaseDir";
-	private static final String MODEL_FILE_NAME = "pos-baseline.ser";
+	private static final String DAB_MODEL_FILE_NAME = "dab.ser";
+	private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
 
 	public static void main(String[] args) throws IOException {
 		/* configuration parameters:
@@ -209,20 +210,25 @@ public class DictionaryAwareBaselineLab {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
-				File modelOutFile = getModelFile(modelDir);
-				AnalysisEngineDescription learnerDesc = createPrimitiveDescription(
+				AnalysisEngineDescription dabModelLearnerDesc = createPrimitiveDescription(
 						DictionaryAwareBaselineLearner.class, inputTS,
 						DictionaryAwareBaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
-						DictionaryAwareBaselineLearner.PARAM_MODEL_OUTPUT_FILE, modelOutFile);
+						DictionaryAwareBaselineLearner.PARAM_MODEL_OUTPUT_FILE,
+						getDABModelFile(modelDir));
+				AnalysisEngineDescription suffixModelTrainerDesc = createPrimitiveDescription(
+						SuffixExaminingPosTrainer.class,
+						SuffixExaminingPosTrainer.PARAM_WFSTORE_FILE, getSuffixModelFile(modelDir));
 				try {
-					bindResource(learnerDesc,
+					bindResource(dabModelLearnerDesc,
 							DictionaryAwareBaselineLearner.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+					bindResource(suffixModelTrainerDesc,
+							SuffixExaminingPosTrainer.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 				} catch (InvalidXMLException e) {
 					throw new IllegalStateException(e);
 				}
-				// TODO this is workaround for https://issues.apache.org/jira/browse/UIMA-2798
+				// this is workaround for https://issues.apache.org/jira/browse/UIMA-2798
 				// remove after migration to UIMAfit 2.0.x
-				return createAggregateDescription(learnerDesc);
+				return createAggregateDescription(dabModelLearnerDesc, suffixModelTrainerDesc);
 			}
 		};
 		/* Create an analysis task (use 'testing' FS with XmiCollectionReader on 'Corpus')
@@ -259,25 +265,36 @@ public class DictionaryAwareBaselineLab {
 						AnnotationRemover.class, inputTS,
 						AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 						Arrays.asList("org.opencorpora.cas"));
-				AnalysisEngineDescription taggerDesc = createPrimitiveDescription(
+				AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
 						DictionaryAwareBaselineTagger.class,
 						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
+				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
+						SuffixExaminingPosTagger.class,
+						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, true);
 				// bind dictionary and wfStore resources
-				ExternalResourceDescription wfStoreDesc = createExternalResourceDescription(
+				ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
-						getModelFile(modelDir));
+						getDABModelFile(modelDir));
+				ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
+						SharedDefaultWordformStore.class,
+						getSuffixModelFile(modelDir));
 				AnalysisEngineDescription xmiWriterDesc = createPrimitiveDescription(
 						XmiWriter.class,
 						XmiWriter.PARAM_OUTPUTDIR, outputDir);
 				try {
-					bindResource(taggerDesc,
-							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, wfStoreDesc);
-					bindResource(taggerDesc,
+					bindResource(dabTaggerDesc,
+							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);
+					bindResource(dabTaggerDesc,
 							DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+					bindResource(suffixTaggerDesc,
+							SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
+					bindResource(suffixTaggerDesc,
+							SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 				} catch (InvalidXMLException e) {
 					throw new ResourceInitializationException(e);
 				}
-				return createAggregateDescription(goldRemoverDesc, taggerDesc, xmiWriterDesc);
+				return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, suffixTaggerDesc,
+						xmiWriterDesc);
 			}
 		};
 		// Create an evaluation task (use 'testing' as gold and analysis output as an evaluation target)
@@ -371,8 +388,12 @@ public class DictionaryAwareBaselineLab {
 		return new File(dir, TESTING_LIST_SUFFIX + fold + ".list");
 	}
 
-	private File getModelFile(File modelDir) {
-		return new File(modelDir, MODEL_FILE_NAME);
+	private File getDABModelFile(File modelDir) {
+		return new File(modelDir, DAB_MODEL_FILE_NAME);
+	}
+
+	private File getSuffixModelFile(File modelDir) {
+		return new File(modelDir, SUFFIX_MODEL_FILE_NAME);
 	}
 
 	private Properties readEvaluationConfig() throws IOException {

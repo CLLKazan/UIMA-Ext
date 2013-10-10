@@ -5,6 +5,8 @@ package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.normalizeToDictionary;
+import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.toGramBitSet;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -99,7 +101,8 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 				// there is no ambiguity
 			} else {
 				// GBS ~ Grammeme BitSet
-				BitSet corpusWfGBS = toGramBitSet(corpusWf);
+				// TODO-MEMORY OPTIMIZATION- cache BitSets instances
+				BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
 				if (isDictionaryCompliant(dictEntries, corpusWfGBS)) {
 					wfStoreBuilder.increment(wordString, corpusWfGBS);
 				} else {
@@ -131,16 +134,6 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);
 		}
-	}
-
-	private BitSet toGramBitSet(org.opencorpora.cas.Wordform casWf) {
-		BitSet result = new BitSet(dict.getGrammemMaxNumId());
-		List<String> casWfGrams = FSUtils.toList(casWf.getGrammems());
-		for (String gr : casWfGrams) {
-			result.set(dict.getGrammemNumId(gr));
-		}
-		// TODO-MEMORY OPTIMIZATION- cache BitSets instances
-		return result;
 	}
 
 	private void reportUnknownWord(String wordStr) {

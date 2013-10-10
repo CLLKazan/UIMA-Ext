@@ -105,6 +105,11 @@ public class CorpusUtils {
 			public String apply(File arg) {
 				String argPath = arg.getPath();
 				String basePath = baseDir.getPath();
+				// FIXME test on different OS
+				if (!basePath.endsWith(File.separator)) {
+					// to avoid result being absolute path
+					basePath += File.separator;
+				}
 				if (argPath.startsWith(basePath)) {
 					return argPath.substring(basePath.length());
 				} else {

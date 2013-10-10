@@ -15,7 +15,6 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
@@ -54,9 +53,5 @@ abstract class DictionaryAwareBaselineAnnotator extends JCasAnnotator_ImplBase {
 		Iterable<BitSet> bsDictEntries = Iterables
 				.transform(dictEntries, allGramBitsFunction(dict));
 		return posTrimmer.trimAndMerge(bsDictEntries);
-	}
-
-	protected String normalizeToDictionary(String tokenStr) {
-		return WordUtils.normalizeToDictionaryForm(tokenStr);
 	}
 }
