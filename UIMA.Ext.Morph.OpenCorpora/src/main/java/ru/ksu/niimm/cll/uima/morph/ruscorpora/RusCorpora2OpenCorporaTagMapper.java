@@ -16,6 +16,7 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -105,6 +106,27 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			@Override
 			public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
 				wb.grammems.addAll(Arrays.asList(grs));
+			}
+		};
+	}
+
+	private static Submapper ifNotContain(final Submapper nested, final String... grs) {
+		if (grs.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		final Set<String> grSet = ImmutableSet.copyOf(grs);
+		return new Submapper() {
+			@Override
+			public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
+				if (grSet.contains(wb.pos)) {
+					return;
+				}
+				for (String gr : grSet) {
+					if (wb.grammems.contains(gr)) {
+						return;
+					}
+				}
+				nested.map(srcWf, wb);
 			}
 		};
 	}
@@ -205,9 +227,9 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("intr", gramTag(intr))
 			.put("tran", gramTag(tran))
 			//
-			.put("act", gramTag(actv))
-			.put("pass", gramTag(pssv))
-			.put("med", gramTag(actv, pssv))
+			.put("act", ifNotContain(gramTag(actv), VERB, INFN, GRND))
+			.put("pass", ifNotContain(gramTag(pssv), VERB, INFN, GRND))
+			.put("med", ifNotContain(gramTag(actv, pssv), VERB, INFN, GRND))
 			//
 			.put("inf", noOp)
 			.put("partcp", noOp)
