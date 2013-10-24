@@ -6,6 +6,8 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -13,15 +15,16 @@ import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.SimpleNamedFeatureExtractor;
 
+import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev
@@ -35,26 +38,41 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 	 */
 	public static final String FEATURE_NAME = "DictTags";
 
-	private Map<Grammeme, BitSet> tagCategoriesMap;
+	// config fields
 	private MorphDictionary morphDict;
+	// derived
+	private final Map<Grammeme, BitSet> tagCategoriesMap;
+	// TODO make filterBS immutable!
+	private final BitSet filterBS;
+	private final String baseFeatureName;
 
-	public DictionaryPossibleTagFeatureExtractor(List<String> tagCategories,
+	public DictionaryPossibleTagFeatureExtractor(Iterable<String> tagCategories,
 			MorphDictionary morphDict) {
-		this.tagCategoriesMap = Maps.newHashMapWithExpectedSize(tagCategories.size());
+		// re-pack into a set to avoid duplicates and maintain ID-based ordering
+		TreeSet<Grammeme> tagCatGrams = Sets.newTreeSet(Grammeme.numIdComparator());
 		for (String tc : tagCategories) {
 			Grammeme tcGram = morphDict.getGrammem(tc);
 			if (tcGram == null) {
 				throw new IllegalArgumentException(String.format(
 						"Tag category %s does not exist", tc));
 			}
-			BitSet tcBits = morphDict.getGrammemWithChildrenBits(tcGram.getId(), true);
+			tagCatGrams.add(tcGram);
+		}
+		this.tagCategoriesMap = Maps.newHashMapWithExpectedSize(tagCatGrams.size());
+		this.filterBS = new BitSet();
+		StringBuilder baseFeatureNameBuilder = new StringBuilder(FEATURE_NAME);
+		for (Grammeme tcg : tagCatGrams) {
+			BitSet tcBits = morphDict.getGrammemWithChildrenBits(tcg.getId(), true);
 			if (tcBits == null) {
 				throw new IllegalStateException(String.format(
-						"%s does not have children grammems!", tcGram.getId()));
+						"%s does not have children grammems!", tcg.getId()));
 			}
-			tagCategoriesMap.put(tcGram, tcBits);
+			tagCategoriesMap.put(tcg, tcBits);
+			filterBS.or(tcBits);
+			baseFeatureNameBuilder.append('_').append(tcg.getId());
 		}
 		this.morphDict = morphDict;
+		this.baseFeatureName = baseFeatureNameBuilder.toString();
 	}
 
 	@Override
@@ -69,61 +87,30 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 		if (wfs == null || wfs.isEmpty()) {
 			return ImmutableList.of(new Feature(FEATURE_NAME, "Unknown"));
 		}
-		List<BitSet> wfsTags = extractTags(wfs);
-		List<Feature> resultList = Lists.newArrayListWithExpectedSize(tagCategoriesMap.size());
-		for (Grammeme tcGram : tagCategoriesMap.keySet()) {
-			String featName = tcGram.getId();
-			BitSet catBits = tagCategoriesMap.get(tcGram);
-			BitSet tokenPossibleBits = new BitSet(catBits.length());
-			for (BitSet wfBits : wfsTags) {
-				assignCategoryBits(tokenPossibleBits, wfBits, catBits);
-			}
+		List<BitSet> wfsTags = Lists.transform(wfs, Wordform.allGramBitsFunction(morphDict));
+		Set<BitSet> tokenPossibleTags = Sets.newHashSetWithExpectedSize(wfsTags.size());
+		for (BitSet wfTagBits : wfsTags) {
+			BitSet tokenPossibleBits = (BitSet) wfTagBits.clone();
+			tokenPossibleBits.and(filterBS);
+			tokenPossibleTags.add(tokenPossibleBits);
+		}
+		List<Feature> resultList = Lists.newArrayListWithExpectedSize(tokenPossibleTags.size());
+		for (BitSet tokenPossibleBits : tokenPossibleTags) {
 			String featValue;
 			if (tokenPossibleBits.isEmpty()) {
 				featValue = "NULL";
 			} else {
-				// TODO compress BitSet (using kind of << operator) and use resulting String representation
-				StringBuilder fvBuilder = new StringBuilder();
-				for (int i = tokenPossibleBits.nextSetBit(0); i >= 0; i = tokenPossibleBits
-						.nextSetBit(i + 1)) {
-					fvBuilder.append(morphDict.getGrammem(i).getId());
-					fvBuilder.append('_');
-				}
-				fvBuilder.deleteCharAt(fvBuilder.length() - 1);
-				featValue = fvBuilder.toString();
+				featValue = gramJoiner.join(morphDict.toGramSet(tokenPossibleBits));
 			}
-			resultList.add(new Feature(featName, featValue));
+			resultList.add(new Feature(baseFeatureName, featValue));
 		}
 		return resultList;
 	}
 
+	private static final Joiner gramJoiner = Joiner.on('_');
+
 	@Override
 	public String getFeatureName() {
 		return FEATURE_NAME;
-	}
-
-	private void assignCategoryBits(BitSet targetBits, BitSet srcBits, BitSet catBits) {
-		// assume that catBits usually smaller than srcBits
-		for (int tagBit = catBits.nextSetBit(0); tagBit >= 0; tagBit = catBits
-				.nextSetBit(tagBit + 1)) {
-			if (srcBits.get(tagBit)) {
-				targetBits.set(tagBit);
-			}
-		}
-	}
-
-	private List<BitSet> extractTags(List<Wordform> wfList) {
-		List<BitSet> result = Lists.newArrayListWithCapacity(wfList.size());
-		for (Wordform wf : wfList) {
-			result.add(extractTags(wf));
-		}
-		return result;
-	}
-
-	private BitSet extractTags(Wordform wf) {
-		BitSet result = wf.getGrammems();
-		Lemma lemma = morphDict.getLemma(wf.getLemmaId());
-		result.or(lemma.getGrammems());
-		return result;
 	}
 }

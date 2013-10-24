@@ -4,6 +4,7 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.model;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -47,5 +48,17 @@ public class Grammeme implements Serializable {
 
 	public String getDescription() {
 		return description;
+	}
+
+	private static final Comparator<Grammeme> numIdComparator = new Comparator<Grammeme>() {
+		@Override
+		public int compare(Grammeme first, Grammeme second) {
+			// TODO avoid auto-boxing
+			return Integer.valueOf(first.getNumId()).compareTo(second.getNumId());
+		}
+	};
+
+	public static final Comparator<Grammeme> numIdComparator() {
+		return numIdComparator;
 	}
 }
