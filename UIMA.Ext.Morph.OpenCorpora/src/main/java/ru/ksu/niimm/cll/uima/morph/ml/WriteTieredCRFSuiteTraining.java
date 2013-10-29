@@ -17,15 +17,15 @@ import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
-import com.beust.jcommander.IVariableArity;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.google.common.collect.Lists;
+import com.google.common.base.Joiner;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
+import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
 
 /**
  * @author Rinat Gareev
@@ -46,17 +46,6 @@ public class WriteTieredCRFSuiteTraining {
 	@Parameter(names = "-p", required = true, variableArity = true)
 	private List<String> posTiers;
 
-	/*
-	@Override
-	public int processVariableArity(String optionName, String[] options) {
-		int i = 0;
-		while (i < options.length && !options[i].startsWith("-")) {
-			posTiers.add(options[i]);
-			i++;
-		}
-	}
-	*/
-
 	private void run() throws Exception {
 		TypeSystemDescription tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
@@ -74,7 +63,8 @@ public class WriteTieredCRFSuiteTraining {
 						TieredPosSequenceAnnotator.PARAM_IS_TRAINING, true,
 						TieredPosSequenceAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 						CRFSuiteStringOutcomeDataWriterFactory.class.getName(),
-						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY, outputDir.getPath());
+						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
+						new File(outputDir, tiers2directoryNameJoiner.join(posTiers)).getPath());
 		ExternalResourceDescription morphDictHolderDesc = ExternalResourceFactory
 				.createExternalResourceDescription(
 						ConfigurableSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
@@ -89,4 +79,6 @@ public class WriteTieredCRFSuiteTraining {
 
 		cpe.process();
 	}
+
+	private static final Joiner tiers2directoryNameJoiner = Joiner.on('_');
 }
