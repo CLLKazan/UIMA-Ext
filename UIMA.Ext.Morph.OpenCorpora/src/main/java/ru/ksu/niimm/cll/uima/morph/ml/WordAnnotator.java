@@ -27,6 +27,10 @@ public class WordAnnotator extends JCasAnnotator_ImplBase {
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
+		makeWords(jCas);
+	}
+
+	public static void makeWords(JCas jCas) {
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			for (Token tok : JCasUtil.selectCovered(jCas, Token.class, sent)) {
 				if (tok instanceof W || tok instanceof NUM) {
@@ -43,5 +47,4 @@ public class WordAnnotator extends JCasAnnotator_ImplBase {
 			}
 		}
 	}
-
 }

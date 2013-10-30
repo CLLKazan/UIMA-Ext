@@ -6,8 +6,10 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.Set;
 
 import org.apache.uima.UimaContext;
@@ -15,10 +17,12 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.cleartk.classifier.CleartkProcessingException;
 import org.cleartk.classifier.CleartkSequenceAnnotator;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.Instances;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
+import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
@@ -36,6 +40,8 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
@@ -86,6 +92,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		parsePosTiersParameter();
 		morphDictionary = morphDictHolder.getDictionary();
 		makeFilterBitSet();
+		// check grammems
+		checkDictGrammems();
 
 		tokenFeatureExtractor = new FeatureFunctionExtractor(new CoveredTextExtractor(),
 				new LowerCaseFeatureFunction(),
@@ -119,35 +127,83 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	}
 
 	private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
-		List<List<Feature>> sentSeq = Lists.newArrayList();
-		List<String> sentLabels = null;
 		if (isTraining()) {
-			sentLabels = Lists.newArrayList();
+			trainingProcess(jCas, sent);
+		} else {
+			taggingProcess(jCas, sent);
 		}
+	}
+
+	private void trainingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
+		List<List<Feature>> sentSeq = Lists.newArrayList();
+		List<String> sentLabels = Lists.newArrayList();
 		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
-			if (isTraining()) {
-				FSArray tokWordforms = word.getWordforms();
-				if (tokWordforms == null || tokWordforms.size() == 0) {
-					throw new IllegalStateException(String.format(
-							"No wordforms in Word %s in %s", word,
-							getDocumentUri(jCas.getCas())));
-				}
-				Wordform tokWf = (Wordform) tokWordforms.get(0);
-				String outputLabel = extractOutputLabel(tokWf);
-				sentLabels.add(outputLabel);
+			// TRAINING
+			FSArray tokWordforms = word.getWordforms();
+			if (tokWordforms == null || tokWordforms.size() == 0) {
+				throw new IllegalStateException(String.format(
+						"No wordforms in Word %s in %s", word,
+						getDocumentUri(jCas.getCas())));
 			}
-			List<Feature> tokFeatures = Lists.newLinkedList();
-			tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, word));
-			tokFeatures.addAll(posExtractor.extract(jCas, word));
-			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
-			tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
+			Wordform tokWf = (Wordform) tokWordforms.get(0);
+			String outputLabel = extractOutputLabel(tokWf);
+			sentLabels.add(outputLabel);
+			List<Feature> tokFeatures = extractFeatures(jCas, word);
 			sentSeq.add(tokFeatures);
 		}
-		if (isTraining()) {
-			dataWriter.write(Instances.toInstances(sentLabels, sentSeq));
-		} else {
-			throw new UnsupportedOperationException();
+		// TRAINING
+		dataWriter.write(Instances.toInstances(sentLabels, sentSeq));
+	}
+
+	private void taggingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
+		List<List<Feature>> sentSeq = Lists.newArrayList();
+		List<Wordform> wfSeq = Lists.newArrayList();
+		if (currentTier == 0) {
+			// make Word annotations
+			WordAnnotator.makeWords(jCas);
 		}
+		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
+			// TRAINING
+			FSArray tokWordforms = word.getWordforms();
+			if (tokWordforms == null || tokWordforms.size() == 0) {
+				throw new IllegalStateException(String.format(
+						"No wordforms in Word %s in %s", word,
+						getDocumentUri(jCas.getCas())));
+			}
+			Wordform tokWf = (Wordform) tokWordforms.get(0);
+			if (tokWf == null) {
+				throw new NullPointerException("Token->Wordform");
+			}
+			wfSeq.add(tokWf);
+			List<Feature> tokFeatures = extractFeatures(jCas, word);
+			sentSeq.add(tokFeatures);
+		}
+		List<String> labelSeq = classifier.classify(sentSeq);
+		if (labelSeq.size() != wfSeq.size()) {
+			throw new IllegalStateException();
+		}
+		if (!(labelSeq instanceof RandomAccess)) {
+			labelSeq = new ArrayList<String>(labelSeq);
+		}
+		for (int i = 0; i < labelSeq.size(); i++) {
+			String label = labelSeq.get(i);
+			if (label == null || label.isEmpty() || label.equalsIgnoreCase("null")) {
+				// do nothing, it means there is no a new PoS-tag for this wordform
+				continue;
+			}
+			Iterable<String> newGrams = targetGramSplitter.split(label);
+			Wordform wf = wfSeq.get(i);
+			MorphCasUtils.addGrammemes(jCas, wf, newGrams);
+		}
+	}
+
+	private List<Feature> extractFeatures(JCas jCas, Word word) throws CleartkExtractorException {
+		List<Feature> tokFeatures = Lists.newLinkedList();
+		tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, word));
+		tokFeatures.addAll(posExtractor.extract(jCas, word));
+		tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
+		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
+		return tokFeatures;
 	}
 
 	private String extractOutputLabel(Wordform wf) {
@@ -159,7 +215,9 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		return targetGramJoiner.join(morphDictionary.toGramSet(wfBits));
 	}
 
-	private static final Joiner targetGramJoiner = Joiner.on('_');
+	private static final String targetGramDelim = "&";
+	private static final Joiner targetGramJoiner = Joiner.on(targetGramDelim);
+	private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
 
 	private void parsePosTiersParameter() {
 		posTiers = Lists.newArrayList();
@@ -189,6 +247,17 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 						"Unknown grammeme (category): %s", posCat));
 			}
 			filterBS.or(posCatBits);
+		}
+	}
+
+	private void checkDictGrammems() {
+		for (int grId = 0; grId < morphDictionary.getGrammemMaxNumId(); grId++) {
+			Grammeme gr = morphDictionary.getGrammem(grId);
+			if (gr != null && gr.getId().contains(targetGramDelim)) {
+				throw new IllegalStateException(String.format(
+						"Grammeme %s contains character that is used as delimiter in this class",
+						gr.getId()));
+			}
 		}
 	}
 
