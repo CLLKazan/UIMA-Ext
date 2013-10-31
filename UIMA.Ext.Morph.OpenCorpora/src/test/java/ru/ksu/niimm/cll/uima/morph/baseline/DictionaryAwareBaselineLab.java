@@ -13,11 +13,11 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -27,9 +27,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 
-import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
-import ru.kfu.itis.cll.uima.consumer.XmiWriter;
-import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
@@ -63,7 +60,6 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 @Parameters(separators = " =")
 public class DictionaryAwareBaselineLab extends LabLauncherBase {
 
-	private static final String KEY_MODEL_DIR = "ModelDir";
 	private static final String DAB_MODEL_FILE_NAME = "dab.ser";
 	private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
 
@@ -76,8 +72,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - working directory (for DKPro-Lab internals) | ='wrk'
 		 */
 		// read configuration from command line arguments
-		System.setProperty("DKPRO_HOME", "wrk");
-		Slf4jLoggerImpl.forceUsingThisImplementation();
+		System.setProperty("DKPRO_HOME", "wrk/baseline");
 		DictionaryAwareBaselineLab lab = new DictionaryAwareBaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();
@@ -159,10 +154,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 					throws ResourceInitializationException, IOException {
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
 				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
-				AnalysisEngineDescription goldRemoverDesc = createPrimitiveDescription(
-						AnnotationRemover.class, inputTS,
-						AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
-						Arrays.asList("org.opencorpora.cas"));
+				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
 				AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
 						DictionaryAwareBaselineTagger.class,
 						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
@@ -176,9 +168,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 				ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
 						getSuffixModelFile(modelDir));
-				AnalysisEngineDescription xmiWriterDesc = createPrimitiveDescription(
-						XmiWriter.class,
-						XmiWriter.PARAM_OUTPUTDIR, outputDir);
+				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 				try {
 					bindResource(dabTaggerDesc,
 							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);

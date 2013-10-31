@@ -10,6 +10,7 @@ package ru.ksu.niimm.cll.uima.morph.lab;
 public class LabConstants {
 	// task data-flow keys
 	public static final String KEY_CORPUS = "Corpus";
+	public static final String KEY_MODEL_DIR = "ModelDir";
 	public static final String KEY_OUTPUT_DIR = "OutputDir";
 	// task discriminator names
 	public static final String DISCRIMINATOR_FOLD = "fold";

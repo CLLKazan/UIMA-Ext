@@ -62,7 +62,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String PARAM_POS_TIERS = "posTiers";
 	public static final String PARAM_CURRENT_TIER = "currentTier";
 	// config fields
-	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY)
+	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
 	@ConfigurationParameter(name = PARAM_POS_TIERS, mandatory = true)
 	private List<String> pPosTiers;
@@ -121,6 +121,10 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
+		if (!isTraining() && currentTier == 0) {
+			// make Word annotations
+			WordAnnotator.makeWords(jCas);
+		}
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			process(jCas, sent);
 		}
@@ -158,10 +162,6 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private void taggingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
 		List<List<Feature>> sentSeq = Lists.newArrayList();
 		List<Wordform> wfSeq = Lists.newArrayList();
-		if (currentTier == 0) {
-			// make Word annotations
-			WordAnnotator.makeWords(jCas);
-		}
 		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
 			// TRAINING
 			FSArray tokWordforms = word.getWordforms();
