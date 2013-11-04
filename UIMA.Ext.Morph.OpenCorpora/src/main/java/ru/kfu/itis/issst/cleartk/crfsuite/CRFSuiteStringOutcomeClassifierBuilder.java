@@ -5,14 +5,19 @@ package ru.kfu.itis.issst.cleartk.crfsuite;
 
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.util.List;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.Logger;
@@ -63,13 +68,22 @@ public class CRFSuiteStringOutcomeClassifierBuilder
 		File modelFile = new File(dir, getModelFileName(trainingDataKey));
 		File trainingDataFile = getTrainingDataFile(dir);
 		CrfSuiteTraining training = new CrfSuiteTraining();
-		training.setTrainingDataFile(trainingDataFile);
 		training.setModelFile(modelFile);
 		training.setTrainingAlgorithm(trainerCfg.getTrainingAlgorithm());
 		training.setParameters(trainerCfg.getParameters());
-		// run
-		training.run();
-		logger.log(Level.INFO, "Finished learning CRFsuite sequential classifier");
+		Reader trainingDataReader;
+		{
+			FileInputStream is = FileUtils.openInputStream(trainingDataFile);
+			trainingDataReader = new InputStreamReader(is);
+			training.setTrainingDataReader(trainingDataReader);
+		}
+		try {
+			// run
+			training.run();
+			logger.log(Level.INFO, "Finished learning CRFsuite sequential classifier");
+		} finally {
+			IOUtils.closeQuietly(trainingDataReader);
+		}
 	}
 
 	private File modelFile = null;
