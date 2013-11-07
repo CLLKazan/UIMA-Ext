@@ -69,7 +69,7 @@ public class WriteTieredCRFSuiteTraining {
 				.createExternalResourceDescription(
 						ConfigurableSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
 		ExternalResourceFactory.bindResource(trainingSetExtractorDesc,
-				CRFSuitePosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY, morphDictHolderDesc);
+				TieredPosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY, morphDictHolderDesc);
 		//
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setReader(colReaderDesc);

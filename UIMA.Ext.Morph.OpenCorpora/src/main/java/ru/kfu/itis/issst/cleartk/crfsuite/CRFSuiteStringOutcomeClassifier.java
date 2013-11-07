@@ -16,6 +16,7 @@ import org.cleartk.classifier.jar.SequenceClassifier_ImplBase;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import ru.kfu.itis.issst.cleartk.Disposable;
 import ru.kfu.itis.issst.crfsuite4j.Attribute;
 import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTagger;
 
@@ -24,7 +25,8 @@ import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTagger;
  * 
  */
 public class CRFSuiteStringOutcomeClassifier extends
-		SequenceClassifier_ImplBase<List<NameNumber>, String, String> {
+		SequenceClassifier_ImplBase<List<NameNumber>, String, String>
+		implements Disposable {
 
 	// config fields
 	@SuppressWarnings("unused")
@@ -69,8 +71,17 @@ public class CRFSuiteStringOutcomeClassifier extends
 	protected void finalize() throws Throwable {
 		if (tagger != null) {
 			tagger.dispose();
+			tagger = null;
 		}
 		super.finalize();
+	}
+
+	@Override
+	public void dispose() {
+		if (tagger != null) {
+			tagger.dispose();
+			tagger = null;
+		}
 	}
 
 	private static final Function<NameNumber, Attribute> nameNumber2attributeFunc = new Function<NameNumber, Attribute>() {

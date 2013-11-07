@@ -40,6 +40,7 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.cleartk.Disposable;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
@@ -71,8 +72,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	// derived
 	private MorphDictionary morphDictionary;
 	private Set<String> currentPosTier;
-	// TODO make filterBS immutable
-	private BitSet filterBS;
+	// TODO make bit masks immutable
+	private BitSet currentTierMask;
 	private List<Set<String>> posTiers;
 	private Set<String> prevTierPosCategories;
 	// features
@@ -91,7 +92,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		}
 		parsePosTiersParameter();
 		morphDictionary = morphDictHolder.getDictionary();
-		makeFilterBitSet();
+		this.currentTierMask = makeBitMask(currentPosTier);
 		// check grammems
 		checkDictGrammems();
 
@@ -112,7 +113,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		// TODO introduce difference between Null and NotApplicable values
 		posExtractor = new CombinedExtractor(gramExtractors.toArray(FE_ARRAY));
 		dictFeatureExtractor = new DictionaryPossibleTagFeatureExtractor(
-				currentPosTier, morphDictionary);
+				currentPosTier, prevTierPosCategories, morphDictionary);
 
 		contextFeatureExtractor = new CleartkExtractor(Word.class,
 				new CombinedExtractor(contextFeatureExtractors.toArray(FE_ARRAY)),
@@ -128,6 +129,14 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			process(jCas, sent);
 		}
+	}
+
+	@Override
+	public void destroy() {
+		if (classifier instanceof Disposable) {
+			((Disposable) classifier).dispose();
+		}
+		super.destroy();
 	}
 
 	private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
@@ -208,7 +217,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 
 	private String extractOutputLabel(Wordform wf) {
 		BitSet wfBits = toGramBits(morphDictionary, FSUtils.toList(wf.getGrammems()));
-		wfBits.and(filterBS);
+		wfBits.and(currentTierMask);
 		if (wfBits.isEmpty()) {
 			return null;
 		}
@@ -238,16 +247,21 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		currentPosTier = ImmutableSet.copyOf(posTiers.get(currentTier));
 	}
 
-	private void makeFilterBitSet() {
-		this.filterBS = new BitSet();
-		for (String posCat : currentPosTier) {
+	/**
+	 * @param posCats
+	 * @return bit mask for all PoS-categories in argument posCats
+	 */
+	private BitSet makeBitMask(Iterable<String> posCats) {
+		BitSet result = new BitSet();
+		for (String posCat : posCats) {
 			BitSet posCatBits = morphDictionary.getGrammemWithChildrenBits(posCat, true);
 			if (posCatBits == null) {
 				throw new IllegalStateException(String.format(
 						"Unknown grammeme (category): %s", posCat));
 			}
-			filterBS.or(posCatBits);
+			result.or(posCatBits);
 		}
+		return result;
 	}
 
 	private void checkDictGrammems() {
