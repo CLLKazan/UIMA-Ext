@@ -45,7 +45,7 @@ public class SuffixFeatureExtractor implements SimpleNamedFeatureExtractor {
 		if (str.length() <= suffixLength) {
 			val = str;
 		} else {
-			val = str.substring(str.length() - suffixLength);
+			val = "*" + str.substring(str.length() - suffixLength);
 		}
 		return ImmutableList.of(new Feature(featureName, val));
 	}
