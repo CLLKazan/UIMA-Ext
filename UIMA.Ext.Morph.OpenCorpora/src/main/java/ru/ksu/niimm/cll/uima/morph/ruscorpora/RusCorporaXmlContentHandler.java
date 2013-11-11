@@ -50,6 +50,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 	private LinkedList<RusCorporaAnnotation> sentences = Lists.newLinkedList();
 	private Integer wordStart;
 	private LinkedList<RusCorporaWordform> wordforms = Lists.newLinkedList();
+	private Integer lastWordEnd;
 	private boolean readCharacters = false;
 	// derived
 	private boolean finished = false;
@@ -261,6 +262,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			throw new IllegalStateException();
 		}
 		text = textBuilder.toString();
+		textBuilder = null;
 		readCharacters = false;
 	}
 
@@ -311,6 +313,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 		if (sentenceStart == null) {
 			throw new IllegalArgumentException();
 		}
+		postprocessNotWordSpan();
 		int sentenceEnd = textBuilder.length();
 		sentences.add(new RusCorporaAnnotation(sentenceStart, sentenceEnd));
 		// clear
@@ -323,6 +326,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 					"Nested wordform at %s", getLocationString()));
 		}
 		ensureTrailingWhitespace();
+		postprocessNotWordSpan();
 		wordStart = textBuilder.length();
 		RusCorporaWordform wf = new RusCorporaWordform(wordStart);
 		wordforms.add(wf);
@@ -338,12 +342,27 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 		textBuilder.replace(wordStart, textBuilder.length(), wordStr);
 		int wordEnd = textBuilder.length();
 		wordforms.getLast().setEnd(wordEnd);
+		lastWordEnd = wordEnd;
 		// clear
 		wordStart = null;
 	}
 
 	private String postprocessWordString(String str) {
 		return StringUtils.remove(str, '`');
+	}
+
+	private void postprocessNotWordSpan() {
+		// Not Word Span
+		int nwSpanBegin = this.lastWordEnd == null ? 0 : this.lastWordEnd;
+		// do not cross sentence boundaries
+		nwSpanBegin = Math.max(nwSpanBegin, sentenceStart);
+		String nwSpan = textBuilder.substring(nwSpanBegin);
+		int origLength = nwSpan.length();
+		// replace separate double hyphens by single em-dash
+		nwSpan = nwSpan.replaceAll("([^-]|^)--([^-]|$)", "$1\u2014$2");
+		if (nwSpan.length() != origLength) {
+			textBuilder.replace(nwSpanBegin, textBuilder.length(), nwSpan);
+		}
 	}
 
 	// split into lemma and wf grammems
