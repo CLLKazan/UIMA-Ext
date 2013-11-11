@@ -81,6 +81,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private SimpleFeatureExtractor dictFeatureExtractor;
 	private SimpleFeatureExtractor posExtractor;
 	private CleartkExtractor contextFeatureExtractor;
+	private SimpleFeatureExtractor adjacentPunctuationFeatureExtractor;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -126,9 +127,11 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 			// make Word annotations
 			WordAnnotator.makeWords(jCas);
 		}
+		adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			process(jCas, sent);
 		}
+		adjacentPunctuationFeatureExtractor = null;
 	}
 
 	@Override
@@ -212,6 +215,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		tokFeatures.addAll(posExtractor.extract(jCas, word));
 		tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
 		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
+		tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
 		return tokFeatures;
 	}
 
