@@ -40,7 +40,7 @@ import com.google.common.collect.Sets.SetView;
 import com.google.common.collect.Table;
 
 import ru.kfu.itis.cll.uima.eval.event.PrintingEvaluationListener;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DictionaryDeserializer;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
@@ -237,7 +237,8 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 							+ "does not point to directory with " + SERIALIZED_MORPH_DICT_NAME
 							+ " file");
 		}
-		MorphDictionary morphDict = DictionaryDeserializer.from(serializedMorphDictFile);
+		CachedDictionaryDeserializer deser = CachedDictionaryDeserializer.getInstance();
+		MorphDictionary morphDict = deser.getDictionary(serializedMorphDictFile).dictionary;
 		initGramTree(morphDict);
 
 		super.init();
