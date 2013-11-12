@@ -16,11 +16,15 @@ import org.opencorpora.cas.Wordform;
 import org.uimafit.util.FSCollectionFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
-import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.eval.cas.FSCasDirectory;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Sets.newLinkedHashSet;
+import static ru.kfu.itis.cll.uima.cas.FSUtils.toList;
+import static ru.kfu.itis.cll.uima.cas.FSUtils.toSet;
+import static ru.kfu.itis.cll.uima.cas.FSUtils.toStringArray;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 /**
@@ -41,8 +45,8 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 			nomn, gent, gen1, gen2, datv, accs, ablt, loct, loc1, loc2, voct);
 	private static final Set<String> ANIMACY_TAGS = ImmutableSet.of(anim, inan);
 	private static final Set<String> GENDER_TAGS = ImmutableSet.of(femn, masc, neut);
-	private static final Set<String> ADJ_POSES = ImmutableSet.of(ADJF, ADJS, PRTF, PRTS);
-	private static final Set<String> SHORT_ADJ_POSES = ImmutableSet.of(ADJS, PRTS);
+	private static final Set<String> ADJ_GRAM_CLASSES = ImmutableSet.of(ADJF, ADJS, PRTF, PRTS);
+	private static final Set<String> SHORT_ADJ_GRAM_CLASSES = ImmutableSet.of(ADJS, PRTS);
 
 	private DirType dirType;
 
@@ -57,7 +61,7 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 
 	private void postProcessJCas(JCas cas) {
 		AnnotationIndex<Annotation> wordIdx = cas.getAnnotationIndex(Word.typeIndexID);
-		List<Annotation> wordList = Lists.newArrayList(wordIdx);
+		List<Annotation> wordList = newArrayList(wordIdx);
 		for (Annotation _wAnno : wordList) {
 			Word word = (Word) _wAnno;
 			if (word.getWordforms() != null) {
@@ -70,39 +74,56 @@ public class FSCasDirectoryWithTagsFiltering extends FSCasDirectory {
 
 	private void postProcess(JCas jCas, Wordform wf) {
 		// alignment rule 4
-		if (isGoldDirectory() && PRED.equals(wf.getPos())) {
-			wf.setPos(ADVB);
+		if (isGoldDirectory() && PRED.equals(getGramClass(wf))) {
+			changeGramClass(jCas, wf, ADVB);
 		}
 		//
 		if (wf.getGrammems() != null) {
-			List<String> tagList = Lists.newLinkedList(FSUtils.toList(wf.getGrammems()));
 			// arguable alignment rule 6
-			if (isGoldDirectory() && wf.getPos() == null && tagList.contains(Prnt)) {
-				wf.setPos(ADVB);
+			if (isGoldDirectory() && getGramClass(wf) == null
+					&& toSet(wf.getGrammems()).contains(Prnt)) {
+				changeGramClass(jCas, wf, ADVB);
 			}
-			if (filterGramTags(wf.getPos(), tagList)) {
+			List<String> tagList = newLinkedList(toList(wf.getGrammems()));
+			if (filterGramTags(getGramClass(wf), tagList)) {
 				if (tagList.isEmpty()) {
 					wf.setGrammems(null);
 				} else {
-					wf.setGrammems(FSUtils.toStringArray(jCas, tagList));
+					wf.setGrammems(toStringArray(jCas, tagList));
 				}
 			}
 		}
 	}
 
-	private boolean filterGramTags(String pos, List<String> tagList) {
+	private void changeGramClass(JCas jCas, Wordform wf, final String newGC) {
+		final String oldGC = getGramClass(wf);
+		wf.setPos(newGC);
+		Set<String> wfGrams = newLinkedHashSet();
+		if (newGC != null) {
+			wfGrams.add(newGC);
+		}
+		wfGrams.addAll(toSet(wf.getGrammems()));
+		wfGrams.remove(oldGC);
+		wf.setGrammems(toStringArray(jCas, wfGrams));
+	}
+
+	private String getGramClass(Wordform wf) {
+		return wf.getPos();
+	}
+
+	private boolean filterGramTags(String gramClass, List<String> tagList) {
 		// alignment rule 1
 		boolean changed = tagList.removeAll(FILTERED_GRAM_TAGS);
 		// alignment rule 2
-		if (!NOUN.equals(pos)) {
+		if (!NOUN.equals(gramClass)) {
 			changed |= tagList.removeAll(ANIMACY_TAGS);
 		}
 		// alignment rule 3
-		if (ADJ_POSES.contains(pos) && tagList.contains(plur)) {
+		if (ADJ_GRAM_CLASSES.contains(gramClass) && tagList.contains(plur)) {
 			changed |= tagList.removeAll(GENDER_TAGS);
 		}
 		// alignment rule 5
-		if (isSystemDirectory() && SHORT_ADJ_POSES.contains(pos)) {
+		if (isSystemDirectory() && SHORT_ADJ_GRAM_CLASSES.contains(gramClass)) {
 			changed |= tagList.removeAll(CASE_TAGS);
 		}
 		return changed;

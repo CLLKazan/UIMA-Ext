@@ -3,6 +3,7 @@ package ru.ksu.niimm.cll.uima.morph.eval;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.POST;
 
 import java.io.File;
 import java.util.BitSet;
@@ -61,7 +62,6 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 	private Map<String, Set<String>> gramCategoryContent;
 	private Map<String, String> gram2Cat;
 	private Feature wordformsFeat;
-	private Feature posFeat;
 	private Feature gramsFeat;
 	// state fields
 	private Table<String, String, MutableInt> errorTable = HashBasedTable.create();
@@ -75,14 +75,17 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		final FeatureStructure goldWf = getWordform(goldAnno);
 		final FeatureStructure sysWf = getWordform(sysAnno);
 		final Set<String> goldGrams = getGrammems(goldWf);
-		String goldPos = getPos(goldWf);
+		final String goldGC = getGramClass(goldWf, goldGrams);
 		final Set<String> sysGrams = getGrammems(sysWf);
-		String sysPos = getPos(sysWf);
-		// check POS
-		checkTags(goldPos, sysPos);
-		// iterate through gold grammems
+		final String sysGC = getGramClass(sysWf, sysGrams);
+		// check gram class
+		checkTags(goldGC, sysGC);
+		//
 		Set<String> sysGramsHandled = Sets.newHashSet();
+		sysGramsHandled.add(sysGC);
 		Set<String> goldGramsHandled = Sets.newHashSet();
+		goldGramsHandled.add(goldGC);
+		// iterate through gold grammems
 		for (String goldGr : goldGrams) {
 			if (goldGramsHandled.contains(goldGr)) {
 				continue;
@@ -90,11 +93,11 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 			// category
 			String grCat = getGramCat(goldGr);
 			// category gold grams
-			Set<String> goldGrs = getGramsOfCat(goldAnno, goldGrams, grCat);
+			Set<String> goldGrs = getGramsOfCat(goldGrams, grCat);
 			// category sys grams
-			Set<String> sysGrs = getGramsOfCat(sysAnno, sysGrams, grCat);
+			Set<String> sysGrs = getGramsOfCat(sysGrams, grCat);
 			// check
-			checkTags(toTag(goldPos, goldGrs), toTag(sysPos, sysGrs));
+			checkTags(toTag(goldGC, goldGrs), toTag(sysGC, sysGrs));
 			// mark as handled
 			if (sysGrs != null) {
 				sysGramsHandled.addAll(sysGrs);
@@ -108,8 +111,8 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 				continue;
 			}
 			String grCat = getGramCat(sysGr);
-			Set<String> sysGrs = getGramsOfCat(sysAnno, sysGrams, grCat);
-			checkTags(toTag(goldPos, null), toTag(sysPos, sysGrs));
+			Set<String> sysGrs = getGramsOfCat(sysGrams, grCat);
+			checkTags(toTag(goldGC, null), toTag(sysGC, sysGrs));
 			sysGramsHandled.addAll(sysGrs);
 		}
 	}
@@ -123,12 +126,12 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		return cat;
 	}
 
-	private Set<String> getGramsOfCat(AnnotationFS word, Set<String> sysGrams, String cat) {
+	private Set<String> getGramsOfCat(Set<String> srcGrams, String cat) {
 		Set<String> catGrams = gramCategoryContent.get(cat);
 		if (catGrams == null) {
 			throw new IllegalStateException();
 		}
-		SetView<String> resultSet = Sets.intersection(sysGrams, catGrams);
+		SetView<String> resultSet = Sets.intersection(srcGrams, catGrams);
 		if (resultSet.isEmpty()) {
 			return null;
 		}
@@ -137,7 +140,8 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 
 	private static Joiner grJoiner = Joiner.on('_');
 
-	private String toTag(String pos, Set<String> grams) {
+	private String toTag(String gramClass, Set<String> grams) {
+		gramClass = String.valueOf(gramClass);
 		String gramsStr;
 		if (grams == null || grams.isEmpty()) {
 			gramsStr = "null";
@@ -148,10 +152,13 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 			Collections.sort(sortedGrams);
 			gramsStr = grJoiner.join(sortedGrams);
 		}
-		return new StringBuilder(pos).append('_').append(gramsStr).toString();
+		return new StringBuilder(gramClass).append('_').append(gramsStr).toString();
 	}
 
 	private void checkTags(String goldTag, String sysTag) {
+		// avoid nulls
+		goldTag = String.valueOf(goldTag);
+		sysTag = String.valueOf(sysTag);
 		if (!Objects.equal(goldTag, sysTag)) {
 			MutableInt errCounter = errorTable.get(goldTag, sysTag);
 			if (errCounter == null) {
@@ -162,8 +169,16 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		}
 	}
 
-	private String getPos(FeatureStructure wf) {
-		return String.valueOf(wf.getStringValue(posFeat));
+	private String getGramClass(FeatureStructure fs, Set<String> grams) {
+		Set<String> gramClassSet = getGramsOfCat(grams, POST);
+		if (gramClassSet == null || gramClassSet.isEmpty()) {
+			return null;
+		} else if (gramClassSet.size() > 1) {
+			throw new IllegalStateException(String.format(
+					"Too much gram class grammems in %s", fs));
+		} else {
+			return gramClassSet.iterator().next();
+		}
 	}
 
 	private FeatureStructure getWordform(AnnotationFS word) {
@@ -200,7 +215,6 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		Type wfType = ts.getType(Wordform.class.getName());
 		annotationTypeExist(Wordform.class.getName(), wfType);
 		wordformsFeat = featureExist(wordType, "wordforms");
-		posFeat = featureExist(wfType, "pos");
 		gramsFeat = featureExist(wfType, "grammems");
 
 		if (serializedMorphDictFile == null) {

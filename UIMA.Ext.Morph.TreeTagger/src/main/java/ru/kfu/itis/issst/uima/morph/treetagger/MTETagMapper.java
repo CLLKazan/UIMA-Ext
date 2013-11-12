@@ -494,7 +494,9 @@ public class MTETagMapper implements TagMapper {
 				grammems.remove(this.pos);
 			}
 			this.pos = pos;
-			grammems.add(pos);
+			if (pos != null) {
+				grammems.add(pos);
+			}
 		}
 	}
 }
