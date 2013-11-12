@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.cleartk.crfsuite;
 
+import static org.apache.commons.io.FileUtils.copyFile;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,12 +63,33 @@ public class CRFSuiteStringOutcomeClassifierBuilder
 
 	@Override
 	public void trainClassifier(File dir, String... args) throws Exception {
+		trainClassifier(dir, dir, args);
+	}
+
+	/**
+	 * 
+	 * @param modelDir
+	 *            The directory where the trained classifier should be stored
+	 * @param trainingDir
+	 *            The directory where training data and other classifier
+	 *            information has been written.
+	 * @param args
+	 *            Additional command line arguments for the classifier trainer.
+	 * @throws Exception
+	 */
+	public void trainClassifier(File modelDir, File trainingDir, String... args) throws Exception {
+		if (!modelDir.getAbsoluteFile().equals(trainingDir.getAbsoluteFile())) {
+			// copy encoders description file
+			File srcEncFile = getEncodersFile(trainingDir);
+			File targetEncFile = getEncodersFile(modelDir);
+			copyFile(srcEncFile, targetEncFile);
+		}
 		// validate args
 		CrfSuiteTrainerConfig trainerCfg = CrfSuiteTrainerConfig.fromArgs(args);
 		logger.log(Level.INFO, "Start learning CRFsuite sequential classifier");
 		// configure
-		File modelFile = new File(dir, getModelFileName(trainingDataKey));
-		File trainingDataFile = getTrainingDataFile(dir);
+		File modelFile = new File(modelDir, getModelFileName(trainingDataKey));
+		File trainingDataFile = getTrainingDataFile(trainingDir);
 		CrfSuiteTraining training = new CrfSuiteTraining();
 		training.setModelFile(modelFile);
 		training.setTrainingAlgorithm(trainerCfg.getTrainingAlgorithm());

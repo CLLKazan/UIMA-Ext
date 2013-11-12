@@ -14,6 +14,7 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,16 @@ import org.apache.uima.util.InvalidXMLException;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.cleartk.classifier.jar.SequenceJarClassifierFactory;
+
+import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
+import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
+import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
+import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
+import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
+import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -44,18 +55,9 @@ import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
-
-import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -96,13 +98,14 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
-				File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
+				File trainingBaseDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR,
+						AccessMode.READWRITE);
 				List<AnalysisEngineDescription> posTaggerDescs = Lists.newArrayList();
 				List<String> posTaggerNames = Lists.newArrayList();
 				for (int i = 0; i < _posTiers.size(); i++) {
 					String posTier = _posTiers.get(i);
 
-					File modelDir = getModelDir(modelBaseDir, posTier);
+					File trainingDir = getTierDir(trainingBaseDir, posTier);
 					AnalysisEngineDescription ptDesc = createPrimitiveDescription(
 							TieredPosSequenceAnnotator.class,
 							TieredPosSequenceAnnotator.PARAM_POS_TIERS, _posTiers,
@@ -110,7 +113,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 							TieredPosSequenceAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 							CRFSuiteStringOutcomeDataWriterFactory.class.getName(),
 							DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-							modelDir);
+							trainingDir);
 					ptDesc.getAnalysisEngineMetaData().getOperationalProperties()
 							.setMultipleDeploymentAllowed(false);
 					try {
@@ -137,14 +140,25 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 
 			@Override
 			public void execute(TaskContext taskCtx) throws Exception {
-				File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.ADD_ONLY);
+				File trainingBaseDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR,
+						AccessMode.READONLY);
+				File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
 				for (String posTier : _posTiers) {
-					File modelDir = getModelDir(modelBaseDir, posTier);
-					// FIXME
-					JarClassifierBuilder.trainAndPackage(modelDir,
-							"-a", "lbfgs",
+					File trainingDir = getTierDir(trainingBaseDir, posTier);
+					File modelDir = getTierDir(modelBaseDir, posTier);
+					// FIXME get from discriminators
+					final String[] trainerArgs = { "-a", "lbfgs",
 							"-p", "max_iterations=70",
-							"-p", "feature.minfreq=4");
+							"-p", "feature.minfreq=4" };
+					// TODO The following lines contain a few hacks to avoid
+					// extensive training file duplicates reproduction
+					JarClassifierBuilder<?> _classifierBuilder = JarClassifierBuilder
+							.fromTrainingDirectory(trainingDir);
+					CRFSuiteStringOutcomeClassifierBuilder classifierBuilder =
+							(CRFSuiteStringOutcomeClassifierBuilder) _classifierBuilder;
+					// invoke implementation-specific method (i.e., it is not declared in the interface)
+					classifierBuilder.trainClassifier(modelDir, trainingDir, trainerArgs);
+					classifierBuilder.packageClassifier(modelDir);
 				}
 			}
 		};
@@ -166,7 +180,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				for (int i = 0; i < _posTiers.size(); i++) {
 					String posTier = _posTiers.get(i);
 
-					File modelDir = getModelDir(modelBaseDir, posTier);
+					File modelDir = getTierDir(modelBaseDir, posTier);
 					AnalysisEngineDescription ptDesc = createPrimitiveDescription(
 							TieredPosSequenceAnnotator.class,
 							TieredPosSequenceAnnotator.PARAM_POS_TIERS, _posTiers,
@@ -200,7 +214,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		// configure data-flow between tasks
 		corpusPartitioningTask.addImport(preprocessingTask, KEY_CORPUS);
 		featureExtractionTask.addImport(corpusPartitioningTask, KEY_CORPUS);
-		trainingTask.addImport(featureExtractionTask, KEY_MODEL_DIR);
+		trainingTask.addImport(featureExtractionTask, KEY_TRAINING_DIR);
 		analysisTask.addImport(corpusPartitioningTask, KEY_CORPUS);
 		analysisTask.addImport(trainingTask, KEY_MODEL_DIR);
 		evaluationTask.addImport(corpusPartitioningTask, KEY_CORPUS);
@@ -235,8 +249,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		}
 	}
 
-	private File getModelDir(File modelBaseDir, String posTier) {
+	private File getTierDir(File baseDir, String posTier) {
 		// TODO escape chars that are not safe for filename
-		return new File(modelBaseDir, posTier);
+		return new File(baseDir, posTier);
 	}
 }
