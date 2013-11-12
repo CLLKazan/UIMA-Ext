@@ -112,9 +112,9 @@ public class MTETagMapper implements TagMapper {
 		// voice
 		table.put(7, '-', noOp);
 		// TODO ignore 'medial' in evaluation
-		table.put(7, 'm', addGram(actv, pssv));
-		table.put(7, 'a', addGram(actv));
-		table.put(7, 'p', addGram(pssv));
+		table.put(7, 'm', ifNotContain(addGram(actv, pssv), VERB, INFN, GRND));
+		table.put(7, 'a', ifNotContain(addGram(actv), VERB, INFN, GRND));
+		table.put(7, 'p', ifNotContain(addGram(pssv), VERB, INFN, GRND));
 		// definiteness
 		table.put(8, '-', noOp);
 		table.put(8, 's', setPos(PRTS));
@@ -366,6 +366,24 @@ public class MTETagMapper implements TagMapper {
 		};
 	}
 
+	private static TagCodeHandler ifNotContain(final TagCodeHandler nested, String... grs) {
+		if (grs.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		final ImmutableSet<String> grSet = ImmutableSet.copyOf(grs);
+		return new TagCodeHandler() {
+			@Override
+			public void apply(WordformBuilder wb) {
+				for (String grToTest : wb.grammems) {
+					if (grSet.contains(grToTest)) {
+						return;
+					}
+				}
+				nested.apply(wb);
+			}
+		};
+	}
+
 	private static TagCodeHandler removeGram(final String... grs) {
 		if (grs.length == 0) {
 			throw new IllegalArgumentException();
@@ -471,7 +489,12 @@ public class MTETagMapper implements TagMapper {
 		}
 
 		void setPos(String pos) {
+			if (this.pos != null) {
+				// remove old
+				grammems.remove(this.pos);
+			}
 			this.pos = pos;
+			grammems.add(pos);
 		}
 	}
 }

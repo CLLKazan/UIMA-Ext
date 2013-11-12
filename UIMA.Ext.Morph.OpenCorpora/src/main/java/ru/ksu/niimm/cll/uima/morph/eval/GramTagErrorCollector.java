@@ -1,4 +1,4 @@
-package ru.kfu.itis.issst.uima.morph.treetagger;
+package ru.ksu.niimm.cll.uima.morph.eval;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
