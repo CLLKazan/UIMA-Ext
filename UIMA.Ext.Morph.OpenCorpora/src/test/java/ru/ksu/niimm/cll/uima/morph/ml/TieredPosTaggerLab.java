@@ -136,7 +136,13 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				setType("Training");
 			}
 			@Discriminator
-			int fold;
+			int featureMinFreq;
+			@Discriminator
+			boolean featurePossibleStates;
+			@Discriminator
+			boolean featurePossibleTransitions;
+			@Discriminator
+			int c2;
 
 			@Override
 			public void execute(TaskContext taskCtx) throws Exception {
@@ -144,12 +150,22 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 						AccessMode.READONLY);
 				File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
 				for (String posTier : _posTiers) {
+					// set training parameters
+					List<String> trainerArgs = Lists.newArrayList();
+					trainerArgs.add("-a");
+					trainerArgs.add("lbfgs");
+					addTrainParam(trainerArgs, "max_iterations", 70);
+					addTrainParam(trainerArgs, "feature.minfreq", featureMinFreq);
+					if (featurePossibleStates) {
+						addTrainParam(trainerArgs, "feature.possible_states", 1);
+					}
+					if (featurePossibleTransitions) {
+						addTrainParam(trainerArgs, "feature.possible_transitions", 1);
+					}
+					addTrainParam(trainerArgs, "c2", c2);
+					// ------
 					File trainingDir = getTierDir(trainingBaseDir, posTier);
 					File modelDir = getTierDir(modelBaseDir, posTier);
-					// FIXME get from discriminators
-					final String[] trainerArgs = { "-a", "lbfgs",
-							"-p", "max_iterations=70",
-							"-p", "feature.minfreq=4" };
 					// TODO The following lines contain a few hacks to avoid
 					// extensive training file duplicates reproduction
 					JarClassifierBuilder<?> _classifierBuilder = JarClassifierBuilder
@@ -157,7 +173,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 					CRFSuiteStringOutcomeClassifierBuilder classifierBuilder =
 							(CRFSuiteStringOutcomeClassifierBuilder) _classifierBuilder;
 					// invoke implementation-specific method (i.e., it is not declared in the interface)
-					classifierBuilder.trainClassifier(modelDir, trainingDir, trainerArgs);
+					classifierBuilder.trainClassifier(modelDir, trainingDir,
+							trainerArgs.toArray(new String[trainerArgs.size()]));
 					classifierBuilder.packageClassifier(modelDir);
 				}
 			}
@@ -229,7 +246,15 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
 				// posCategories discriminator is used in the preprocessing task
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, Sets.newLinkedHashSet(_posTiers)),
-				Dimension.create(DISCRIMINATOR_FOLD, foldValues));
+				Dimension.create(DISCRIMINATOR_FOLD, foldValues),
+				// Dimension.create("featureMinFreq", 1, 4, 9, 19),
+				Dimension.create("featureMinFreq", 0),
+				// Dimension.create("c2", 1, 10),
+				Dimension.create("c2", 1),
+				// Dimension.create("featurePossibleTransitions", false, true),
+				Dimension.create("featurePossibleTransitions", true),
+				// Dimension.create("featurePossibleStates", false, true));
+				Dimension.create("featurePossibleStates", true));
 		// -----------------------------------------------------------------
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
@@ -252,5 +277,10 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 	private File getTierDir(File baseDir, String posTier) {
 		// TODO escape chars that are not safe for filename
 		return new File(baseDir, posTier);
+	}
+
+	private void addTrainParam(List<String> params, String name, int value) {
+		params.add("-p");
+		params.add(name + "=" + value);
 	}
 }
