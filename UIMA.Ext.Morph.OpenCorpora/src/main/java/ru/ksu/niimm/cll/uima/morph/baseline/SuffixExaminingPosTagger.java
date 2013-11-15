@@ -69,8 +69,10 @@ public class SuffixExaminingPosTagger extends SuffixExaminingPosAnnotator {
 				if (posBits != null) {
 					annoAdapter.apply(jCas, token, null, null, posBits);
 				} else {
+					// TODO (*) make this configurable
+					Wordform wf = addCasWordform(jCas, token);
 					if (useDebugGrammems) {
-						setUnknownSuffix(jCas, addCasWordform(jCas, token));
+						setUnknownSuffix(jCas, wf);
 					}
 				}
 			} else {
@@ -78,8 +80,10 @@ public class SuffixExaminingPosTagger extends SuffixExaminingPosAnnotator {
 				if (posBits != null) {
 					annoAdapter.apply(jCas, token, null, null, posBits);
 				} else {
+					// TODO (*) make this configurable
+					Wordform wf = addCasWordform(jCas, token);
 					if (useDebugGrammems) {
-						setUnknownShortWord(jCas, addCasWordform(jCas, token));
+						setUnknownShortWord(jCas, wf);
 					}
 				}
 			}

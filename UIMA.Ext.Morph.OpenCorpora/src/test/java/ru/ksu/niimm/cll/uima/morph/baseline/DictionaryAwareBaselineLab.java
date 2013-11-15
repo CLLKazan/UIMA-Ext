@@ -160,7 +160,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
 				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTagger.class,
-						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, true);
+						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
 				// bind dictionary and wfStore resources
 				ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
