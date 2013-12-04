@@ -110,7 +110,6 @@
 			<groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
 			<artifactId>de.tudarmstadt.ukp.dkpro.lab.uima.engine.cpe</artifactId>
 			<version>0.9.1</version>
-			<scope>test</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.xmlgraphics</groupId>
@@ -137,7 +136,6 @@
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-ext-eval</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>

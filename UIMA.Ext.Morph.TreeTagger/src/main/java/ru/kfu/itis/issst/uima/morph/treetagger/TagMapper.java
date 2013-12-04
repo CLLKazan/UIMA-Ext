@@ -13,4 +13,5 @@ public interface TagMapper {
 
 	void parseTag(String tag, Wordform wf, String token);
 
+	String toTag(Wordform wf);
 }

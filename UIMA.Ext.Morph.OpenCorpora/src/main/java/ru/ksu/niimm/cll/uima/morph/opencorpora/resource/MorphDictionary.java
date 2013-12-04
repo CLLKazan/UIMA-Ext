@@ -75,6 +75,12 @@ public interface MorphDictionary {
 	 */
 	Set<String> getTopGrammems();
 
+	/**
+	 * 
+	 * @param grammems
+	 *            grammem bits
+	 * @return list of string ids ordered by grammeme numerical id (ascending)
+	 */
 	List<String> toGramSet(BitSet grammems);
 
 	BitSet internWordformGrammems(BitSet src);

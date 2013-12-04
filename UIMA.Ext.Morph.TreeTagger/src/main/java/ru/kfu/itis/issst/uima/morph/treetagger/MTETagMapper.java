@@ -499,4 +499,9 @@ public class MTETagMapper implements TagMapper {
 			}
 		}
 	}
+
+	@Override
+	public String toTag(Wordform wf) {
+		throw new UnsupportedOperationException();
+	}
 }
