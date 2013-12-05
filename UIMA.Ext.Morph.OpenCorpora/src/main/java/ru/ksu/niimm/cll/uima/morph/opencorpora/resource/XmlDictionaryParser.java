@@ -18,6 +18,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -30,24 +32,31 @@ import org.xml.sax.XMLReader;
  */
 public class XmlDictionaryParser {
 
-	static {
-		// configure logging
-		System.setProperty("logback.configurationFile",
-				"ru/ksu/niimm/cll/uima/morph/opencorpora/logback.xml");
-	}
-
 	private static final Logger log = LoggerFactory.getLogger(XmlDictionaryParser.class);
 
+	/**
+	 * Parse with default lemma post-processors
+	 * 
+	 * @param in
+	 * @return {@link MorphDictionary} instance
+	 */
 	public static MorphDictionaryImpl parse(InputStream in) throws IOException, SAXException,
 			ParserConfigurationException {
+		return parse(in,
+				new LemmaByGrammemFilter("Surn", "Patr", "Orgn"),
+				YoLemmaPostProcessor.INSTANCE);
+	}
+
+	public static MorphDictionaryImpl parse(
+			InputStream in, LemmaPostProcessor... lemmaPostProcessors)
+			throws IOException, SAXException, ParserConfigurationException {
 		SAXParser xmlParser = SAXParserFactory.newInstance().newSAXParser();
 		XMLReader xmlReader = xmlParser.getXMLReader();
 
 		DictionaryXmlHandler dictHandler = new DictionaryXmlHandler();
-		// LEMMA FILTERING
-		dictHandler.addLemmaPostProcessor(new LemmaByGrammemFilter("Surn", "Patr", "Orgn"));
-		// LEMMA POSTPROCESSING
-		dictHandler.addLemmaPostProcessor(YoLemmaPostProcessor.INSTANCE);
+		for (LemmaPostProcessor lpp : lemmaPostProcessors) {
+			dictHandler.addLemmaPostProcessor(lpp);
+		}
 
 		xmlReader.setContentHandler(dictHandler);
 		InputSource xmlSource = new InputSource(in);
@@ -71,7 +80,13 @@ public class XmlDictionaryParser {
 		File outPath = new File(args[1]);
 		outPath.getParentFile().mkdirs();
 
-		MorphDictionaryImpl dict = parse(new FileInputStream(dictXmlFile));
+		FileInputStream fis = FileUtils.openInputStream(dictXmlFile);
+		MorphDictionaryImpl dict;
+		try {
+			dict = parse(fis);
+		} finally {
+			IOUtils.closeQuietly(fis);
+		}
 
 		log.info("Preparing to serialization...");
 		long timeBefore = currentTimeMillis();

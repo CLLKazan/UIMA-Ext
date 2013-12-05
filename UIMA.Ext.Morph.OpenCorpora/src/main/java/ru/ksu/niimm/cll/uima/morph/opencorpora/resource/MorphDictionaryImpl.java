@@ -5,7 +5,6 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import static com.google.common.collect.ImmutableMap.copyOf;
 import static com.google.common.collect.Tables.unmodifiableTable;
-import static java.lang.System.currentTimeMillis;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,10 +37,17 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private static final long serialVersionUID = -4108756831996589900L;
 	private static final Logger log = LoggerFactory.getLogger(MorphDictionaryImpl.class);
 
+	// meta fields
 	private String version;
 	private String revision;
+	// gram set fields
 	private Map<String, Grammeme> gramMap = Maps.newHashMap();
 	private SortedMap<Integer, Grammeme> numToGram = Maps.newTreeMap();
+	private boolean gramSetLocked;
+	// grammem indexes
+	private Multimap<String, Grammeme> gramByParent;
+	private BitSet posBits;
+	// other fields
 	private Map<Integer, Lemma> lemmaMap = Maps.newHashMap();
 	private Map<Short, LemmaLinkType> lemmaLinkTypeMap = Maps.newHashMap();
 	// <from, to, type>
@@ -52,21 +58,15 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	private WordformTST wfByString = new WordformTST();
 
+	private transient WordformPredictor wfPredictor;
+
+	// state mark
+	private transient boolean complete = false;
+
 	@Override
 	public void setWfPredictor(WordformPredictor wfPredictor) {
 		this.wfPredictor = wfPredictor;
 	}
-
-	// wf indexes
-	// by string
-	private transient WordformPredictor wfPredictor;
-
-	// grammem indexes
-	// by parent
-	private transient Multimap<String, Grammeme> gramByParent;
-	private transient BitSet posBits;
-	// state mark
-	private transient boolean complete = false;
 
 	@Override
 	public List<Wordform> getEntries(String str) {
@@ -99,7 +99,9 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public int getGrammemMaxNumId() {
-		// TODO lock gramMap and numToGram before this method invocation during the parsing
+		if (!gramSetLocked) {
+			throw new IllegalStateException("gramSet is not locked");
+		}
 		return numToGram.lastKey();
 	}
 
@@ -118,6 +120,9 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	public void addGrammeme(Grammeme gram) {
+		if (gramSetLocked) {
+			throw new IllegalStateException("Gram set was locked");
+		}
 		if (gramMap.put(gram.getId(), gram) != null) {
 			throw new IllegalStateException(String.format(
 					"Duplicate grammem id - %s", gram.getId()));
@@ -203,13 +208,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public BitSet getPosBits() {
-		if (!complete) {
-			throw new UnsupportedOperationException();
-		}
-		if (posBits == null) {
-			posBits = getGrammemWithChildrenBits("POST", true);
-			isTrue(!posBits.isEmpty());
-		}
 		return (BitSet) posBits.clone();
 	}
 
@@ -296,10 +294,29 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		log.info("{}#finalize...", this);
 	}
 
+	void completeGramSet() {
+		if (!gramSetLocked) {
+			gramMap = copyOf(gramMap);
+			numToGram = ImmutableSortedMap.copyOf(numToGram);
+			gramSetLocked = true;
+			log.info("Grammeme set has been locked");
+			// build indices 
+			gramByParent = HashMultimap.create();
+			for (Grammeme gr : gramMap.values()) {
+				gramByParent.put(gr.getParentId(), gr);
+			}
+			// 
+			posBits = getGrammemWithChildrenBits("POST", true);
+			isTrue(!posBits.isEmpty());
+			log.info("Grammeme indices have been built");
+		}
+	}
+
 	void complete() {
 		if (complete) {
 			throw new IllegalStateException();
 		}
+		completeGramSet();
 		log.info("Completing dictionary. Valid lemma links: {}, invalid links: {}",
 				lemmaLinkTable.size(), invalidLinkCounter);
 		log.info("Unique wordform grammem bitsets count: {}", uniqWordformGrammemsMap.size());
@@ -334,30 +351,15 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	private void makeUnmodifiable() {
-		gramMap = copyOf(gramMap);
-		numToGram = ImmutableSortedMap.copyOf(numToGram);
 		//		lemmaMap = unmodifiableMap(lemmaMap);
 		lemmaLinkTypeMap = copyOf(lemmaLinkTypeMap);
 		lemmaLinkTable = unmodifiableTable(lemmaLinkTable);
-	}
-
-	private void buildIndices() {
-		log.info("start building indices");
-		long timeBefore = currentTimeMillis();
-		gramByParent = HashMultimap.create();
-		for (Grammeme gr : gramMap.values()) {
-			gramByParent.put(gr.getParentId(), gr);
-		}
-		posBits = null;
-		getPosBits();
-		log.info("Indices have been built in {} ms", currentTimeMillis() - timeBefore);
 	}
 
 	private void readObject(java.io.ObjectInputStream in)
 			throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		complete = true;
-		buildIndices();
 	}
 
 	private static void notNull(Object obj) {

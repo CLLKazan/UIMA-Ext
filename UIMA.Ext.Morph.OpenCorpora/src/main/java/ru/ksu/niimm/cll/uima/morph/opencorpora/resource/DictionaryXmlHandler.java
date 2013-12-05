@@ -281,6 +281,12 @@ class DictionaryXmlHandler extends DefaultHandler {
 		protected Map<String, ElementHandler> declareChildren() {
 			return toMap(newHashSet(new GrammemHandler()));
 		}
+
+		@Override
+		protected void endSelf() {
+			dict.completeGramSet();
+			super.endSelf();
+		}
 	}
 
 	private class LemmataHandler extends NoOpHandler {

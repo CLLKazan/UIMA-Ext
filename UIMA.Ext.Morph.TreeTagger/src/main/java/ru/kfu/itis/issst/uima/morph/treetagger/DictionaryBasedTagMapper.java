@@ -37,6 +37,15 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	// derived
 	private MorphDictionary dict;
 
+	// for UIMA
+	public DictionaryBasedTagMapper() {
+	}
+
+	// for stand-alone usage
+	public DictionaryBasedTagMapper(MorphDictionary dict) {
+		this.dict = dict;
+	}
+
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		ExternalResourceInitializer.initialize(ctx, this);
@@ -65,6 +74,10 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	@Override
 	public String toTag(Wordform wf) {
 		BitSet wfBits = toGramBits(dict, FSUtils.toList(wf.getGrammems()));
+		return toTag(wfBits);
+	}
+
+	public String toTag(BitSet wfBits) {
 		if (wfBits.isEmpty()) {
 			return null;
 		}
