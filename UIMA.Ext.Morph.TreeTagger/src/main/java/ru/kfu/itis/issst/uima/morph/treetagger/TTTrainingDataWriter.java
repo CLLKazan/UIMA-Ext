@@ -44,6 +44,9 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_OUTPUT_FILE = "outputFile";
 	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
+	// default TT sentence end tag 
+	public static final String TAG_SENT = "SENT";
+	private static final String SYNTHETIC_SENTENCE_END_TOKEN = ".";
 	// config
 	@ConfigurationParameter(name = PARAM_OUTPUT_FILE, mandatory = true)
 	private File outputFile;
@@ -52,6 +55,8 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 	// state fields
 	private PrintWriter outputWriter;
 	private TagMapper tagMapper;
+	// statistics
+	private int syntheticSentEnds;
 	// per-CAS state fields
 	private Map<Token, Word> token2WordIndex;
 
@@ -64,7 +69,7 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 		try {
 			OutputStream os = FileUtils.openOutputStream(outputFile);
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
-			outputWriter = new PrintWriter(bw, true);
+			outputWriter = new PrintWriter(bw);
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
@@ -99,6 +104,11 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 
 	private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
 		List<Token> tokens = JCasUtil.selectCovered(Token.class, sent);
+		if (tokens.isEmpty()) {
+			return;
+		}
+		final Token lastTok = tokens.get(tokens.size() - 1);
+		boolean hasSentenceEnd = false;
 		for (Token tok : tokens) {
 			Word word = token2WordIndex.get(tok);
 			if (word == null) {
@@ -108,7 +118,15 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 							toPrettyString(tok), getDocumentUri(jCas)));
 					continue;
 				}
-				writeTT(tok.getCoveredText(), tok.getCoveredText());
+				String tag;
+				if (tok == lastTok) {
+					// sentence end
+					tag = TAG_SENT;
+					hasSentenceEnd = true;
+				} else {
+					tag = tok.getCoveredText();
+				}
+				writeTT(tok.getCoveredText(), tag);
 			} else {
 				FSArray wfs = word.getWordforms();
 				if (wfs == null || wfs.size() == 0) {
@@ -121,6 +139,10 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 				writeTT(tok.getCoveredText(), tag);
 			}
 		}
+		if (!hasSentenceEnd) {
+			writeTT(SYNTHETIC_SENTENCE_END_TOKEN, TAG_SENT);
+			syntheticSentEnds++;
+		}
 	}
 
 	private void writeTT(String token, String tag) {
@@ -131,6 +153,7 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 
 	@Override
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
+		getLogger().info("Synthetic sentence-end tokens were added: " + syntheticSentEnds);
 		closeWriter();
 		super.collectionProcessComplete();
 	}
