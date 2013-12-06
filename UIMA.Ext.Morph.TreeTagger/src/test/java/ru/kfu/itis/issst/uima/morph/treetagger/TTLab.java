@@ -24,6 +24,7 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
+import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
@@ -33,9 +34,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictiona
  */
 public class TTLab extends LabLauncherBase {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) throws IOException {
 		System.setProperty("DKPRO_HOME", "wrk/tt-lab");
 		TTLab lab = new TTLab();
@@ -48,9 +46,9 @@ public class TTLab extends LabLauncherBase {
 	private List<String> _posCategoriesList;
 	private Set<String> _posCategories;
 
-	private TTLab(){
+	private TTLab() {
 	}
-	
+
 	private void run() {
 		_posCategories = newHashSet(_posCategoriesList);
 		// prepare input TypeSystem
@@ -61,16 +59,13 @@ public class TTLab extends LabLauncherBase {
 				"org.opencorpora.morphology-ts");
 		// prepare morph dictionary resource
 		final ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
+				CachedSerializedDictionaryResource.class, LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
 		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//
 		Task prepareLexiconTask = new ExecutableTaskBase() {
-			
 			@Override
 			public void execute(TaskContext aContext) throws Exception {
-				// TODO Auto-generated method stub
-				// XXX
 			}
 		};
 		//
