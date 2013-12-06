@@ -34,6 +34,7 @@ import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.collect.TreeMultimap;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -41,7 +42,7 @@ import com.google.common.collect.Sets;
  */
 public class DictionaryToTTLexicon {
 
-	public static final String LEXICON_FILENAME = "lexicon-src.txt";
+	public static final String LEXICON_FILENAME = "lexicon.txt";
 	public static final String OPEN_CLASS_TAGS_FILENAME = "open-class-tags.txt";
 	public static final String CLOSED_CLASS_TAGS_FILENAME = "closed-class-tags.txt";
 
@@ -62,7 +63,7 @@ public class DictionaryToTTLexicon {
 	private PosTrimmer posTrimmer;
 	private BitSet closedClassTagsMask;
 	// state fields
-	private PrintWriter lexiconOut;
+	private Multimap<String, String> lexiconMM;
 	private TreeSet<String> openClassTags;
 	private TreeSet<String> closedClassTags;
 
@@ -71,11 +72,14 @@ public class DictionaryToTTLexicon {
 
 	private void run() throws Exception {
 		FileInputStream xmlDictIS = openInputStream(xmlDictFile);
-		FileOutputStream os = openOutputStream(new File(outputDir, LEXICON_FILENAME));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
-		lexiconOut = new PrintWriter(bw);
 		openClassTags = Sets.newTreeSet();
 		closedClassTags = Sets.newTreeSet();
+		lexiconMM = TreeMultimap.create();
+		// add sentence end tags
+		lexiconMM.put(".", "SENT");
+		lexiconMM.put("!", "SENT");
+		lexiconMM.put("?", "SENT");
+		// parse dictionary xml
 		try {
 			XmlDictionaryParser.parse(xmlDictIS,
 					new InjectDictionary(),
@@ -84,6 +88,24 @@ public class DictionaryToTTLexicon {
 					new WriteTTLexEntryLemmaPostProcessor());
 		} finally {
 			closeQuietly(xmlDictIS);
+		}
+		// output lexiconMM
+		FileOutputStream os = openOutputStream(new File(outputDir, LEXICON_FILENAME));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
+		PrintWriter lexiconOut = new PrintWriter(bw);
+		try {
+			for (String wf : lexiconMM.keySet()) {
+				lexiconOut.print(wf);
+				for (String tag : lexiconMM.get(wf)) {
+					lexiconOut.print('\t');
+					lexiconOut.print(tag);
+					lexiconOut.print(' ');
+					// print dummy lemma
+					lexiconOut.print("-");
+				}
+				lexiconOut.println();
+			}
+		} finally {
 			closeQuietly(lexiconOut);
 		}
 		// output tag files
@@ -95,17 +117,16 @@ public class DictionaryToTTLexicon {
 		@Override
 		public boolean process(MorphDictionary dict, Lemma lemmaObj,
 				Multimap<String, Wordform> wfMap) {
-			String lemma = lemmaObj.getString();
 			for (String wfStr : wfMap.keySet()) {
-				lexiconOut.print(wfStr);
 				// collect uniq tags
 				Set<String> tags = Sets.newHashSet();
 				for (Wordform wf : wfMap.get(wfStr)) {
 					BitSet wfBits = wf.getGrammems();
 					wfBits.or(lemmaObj.getGrammems());
 					posTrimmer.trimInPlace(wfBits);
-					boolean closedClassTag = isClosedClasTag(wfBits);
+					boolean closedClassTag = isClosedClassTag(wfBits);
 					String tag = tagMapper.toTag(wfBits);
+					tag = tag.intern();
 					tags.add(tag);
 					if (closedClassTag) {
 						closedClassTags.add(tag);
@@ -113,15 +134,7 @@ public class DictionaryToTTLexicon {
 						openClassTags.add(tag);
 					}
 				}
-				for (String tag : tags) {
-					lexiconOut.print('\t');
-					// print tag
-					lexiconOut.print(tag);
-					// print lemma
-					lexiconOut.print(' ');
-					lexiconOut.print(lemma);
-				}
-				lexiconOut.println();
+				lexiconMM.putAll(wfStr, tags);
 			}
 			// return false because we are not interested in a dictionary instance
 			return false;
@@ -150,7 +163,7 @@ public class DictionaryToTTLexicon {
 		}
 	}
 
-	private boolean isClosedClasTag(final BitSet _wfBits) {
+	private boolean isClosedClassTag(final BitSet _wfBits) {
 		BitSet wfBits = (BitSet) _wfBits.clone();
 		wfBits.and(closedClassTagsMask);
 		return !wfBits.isEmpty();

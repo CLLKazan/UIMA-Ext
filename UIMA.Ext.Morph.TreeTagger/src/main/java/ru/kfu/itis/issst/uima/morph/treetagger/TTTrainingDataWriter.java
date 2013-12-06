@@ -30,6 +30,8 @@ import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
+import com.google.common.collect.Maps;
+
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -81,6 +83,8 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		try {
+			// prepare token2WordIndex
+			token2WordIndex = Maps.newHashMap();
 			for (Word word : JCasUtil.select(jCas, Word.class)) {
 				Token token = (Token) word.getToken();
 				if (token == null) {
@@ -94,6 +98,7 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 							toPrettyString(word), getDocumentUri(jCas)));
 				}
 			}
+			// process each sentence
 			for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 				process(jCas, sent);
 			}
@@ -146,9 +151,8 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 	}
 
 	private void writeTT(String token, String tag) {
-		outputWriter.println();
 		StringBuilder sb = new StringBuilder(token).append('\t').append(tag);
-		outputWriter.print(sb);
+		outputWriter.println(sb);
 	}
 
 	@Override
