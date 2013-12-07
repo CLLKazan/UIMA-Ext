@@ -44,8 +44,6 @@ public class Wordform implements Serializable {
 		public Wordform build() {
 			if (instance.grammems == null) {
 				instance.grammems = EMPTY_BITSET;
-			} else {
-				instance.grammems = dict.internWordformGrammems(instance.grammems);
 			}
 			return instance;
 		}
@@ -84,6 +82,13 @@ public class Wordform implements Serializable {
 
 	public Wordform cloneWithLemmaId(int lemmaId) {
 		return new Wordform(lemmaId, grammems);
+	}
+
+	public Wordform cloneWithGrammems(BitSet grammems) {
+		Wordform result = new Wordform();
+		result.lemmaId = this.lemmaId;
+		result.grammems = grammems;
+		return result;
 	}
 
 	public BitSet getGrammems() {

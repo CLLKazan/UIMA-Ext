@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
@@ -57,6 +58,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
 
 	private WordformTST wfByString = new WordformTST();
+	// set of complete tags (lex + wordform) seen in stored wordforms
+	private Set<BitSet> tagset = Sets.newHashSet();
 
 	private transient WordformPredictor wfPredictor;
 
@@ -135,6 +138,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public synchronized void addLemma(Lemma l) {
+		l = l.cloneWithGrammems(internLemmaGrammems(l.getGrammems()));
 		if (lemmaMap.put(l.getId(), l) != null) {
 			throw new IllegalStateException(String.format(
 					"Duplicate lemma id - %s", l.getId()));
@@ -255,23 +259,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	@Override
-	public BitSet internWordformGrammems(BitSet grammems) {
-		if (uniqWordformGrammemsMap.containsKey(grammems)) {
-			return uniqWordformGrammemsMap.get(grammems);
-		} else {
-			uniqWordformGrammemsMap.put(grammems, grammems);
-			return grammems;
-		}
-	}
-
-	@Override
-	public BitSet internLemmaGrammems(BitSet grammems) {
-		if (uniqLemmaGrammemsMap.containsKey(grammems)) {
-			return uniqLemmaGrammemsMap.get(grammems);
-		} else {
-			uniqLemmaGrammemsMap.put(grammems, grammems);
-			return grammems;
-		}
+	public boolean containsGramSet(BitSet tag) {
+		return tagset.contains(tag);
 	}
 
 	@Override
@@ -285,7 +274,12 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	public void addWordform(String text, Wordform wf) {
+		wf = wf.cloneWithGrammems(internWordformGrammems(wf.getGrammems()));
 		wfByString.put(text, wf);
+		// add complete tag
+		BitSet tag = wf.getGrammems();
+		tag.or(getLemma(wf.getLemmaId()).getGrammems());
+		tagset.add(tag);
 	}
 
 	@Override
@@ -321,6 +315,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 				lemmaLinkTable.size(), invalidLinkCounter);
 		log.info("Unique wordform grammem bitsets count: {}", uniqWordformGrammemsMap.size());
 		log.info("Unique lemma grammem bitsets count: {}", uniqLemmaGrammemsMap.size());
+		log.info("Unique tag bitset count: {}", tagset.size());
 		makeUnmodifiable();
 		//		uniqGrammemsMap = null;
 		complete = true;
@@ -351,7 +346,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	private void makeUnmodifiable() {
-		//		lemmaMap = unmodifiableMap(lemmaMap);
+		//	lemmaMap = unmodifiableMap(lemmaMap);
+		// ??? tagset
 		lemmaLinkTypeMap = copyOf(lemmaLinkTypeMap);
 		lemmaLinkTable = unmodifiableTable(lemmaLinkTable);
 	}
@@ -371,6 +367,24 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private static void isTrue(boolean condition) {
 		if (!condition) {
 			throw new IllegalStateException("Assertion failed");
+		}
+	}
+
+	private BitSet internWordformGrammems(BitSet grammems) {
+		if (uniqWordformGrammemsMap.containsKey(grammems)) {
+			return uniqWordformGrammemsMap.get(grammems);
+		} else {
+			uniqWordformGrammemsMap.put(grammems, grammems);
+			return grammems;
+		}
+	}
+
+	private BitSet internLemmaGrammems(BitSet grammems) {
+		if (uniqLemmaGrammemsMap.containsKey(grammems)) {
+			return uniqLemmaGrammemsMap.get(grammems);
+		} else {
+			uniqLemmaGrammemsMap.put(grammems, grammems);
+			return grammems;
 		}
 	}
 }

@@ -61,17 +61,14 @@ public class Lemma implements Serializable {
 			}
 			if (instance.grammems == null) {
 				instance.grammems = EMPTY_BITSET;
-			} else {
-				instance.grammems = dict
-						.internLemmaGrammems(instance.grammems);
 			}
-
 			return instance;
 		}
 	}
 
 	private int id;
 	private String string;
+	private BitSet grammems;
 
 	public Lemma() {
 	}
@@ -80,8 +77,6 @@ public class Lemma implements Serializable {
 		this.string = string;
 		this.grammems = grammems;
 	}
-
-	private BitSet grammems;
 
 	public int getId() {
 		return id;
@@ -122,5 +117,13 @@ public class Lemma implements Serializable {
 
 	public Lemma cloneWithoutIdAndString() {
 		return new Lemma("", grammems);
+	}
+
+	public Lemma cloneWithGrammems(BitSet grammems) {
+		Lemma result = new Lemma();
+		result.id = this.id;
+		result.string = this.string;
+		result.grammems = grammems;
+		return result;
 	}
 }

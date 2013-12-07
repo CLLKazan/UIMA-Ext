@@ -144,8 +144,8 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 			w.setToken(tok);
 			// make wordform anno 
 			Wordform wf = new Wordform(jCas);
-			tagMapper.mapFromRusCorpora(srcWf, wf);
 			wf.setWord(w);
+			tagMapper.mapFromRusCorpora(srcWf, wf);
 			w.setWordforms(FSUtils.toFSArray(jCas, wf));
 			w.addToIndexes();
 			wordCounter++;

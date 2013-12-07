@@ -83,7 +83,9 @@ public interface MorphDictionary {
 	 */
 	List<String> toGramSet(BitSet grammems);
 
-	BitSet internWordformGrammems(BitSet src);
-
-	BitSet internLemmaGrammems(BitSet src);
+	/**
+	 * @param tag
+	 * @return true if this dictionary has the given tag
+	 */
+	boolean containsGramSet(BitSet tag);
 }
