@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
-import static java.lang.System.exit;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 
 import java.io.File;
@@ -20,6 +19,9 @@ import org.opencorpora.cas.Word;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
@@ -38,21 +40,23 @@ import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpanAnnotator;
 public class RusCorporaParserBootstrap {
 
 	public static void main(String[] args) throws Exception {
-		if (args.length != 3) {
-			System.err
-					.println("Usage: <ruscorpora-text-dir> <output-xmi-dir> <output-premorph-xmi-dir>");
-			exit(1);
-		}
-		File ruscorporaTextDir = new File(args[0]);
-		if (!ruscorporaTextDir.isDirectory()) {
-			System.err.println(String.format("%s is not existing directory", ruscorporaTextDir));
-			exit(1);
-		}
-		String xmiOutput1Dir = args[1];
-		String xmiOutput2Dir = args[2];
 		// setup logging
 		Slf4jLoggerImpl.forceUsingThisImplementation();
 		//
+		RusCorporaParserBootstrap launcher = new RusCorporaParserBootstrap();
+		new JCommander(launcher, args);
+		launcher.run();
+	}
+
+	@Parameter(names = "--ruscorpora-text-dir", required = true)
+	private File ruscorporaTextDir;
+	@Parameter(names = { "-o", "--output-dir" }, required = true)
+	private File xmiOutputDir;
+
+	private RusCorporaParserBootstrap() {
+	}
+
+	private void run() throws Exception {
 		CollectionReaderDescription colReaderDesc;
 		{
 			TypeSystemDescription tsDesc = TypeSystemDescriptionFactory
@@ -69,12 +73,9 @@ public class RusCorporaParserBootstrap {
 			//RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS, IdentityTagTagger.class.getName()
 		}
 		// 
-		AnalysisEngineDescription xmiWriter1Desc = createPrimitiveDescription(
+		AnalysisEngineDescription xmiWriterDesc = createPrimitiveDescription(
 				XmiWriter.class,
-				XmiWriter.PARAM_OUTPUTDIR, xmiOutput1Dir);
-		AnalysisEngineDescription xmiWriter2Desc = createPrimitiveDescription(
-				XmiWriter.class,
-				XmiWriter.PARAM_OUTPUTDIR, xmiOutput2Dir);
+				XmiWriter.PARAM_OUTPUTDIR, xmiOutputDir);
 		// make NonTokenizedSpanAnnotator
 		AnalysisEngineDescription ntsAnnotatorDesc;
 		{
@@ -91,14 +92,9 @@ public class RusCorporaParserBootstrap {
 				AnnotationRemover.class,
 				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 				new String[] { "ru.ksu.niimm.cll.uima.morph.util" });
-		AnalysisEngineDescription morphRemover = createPrimitiveDescription(
-				AnnotationRemover.class,
-				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
-				new String[] { "org.opencorpora.cas" });
 		// make AGGREGATE
 		AnalysisEngineDescription aggregateDesc = AnalysisEngineFactory.createAggregateDescription(
-				ntsAnnotatorDesc, tokenizerDesc, scaffoldRemover, xmiWriter1Desc,
-				morphRemover, xmiWriter2Desc);
+				ntsAnnotatorDesc, tokenizerDesc, scaffoldRemover, xmiWriterDesc);
 		//
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setReader(colReaderDesc);
