@@ -43,7 +43,7 @@ public class XmlDictionaryParser {
 	public static MorphDictionaryImpl parse(InputStream in) throws IOException, SAXException,
 			ParserConfigurationException {
 		return parse(in,
-				new LemmaByGrammemFilter("Surn", "Patr", "Orgn"),
+				// new LemmaByGrammemFilter("Surn", "Patr", "Orgn"),
 				YoLemmaPostProcessor.INSTANCE);
 	}
 
