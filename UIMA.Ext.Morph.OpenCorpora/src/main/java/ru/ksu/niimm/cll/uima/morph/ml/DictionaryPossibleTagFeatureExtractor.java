@@ -4,6 +4,7 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.ksu.niimm.cll.uima.morph.util.BitUtils.contains;
 
 import java.util.BitSet;
 import java.util.List;
@@ -135,20 +136,6 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 			resultList.add(new Feature(baseFeatureName, featValue));
 		}
 		return resultList;
-	}
-
-	/**
-	 * @param arg
-	 * @param filter
-	 * @return true only if arg contains all bits from filter
-	 */
-	private static boolean contains(BitSet arg, BitSet filter) {
-		for (int i = filter.nextSetBit(0); i >= 0; i = filter.nextSetBit(i + 1)) {
-			if (!arg.get(i)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private static final Joiner gramJoiner = Joiner.on('_');

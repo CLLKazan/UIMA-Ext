@@ -4,6 +4,7 @@
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -26,6 +27,7 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.initializable.InitializableFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -69,14 +71,7 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		try {
-			@SuppressWarnings("unchecked")
-			Class<RusCorporaTagMapper> tagMapperClass = (Class<RusCorporaTagMapper>)
-					Class.forName(tagMapperClassName);
-			tagMapper = tagMapperClass.newInstance();
-		} catch (Exception e) {
-			throw new ResourceInitializationException(e);
-		}
+		tagMapper = InitializableFactory.create(ctx, tagMapperClassName, RusCorporaTagMapper.class);
 		if (!inputDir.isDirectory()) {
 			throw new IllegalArgumentException(String.format(
 					"%s is not existing directory", inputDir));
@@ -211,6 +206,9 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 	public void close() throws IOException {
 		getLogger().info(String.format(
 				"Words parsed: %s", wordCounter));
+		if (tagMapper instanceof Closeable) {
+			((Closeable) tagMapper).close();
+		}
 		super.close();
 	}
 }
