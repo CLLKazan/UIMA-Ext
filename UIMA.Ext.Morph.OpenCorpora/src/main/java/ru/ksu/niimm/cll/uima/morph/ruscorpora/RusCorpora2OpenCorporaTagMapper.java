@@ -140,6 +140,40 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 		};
 	}
 
+	private static Submapper animacyMapper(final String animVal) {
+		return new Submapper() {
+			private final Set<String> ADJECTIVES = ImmutableSet.of("A", "A-PRO", "A-NUM", "ANUM");
+
+			@Override
+			public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
+				Set<String> srcGrams = srcWf.getAllGrammems();
+				// ignore animacy grammeme in neut adjectives
+				if (ADJECTIVES.contains(srcWf.getPos()) && srcGrams.contains("n")) {
+					return;
+				}
+				wb.grammems.add(animVal);
+			}
+		};
+	}
+
+	private static Submapper perMapper(final String perVal) {
+		return new Submapper() {
+			@Override
+			public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
+				Set<String> srcGrams = srcWf.getAllGrammems();
+				if (srcGrams.contains("imper") || srcGrams.contains("imper2")) {
+					if (per1.equals(perVal)) {
+						wb.grammems.add(incl);
+					} else if (per2.equals(perVal)) {
+						wb.grammems.add(excl);
+					}
+				} else {
+					wb.grammems.add(perVal);
+				}
+			}
+		};
+	}
+
 	private static Submapper and(final Submapper... ms) {
 		if (ms.length == 0) {
 			throw new IllegalArgumentException();
@@ -182,7 +216,9 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("PARENTH", gramTag(Prnt))
 			.put("S-PRO", pos(NPRO))
 			.put("A-PRO", and(pos(ADJF), gramTag(Apro)))
-			.put("ADV-PRO", and(pos(ADVB), gramTag(Apro)))
+			// information LOSS
+			// .put("ADV-PRO", and(pos(ADVB), gramTag(Apro)))
+			.put("ADV-PRO", pos(ADVB))
 			.put("PRAEDIC-PRO", pos(NPRO))
 			.put("PR", pos(PREP))
 			.put("CONJ", pos(CONJ))
@@ -195,8 +231,8 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("m-f", gramTag(GNdr, comgend))
 			.put("n", gramTag(neut))
 			//
-			.put("anim", gramTag(anim))
-			.put("inan", gramTag(inan))
+			.put("anim", animacyMapper(anim))
+			.put("inan", animacyMapper(inan))
 			//
 			.put("sg", gramTag(sing))
 			.put("pl", gramTag(plur))
@@ -224,8 +260,8 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("pf", gramTag(perf))
 			.put("ipf", gramTag(impf))
 			//
-			.put("intr", gramTag(intr))
-			.put("tran", gramTag(tran))
+			.put("intr", ifNotContain(gramTag(intr), PRTS))
+			.put("tran", ifNotContain(gramTag(tran), PRTS))
 			//
 			.put("act", ifNotContain(gramTag(actv), VERB, INFN, GRND))
 			.put("pass", ifNotContain(gramTag(pssv), VERB, INFN, GRND))
@@ -243,8 +279,8 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("praes", gramTag(pres))
 			.put("fut", gramTag(futr))
 			//
-			.put("1p", gramTag(per1))
-			.put("2p", gramTag(per2))
+			.put("1p", perMapper(per1))
+			.put("2p", perMapper(per2))
 			.put("3p", gramTag(per3))
 			//
 			.put("persn", gramTag(Name))
