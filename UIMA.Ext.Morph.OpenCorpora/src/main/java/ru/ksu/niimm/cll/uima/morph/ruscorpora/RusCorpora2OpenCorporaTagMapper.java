@@ -5,6 +5,7 @@ package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import org.opencorpora.cas.Wordform;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -57,7 +59,11 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			}
 			grMapper.map(srcWf, wb);
 		}
-		//
+		// run post-processing submappers
+		for (Submapper pp : postProcessors) {
+			pp.map(srcWf, wb);
+		}
+		// set attributes in target FeatureStructure
 		targetWf.setPos(wb.pos);
 		// fill grammems array
 		LinkedList<String> resultGrams = Lists.newLinkedList(wb.grammems);
@@ -194,6 +200,21 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 		}
 	};
 
+	private static final List<String> ANIM_VALUES = ImmutableList.of(anim, inan);
+
+	private static final Submapper pronounPostProcessor = new Submapper() {
+		@Override
+		public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
+			if (NPRO.equals(wb.pos) &&
+					(wb.grammems.contains(per1)
+							|| wb.grammems.contains(per2)
+							|| wb.grammems.contains(per3))) {
+				// remove animacy value
+				wb.grammems.removeAll(ANIM_VALUES);
+			}
+		}
+	};
+
 	private static interface Submapper {
 		void map(RusCorporaWordform srcWf, WordformBuilder wb);
 	}
@@ -297,4 +318,7 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("obsc", noOp)
 			//
 			.build();
+
+	private static final List<Submapper> postProcessors = ImmutableList.of(
+			pronounPostProcessor);
 }
