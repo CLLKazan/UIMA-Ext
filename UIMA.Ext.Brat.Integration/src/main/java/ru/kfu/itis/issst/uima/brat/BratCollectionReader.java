@@ -5,6 +5,8 @@ import static org.nlplab.brat.BratConstants.ANN_FILES_ENCODING;
 import static org.nlplab.brat.BratConstants.TXT_FILES_ENCODING;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+import static ru.kfu.itis.issst.uima.brat.PUtils.hasCollectionRange;
+import static ru.kfu.itis.issst.uima.brat.PUtils.toCompatibleCollection;
 import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.BRAT_NOTE_MAPPERS;
 import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.ENTITIES_TO_BRAT;
 import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.EVENTS_TO_BRAT;
@@ -33,6 +35,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
+import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -54,6 +57,7 @@ import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
+import org.nlplab.brat.configuration.EventRole;
 import org.nlplab.brat.configuration.HasRoles;
 import org.uimafit.component.CasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
@@ -254,9 +258,20 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 			}
 
 			@Override
-			protected BratEventType getEventType(String typeName, Map<String, String> roleTypeNames) {
+			protected BratEventType getEventType(String typeName,
+					Map<String, String> roleTypeNames,
+					Set<String> multiValuedRoles) {
 				BratEventType result = bratTypesCfg.getType(typeName, BratEventType.class);
 				checkRoleMappings(result, roleTypeNames);
+				for (String roleName : roleTypeNames.keySet()) {
+					EventRole role = result.getRole(roleName);
+					if (role.getCardinality().allowsMultipleValues() != multiValuedRoles
+							.contains(roleName)) {
+						throw new IllegalStateException(String.format(
+								"Incompatible cardinality in mapping for role %s in type %s",
+								roleName, typeName));
+					}
+				}
 				return result;
 			}
 		};
@@ -416,14 +431,29 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		AnnotationFS result = cas.createAnnotation(strMapping.uimaType, 0, 0);
 		for (Feature roleFeature : strMapping.featureRoles.keySet()) {
 			String roleName = strMapping.featureRoles.get(roleFeature);
-			BratAnnotation<?> roleBratAnno = bAnno.getRoleAnnotations().get(roleName);
-			if (roleBratAnno == null) {
+			Collection<BratAnnotation<?>> roleBratAnnos = bAnno.getRoleAnnotations().get(roleName);
+			if (roleBratAnnos.isEmpty()) {
 				continue;
 			}
-			AnnotationFS roleUimaAnno = mappingCtx.getMapped(roleBratAnno);
-			if (roleUimaAnno != null) {
-				result.setFeatureValue(roleFeature, roleUimaAnno);
+			List<AnnotationFS> roleUimaAnnos = Lists.newLinkedList();
+			for (BratAnnotation<?> roleBratAnno : roleBratAnnos) {
+				AnnotationFS roleUimaAnno = mappingCtx.getMapped(roleBratAnno);
+				if (roleUimaAnno == null) {
+					throw new IllegalStateException(String.format(
+							"Brat annotation %s has not been mapped", roleBratAnno));
+				}
+				roleUimaAnnos.add(roleUimaAnno);
 			}
+			FeatureStructure featVal;
+			if (hasCollectionRange(roleFeature)) {
+				featVal = toCompatibleCollection(cas, roleFeature, roleUimaAnnos);
+			} else {
+				if (roleUimaAnnos.size() > 1) {
+					throw new IllegalStateException();
+				}
+				featVal = roleUimaAnnos.get(0);
+			}
+			result.setFeatureValue(roleFeature, featVal);
 		}
 		return result;
 	}

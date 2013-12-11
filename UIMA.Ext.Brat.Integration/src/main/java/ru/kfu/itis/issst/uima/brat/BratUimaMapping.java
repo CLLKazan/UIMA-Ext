@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.brat;
 
+import static ru.kfu.itis.issst.uima.brat.PUtils.hasCollectionRange;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -169,6 +171,12 @@ class BratUimaRelationMapping extends BratUimaStructureMapping<BratRelationType>
 				|| !argNames.contains(bratType.getArg2Name())) {
 			raiseIllegalMapping();
 		}
+		// check slot arities
+		for (Feature feat : featureRoles.keySet()) {
+			if (hasCollectionRange(feat)) {
+				raiseIllegalMapping();
+			}
+		}
 	}
 }
 
@@ -177,8 +185,14 @@ class BratUimaEventMapping extends BratUimaStructureMapping<BratEventType> {
 	public BratUimaEventMapping(BratEventType bratType, Type uimaType,
 			Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
 		super(bratType, uimaType, featureRoles, noteMapper);
-		for (String roleName : featureRoles.values()) {
+		// check slot arities
+		for (Feature feat : featureRoles.keySet()) {
+			String roleName = featureRoles.get(feat);
 			if (!bratType.hasRole(roleName)) {
+				raiseIllegalMapping();
+			}
+			if (hasCollectionRange(feat) != bratType.getRole(roleName).getCardinality()
+					.allowsMultipleValues()) {
 				raiseIllegalMapping();
 			}
 		}

@@ -13,7 +13,17 @@ import com.google.common.collect.ImmutableSet;
 
 public class EventRole {
 	public static enum Cardinality {
-		ONE, OPTIONAL, ARRAY, NON_EMPTY_ARRAY
+		ONE(false), OPTIONAL(false), ARRAY(true), NON_EMPTY_ARRAY(true);
+
+		private boolean allowsMultipleValues;
+
+		private Cardinality(boolean allowsMultipleValues) {
+			this.allowsMultipleValues = allowsMultipleValues;
+		}
+
+		public boolean allowsMultipleValues() {
+			return allowsMultipleValues;
+		}
 	}
 
 	private String role;

@@ -169,6 +169,7 @@ public class BratTypesConfiguration {
 		public String apply(EventRole input) {
 			StringBuilder sb = new StringBuilder(input.getRole());
 			sb.append(toPrint(input.getCardinality()));
+			sb.append(':');
 			roleTypesJoiner.appendTo(sb,
 					Collections2.transform(input.getRangeTypes(), bratTypeToName));
 			return sb.toString();
@@ -276,15 +277,6 @@ public class BratTypesConfiguration {
 					ImmutableSet.of(arg2Type), arg2Name);
 			addType(brt);
 			return brt;
-		}
-
-		public BratEventType addEventType(String typeName, Multimap<String, String> roleTypeNames) {
-			Map<String, Cardinality> roleCardinalities = Maps.newHashMapWithExpectedSize(
-					roleTypeNames.size());
-			for (String roleName : roleTypeNames.keySet()) {
-				roleCardinalities.put(roleName, Cardinality.OPTIONAL);
-			}
-			return addEventType(typeName, roleTypeNames, roleCardinalities);
 		}
 
 		public BratEventType addEventType(String typeName,

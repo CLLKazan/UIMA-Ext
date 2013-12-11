@@ -3,11 +3,11 @@
  */
 package org.nlplab.brat.ann;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.nlplab.brat.configuration.BratEventType;
+
+import com.google.common.collect.Multimap;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -18,7 +18,7 @@ public class BratEvent extends BratStructureAnnotation<BratEventType> {
 	private BratEventTrigger trigger;
 
 	public BratEvent(BratEventType type, BratEventTrigger trigger,
-			Map<String, ? extends BratAnnotation<?>> roleAnnotations) {
+			Multimap<String, ? extends BratAnnotation<?>> roleAnnotations) {
 		super(type, roleAnnotations);
 		this.trigger = trigger;
 	}

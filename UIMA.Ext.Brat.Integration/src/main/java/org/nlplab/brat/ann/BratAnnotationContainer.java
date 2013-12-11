@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,7 @@ import org.nlplab.brat.util.StringParser;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -327,21 +329,36 @@ public class BratAnnotationContainer {
 		return relation;
 	}
 
-	private BratEvent parseEvent(String str, Map<String, BratEventTrigger> eventTriggers) {
+	private BratEvent parseEvent(final String str, Map<String, BratEventTrigger> eventTriggers) {
 		StringParser p = new StringParser(str);
 		String id = p.consume1(ID_PATTERN);
 		assert id.startsWith(EVENT_ID_PREFIX);
 		p.skip(TAB_PATTERN);
 		String[] triggerRef = p.consume(ROLE_VALUE_PATTERN);
 		String typeName = triggerRef[1];
+		BratEventType type = typesCfg.getType(typeName, BratEventType.class);
 		String triggerId = triggerRef[2];
 		p.skip(SPACE_PATTERN);
-		Map<String, BratAnnotation<?>> roleMap = Maps.newHashMap();
+		Multimap<String, BratAnnotation<?>> roleMap = LinkedHashMultimap.create();
 		while (!StringUtils.isBlank(p.getCurrentString())) {
 			String rv[] = p.consume(ROLE_VALUE_PATTERN);
-			roleMap.put(rv[1].trim(), getAnnotation(rv[2]));
+			String roleName = rv[1].trim();
+			int rvIndex;
+			Object[] roleIndex = parseRoleIndex(roleName);
+			if (roleIndex != null) {
+				roleName = (String) roleIndex[0];
+				rvIndex = (Integer) roleIndex[1];
+			} else {
+				rvIndex = 1;
+			}
+			// validate rvIndex
+			if (roleMap.get(roleName).size() != rvIndex - 1) {
+				throw new IllegalStateException(String.format(
+						"Illegal value indices for role '%s' in:\n%s",
+						roleName, str));
+			}
+			roleMap.put(roleName, getAnnotation(rv[2]));
 		}
-		BratEventType type = typesCfg.getType(typeName, BratEventType.class);
 		BratEventTrigger trigger = eventTriggers.get(triggerId);
 		if (trigger == null) {
 			throw new IllegalStateException(String.format(
@@ -351,6 +368,20 @@ public class BratAnnotationContainer {
 		BratEvent event = new BratEvent(type, trigger, roleMap);
 		event.setId(id);
 		return event;
+	}
+
+	private static final Pattern digitsPattern = Pattern.compile("\\d+$");
+
+	private static Object[] parseRoleIndex(String str) {
+		Matcher m = digitsPattern.matcher(str);
+		if (m.lookingAt()) {
+			String roleName = str.substring(0, m.start());
+			String indexStr = m.group();
+			Integer index = Integer.valueOf(indexStr);
+			return new Object[] { roleName, index };
+		} else {
+			return null;
+		}
 	}
 
 	private BratNoteAnnotation parseNote(String str) {
@@ -372,12 +403,23 @@ public class BratAnnotationContainer {
 	}
 
 	private void appendRoleValues(StringBuilder target,
-			Map<String, ? extends BratAnnotation<?>> roleAnnotations) {
+			Multimap<String, ? extends BratAnnotation<?>> roleAnnotations) {
 		Iterator<String> roleNamesIter = roleAnnotations.keySet().iterator();
 		while (roleNamesIter.hasNext()) {
 			String roleName = roleNamesIter.next();
-			BratAnnotation<?> rv = roleAnnotations.get(roleName);
-			target.append(roleName).append(':').append(rv.getId());
+			Collection<? extends BratAnnotation<?>> rvs = roleAnnotations.get(roleName);
+			int i = 1;
+			for (BratAnnotation<?> rv : rvs) {
+				if (i != 1) {
+					target.append(' ');
+				}
+				target.append(roleName);
+				if (i > 1) {
+					target.append(i);
+				}
+				target.append(':').append(rv.getId());
+				i++;
+			}
 			if (roleNamesIter.hasNext()) {
 				target.append(' ');
 			}
