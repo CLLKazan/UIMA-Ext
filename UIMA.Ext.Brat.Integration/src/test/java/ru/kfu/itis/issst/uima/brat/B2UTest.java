@@ -31,7 +31,9 @@ public class B2UTest {
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 				BratCollectionReader.class, tsd,
 				BratCollectionReader.PARAM_BRAT_COLLECTION_DIR, inputBratDir,
-				BratCollectionReader.PARAM_U2B_DESC_PATH, U2BTest.U2BAggregateDesc);
+				BratCollectionReader.PARAM_MAPPING_FACTORY_CLASS,
+				ReverseBratUimaMappingFactory.class.getName(),
+				ReverseBratUimaMappingFactory.PARAM_U2B_DESC_PATH, U2BTest.U2BAggregateDesc);
 
 		cpeBuilder.setReader(colReaderDesc);
 		// configure AE
