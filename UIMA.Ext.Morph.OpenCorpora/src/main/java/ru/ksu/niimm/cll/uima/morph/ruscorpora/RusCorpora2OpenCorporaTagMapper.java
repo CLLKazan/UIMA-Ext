@@ -146,21 +146,22 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 		};
 	}
 
-	private static Submapper animacyMapper(final String animVal) {
-		return new Submapper() {
-			private final Set<String> ADJECTIVES = ImmutableSet.of("A", "A-PRO", "A-NUM", "ANUM");
+	private static final List<String> ANIM_VALUES = ImmutableList.of(anim, inan);
 
-			@Override
-			public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
-				Set<String> srcGrams = srcWf.getAllGrammems();
-				// ignore animacy grammeme in neut adjectives
-				if (ADJECTIVES.contains(srcWf.getPos()) && srcGrams.contains("n")) {
-					return;
-				}
-				wb.grammems.add(animVal);
+	private static final Submapper animacyPostProcessor = new Submapper() {
+		@Override
+		public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
+			if (ADJF.equals(wb.pos) && wb.grammems.contains(neut)) {
+				// remove animacy grammeme in neut adjectives
+				wb.grammems.removeAll(ANIM_VALUES);
+			} else if (NPRO.equals(wb.pos)) {
+				// remove animacy grammeme in pronouns
+				// there is an assumption that very few exceptions
+				// will be restored by dictionary-aligning
+				wb.grammems.removeAll(ANIM_VALUES);
 			}
-		};
-	}
+		}
+	};
 
 	private static Submapper perMapper(final String perVal) {
 		return new Submapper() {
@@ -197,21 +198,6 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 	private static final Submapper noOp = new Submapper() {
 		@Override
 		public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
-		}
-	};
-
-	private static final List<String> ANIM_VALUES = ImmutableList.of(anim, inan);
-
-	private static final Submapper pronounPostProcessor = new Submapper() {
-		@Override
-		public void map(RusCorporaWordform srcWf, WordformBuilder wb) {
-			if (NPRO.equals(wb.pos) &&
-					(wb.grammems.contains(per1)
-							|| wb.grammems.contains(per2)
-							|| wb.grammems.contains(per3))) {
-				// remove animacy value
-				wb.grammems.removeAll(ANIM_VALUES);
-			}
 		}
 	};
 
@@ -252,8 +238,8 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("m-f", gramTag(GNdr, comgend))
 			.put("n", gramTag(neut))
 			//
-			.put("anim", animacyMapper(anim))
-			.put("inan", animacyMapper(inan))
+			.put("anim", gramTag(anim))
+			.put("inan", gramTag(inan))
 			//
 			.put("sg", gramTag(sing))
 			.put("pl", gramTag(plur))
@@ -286,7 +272,8 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			//
 			.put("act", ifNotContain(gramTag(actv), VERB, INFN, GRND))
 			.put("pass", ifNotContain(gramTag(pssv), VERB, INFN, GRND))
-			.put("med", ifNotContain(gramTag(actv, pssv), VERB, INFN, GRND))
+			// medial voice is in represented by 'actv' in OpenCorpora dictionary 
+			.put("med", ifNotContain(gramTag(actv), VERB, INFN, GRND))
 			//
 			.put("inf", noOp)
 			.put("partcp", noOp)
@@ -320,5 +307,5 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.build();
 
 	private static final List<Submapper> postProcessors = ImmutableList.of(
-			pronounPostProcessor);
+			animacyPostProcessor);
 }
