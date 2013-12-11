@@ -31,7 +31,13 @@ public class BratEventType extends BratType implements HasRoles {
 					"Unknown role '%s' in %s", roleName, this));
 		}
 		EventRole role = roles.get(roleName);
-		return role.getRange().getName().equals(t.getName());
+		for (BratType roleType : role.getRangeTypes()) {
+			// TODO check type hierarchy, not just a name
+			if (roleType.getName().equals(t.getName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean hasRole(String role) {

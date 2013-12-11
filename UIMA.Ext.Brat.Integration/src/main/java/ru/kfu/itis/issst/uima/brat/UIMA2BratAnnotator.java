@@ -52,6 +52,7 @@ import org.uimafit.util.CasUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimaps;
 
 /**
  * TODO adjust this top javadoc
@@ -339,7 +340,14 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 				continue;
 			}
 			BratAnnotation<?> roleValue;
-			if (roleDesc.getRange() instanceof BratEntityType) {
+			// check role range types
+			boolean entityInRange = isEveryInstanceOf(roleDesc.getRangeTypes(),
+					BratEntityType.class);
+			if (!entityInRange && !isEveryInstanceOf(roleDesc.getRangeTypes(), BratEventType.class)) {
+				throw new UnsupportedOperationException(String.format(
+						"Mixed entity/event types in role range is not supported: %s", roleDesc));
+			}
+			if (entityInRange) {
 				roleValue = context.demandEntity(roleFS);
 			} else { // role value should be event
 				roleValue = context.getEvent(roleFS, false);
@@ -353,6 +361,15 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			roleAnnotations.put(roleName, roleValue);
 		}
 		return roleAnnotations;
+	}
+
+	private static boolean isEveryInstanceOf(Iterable<?> srcCol, Class<?> testClass) {
+		for (Object e : srcCol) {
+			if (!testClass.isInstance(e)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/*
@@ -428,7 +445,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 
 			@Override
 			protected BratEventType getEventType(String typeName, Map<String, String> roleTypeNames) {
-				return tcBuilder.addEventType(typeName, roleTypeNames);
+				return tcBuilder.addEventType(typeName, Multimaps.forMap(roleTypeNames));
 			}
 		};
 		mapping = initializer.create();
