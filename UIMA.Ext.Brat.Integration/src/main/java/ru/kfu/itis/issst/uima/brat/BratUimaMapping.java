@@ -26,6 +26,62 @@ import com.google.common.collect.Maps;
  */
 public class BratUimaMapping {
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+		private BratUimaMapping instance = new BratUimaMapping();
+
+		private Builder() {
+			instance.entityTypeMappings = Maps.newHashMap();
+			instance.relationTypeMappings = Maps.newHashMap();
+			instance.eventTypeMappings = Maps.newHashMap();
+		}
+
+		public Builder addEntityMapping(BratEntityType bratType, Type uimaType) {
+			return addEntityMapping(bratType, uimaType, null);
+		}
+
+		public Builder addEntityMapping(BratEntityType bratType, Type uimaType,
+				BratNoteMapper noteMapper) {
+			instance.entityTypeMappings.put(bratType, new BratUimaEntityMapping(bratType, uimaType,
+					noteMapper));
+			return this;
+		}
+
+		public Builder addRelationMapping(BratRelationType bratType, Type uimaType,
+				Map<Feature, String> featureRoles) {
+			return addRelationMapping(bratType, uimaType, featureRoles, null);
+		}
+
+		public Builder addRelationMapping(BratRelationType bratType, Type uimaType,
+				Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
+			instance.relationTypeMappings.put(bratType, new BratUimaRelationMapping(
+					bratType, uimaType, featureRoles, noteMapper));
+			return this;
+		}
+
+		public Builder addEventMapping(BratEventType bratType, Type uimaType,
+				Map<Feature, String> featureRoles) {
+			return addEventMapping(bratType, uimaType, featureRoles, null);
+		}
+
+		public Builder addEventMapping(BratEventType bratType, Type uimaType,
+				Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
+			instance.eventTypeMappings.put(bratType, new BratUimaEventMapping(
+					bratType, uimaType, featureRoles, noteMapper));
+			return this;
+		}
+
+		public BratUimaMapping build() {
+			instance.entityTypeMappings = ImmutableMap.copyOf(instance.entityTypeMappings);
+			instance.relationTypeMappings = ImmutableMap.copyOf(instance.relationTypeMappings);
+			instance.eventTypeMappings = ImmutableMap.copyOf(instance.eventTypeMappings);
+			return instance;
+		}
+	}
+
 	private Map<BratEntityType, BratUimaEntityMapping> entityTypeMappings;
 	private Map<BratRelationType, BratUimaRelationMapping> relationTypeMappings;
 	private Map<BratEventType, BratUimaEventMapping> eventTypeMappings;

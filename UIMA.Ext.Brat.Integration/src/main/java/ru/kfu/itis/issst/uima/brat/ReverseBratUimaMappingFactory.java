@@ -16,14 +16,12 @@ import java.util.Set;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.ConfigurationParameterSettings;
 import org.nlplab.brat.configuration.BratEntityType;
 import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
-import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.configuration.EventRole;
 import org.nlplab.brat.configuration.HasRoles;
 import org.uimafit.component.initialize.ConfigurationParameterInitializer;
@@ -39,7 +37,8 @@ import com.google.common.collect.Lists;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class ReverseBratUimaMappingFactory implements BratUimaMappingFactory, Initializable {
+public class ReverseBratUimaMappingFactory extends BratUimaMappingFactoryBase implements
+		Initializable {
 
 	public static final String PARAM_U2B_DESC_PATH = "Uima2BratDescriptorPath";
 	public static final String PARAM_U2B_DESC_NAME = "Uima2BratDescriptorName";
@@ -48,8 +47,6 @@ public class ReverseBratUimaMappingFactory implements BratUimaMappingFactory, In
 	private String u2bDescPath;
 	@ConfigurationParameter(name = PARAM_U2B_DESC_NAME)
 	private String u2bDescName;
-	private TypeSystem ts;
-	private BratTypesConfiguration bratTypesCfg;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -62,16 +59,6 @@ public class ReverseBratUimaMappingFactory implements BratUimaMappingFactory, In
 					PARAM_U2B_DESC_NAME, u2bDescName,
 					PARAM_U2B_DESC_PATH, u2bDescPath));
 		}
-	}
-
-	@Override
-	public void setTypeSystem(TypeSystem ts) {
-		this.ts = ts;
-	}
-
-	@Override
-	public void setBratTypes(BratTypesConfiguration btConf) {
-		this.bratTypesCfg = btConf;
 	}
 
 	@Override

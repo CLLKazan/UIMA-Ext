@@ -73,6 +73,20 @@ class PUtils {
 		}
 	}
 
+	public static final String toProperJavaName(final String s) {
+		StringBuilder sb = new StringBuilder(s);
+		// hyphen index
+		int hIndex = sb.indexOf("-");
+		while (hIndex >= 0) {
+			sb.deleteCharAt(hIndex);
+			if (hIndex < sb.length()) {
+				sb.replace(hIndex, hIndex + 1, sb.substring(hIndex, hIndex + 1).toUpperCase());
+			}
+			hIndex = sb.indexOf("-");
+		}
+		return sb.toString();
+	}
+
 	private PUtils() {
 	}
 }

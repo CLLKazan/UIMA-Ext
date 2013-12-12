@@ -72,6 +72,18 @@ public class BratTypesConfiguration {
 		return (T) t;
 	}
 
+	public Collection<BratEntityType> getEntityTypes() {
+		return getTypes(BratEntityType.class);
+	}
+
+	public Collection<BratRelationType> getRelationTypes() {
+		return getTypes(BratRelationType.class);
+	}
+
+	public Collection<BratEventType> getEventTypes() {
+		return getTypes(BratEventType.class);
+	}
+
 	// aux method
 	public BratNoteType getUiNoteType() {
 		return getType(UI_NOTE_TYPE_NAME, BratNoteType.class);
@@ -123,18 +135,6 @@ public class BratTypesConfiguration {
 		// write at least empty attributes section to avoid brat warnings
 		out.println();
 		out.println("[attributes]");
-	}
-
-	private Collection<BratEntityType> getEntityTypes() {
-		return getTypes(BratEntityType.class);
-	}
-
-	private Collection<BratRelationType> getRelationTypes() {
-		return getTypes(BratRelationType.class);
-	}
-
-	private Collection<BratEventType> getEventTypes() {
-		return getTypes(BratEventType.class);
 	}
 
 	@SuppressWarnings("unchecked")

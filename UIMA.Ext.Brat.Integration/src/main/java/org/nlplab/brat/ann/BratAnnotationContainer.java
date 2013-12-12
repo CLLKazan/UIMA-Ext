@@ -27,6 +27,8 @@ import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.util.StringParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -45,9 +47,13 @@ public class BratAnnotationContainer {
 	public static final String RELATION_ID_PREFIX = "R";
 	public static final String EVENT_ID_PREFIX = "E";
 	public static final String NOTE_ID_PREFIX = "#";
+	public static final String ATTRIBUTE_ID_PREFIX = "A";
+	public static final String NORMALIZATION_ID_PREFIX = "N";
+	public static final String EQUIV_RELATION_PREFIX = "*";
 
 	// configuration fields
 	private BratTypesConfiguration typesCfg;
+	private Logger log = LoggerFactory.getLogger(getClass());
 	// state fields
 	private MutableInt entityIdCounter = new MutableInt(0);
 	private MutableInt relationIdCounter = new MutableInt(0);
@@ -244,6 +250,10 @@ public class BratAnnotationContainer {
 		BufferedReader reader = new BufferedReader(srcReader);
 		String line;
 		Map<String, BratEventTrigger> eventTriggers = Maps.newHashMap();
+		// because a brat structure annotation may refer to entity (or trigger)
+		// described in next lines reading is done in two passes
+		// first pass - read entity lines
+		List<String> unreadLines = Lists.newLinkedList();
 		while ((line = reader.readLine()) != null) {
 			if (StringUtils.isBlank(line)) {
 				continue;
@@ -258,7 +268,15 @@ public class BratAnnotationContainer {
 					throw new UnsupportedOperationException(String.format(
 							"Unknown BratTextBoundAnnotation subtype: %s", textSpan));
 				}
-			} else if (line.startsWith(RELATION_ID_PREFIX)) {
+			} else {
+				unreadLines.add(line);
+			}
+		}
+		// second pass - read other lines
+		Iterator<String> lineIter = unreadLines.iterator();
+		while (lineIter.hasNext()) {
+			line = lineIter.next();
+			if (line.startsWith(RELATION_ID_PREFIX)) {
 				BratRelation rel = parseRelation(line);
 				add(rel);
 			} else if (line.startsWith(EVENT_ID_PREFIX)) {
@@ -267,6 +285,18 @@ public class BratAnnotationContainer {
 			} else if (line.startsWith(NOTE_ID_PREFIX)) {
 				BratNoteAnnotation note = parseNote(line);
 				add(note);
+			} else if (line.startsWith(ATTRIBUTE_ID_PREFIX)) {
+				// TODO parse attribute lines when attributes are supported
+				// just ignore now
+			} else if (line.startsWith(NORMALIZATION_ID_PREFIX)) {
+				// TODO parse normalization line
+				// just ignore now
+			} else if (line.startsWith(EQUIV_RELATION_PREFIX)) {
+				// TODO parse relation instances
+				log.warn("The following line contains relation instances " +
+						"but its handling is not implemented yet:\n{}",
+						line);
+				// just ignore now
 			} else {
 				throw new UnsupportedOperationException(String.format(
 						"Can't parse line:\n%s", line));
@@ -372,9 +402,9 @@ public class BratAnnotationContainer {
 
 	private static final Pattern digitsPattern = Pattern.compile("\\d+$");
 
-	private static Object[] parseRoleIndex(String str) {
+	static Object[] parseRoleIndex(String str) {
 		Matcher m = digitsPattern.matcher(str);
-		if (m.lookingAt()) {
+		if (m.find()) {
 			String roleName = str.substring(0, m.start());
 			String indexStr = m.group();
 			Integer index = Integer.valueOf(indexStr);

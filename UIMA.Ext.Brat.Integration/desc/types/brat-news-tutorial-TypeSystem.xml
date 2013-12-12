@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>brat-news-tutorial</name>
+	<description />
+	<version>1.0</version>
+	<vendor />
+
+	<imports>
+		<import name="ru.kfu.itis.cll.uima.commons.Commons-TypeSystem" />
+	</imports>
+
+	<types>
+		<typeDescription>
+			<name>ace.Entity</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Person</name>
+			<description />
+			<supertypeName>ace.Entity</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ace.Organization</name>
+			<description />
+			<supertypeName>ace.Entity</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ace.GPE</name>
+			<description />
+			<supertypeName>ace.Entity</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ace.Money</name>
+			<description />
+			<supertypeName>ace.Entity</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ace.Located</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Geographical_part</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Family</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ace.Employment</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Ownership</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.Organization</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Origin</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.Organization</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Alias</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>arg1</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>arg2</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ace.BeBorn</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>personArg</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>placeArg</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.Die</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>personArg</name>
+					<description />
+					<rangeTypeName>ace.Person</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>agentArg</name>
+					<description />
+					<rangeTypeName>ace.Entity</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>placeArg</name>
+					<description />
+					<rangeTypeName>ace.GPE</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+		
+		<typeDescription>
+			<name>ace.TransferMoney</name>
+			<description />
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>giverArg</name>
+					<description />
+					<rangeTypeName>ace.Entity</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>recipientArg</name>
+					<description />
+					<rangeTypeName>ace.Entity</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>beneficiaryArg</name>
+					<description />
+					<rangeTypeName>ace.Entity</rangeTypeName>
+				</featureDescription>
+				<featureDescription>
+					<name>moneyArg</name>
+					<description />
+					<rangeTypeName>ace.Money</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>	
+		
+		<typeDescription>
+			<name>ace.MergeOrg</name>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>orgArg</name>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ace.Organization</elementType>
+				</featureDescription>
+			</features>
+		</typeDescription>
+	</types>
+</typeSystemDescription>
