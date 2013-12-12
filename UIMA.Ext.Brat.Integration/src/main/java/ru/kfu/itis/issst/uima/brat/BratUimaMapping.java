@@ -215,6 +215,12 @@ abstract class BratUimaStructureMapping<BT extends BratType> extends BratUimaTyp
 				"Illegal arg mapping %s for Brat type %s",
 				featureRoles, bratType));
 	}
+
+	protected void raiseIllegalMapping(String roleName) {
+		throw new IllegalArgumentException(String.format(
+				"Illegal mapping for role %s#%s in mapping %s",
+				bratType.getName(), roleName, featureRoles));
+	}
 }
 
 class BratUimaRelationMapping extends BratUimaStructureMapping<BratRelationType> {
@@ -249,7 +255,7 @@ class BratUimaEventMapping extends BratUimaStructureMapping<BratEventType> {
 			}
 			if (hasCollectionRange(feat) != bratType.getRole(roleName).getCardinality()
 					.allowsMultipleValues()) {
-				raiseIllegalMapping();
+				raiseIllegalMapping(roleName);
 			}
 		}
 	}

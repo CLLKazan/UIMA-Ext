@@ -375,7 +375,11 @@ public class BratTypesConfiguration {
 						parseEntityLine(builder, line, entitiesHierBranch);
 						break;
 					case RELATIONS:
-						parseRelationLine(builder, line);
+						if (line.startsWith("<OVERLAP>")) {
+							// just skip
+						} else {
+							parseRelationLine(builder, line);
+						}
 						break;
 					case EVENTS:
 						if (line.startsWith("<")) {
@@ -523,11 +527,10 @@ public class BratTypesConfiguration {
 	}
 
 	private static int getPrefixCharNum(char ch, String str) {
-		int result = 0;
 		int i = 0;
 		while (i < str.length() && str.charAt(i) == ch)
-			result++;
-		return result;
+			i++;
+		return i;
 	}
 
 	private static void cantParse(String line) {

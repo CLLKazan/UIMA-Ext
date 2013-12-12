@@ -310,7 +310,10 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 				featVal = toCompatibleCollection(cas, roleFeature, roleUimaAnnos);
 			} else {
 				if (roleUimaAnnos.size() > 1) {
-					throw new IllegalStateException();
+					getLogger().error(String.format(
+							"Too much role '%s' values in anno %s in doc %s. " +
+									"Only the first value will be mapped.",
+							roleName, bAnno.getId(), currentDocName));
 				}
 				featVal = roleUimaAnnos.get(0);
 			}

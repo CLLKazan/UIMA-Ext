@@ -309,6 +309,7 @@ public class BratAnnotationContainer {
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
 	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^\\s]+");
 	private static final Pattern OFFSETS_PATTERN = Pattern.compile("(\\d+)\\s+(\\d+)");
+	private static final Pattern OFFSETS_DELIM_PATTERN = Pattern.compile("\\s*; *");
 	private static final Pattern ROLE_VALUE_PATTERN = Pattern.compile("([^:]+):(\\w\\d+)");
 
 	private BratTextBoundAnnotation<?> parseTextBoundAnnotation(String str) {
@@ -321,6 +322,12 @@ public class BratAnnotationContainer {
 		String[] offsetStrings = p.consume(OFFSETS_PATTERN);
 		Integer begin = Integer.valueOf(offsetStrings[1]);
 		Integer end = Integer.valueOf(offsetStrings[2]);
+		while (p.skipOptional(OFFSETS_DELIM_PATTERN)) {
+			offsetStrings = p.consume(OFFSETS_PATTERN);
+			// take discontinuous span as (min(begin),max(end)  
+			begin = Math.min(begin, Integer.valueOf(offsetStrings[1]));
+			end = Math.max(end, Integer.valueOf(offsetStrings[2]));
+		}
 		p.skip(TAB_PATTERN);
 		String refText = p.getCurrentString();
 
@@ -383,9 +390,8 @@ public class BratAnnotationContainer {
 			}
 			// validate rvIndex
 			if (roleMap.get(roleName).size() != rvIndex - 1) {
-				throw new IllegalStateException(String.format(
-						"Illegal value indices for role '%s' in:\n%s",
-						roleName, str));
+				log.warn("Illegal value indices for role '{}' in:\n{}",
+						roleName, str);
 			}
 			roleMap.put(roleName, getAnnotation(rv[2]));
 		}
