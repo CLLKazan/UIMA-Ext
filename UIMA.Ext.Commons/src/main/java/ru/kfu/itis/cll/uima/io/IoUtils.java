@@ -28,11 +28,16 @@ import java.io.UnsupportedEncodingException;
 public class IoUtils {
 
 	public static PrintWriter openPrintWriter(File file) throws IOException {
-		return openPrintWriter(file, "utf-8");
+		return openPrintWriter(file, "utf-8", false);
 	}
 
-	public static PrintWriter openPrintWriter(File file, String encoding) throws IOException {
-		FileOutputStream fos = openOutputStream(file);
+	public static PrintWriter openPrintWriter(File file, boolean append) throws IOException {
+		return openPrintWriter(file, "utf-8", append);
+	}
+
+	public static PrintWriter openPrintWriter(File file, String encoding, boolean append)
+			throws IOException {
+		FileOutputStream fos = openOutputStream(file, append);
 		OutputStreamWriter osr;
 		try {
 			osr = new OutputStreamWriter(fos, encoding);

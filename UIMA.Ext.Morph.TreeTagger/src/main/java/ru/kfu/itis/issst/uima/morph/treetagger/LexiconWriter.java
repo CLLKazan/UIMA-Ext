@@ -9,6 +9,7 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 import static ru.kfu.itis.cll.uima.io.IoUtils.openPrintWriter;
 import static ru.kfu.itis.cll.uima.io.IoUtils.openReader;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -111,6 +113,34 @@ class LexiconWriter {
 		log.info("Finished. {} entries have been merged.", mergedCounter);
 	}
 
+	public static void appendLexiconEntry(File lexiconFile, String wordform, String tag)
+			throws IOException {
+		PrintWriter lexWriter = openPrintWriter(lexiconFile, true);
+		try {
+			writeLexiconEntry(lexWriter, wordform, asList(tag));
+		} finally {
+			closeQuietly(lexWriter);
+		}
+	}
+
+	public static Iterator<LexiconEntry> toIterator(final BufferedReader reader) {
+		return new AbstractIterator<LexiconEntry>() {
+			@Override
+			protected LexiconEntry computeNext() {
+				String line;
+				try {
+					line = reader.readLine();
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
+				}
+				if (line == null) {
+					return endOfData();
+				}
+				return parseEntry(line);
+			}
+		};
+	}
+
 	private static LexiconEntry parseEntry(String line) {
 		Iterator<String> iter = entryTagsSplitter.split(line).iterator();
 		String wordform = iter.next();
@@ -146,7 +176,7 @@ class LexiconWriter {
 		}
 	}
 
-	private static class LexiconEntry {
+	public static class LexiconEntry {
 		final String wordform;
 		final Set<String> tags;
 

@@ -6,7 +6,7 @@ package ru.kfu.itis.issst.uima.morph.treetagger;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CASException;
@@ -18,7 +18,7 @@ import org.uimafit.factory.initializable.Initializable;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
@@ -57,15 +57,22 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	 */
 	@Override
 	public void parseTag(String tag, Wordform wf, String token) {
-		if (tag == null || tag.equalsIgnoreCase("null")) {
+		Set<String> grams = parseTag(tag);
+		if (grams.isEmpty()) {
 			return;
 		}
-		List<String> grams = Lists.newLinkedList(targetGramSplitter.split(tag));
 		try {
 			wf.setGrammems(FSUtils.toStringArray(wf.getCAS().getJCas(), grams));
 		} catch (CASException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static Set<String> parseTag(String tag) {
+		if (tag == null || tag.equalsIgnoreCase("null")) {
+			return Sets.newLinkedHashSet();
+		}
+		return Sets.newLinkedHashSet(targetGramSplitter.split(tag));
 	}
 
 	/**

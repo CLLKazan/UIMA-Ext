@@ -23,7 +23,6 @@ import java.util.TreeSet;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LemmaByGrammemFilter;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LemmaPostProcessor;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.XmlDictionaryParser;
@@ -101,7 +100,6 @@ public class DictionaryToTTLexicon {
 		try {
 			XmlDictionaryParser.parse(xmlDictIS,
 					new InjectDictionary(),
-					new LemmaByGrammemFilter("Surn", "Patr", "Orgn"),
 					YoLemmaPostProcessor.INSTANCE,
 					new WriteTTLexEntryLemmaPostProcessor());
 		} finally {
@@ -173,9 +171,17 @@ public class DictionaryToTTLexicon {
 
 	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, PREP, CONJ, PRCL);
 
+	public static boolean isClosedClassTag(String tag) {
+		return closedClassPunctuationTags.contains(tag)
+				|| !Sets.intersection(
+						DictionaryBasedTagMapper.parseTag(tag), closedPosSet)
+						.isEmpty();
+	}
+
 	// tag for unknown punctuation marks or special symbols 
 	public static final String OTHER_PUNCTUATION_TAG = "_P_";
 	public static final Map<String, String> punctuationTagMap;
+	public static final Set<String> closedClassPunctuationTags;
 
 	static {
 		ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
@@ -234,5 +240,6 @@ public class DictionaryToTTLexicon {
 		b.put("$", "$");
 		b.put("%", "%");
 		punctuationTagMap = b.build();
+		closedClassPunctuationTags = ImmutableSet.copyOf(punctuationTagMap.values());
 	}
 }

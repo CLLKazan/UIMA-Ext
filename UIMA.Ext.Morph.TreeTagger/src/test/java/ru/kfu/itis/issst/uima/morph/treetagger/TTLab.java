@@ -4,8 +4,11 @@
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newTreeSet;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
+import static org.apache.commons.io.FileUtils.readLines;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
@@ -21,8 +24,10 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.MORPH_DICT_XML;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +60,9 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 
+import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
@@ -166,10 +173,30 @@ public class TTLab extends LabLauncherBase {
 				if (!tmpLexFile.renameTo(tdLexFile)) {
 					throw new IOException("Can't rename file" + tmpLexFile);
 				}
-				// copy open-class-tags file
+				// HACK append an RNC-specific fake entry for null (NON-LEX) tag
+				LexiconWriter.appendLexiconEntry(tdLexFile, "%FAKE_ENTRY%", NON_LEX_TAG);
+				// enrich open-class-tagset
 				File openClassTagsFile = new File(srcLexDir, OPEN_CLASS_TAGS_FILENAME);
-				FileUtils.copyFile(openClassTagsFile,
-						new File(trainingDir, OPEN_CLASS_TAGS_FILENAME));
+				Set<String> openClassTags = newTreeSet(readLines(openClassTagsFile, "utf-8"));
+				BufferedReader lexReader = IoUtils.openReader(tdLexFile);
+				try {
+					Iterator<LexiconEntry> lexIter = LexiconWriter.toIterator(lexReader);
+					while (lexIter.hasNext()) {
+						LexiconEntry le = lexIter.next();
+						for (String tag : le.tags) {
+							if (!DictionaryToTTLexicon.isClosedClassTag(tag)) {
+								if (openClassTags.add(tag)) {
+									log.debug("Tag {} was added to open class tagset", tag);
+								}
+							}
+						}
+					}
+				} finally {
+					closeQuietly(lexReader);
+				}
+				openClassTags.add(NON_LEX_TAG);
+				openClassTagsFile = new File(trainingDir, OPEN_CLASS_TAGS_FILENAME);
+				FileUtils.writeLines(openClassTagsFile, "utf-8", openClassTags);
 				// XXX adjust open class tags (null, Abbr ?)
 			}
 		};
@@ -284,4 +311,6 @@ public class TTLab extends LabLauncherBase {
 	}
 
 	private static final String KEY_LEXICON_DIR = "LexiconDir";
+
+	private static final String NON_LEX_TAG = String.valueOf((Object) null);
 }
