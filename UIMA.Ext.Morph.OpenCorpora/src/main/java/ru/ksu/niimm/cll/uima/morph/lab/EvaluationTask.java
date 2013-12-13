@@ -66,7 +66,7 @@ public class EvaluationTask extends ExecutableTaskBase {
 
 	private Properties readEvaluationConfig() throws IOException {
 		Properties evalProps = new Properties();
-		String evalPropsPath = "baseline-eval.properties";
+		String evalPropsPath = "ru/ksu/niimm/cll/uima/morph/lab/eval.properties";
 		InputStream evalPropsIS = getClassLoader().getResourceAsStream(evalPropsPath);
 		if (evalPropsIS == null) {
 			throw new IllegalStateException(String.format("Can't find classpath resource %s",

@@ -3,13 +3,17 @@
  */
 package ru.kfu.itis.cll.uima.io;
 
+import static org.apache.commons.io.FileUtils.openInputStream;
 import static org.apache.commons.io.FileUtils.openOutputStream;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -28,16 +32,32 @@ public class IoUtils {
 	}
 
 	public static PrintWriter openPrintWriter(File file, String encoding) throws IOException {
-		FileOutputStream fis = openOutputStream(file);
-		OutputStreamWriter isr;
+		FileOutputStream fos = openOutputStream(file);
+		OutputStreamWriter osr;
 		try {
-			isr = new OutputStreamWriter(fis, encoding);
+			osr = new OutputStreamWriter(fos, encoding);
+		} catch (UnsupportedEncodingException e) {
+			closeQuietly(fos);
+			throw e;
+		}
+		BufferedWriter bw = new BufferedWriter(osr);
+		return new PrintWriter(bw);
+	}
+
+	public static BufferedReader openReader(File file) throws IOException {
+		return openReader(file, "utf-8");
+	}
+
+	public static BufferedReader openReader(File file, String encoding) throws IOException {
+		FileInputStream fis = openInputStream(file);
+		InputStreamReader isr;
+		try {
+			isr = new InputStreamReader(fis, encoding);
 		} catch (UnsupportedEncodingException e) {
 			closeQuietly(fis);
 			throw e;
 		}
-		BufferedWriter br = new BufferedWriter(isr);
-		return new PrintWriter(br);
+		return new BufferedReader(isr);
 	}
 
 	private IoUtils() {

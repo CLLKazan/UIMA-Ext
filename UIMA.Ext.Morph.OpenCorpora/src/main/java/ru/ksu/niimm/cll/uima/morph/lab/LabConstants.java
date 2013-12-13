@@ -21,5 +21,6 @@ public class LabConstants {
 	public static final String PLACEHOLDER_OUTPUT_BASE_DIR = "outputBaseDir";
 	// urls & files
 	public static final String MORPH_DICT_FILENAME = "dict.opcorpora.ser";
+	public static final String MORPH_DICT_XML = "dict.opcorpora.xml";
 	public static final String URL_RELATIVE_MORPH_DICTIONARY = "file:" + MORPH_DICT_FILENAME;
 }

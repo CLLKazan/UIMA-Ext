@@ -4,19 +4,19 @@
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
 import static org.apache.commons.io.FileUtils.openInputStream;
-import static org.apache.commons.io.FileUtils.openOutputStream;
 import static org.apache.commons.io.FileUtils.writeLines;
 import static org.apache.commons.io.IOUtils.closeQuietly;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.CONJ;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.NPRO;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PRCL;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PREP;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,8 +31,11 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.YoLemmaPostProcessor;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.TreeMultimap;
 
@@ -59,6 +62,7 @@ public class DictionaryToTTLexicon {
 	private File outputDir;
 	@Parameter(names = { "-p", "--pos-categories" }, required = true)
 	private List<String> posCategoriesList;
+	//
 	private DictionaryBasedTagMapper tagMapper;
 	private PosTrimmer posTrimmer;
 	private BitSet closedClassTagsMask;
@@ -70,15 +74,29 @@ public class DictionaryToTTLexicon {
 	private DictionaryToTTLexicon() {
 	}
 
-	private void run() throws Exception {
+	public DictionaryToTTLexicon(File xmlDictFile, File outputDir,
+			Collection<String> posCategories) {
+		this();
+		this.xmlDictFile = xmlDictFile;
+		this.outputDir = outputDir;
+		this.posCategoriesList = ImmutableList.copyOf(posCategories);
+	}
+
+	public void run() throws Exception {
 		FileInputStream xmlDictIS = openInputStream(xmlDictFile);
 		openClassTags = Sets.newTreeSet();
+		openClassTags.add(OTHER_PUNCTUATION_TAG);
 		closedClassTags = Sets.newTreeSet();
+		closedClassTags.addAll(punctuationTagMap.values());
 		lexiconMM = TreeMultimap.create();
 		// add sentence end tags
 		lexiconMM.put(".", "SENT");
 		lexiconMM.put("!", "SENT");
 		lexiconMM.put("?", "SENT");
+		// HACK - add example of OTHER_PUNCTUATION_TAG to avoid training procedure failures
+		lexiconMM.put("@", OTHER_PUNCTUATION_TAG);
+		// add punctuation tags
+		lexiconMM.putAll(Multimaps.forMap(punctuationTagMap));
 		// parse dictionary xml
 		try {
 			XmlDictionaryParser.parse(xmlDictIS,
@@ -90,24 +108,8 @@ public class DictionaryToTTLexicon {
 			closeQuietly(xmlDictIS);
 		}
 		// output lexiconMM
-		FileOutputStream os = openOutputStream(new File(outputDir, LEXICON_FILENAME));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
-		PrintWriter lexiconOut = new PrintWriter(bw);
-		try {
-			for (String wf : lexiconMM.keySet()) {
-				lexiconOut.print(wf);
-				for (String tag : lexiconMM.get(wf)) {
-					lexiconOut.print('\t');
-					lexiconOut.print(tag);
-					lexiconOut.print(' ');
-					// print dummy lemma
-					lexiconOut.print("-");
-				}
-				lexiconOut.println();
-			}
-		} finally {
-			closeQuietly(lexiconOut);
-		}
+		File lexiconFile = new File(outputDir, LEXICON_FILENAME);
+		LexiconWriter.write(lexiconMM, lexiconFile);
 		// output tag files
 		writeLines(new File(outputDir, OPEN_CLASS_TAGS_FILENAME), "utf-8", openClassTags);
 		writeLines(new File(outputDir, CLOSED_CLASS_TAGS_FILENAME), "utf-8", closedClassTags);
@@ -170,4 +172,67 @@ public class DictionaryToTTLexicon {
 	}
 
 	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, PREP, CONJ, PRCL);
+
+	// tag for unknown punctuation marks or special symbols 
+	public static final String OTHER_PUNCTUATION_TAG = "_P_";
+	public static final Map<String, String> punctuationTagMap;
+
+	static {
+		ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
+		// dashes
+		b.put("\u2012", "--");
+		b.put("\u2013", "--");
+		b.put("\u2014", "--");
+		b.put("\u2015", "--");
+		// hyphens
+		b.put("-", "-");
+		b.put("\u2010", "-");
+		b.put("\u00AD", "-");
+		b.put("\u2011", "-");
+		b.put("\u2043", "-");
+		// apostrophe
+		b.put("'", "'");
+		b.put("\u2018", "'");
+		b.put("\u2019", "'");
+		// brackets
+		b.put("(", "(");
+		b.put(")", ")");
+		b.put("[", "(");
+		b.put("]", ")");
+		b.put("{", "(");
+		b.put("}", ")");
+		// colon
+		b.put(":", ":");
+		// semicolon
+		b.put(";", ";");
+		// comma
+		b.put(",", ",");
+		// exclamation
+		b.put("!", "!");
+		b.put("\u203C", "!");
+		// period
+		b.put(".", ".");
+		// question mark
+		b.put("?", "?");
+		// quotation marks
+		b.put("\"", "\"");
+		b.put("\u00AB", "\"");
+		b.put("\u2039", "\"");
+		b.put("\u00BB", "\"");
+		b.put("\u203A", "\"");
+		b.put("\u201A", "\"");
+		b.put("\u201B", "\"");
+		b.put("\u201C", "\"");
+		b.put("\u201D", "\"");
+		b.put("\u201E", "\"");
+		b.put("\u201F", "\"");
+		// slashes
+		b.put("\\", "\\");
+		b.put("/", "/");
+		// well, these are not punctuation marks
+		// but for simplicity we will put them in the same map
+		b.put("$", "$");
+		b.put("%", "%");
+		punctuationTagMap = b.build();
+	}
 }

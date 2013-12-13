@@ -5,6 +5,8 @@ package ru.kfu.itis.issst.uima.morph.treetagger;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.kfu.itis.issst.uima.morph.treetagger.DictionaryToTTLexicon.OTHER_PUNCTUATION_TAG;
+import static ru.kfu.itis.issst.uima.morph.treetagger.DictionaryToTTLexicon.punctuationTagMap;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +34,8 @@ import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
@@ -44,19 +49,22 @@ import ru.kfu.cll.uima.tokenizer.fstype.W;
 @OperationalProperties(multipleDeploymentAllowed = false)
 public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 
-	public static final String PARAM_OUTPUT_FILE = "outputFile";
+	public static final String PARAM_OUTPUT_DIR = "outputFile";
 	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
+	public static final String TRAINING_DATA_FILENAME = "training-data.txt";
+	public static final String LEXICON_FILENAME = "training-data.lex";
 	// default TT sentence end tag 
 	public static final String TAG_SENT = "SENT";
 	private static final String SYNTHETIC_SENTENCE_END_TOKEN = ".";
 	// config
-	@ConfigurationParameter(name = PARAM_OUTPUT_FILE, mandatory = true)
-	private File outputFile;
+	@ConfigurationParameter(name = PARAM_OUTPUT_DIR, mandatory = true)
+	private File outputDir;
 	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS, defaultValue = "ru.kfu.itis.issst.uima.morph.treetagger.DictionaryBasedTagMapper")
 	private String tagMapperClassName;
 	// state fields
 	private PrintWriter outputWriter;
 	private TagMapper tagMapper;
+	private Multimap<String, String> outputLexicon;
 	// statistics
 	private int syntheticSentEnds;
 	// per-CAS state fields
@@ -68,6 +76,7 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 		//
 		tagMapper = InitializableFactory.create(ctx, tagMapperClassName, TagMapper.class);
 		//
+		File outputFile = new File(outputDir, TRAINING_DATA_FILENAME);
 		try {
 			OutputStream os = FileUtils.openOutputStream(outputFile);
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
@@ -75,6 +84,8 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+		//
+		outputLexicon = TreeMultimap.create();
 	}
 
 	/**
@@ -116,6 +127,7 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 		boolean hasSentenceEnd = false;
 		for (Token tok : tokens) {
 			Word word = token2WordIndex.get(tok);
+			String tokStr = tok.getCoveredText();
 			if (word == null) {
 				if (tok instanceof NUM || tok instanceof W) {
 					getLogger().warn(String.format(
@@ -129,9 +141,12 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 					tag = TAG_SENT;
 					hasSentenceEnd = true;
 				} else {
-					tag = tok.getCoveredText();
+					tag = punctuationTagMap.get(tokStr);
+					if (tag == null) {
+						tag = OTHER_PUNCTUATION_TAG;
+					}
 				}
-				writeTT(tok.getCoveredText(), tag);
+				writeTT(tokStr, tag);
 			} else {
 				FSArray wfs = word.getWordforms();
 				if (wfs == null || wfs.size() == 0) {
@@ -141,7 +156,13 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 				}
 				Wordform wf = (Wordform) wfs.get(0);
 				String tag = tagMapper.toTag(wf);
-				writeTT(tok.getCoveredText(), tag);
+				if (!isDigitalNumber(tokStr)) {
+					// null means NONLEX
+					if (tag != null) {
+						outputLexicon.put(normalizeForLexicon(tokStr), tag);
+					}
+				}
+				writeTT(tokStr, tag);
 			}
 		}
 		if (!hasSentenceEnd) {
@@ -155,17 +176,35 @@ public class TTTrainingDataWriter extends JCasAnnotator_ImplBase {
 		outputWriter.println(sb);
 	}
 
+	private static String normalizeForLexicon(String str) {
+		return str.toLowerCase();
+	}
+
 	@Override
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
 		getLogger().info("Synthetic sentence-end tokens were added: " + syntheticSentEnds);
 		closeWriter();
+		File lexiconFile = new File(outputDir, LEXICON_FILENAME);
+		try {
+			LexiconWriter.write(outputLexicon, lexiconFile);
+		} catch (IOException e) {
+			throw new AnalysisEngineProcessException(e);
+		}
+		outputLexicon = null;
 		super.collectionProcessComplete();
 	}
 
 	@Override
 	public void destroy() {
 		closeWriter();
+		outputLexicon = null;
 		super.destroy();
+	}
+
+	private static final Pattern digitalNumberPattern = Pattern.compile("\\d+");
+
+	private boolean isDigitalNumber(String tok) {
+		return digitalNumberPattern.matcher(tok).matches();
 	}
 
 	private void closeWriter() {
