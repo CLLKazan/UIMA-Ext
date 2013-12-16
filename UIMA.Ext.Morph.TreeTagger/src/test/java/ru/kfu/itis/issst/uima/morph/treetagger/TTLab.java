@@ -61,6 +61,7 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
@@ -229,7 +230,8 @@ public class TTLab extends LabLauncherBase {
 				pb.redirectErrorStream(true);
 				Process trainProc = pb.start();
 				// TODO destroy properly when trainProc is done (possible with error)
-				StreamGobbler trainProcGobbler = new StreamGobbler(trainProc.getInputStream());
+				StreamGobblerBase trainProcGobbler = StreamGobblerBase.toSystemOut(
+						trainProc.getInputStream());
 				new Thread(trainProcGobbler).start();
 				int trainProcExitCode = trainProc.waitFor();
 				// wait a little & stop gobbler
