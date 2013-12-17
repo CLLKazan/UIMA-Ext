@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.issst.uima.morph.treetagger;
+package ru.kfu.itis.issst.uima.morph.commons;
 
 import org.opencorpora.cas.Wordform;
 

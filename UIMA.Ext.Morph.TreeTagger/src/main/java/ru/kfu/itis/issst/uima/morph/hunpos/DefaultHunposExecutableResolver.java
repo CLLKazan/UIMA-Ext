@@ -3,69 +3,48 @@
  */
 package ru.kfu.itis.issst.uima.morph.hunpos;
 
-import static java.io.File.separator;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.annolab.tt4j.ExecutableResolver;
-import org.annolab.tt4j.PlatformDetector;
+
+import ru.kfu.itis.issst.uima.morph.commons.ExecutableResolverBase;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DefaultHunposExecutableResolver implements ExecutableResolver {
+public class DefaultHunposExecutableResolver extends ExecutableResolverBase {
 
 	public static final String HUNPOS_TAGGER_FILE_BASENAME = "hunpos-tag";
+	public static final String HUNPOS_TRAINER_FILE_BASENAME = "hunpos-train";
 
-	protected PlatformDetector platformDetector;
+	public static ExecutableResolver taggerResolver() {
+		return new DefaultHunposExecutableResolver(HUNPOS_TAGGER_FILE_BASENAME);
+	}
 
-	@Override
-	public void setPlatformDetector(PlatformDetector platformDetector) {
-		this.platformDetector = platformDetector;
+	public static ExecutableResolver trainerResolver() {
+		return new DefaultHunposExecutableResolver(HUNPOS_TRAINER_FILE_BASENAME);
+	}
+
+	private DefaultHunposExecutableResolver(String executableBaseName) {
+		super(executableBaseName);
 	}
 
 	@Override
-	public void destroy() {
-		// do nothing
+	protected List<String> getSearchPaths() {
+		return getHunposSearchPaths();
 	}
 
 	@Override
-	public String getExecutable() throws IOException {
-		Set<String> searchedIn = new HashSet<String>();
-		for (String p : getSearchPaths()) {
-			if (p == null) {
-				continue;
-			}
-
-			File exe = new File(p + separator + HUNPOS_TAGGER_FILE_BASENAME
-					+ platformDetector.getExecutableSuffix());
-			searchedIn.add(exe.getAbsolutePath());
-			if (exe.exists()) {
-				return exe.getAbsolutePath();
-			}
-		}
-		throw new IOException(
-				"Unable to locate hunpos tagger binary in the following locations "
-						+ searchedIn
-						+ ". Make sure the environment variable 'HUNPOS_HOME' "
-						+ "or the system property 'hunpos.home' point to the Hunpos "
-						+ "installation directory.");
+	protected String hintOnNotFound() {
+		return "Make sure the environment variable 'HUNPOS_HOME' "
+				+ "or the system property 'hunpos.home' point to the Hunpos "
+				+ "installation directory.";
 	}
 
-	private static List<String> getSearchPaths() {
-		return getSearchPaths(Collections.<String> emptyList());
-	}
-
-	private static List<String> getSearchPaths(List<String> additionalPaths) {
+	static List<String> getHunposSearchPaths() {
 		List<String> paths = new ArrayList<String>();
-		paths.addAll(additionalPaths);
 		if (System.getProperty("hunpos.home") != null) {
 			paths.add(System.getProperty("hunpos.home"));
 		}

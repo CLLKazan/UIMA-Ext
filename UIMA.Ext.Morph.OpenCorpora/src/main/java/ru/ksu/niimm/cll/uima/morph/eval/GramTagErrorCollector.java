@@ -90,12 +90,10 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 			if (goldGramsHandled.contains(goldGr)) {
 				continue;
 			}
-			// category
-			String grCat = getGramCat(goldGr);
-			// category gold grams
-			Set<String> goldGrs = getGramsOfCat(goldGrams, grCat);
-			// category sys grams
-			Set<String> sysGrs = getGramsOfCat(sysGrams, grCat);
+			// gold grams of the same category with goldGr
+			Set<String> goldGrs = getGramsOfTheSameCat(goldGrams, goldGr);
+			// sys grams of the same category with goldGr
+			Set<String> sysGrs = getGramsOfTheSameCat(sysGrams, goldGr);
 			// check
 			checkTags(toTag(goldGC, goldGrs), toTag(sysGC, sysGrs));
 			// mark as handled
@@ -110,20 +108,11 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 			if (sysGramsHandled.contains(sysGr)) {
 				continue;
 			}
-			String grCat = getGramCat(sysGr);
-			Set<String> sysGrs = getGramsOfCat(sysGrams, grCat);
+			// sys grams of the same category with sysGr
+			Set<String> sysGrs = getGramsOfTheSameCat(sysGrams, sysGr);
 			checkTags(toTag(goldGC, null), toTag(sysGC, sysGrs));
 			sysGramsHandled.addAll(sysGrs);
 		}
-	}
-
-	private String getGramCat(String grId) {
-		String cat = gram2Cat.get(grId);
-		if (cat == null) {
-			throw new IllegalArgumentException(String.format(
-					"Unknown grammeme: %s", grId));
-		}
-		return cat;
 	}
 
 	private Set<String> getGramsOfCat(Set<String> srcGrams, String cat) {
@@ -136,6 +125,15 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 			return null;
 		}
 		return resultSet;
+	}
+
+	private Set<String> getGramsOfTheSameCat(Set<String> srcGrams, String refGr) {
+		String cat = gram2Cat.get(refGr);
+		if (cat == null) {
+			return srcGrams.contains(refGr) ? Collections.singleton(refGr) : null;
+		} else {
+			return getGramsOfCat(srcGrams, cat);
+		}
 	}
 
 	private static Joiner grJoiner = Joiner.on('_');

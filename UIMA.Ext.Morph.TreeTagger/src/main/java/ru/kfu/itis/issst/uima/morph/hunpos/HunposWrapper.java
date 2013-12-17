@@ -59,7 +59,7 @@ public class HunposWrapper<TT> {
 	{
 		// default configuration
 		platformDetector = new PlatformDetector();
-		exeResolver = new DefaultHunposExecutableResolver();
+		exeResolver = DefaultHunposExecutableResolver.taggerResolver();
 		exeResolver.setPlatformDetector(platformDetector);
 	}
 

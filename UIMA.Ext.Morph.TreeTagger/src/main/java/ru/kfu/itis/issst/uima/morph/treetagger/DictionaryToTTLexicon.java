@@ -6,6 +6,8 @@ package ru.kfu.itis.issst.uima.morph.treetagger;
 import static org.apache.commons.io.FileUtils.openInputStream;
 import static org.apache.commons.io.FileUtils.writeLines;
 import static org.apache.commons.io.IOUtils.closeQuietly;
+import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.OTHER_PUNCTUATION_TAG;
+import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.punctuationTagMap;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.CONJ;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.NPRO;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PRCL;
@@ -16,10 +18,10 @@ import java.io.FileInputStream;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
@@ -31,7 +33,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.YoLemmaPostProcessor;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -178,68 +179,6 @@ public class DictionaryToTTLexicon {
 						.isEmpty();
 	}
 
-	// tag for unknown punctuation marks or special symbols 
-	public static final String OTHER_PUNCTUATION_TAG = "_P_";
-	public static final Map<String, String> punctuationTagMap;
-	public static final Set<String> closedClassPunctuationTags;
-
-	static {
-		ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
-		// dashes
-		b.put("\u2012", "--");
-		b.put("\u2013", "--");
-		b.put("\u2014", "--");
-		b.put("\u2015", "--");
-		// hyphens
-		b.put("-", "-");
-		b.put("\u2010", "-");
-		b.put("\u00AD", "-");
-		b.put("\u2011", "-");
-		b.put("\u2043", "-");
-		// apostrophe
-		b.put("'", "'");
-		b.put("\u2018", "'");
-		b.put("\u2019", "'");
-		// brackets
-		b.put("(", "(");
-		b.put(")", ")");
-		b.put("[", "(");
-		b.put("]", ")");
-		b.put("{", "(");
-		b.put("}", ")");
-		// colon
-		b.put(":", ":");
-		// semicolon
-		b.put(";", ";");
-		// comma
-		b.put(",", ",");
-		// exclamation
-		b.put("!", "!");
-		b.put("\u203C", "!");
-		// period
-		b.put(".", ".");
-		// question mark
-		b.put("?", "?");
-		// quotation marks
-		b.put("\"", "\"");
-		b.put("\u00AB", "\"");
-		b.put("\u2039", "\"");
-		b.put("\u00BB", "\"");
-		b.put("\u203A", "\"");
-		b.put("\u201A", "\"");
-		b.put("\u201B", "\"");
-		b.put("\u201C", "\"");
-		b.put("\u201D", "\"");
-		b.put("\u201E", "\"");
-		b.put("\u201F", "\"");
-		// slashes
-		b.put("\\", "\\");
-		b.put("/", "/");
-		// well, these are not punctuation marks
-		// but for simplicity we will put them in the same map
-		b.put("$", "$");
-		b.put("%", "%");
-		punctuationTagMap = b.build();
-		closedClassPunctuationTags = ImmutableSet.copyOf(punctuationTagMap.values());
-	}
+	public static final Set<String> closedClassPunctuationTags = ImmutableSet
+			.copyOf(punctuationTagMap.values());
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.issst.uima.morph.treetagger;
+package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
@@ -30,6 +30,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
  */
 public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 
+	public static final String CLASS_NAME = DictionaryBasedTagMapper.class.getName();
 	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
 	// config fields
 	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)

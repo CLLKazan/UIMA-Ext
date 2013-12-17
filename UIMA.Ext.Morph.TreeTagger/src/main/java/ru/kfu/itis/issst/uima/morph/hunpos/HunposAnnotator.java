@@ -23,14 +23,13 @@ import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
-// TODO move TagMapper and impl-s to commons package
-import ru.kfu.itis.issst.uima.morph.treetagger.TagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class MorphTagger extends JCasAnnotator_ImplBase {
+public class HunposAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_HUNPOS_MODEL_NAME = "hunposModelName";
 	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
@@ -38,7 +37,7 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(name = PARAM_HUNPOS_MODEL_NAME, mandatory = true)
 	private String hpModelName;
 	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
-			defaultValue = "ru.kfu.itis.issst.uima.morph.treetagger.DictionaryBasedTagMapper")
+			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper")
 	private String tagMapperClassName;
 	// monitors
 	private final Object casMon = new Object();
@@ -55,7 +54,6 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 		hunposTagger = new HunposWrapper<Token>();
 		hunposTagger.setModelName(hpModelName);
 		hunposTagger.setTokenAdapter(new TokenAdapter());
-		// XXX configure hunposTagger instance
 	}
 
 	@Override
@@ -128,6 +126,7 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 	public void destroy() {
 		if (hunposTagger != null) {
 			hunposTagger.destroy();
+			hunposTagger = null;
 		}
 		super.destroy();
 	}
