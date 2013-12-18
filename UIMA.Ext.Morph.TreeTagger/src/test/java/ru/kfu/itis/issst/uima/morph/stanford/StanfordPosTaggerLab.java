@@ -1,17 +1,20 @@
 /**
  * 
  */
-package ru.kfu.itis.issst.uima.morph.hunpos;
+package ru.kfu.itis.issst.uima.morph.stanford;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
+import static com.google.common.collect.Sets.newTreeSet;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
+import static org.apache.commons.io.FileUtils.openOutputStream;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-import static ru.kfu.itis.issst.uima.morph.hunpos.DefaultHunposExecutableResolver.trainerResolver;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
@@ -21,13 +24,15 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
-import org.annolab.tt4j.ExecutableResolver;
-import org.annolab.tt4j.PlatformDetector;
+import org.apache.commons.io.FileUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -35,10 +40,24 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.factory.ExternalResourceFactory;
 
-import ru.kfu.itis.cll.uima.io.ProcessIOUtils;
-import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.google.common.base.Joiner;
+
+import de.tudarmstadt.ukp.dkpro.lab.Lab;
+import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
+import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
+import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
+import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
+import de.tudarmstadt.ukp.dkpro.lab.task.Task;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
@@ -49,32 +68,17 @@ import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.google.common.collect.Lists;
-
-import de.tudarmstadt.ukp.dkpro.lab.Lab;
-import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
-import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
-import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
-import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
-import de.tudarmstadt.ukp.dkpro.lab.task.Task;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
-import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
-
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class HunposLab extends LabLauncherBase {
+public class StanfordPosTaggerLab extends LabLauncherBase {
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", "wrk/hunpos-lab");
+		System.setProperty("DKPRO_HOME", "wrk/stanford-pos-lab");
 		Slf4jLoggerImpl.forceUsingThisImplementation();
-		HunposLab lab = new HunposLab();
-		new JCommander(lab).parse(args);
+		StanfordPosTaggerLab lab = new StanfordPosTaggerLab();
+		new JCommander(lab, args);
 		lab.run();
 	}
 
@@ -83,7 +87,7 @@ public class HunposLab extends LabLauncherBase {
 	private List<String> _posCategoriesList;
 	private Set<String> _posCategories;
 
-	private HunposLab() {
+	private StanfordPosTaggerLab() {
 	}
 
 	private void run() throws Exception {
@@ -107,19 +111,19 @@ public class HunposLab extends LabLauncherBase {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File trainDataDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR, READWRITE);
-				AnalysisEngineDescription hunposTrainDataWriterDesc = createPrimitiveDescription(
-						HunposTrainingDataWriter.class,
-						HunposTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
+				AnalysisEngineDescription stanfordTrainDataWriterDesc = createPrimitiveDescription(
+						StanfordTrainingDataWriter.class,
+						StanfordTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
 				try {
-					ExternalResourceFactory.createDependency(hunposTrainDataWriterDesc,
+					ExternalResourceFactory.createDependency(stanfordTrainDataWriterDesc,
 							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
 							MorphDictionaryHolder.class);
-					bindResource(hunposTrainDataWriterDesc,
+					bindResource(stanfordTrainDataWriterDesc,
 							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY, morphDictDesc);
 				} catch (InvalidXMLException e) {
 					throw new ResourceInitializationException(e);
 				}
-				return createAggregateDescription(hunposTrainDataWriterDesc);
+				return createAggregateDescription(stanfordTrainDataWriterDesc);
 			}
 		};
 		//
@@ -134,36 +138,31 @@ public class HunposLab extends LabLauncherBase {
 				File trainDataFile = getTrainingDataFile(trainDataDir);
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, READWRITE);
 				File modelFile = getModelFile(modelDir);
-				// get executable of trainer
-				ExecutableResolver trainExeResolver = trainerResolver();
-				trainExeResolver.setPlatformDetector(new PlatformDetector());
-				// make cmd line
-				List<String> cmd = Lists.newLinkedList();
-				cmd.add(trainExeResolver.getExecutable());
-				cmd.add(modelFile.getPath());
-				// start trainer process
-				ProcessBuilder pb = new ProcessBuilder(cmd);
-				pb.redirectErrorStream(true);
-				Process trainProc = pb.start();
-				// attach stdout & stderr streams gobbler
-				StreamGobblerBase trainProcGobbler = StreamGobblerBase.toSystemOut(
-						trainProc.getInputStream());
-				new Thread(trainProcGobbler).start();
-				// feed training data to stdin
-				ProcessIOUtils.feedProcessInput(trainProc, trainDataFile, true);
-				// wait for the end of training
-				int trainProcExitCode;
-				try {
-					trainProcExitCode = trainProc.waitFor();
-					// wait a little & stop gobbler
-					Thread.sleep(1000);
-				} finally {
-					trainProcGobbler.done();
+				//
+				Properties props = new Properties();
+				props.setProperty("model", modelFile.getPath());
+				props.setProperty("trainFile", "format=TSV," + trainDataFile.getPath());
+				//
+				Set<String> extractors = newLinkedHashSet();
+				extractors.add("words(-1,1)");
+				// extractors.add("tags(-1,1)");
+				extractors.add("order(1)");
+				extractors.add("suffix(3)");
+				extractors.add("suffix(3, -1)");
+				extractors.add("unicodeshapes(0)");
+				props.setProperty("arch", Joiner.on(',').join(extractors));
+				// load closed class tags set
+				Set<String> closedClassTags;
+				{
+					File ccTagsFile = new File(trainDataDir,
+							StanfordTrainingDataWriter.CLOSED_CLASS_TAGS_FILENAME);
+					closedClassTags = newTreeSet(FileUtils.readLines(ccTagsFile, "utf-8"));
 				}
-				if (trainProcExitCode != 0) {
-					throw new IllegalStateException(String.format(
-							"Hunpos trainer returned exit code: %s", trainProcExitCode));
-				}
+				props.setProperty("closedClassTags", Joiner.on(' ').join(closedClassTags));
+				//
+				File srcPropsFile = new File(modelDir, "train.props");
+				saveProperties(props, srcPropsFile);
+				MaxentTagger.main(new String[] { "-props", srcPropsFile.getPath() });
 			}
 		};
 		//
@@ -176,16 +175,16 @@ public class HunposLab extends LabLauncherBase {
 				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
 				//
 				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription hunposAnnotatorDesc = createPrimitiveDescription(
-						HunposAnnotator.class,
-						HunposAnnotator.PARAM_HUNPOS_MODEL_NAME, modelFile.getPath(),
-						HunposAnnotator.PARAM_TAG_MAPPER_CLASS,
+				AnalysisEngineDescription stanfordAnnotatorDesc = createPrimitiveDescription(
+						StanfordPosAnnotator.class,
+						StanfordPosAnnotator.PARAM_MODEL_FILE, modelFile.getPath(),
+						StanfordPosAnnotator.PARAM_TAG_MAPPER_CLASS,
 						DictionaryBasedTagMapper.class.getName());
 				try {
-					ExternalResourceFactory.createDependency(hunposAnnotatorDesc,
+					ExternalResourceFactory.createDependency(stanfordAnnotatorDesc,
 							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
 							MorphDictionaryHolder.class);
-					bindResource(hunposAnnotatorDesc,
+					bindResource(stanfordAnnotatorDesc,
 							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
 							morphDictDesc);
 				} catch (InvalidXMLException e) {
@@ -193,7 +192,7 @@ public class HunposLab extends LabLauncherBase {
 				}
 				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 				return createAggregateDescription(
-						goldRemoverDesc, hunposAnnotatorDesc, xmiWriterDesc);
+						goldRemoverDesc, stanfordAnnotatorDesc, xmiWriterDesc);
 			}
 		};
 		//
@@ -231,10 +230,19 @@ public class HunposLab extends LabLauncherBase {
 	}
 
 	private File getTrainingDataFile(File dir) {
-		return new File(dir, HunposTrainingDataWriter.TRAINING_DATA_FILENAME);
+		return new File(dir, StanfordTrainingDataWriter.TRAINING_DATA_FILENAME);
 	}
 
 	private File getModelFile(File dir) {
-		return new File(dir, "hunpos.model");
+		return new File(dir, "stanford.model");
+	}
+
+	private static void saveProperties(Properties props, File outFile) throws IOException {
+		OutputStream os = new BufferedOutputStream(openOutputStream(outFile));
+		try {
+			props.store(os, null);
+		} finally {
+			closeQuietly(os);
+		}
 	}
 }

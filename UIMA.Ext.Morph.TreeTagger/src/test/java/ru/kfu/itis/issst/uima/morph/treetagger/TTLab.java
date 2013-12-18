@@ -46,6 +46,7 @@ import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
@@ -181,7 +182,7 @@ public class TTLab extends LabLauncherBase {
 					while (lexIter.hasNext()) {
 						LexiconEntry le = lexIter.next();
 						for (String tag : le.tags) {
-							if (!DictionaryToTTLexicon.isClosedClassTag(tag)) {
+							if (!TagUtils.isClosedClassTag(tag)) {
 								if (openClassTags.add(tag)) {
 									log.debug("Tag {} was added to open class tagset", tag);
 								}

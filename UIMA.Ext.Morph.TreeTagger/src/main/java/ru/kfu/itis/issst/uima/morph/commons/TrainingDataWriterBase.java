@@ -40,7 +40,7 @@ import com.google.common.collect.Maps;
 @OperationalProperties(multipleDeploymentAllowed = false)
 public abstract class TrainingDataWriterBase extends JCasAnnotator_ImplBase {
 
-	public static final String PARAM_OUTPUT_DIR = "outputFile";
+	public static final String PARAM_OUTPUT_DIR = "outputDir";
 	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
 	public static final String TRAINING_DATA_FILENAME = "training-data.txt";
 

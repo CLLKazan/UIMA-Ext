@@ -8,10 +8,6 @@ import static org.apache.commons.io.FileUtils.writeLines;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.OTHER_PUNCTUATION_TAG;
 import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.punctuationTagMap;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.CONJ;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.NPRO;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PRCL;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PREP;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +18,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
@@ -32,8 +29,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.YoLemmaPostProcessor;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
@@ -65,7 +62,7 @@ public class DictionaryToTTLexicon {
 	//
 	private DictionaryBasedTagMapper tagMapper;
 	private PosTrimmer posTrimmer;
-	private BitSet closedClassTagsMask;
+	private Function<BitSet, Boolean> closedClassTagIndicator;
 	// state fields
 	private Multimap<String, String> lexiconMM;
 	private TreeSet<String> openClassTags;
@@ -125,7 +122,7 @@ public class DictionaryToTTLexicon {
 					BitSet wfBits = wf.getGrammems();
 					wfBits.or(lemmaObj.getGrammems());
 					posTrimmer.trimInPlace(wfBits);
-					boolean closedClassTag = isClosedClassTag(wfBits);
+					boolean closedClassTag = closedClassTagIndicator.apply(wfBits);
 					String tag = tagMapper.toTag(wfBits);
 					tag = tag.intern();
 					tags.add(tag);
@@ -154,31 +151,10 @@ public class DictionaryToTTLexicon {
 			if (tagMapper == null) {
 				tagMapper = new DictionaryBasedTagMapper(dict);
 			}
-			if (closedClassTagsMask == null) {
-				closedClassTagsMask = new BitSet();
-				for (String cpGram : closedPosSet) {
-					closedClassTagsMask.set(dict.getGrammemNumId(cpGram));
-				}
+			if (closedClassTagIndicator == null) {
+				closedClassTagIndicator = TagUtils.getClosedClassIndicator(dict);
 			}
 			return true;
 		}
 	}
-
-	private boolean isClosedClassTag(final BitSet _wfBits) {
-		BitSet wfBits = (BitSet) _wfBits.clone();
-		wfBits.and(closedClassTagsMask);
-		return !wfBits.isEmpty();
-	}
-
-	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, PREP, CONJ, PRCL);
-
-	public static boolean isClosedClassTag(String tag) {
-		return closedClassPunctuationTags.contains(tag)
-				|| !Sets.intersection(
-						DictionaryBasedTagMapper.parseTag(tag), closedPosSet)
-						.isEmpty();
-	}
-
-	public static final Set<String> closedClassPunctuationTags = ImmutableSet
-			.copyOf(punctuationTagMap.values());
 }

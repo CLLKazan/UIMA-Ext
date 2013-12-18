@@ -51,6 +51,11 @@
 			<version>1.1.1</version>
 		</dependency>
 		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-postagger</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-ext-commons</artifactId>
 		</dependency>
