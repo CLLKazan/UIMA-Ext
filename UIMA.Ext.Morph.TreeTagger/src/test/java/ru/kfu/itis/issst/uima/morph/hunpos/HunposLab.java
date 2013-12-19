@@ -12,6 +12,7 @@ import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.issst.uima.morph.hunpos.DefaultHunposExecutableResolver.trainerResolver;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
@@ -36,10 +37,10 @@ import org.uimafit.factory.ExternalResourceFactory;
 
 import ru.kfu.itis.cll.uima.io.ProcessIOUtils;
 import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
@@ -50,10 +51,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Range;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -102,8 +100,6 @@ public class HunposLab extends LabLauncherBase {
 				LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
 		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
-		//
-		Task corpusPartitioningTask = new CorpusPartitioningTask(foldsNum);
 		//
 		UimaTask prepareTrainingDataTask = new FeatureExtractionTaskBase(
 				"PrepareTrainingData", inputTS) {
@@ -171,7 +167,7 @@ public class HunposLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS) {
+		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
@@ -200,29 +196,29 @@ public class HunposLab extends LabLauncherBase {
 			}
 		};
 		//
-		Task evaluationTask = new EvaluationTask();
+		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
-		corpusPartitioningTask.addImport(preprocessingTask, KEY_CORPUS);
-		prepareTrainingDataTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		prepareTrainingDataTask.addImport(preprocessingTask, KEY_CORPUS);
 		trainingTask.addImport(prepareTrainingDataTask, KEY_TRAINING_DIR);
-		analysisTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		analysisTask.addImport(preprocessingTask, KEY_CORPUS);
 		analysisTask.addImport(trainingTask, KEY_MODEL_DIR);
-		evaluationTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// create parameter space
-		Integer[] foldValues = ContiguousSet.create(
+		// TODO:LOW determine PartitionTypes and folds number by scanning corpusSplitDir
+		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);
+				DiscreteDomain.integers()).toArray(new Integer[0]);*/
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
+				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
 				// posCategories discriminator is used in the preprocessing task
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, foldValues));
+				Dimension.create(DISCRIMINATOR_FOLD, 0));
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
-		batchTask.addTask(corpusPartitioningTask);
 		batchTask.addTask(prepareTrainingDataTask);
 		batchTask.addTask(trainingTask);
 		batchTask.addTask(analysisTask);

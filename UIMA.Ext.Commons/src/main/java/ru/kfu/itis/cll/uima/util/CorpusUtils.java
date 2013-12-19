@@ -33,6 +33,12 @@ public class CorpusUtils {
 
 	private static final Logger log = LoggerFactory.getLogger(CorpusUtils.class);
 
+	public static enum PartitionType {
+		TEST,
+		DEV,
+		TRAIN
+	}
+
 	public static String getDevPartitionFilename(int fold) {
 		return String.format(DEVELOPMENT_PARTITION_NAME_FORMAT, fold);
 	}

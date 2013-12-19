@@ -29,10 +29,10 @@ import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.cleartk.classifier.jar.SequenceJarClassifierFactory;
 
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
@@ -41,10 +41,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictiona
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
@@ -91,8 +88,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				CachedSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
 		// create task instances
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
-		// -----------------------------------------------------------------
-		Task corpusPartitioningTask = new CorpusPartitioningTask(foldsNum);
 		// -----------------------------------------------------------------
 		UimaTask featureExtractionTask = new FeatureExtractionTaskBase("FeatureExtraction", inputTS) {
 			@Override
@@ -180,7 +175,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			}
 		};
 		// -----------------------------------------------------------------
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS) {
+		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
@@ -226,27 +221,27 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			}
 		};
 		// -----------------------------------------------------------------
-		Task evaluationTask = new EvaluationTask();
+		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// -----------------------------------------------------------------
 		// configure data-flow between tasks
-		corpusPartitioningTask.addImport(preprocessingTask, KEY_CORPUS);
-		featureExtractionTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		featureExtractionTask.addImport(preprocessingTask, KEY_CORPUS);
 		trainingTask.addImport(featureExtractionTask, KEY_TRAINING_DIR);
-		analysisTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		analysisTask.addImport(preprocessingTask, KEY_CORPUS);
 		analysisTask.addImport(trainingTask, KEY_MODEL_DIR);
-		evaluationTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// -----------------------------------------------------------------
 		// create parameter space
-		Integer[] foldValues = ContiguousSet.create(
+		// TODO
+		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);
+				DiscreteDomain.integers()).toArray(new Integer[0]);*/
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
 				// posCategories discriminator is used in the preprocessing task
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, Sets.newLinkedHashSet(_posTiers)),
-				Dimension.create(DISCRIMINATOR_FOLD, foldValues),
+				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// Dimension.create("featureMinFreq", 1, 4, 9, 19),
 				Dimension.create("featureMinFreq", 0),
 				// Dimension.create("c2", 1, 10),
@@ -259,7 +254,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
-		batchTask.addTask(corpusPartitioningTask);
 		batchTask.addTask(featureExtractionTask);
 		batchTask.addTask(trainingTask);
 		batchTask.addTask(analysisTask);

@@ -41,12 +41,24 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.factory.ExternalResourceFactory;
 
+import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
+import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
+import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
+import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
+import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Range;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -56,24 +68,9 @@ import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
-
-import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
-import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
-import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -131,8 +128,6 @@ public class TTLab extends LabLauncherBase {
 				new DictionaryToTTLexicon(dictXmlFile, ttLexiconDir, posCategories).run();
 			}
 		};
-		//
-		Task corpusPartitioningTask = new CorpusPartitioningTask(foldsNum);
 		//
 		UimaTask prepareTrainingDataTask = new FeatureExtractionTaskBase(
 				"PrepareTrainingData", inputTS) {
@@ -245,7 +240,7 @@ public class TTLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS) {
+		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
@@ -268,32 +263,31 @@ public class TTLab extends LabLauncherBase {
 			}
 		};
 		//
-		Task evaluationTask = new EvaluationTask();
+		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
-		corpusPartitioningTask.addImport(preprocessingTask, KEY_CORPUS);
-		prepareTrainingDataTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		prepareTrainingDataTask.addImport(preprocessingTask, KEY_CORPUS);
 		mergeLexiconTask.addImport(prepareTrainingDataTask, KEY_TRAINING_DIR);
 		mergeLexiconTask.addImport(prepareLexiconTask, KEY_LEXICON_DIR);
 		trainingTask.addImport(mergeLexiconTask, KEY_TRAINING_DIR);
-		analysisTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		analysisTask.addImport(preprocessingTask, KEY_CORPUS);
 		analysisTask.addImport(trainingTask, KEY_MODEL_DIR);
-		evaluationTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// create parameter space
-		Integer[] foldValues = ContiguousSet.create(
+		// TODO
+		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);
+				DiscreteDomain.integers()).toArray(new Integer[0]);*/
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
 				// posCategories discriminator is used in the preprocessing task
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, foldValues));
+				Dimension.create(DISCRIMINATOR_FOLD, 0));
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
 		batchTask.addTask(prepareLexiconTask);
-		batchTask.addTask(corpusPartitioningTask);
 		batchTask.addTask(prepareTrainingDataTask);
 		batchTask.addTask(mergeLexiconTask);
 		batchTask.addTask(trainingTask);

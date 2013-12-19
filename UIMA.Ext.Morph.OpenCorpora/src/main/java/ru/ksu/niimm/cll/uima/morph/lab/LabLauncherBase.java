@@ -24,8 +24,8 @@ public abstract class LabLauncherBase {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	@Parameter(names = { "-f", "--folds" }, required = true, description = "Number of cross-validation folds")
-	protected int foldsNum;
+	@Parameter(names = "--corpus-split-dir", required = true, description = "The directory that contains descriptions of a corpus partitioning")
+	protected File corpusSplitDir;
 	@Parameter(names = { "-c", "--corpus" }, required = true, description = "Path to corpus directory")
 	protected File srcCorpusDir;
 

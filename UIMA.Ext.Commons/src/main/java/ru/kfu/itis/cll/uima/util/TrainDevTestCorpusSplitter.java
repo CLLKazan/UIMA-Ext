@@ -38,12 +38,15 @@ public class TrainDevTestCorpusSplitter {
 	private int partitionsNum;
 	@Parameter(names = { "-s", "--corpus-file-suffix" })
 	private String corpusFileSuffix;
+	@Parameter(names = { "-c", "--corpus-dir" }, required = true)
+	private File corpusDir;
+	// output to current dir
+	private File outputDir = new File(".");
 
 	private TrainDevTestCorpusSplitter() {
 	}
 
 	private void run() throws Exception {
-		File corpusDir = new File(".");
 		FilenameFilter corpusFileFilter;
 		if (corpusFileSuffix == null) {
 			corpusFileFilter = FileFilterUtils.trueFileFilter();
@@ -63,11 +66,11 @@ public class TrainDevTestCorpusSplitter {
 			trainFiles.addAll(s);
 		}
 		// write files
-		File devPartFile = new File(corpusDir, getDevPartitionFilename(0));
+		File devPartFile = new File(outputDir, getDevPartitionFilename(0));
 		FileUtils.writeLines(devPartFile, "utf-8", toRelativePaths(corpusDir, devFiles));
-		File testPartFile = new File(corpusDir, getTestPartitionFilename(0));
+		File testPartFile = new File(outputDir, getTestPartitionFilename(0));
 		FileUtils.writeLines(testPartFile, "utf-8", toRelativePaths(corpusDir, testFiles));
-		File trainPartFile = new File(corpusDir, getTrainPartitionFilename(0));
+		File trainPartFile = new File(outputDir, getTrainPartitionFilename(0));
 		FileUtils.writeLines(trainPartFile, "utf-8", toRelativePaths(corpusDir, trainFiles));
 	}
 

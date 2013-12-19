@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.lab;
 
-import static ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask.getTestingListFile;
+import static ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase.getTargetFileList;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.PLACEHOLDER_OUTPUT_BASE_DIR;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import ru.kfu.itis.cll.uima.eval.EvaluationLauncher;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 
 import com.google.common.collect.Maps;
 
@@ -40,9 +41,16 @@ public class EvaluationTask extends ExecutableTaskBase {
 	}
 	// config fields
 	protected final Logger log = LoggerFactory.getLogger(getClass());
+	private PartitionType targetPartition;
 	// state fields
 	@Discriminator
 	int fold;
+	@Discriminator
+	File corpusSplitInfoDir;
+
+	public EvaluationTask(PartitionType targetPartition) {
+		this.targetPartition = targetPartition;
+	}
 
 	@Override
 	public void execute(TaskContext taskCtx) throws Exception {
@@ -55,7 +63,7 @@ public class EvaluationTask extends ExecutableTaskBase {
 		ConfigPropertiesUtils.replacePlaceholders(evalCfg, phValues);
 		evalCfg.setProperty("goldCasDirectory.dir", goldDir.getPath());
 		evalCfg.setProperty("goldCasDirectory.listFile",
-				getTestingListFile(goldDir, fold).getPath());
+				getTargetFileList(corpusSplitInfoDir, targetPartition, fold).getPath());
 		evalCfg.setProperty("systemCasDirectory.dir", outputDir.getPath());
 		if (log.isInfoEnabled()) {
 			log.info("Evaluation config:\n {}",

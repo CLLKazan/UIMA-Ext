@@ -32,6 +32,8 @@ public abstract class FeatureExtractionTaskBase extends UimaTaskBase {
 	// state fields
 	@Discriminator
 	protected int fold;
+	@Discriminator
+	protected File corpusSplitInfoDir;
 
 	protected FeatureExtractionTaskBase(String taskType, TypeSystemDescription inputTS) {
 		setType(taskType);
@@ -42,7 +44,7 @@ public abstract class FeatureExtractionTaskBase extends UimaTaskBase {
 	public CollectionReaderDescription getCollectionReaderDescription(TaskContext taskCtx)
 			throws ResourceInitializationException, IOException {
 		File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READONLY);
-		File trainingListFile = getTrainingListFile(corpusDir, fold);
+		File trainingListFile = getTrainingListFile(corpusSplitInfoDir, fold);
 		return CollectionReaderFactory.createDescription(XmiFileListReader.class, inputTS,
 				XmiFileListReader.PARAM_BASE_DIR, corpusDir.getPath(),
 				XmiFileListReader.PARAM_LIST_FILE, trainingListFile.getPath());

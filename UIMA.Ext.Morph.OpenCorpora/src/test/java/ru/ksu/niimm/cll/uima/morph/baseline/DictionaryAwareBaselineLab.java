@@ -27,8 +27,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
@@ -38,9 +38,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictiona
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -105,8 +102,6 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - XMIWriter (to 'Corpus')
 		 */
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
-		// -----------------------------------------------------------------
-		Task corpusPartitioningTask = new CorpusPartitioningTask(foldsNum);
 		/* create a training task (use 'training' FS with XmiCollectionReader on 'Corpus')
 		 * Aggregate AE:
 		 * - DictionaryAwareBaselineLearner (ensure thread-safety!)
@@ -144,7 +139,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - DictionaryAwareBaselineTagger
 		 * - XMIWriter
 		 */
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS) {
+		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
 
 			@Discriminator
 			Set<String> posCategories;
@@ -186,18 +181,12 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 			}
 		};
 		// Create an evaluation task (use 'testing' as gold and analysis output as an evaluation target)
-		Task evaluationTask = new EvaluationTask();
-		/* TODO create and attach evaluation reports to:
-		 * training task (save model)
-		 * analysis task (save output)
-		 * evaluation task (save results) 
-		 */
+		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
-		corpusPartitioningTask.addImport(preprocessingTask, KEY_CORPUS);
-		trainingTask.addImport(corpusPartitioningTask, KEY_CORPUS);
-		analysisTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		trainingTask.addImport(preprocessingTask, KEY_CORPUS);
+		analysisTask.addImport(preprocessingTask, KEY_CORPUS);
 		analysisTask.addImport(trainingTask, KEY_MODEL_DIR);
-		evaluationTask.addImport(corpusPartitioningTask, KEY_CORPUS);
+		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// -----------------------------------------------------------------
 		/* create parameter space
@@ -205,19 +194,19 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - Dimension for PoS-categories
 		 * - DimensionBundle for corpus-splits
 		 */
-		Integer[] foldValues = ContiguousSet.create(
+		// TODO
+		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);
+				DiscreteDomain.integers()).toArray(new Integer[0]);*/
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, foldValues));
+				Dimension.create(DISCRIMINATOR_FOLD, 0));
 		// -----------------------------------------------------------------
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
-		batchTask.addTask(corpusPartitioningTask);
 		batchTask.addTask(trainingTask);
 		batchTask.addTask(analysisTask);
 		batchTask.addTask(evaluationTask);

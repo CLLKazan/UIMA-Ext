@@ -22,7 +22,6 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- * 
  */
 public class CorpusPartitioningTask extends ExecutableTaskBase {
 
@@ -57,14 +56,11 @@ public class CorpusPartitioningTask extends ExecutableTaskBase {
 		FileUtils.writeLines(testingList, "utf-8", corpusSplit.getTestingSetPaths());
 	}
 
-	private static final String TRAINING_LIST_SUFFIX = "training-";
-	private static final String TESTING_LIST_SUFFIX = "testing-";
-
 	public static File getTrainingListFile(File dir, int fold) {
-		return new File(dir, TRAINING_LIST_SUFFIX + fold + ".list");
+		return new File(dir, CorpusUtils.getTrainPartitionFilename(fold));
 	}
 
 	public static File getTestingListFile(File dir, int fold) {
-		return new File(dir, TESTING_LIST_SUFFIX + fold + ".list");
+		return new File(dir, CorpusUtils.getTestPartitionFilename(fold));
 	}
 }
