@@ -8,6 +8,7 @@ import static com.google.common.collect.Collections2.transform;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -26,11 +27,28 @@ import com.google.common.collect.Sets;
  */
 public class CorpusUtils {
 
+	private static final String TRAINING_PARTITION_NAME_FORMAT = "training-%s.part";
+	private static final String DEVELOPMENT_PARTITION_NAME_FORMAT = "dev-%s.part";
+	private static final String TEST_PARTITION_NAME_FORMAT = "testing-%s.part";
+
 	private static final Logger log = LoggerFactory.getLogger(CorpusUtils.class);
+
+	public static String getDevPartitionFilename(int fold) {
+		return String.format(DEVELOPMENT_PARTITION_NAME_FORMAT, fold);
+	}
+
+	public static String getTrainPartitionFilename(int fold) {
+		return String.format(TRAINING_PARTITION_NAME_FORMAT, fold);
+	}
+
+	public static String getTestPartitionFilename(int fold) {
+		return String.format(TEST_PARTITION_NAME_FORMAT, fold);
+	}
 
 	public static List<Set<File>> partitionCorpusByFileSize(File corpusDir,
 			FilenameFilter corpusFileFilter, int partitionsNumber) {
-		log.info("Partitioning corpus {} with filter {}...", corpusDir, corpusFileFilter);
+		log.info("Partitioning corpus {} with filter {}...", corpusDir.getAbsolutePath(),
+				corpusFileFilter);
 		// TODO implement algorithm that is more robust to different file sizes
 		// e.g. it should handle the case when there is no more files to include into the last partition
 		if (partitionsNumber <= 0) {
@@ -99,7 +117,7 @@ public class CorpusUtils {
 		return result;
 	}
 
-	private static Function<File, String> relativePathFunction(final File baseDir) {
+	static Function<File, String> relativePathFunction(final File baseDir) {
 		return new Function<File, String>() {
 			@Override
 			public String apply(File arg) {
@@ -118,6 +136,10 @@ public class CorpusUtils {
 				}
 			}
 		};
+	}
+
+	static Collection<String> toRelativePaths(File baseDir, Collection<File> files) {
+		return transform(files, relativePathFunction(baseDir));
 	}
 
 	private CorpusUtils() {
