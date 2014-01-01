@@ -1,0 +1,16 @@
+#!/bin/bash
+# setup system variables
+# OpenCorpora (serialized) dictionary
+opencorpora_home=~/data/opencorpora
+opencorpora_opts='-Dopencorpora.home='${opencorpora_home}
+# UIMA datapath
+uima_datapath='-Duima.datapath=.:'${opencorpora_home}
+# Java Heap Opts
+java_opts='-Xmx2000m'
+# logging
+logback_opts="-Dlogback.configurationFile=logback.xml"
+# corpus
+corpus_xmi_dir=~/data/ruscorpora/ruscorpora_1M/texts.xmi
+corpus_split_dir=TODO
+# target gram categories (comma-separated)
+gram_categories='POST,Abbr,Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic'
