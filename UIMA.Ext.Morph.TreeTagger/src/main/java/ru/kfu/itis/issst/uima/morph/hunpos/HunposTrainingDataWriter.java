@@ -62,6 +62,10 @@ public class HunposTrainingDataWriter extends TrainingDataWriterBase {
 
 	private void writeTokenTag(String token, String tag) {
 		StringBuilder sb = new StringBuilder(token).append('\t').append(tag);
-		outputWriter.println(sb);
+		// \r\n (CRLF) does not work for Windows build of Hunpos
+		// so we have to append LF explicitly
+		// TODO actually this did not help either
+		sb.append('\n');
+		outputWriter.print(sb);
 	}
 }
