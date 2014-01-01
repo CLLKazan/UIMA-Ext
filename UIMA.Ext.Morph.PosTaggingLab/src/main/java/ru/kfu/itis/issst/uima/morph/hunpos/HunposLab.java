@@ -57,6 +57,7 @@ import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
 import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
+import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
@@ -128,6 +129,13 @@ public class HunposLab extends LabLauncherBase {
 				setType("Training");
 			}
 
+			@Discriminator
+			int tagOrder;
+			@Discriminator
+			int emissionOrder;
+			@Discriminator
+			int rareWordFrequency;
+
 			@Override
 			public void execute(TaskContext taskCtx) throws Exception {
 				File trainDataDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR, READONLY);
@@ -140,6 +148,13 @@ public class HunposLab extends LabLauncherBase {
 				// make cmd line
 				List<String> cmd = Lists.newLinkedList();
 				cmd.add(trainExeResolver.getExecutable());
+				// tag order, -t
+				cmd.add("-t" + tagOrder);
+				// emission order, -e
+				cmd.add("-e" + emissionOrder);
+				// rare word frequency threshold, -f
+				cmd.add("-f" + rareWordFrequency);
+				// result model file
 				cmd.add(modelFile.getPath());
 				// start trainer process
 				ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -216,7 +231,11 @@ public class HunposLab extends LabLauncherBase {
 				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
 				// posCategories discriminator is used in the preprocessing task
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, 0));
+				Dimension.create(DISCRIMINATOR_FOLD, 0),
+				// model-specific parameters
+				Dimension.create("tagOrder", 1, 2, 3),
+				Dimension.create("emissionOrder", 1, 2),
+				Dimension.create("rareWordFrequency", 10, 5));
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
