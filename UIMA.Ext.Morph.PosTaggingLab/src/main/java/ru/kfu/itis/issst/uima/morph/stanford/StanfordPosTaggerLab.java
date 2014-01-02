@@ -48,6 +48,7 @@ import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
 import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
+import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
@@ -132,6 +133,9 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 				setType("Training");
 			}
 
+			@Discriminator
+			String featureArch;
+
 			@Override
 			public void execute(TaskContext taskCtx) throws Exception {
 				File trainDataDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR, READONLY);
@@ -144,9 +148,10 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 				props.setProperty("trainFile", "format=TSV," + trainDataFile.getPath());
 				//
 				Set<String> extractors = newLinkedHashSet();
-				extractors.add("words(-1,1)");
-				// extractors.add("tags(-1,1)");
-				extractors.add("order(1)");
+				extractors.add(featureArch);
+				//extractors.add("words(-1,1)");
+				//extractors.add("tags(-1,1)");
+				//extractors.add("order(1)");
 				extractors.add("suffix(3)");
 				extractors.add("suffix(3, -1)");
 				extractors.add("unicodeshapes(0)");
@@ -215,7 +220,12 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
 				// posCategories discriminator is used in the preprocessing task
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, 0));
+				Dimension.create(DISCRIMINATOR_FOLD, 0),
+				// model training parameters
+				Dimension.create("featureArch",
+						"left3words", "left5words", "generic",
+						"bidirectional5words", "bidirectional")
+				);
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
