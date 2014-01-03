@@ -4,6 +4,7 @@
 package ru.kfu.itis.issst.uima.morph.stanford;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 
 import edu.stanford.nlp.ling.TaggedWord;
@@ -63,8 +65,17 @@ public class StanfordPosAnnotator extends JCasAnnotator_ImplBase {
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
-		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
+		String docUri = DocumentUtils.getDocumentUri(jCas);
+		Collection<Sentence> sents = JCasUtil.select(jCas, Sentence.class);
+		int sentsAnnotated = 0;
+		for (Sentence sent : sents) {
 			process(jCas, sent);
+			sentsAnnotated++;
+			if (getLogger().isDebugEnabled()) {
+				getLogger().debug(String.format(
+						"Annotated %s (of %s) sentences in %s",
+						sentsAnnotated, sents.size(), docUri));
+			}
 		}
 	}
 
