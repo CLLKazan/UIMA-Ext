@@ -22,6 +22,7 @@ import org.cleartk.classifier.CleartkSequenceAnnotator;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.Instances;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
+import org.cleartk.classifier.feature.extractor.CleartkExtractor.Context;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
@@ -62,6 +63,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
 	public static final String PARAM_POS_TIERS = "posTiers";
 	public static final String PARAM_CURRENT_TIER = "currentTier";
+	public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
+	public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
 	// config fields
 	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
@@ -69,6 +72,11 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private List<String> pPosTiers;
 	@ConfigurationParameter(name = PARAM_CURRENT_TIER, mandatory = true)
 	private int currentTier = -1;
+	// feature extraction parameters
+	@ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
+	private int leftContextSize = -1;
+	@ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
+	private int rightContextSize = -1;
 	// derived
 	private MorphDictionary morphDictionary;
 	private Set<String> currentPosTier;
@@ -116,9 +124,22 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		dictFeatureExtractor = new DictionaryPossibleTagFeatureExtractor(
 				currentPosTier, prevTierPosCategories, morphDictionary);
 
+		if (leftContextSize < 0 || rightContextSize < 0) {
+			throw new IllegalStateException("context size < 0");
+		}
+		if (leftContextSize == 0 && rightContextSize == 0) {
+			throw new IllegalStateException("left & right context sizes == 0");
+		}
+		List<Context> contexts = Lists.newArrayList();
+		if (leftContextSize > 0) {
+			contexts.add(new CleartkExtractor.Preceding(leftContextSize));
+		}
+		if (rightContextSize > 0) {
+			contexts.add(new CleartkExtractor.Following(rightContextSize));
+		}
 		contextFeatureExtractor = new CleartkExtractor(Word.class,
 				new CombinedExtractor(contextFeatureExtractors.toArray(FE_ARRAY)),
-				new CleartkExtractor.Preceding(2), new CleartkExtractor.Following(2));
+				contexts.toArray(new Context[contexts.size()]));
 	}
 
 	@Override
@@ -279,6 +300,6 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		}
 	}
 
-	private static final Splitter posCatSplitter = Splitter.on(',').trimResults();
+	static final Splitter posCatSplitter = Splitter.on('&').trimResults();
 	private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
 }
