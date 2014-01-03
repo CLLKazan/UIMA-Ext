@@ -8,6 +8,7 @@ import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescripti
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
@@ -19,6 +20,7 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
@@ -41,6 +43,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictiona
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -69,13 +72,12 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	@Parameter(names = { "-p", "--pos-tiers" }, required = true)
+	@Parameter(names = { "--pos-tiers" }, required = true)
 	private List<String> _posTiers;
 
 	private TieredPosTaggerLab() {
 	}
 
-	// TODO (1) implement support of a PoS-tier consisting of several PoS-categories
 	private void run() throws IOException {
 		// prepare input TypeSystem
 		final TypeSystemDescription inputTS = createTypeSystemDescription(
@@ -90,6 +92,11 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		// -----------------------------------------------------------------
 		UimaTask featureExtractionTask = new FeatureExtractionTaskBase("FeatureExtraction", inputTS) {
+			@Discriminator
+			int leftContextSize;
+			@Discriminator
+			int rightContextSize;
+
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
@@ -105,6 +112,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 							TieredPosSequenceAnnotator.class,
 							TieredPosSequenceAnnotator.PARAM_POS_TIERS, _posTiers,
 							TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
+							TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE, leftContextSize,
+							TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE, rightContextSize,
 							TieredPosSequenceAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
 							CRFSuiteStringOutcomeDataWriterFactory.class.getName(),
 							DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
@@ -149,7 +158,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 					List<String> trainerArgs = Lists.newArrayList();
 					trainerArgs.add("-a");
 					trainerArgs.add("lbfgs");
-					addTrainParam(trainerArgs, "max_iterations", 70);
+					addTrainParam(trainerArgs, "max_iterations", 120);
 					addTrainParam(trainerArgs, "feature.minfreq", featureMinFreq);
 					if (featurePossibleStates) {
 						addTrainParam(trainerArgs, "feature.possible_states", 1);
@@ -176,6 +185,11 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		};
 		// -----------------------------------------------------------------
 		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
+			@Discriminator
+			int leftContextSize;
+			@Discriminator
+			int rightContextSize;
+
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
@@ -197,6 +211,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 							TieredPosSequenceAnnotator.class,
 							TieredPosSequenceAnnotator.PARAM_POS_TIERS, _posTiers,
 							TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
+							TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE, leftContextSize,
+							TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE, rightContextSize,
 							TieredPosSequenceAnnotator.PARAM_CLASSIFIER_FACTORY_CLASS_NAME,
 							SequenceJarClassifierFactory.class.getName(),
 							SequenceJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
@@ -236,11 +252,16 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
 				DiscreteDomain.integers()).toArray(new Integer[0]);*/
+		Set<String> posCategories = Sets.newLinkedHashSet();
+		for (String pt : _posTiers) {
+			posCategories.addAll(Lists.newLinkedList(posCatSplitter.split(pt)));
+		}
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
+				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, Sets.newLinkedHashSet(_posTiers)),
+				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, posCategories),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// Dimension.create("featureMinFreq", 1, 4, 9, 19),
 				Dimension.create("featureMinFreq", 0),
@@ -249,7 +270,9 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				// Dimension.create("featurePossibleTransitions", false, true),
 				Dimension.create("featurePossibleTransitions", true),
 				// Dimension.create("featurePossibleStates", false, true));
-				Dimension.create("featurePossibleStates", true));
+				Dimension.create("featurePossibleStates", true),
+				Dimension.create("leftContextSize", 1, 2, 3),
+				Dimension.create("rightContextSize", 1, 2));
 		// -----------------------------------------------------------------
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
@@ -270,6 +293,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 
 	private File getTierDir(File baseDir, String posTier) {
 		// TODO escape chars that are not safe for filename
+		posTier = posTier.replace("&", "_and_");
 		return new File(baseDir, posTier);
 	}
 
@@ -277,4 +301,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		params.add("-p");
 		params.add(name + "=" + value);
 	}
+
+	private static Splitter posCatSplitter = Splitter.onPattern("[,&]");
 }
