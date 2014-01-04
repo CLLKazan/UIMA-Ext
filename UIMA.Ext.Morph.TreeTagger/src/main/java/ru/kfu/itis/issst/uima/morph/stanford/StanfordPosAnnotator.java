@@ -16,7 +16,6 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
@@ -37,7 +36,6 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-@OperationalProperties(multipleDeploymentAllowed = false)
 public class StanfordPosAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_MODEL_FILE = "modelFile";
