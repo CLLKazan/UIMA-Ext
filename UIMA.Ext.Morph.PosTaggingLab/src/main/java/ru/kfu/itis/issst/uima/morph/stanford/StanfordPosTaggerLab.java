@@ -87,6 +87,9 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 	@Parameter(names = { "-p", "--pos-categories" }, required = true)
 	private List<String> _posCategoriesList;
 	private Set<String> _posCategories;
+	@Parameter(names = "--feature-arch", required = true)
+	private String featureArch;
+	private boolean allowTaggerMultiDeployment = false;
 
 	private StanfordPosTaggerLab() {
 	}
@@ -185,6 +188,8 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 						StanfordPosAnnotator.PARAM_MODEL_FILE, modelFile.getPath(),
 						StanfordPosAnnotator.PARAM_TAG_MAPPER_CLASS,
 						DictionaryBasedTagMapper.class.getName());
+				stanfordAnnotatorDesc.getAnalysisEngineMetaData().getOperationalProperties()
+						.setMultipleDeploymentAllowed(allowTaggerMultiDeployment);
 				try {
 					ExternalResourceFactory.createDependency(stanfordAnnotatorDesc,
 							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
@@ -222,9 +227,7 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// model training parameters
-				Dimension.create("featureArch",
-						"left3words", "left5words", "generic",
-						"bidirectional5words", "bidirectional")
+				Dimension.create("featureArch", featureArch)
 				);
 		//
 		BatchTask batchTask = new BatchTask();
