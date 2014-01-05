@@ -39,6 +39,19 @@ public class CorpusUtils {
 		TRAIN
 	}
 
+	public static String getPartitionFilename(PartitionType partType, int fold) {
+		switch (partType) {
+		case DEV:
+			return getDevPartitionFilename(fold);
+		case TEST:
+			return getTestPartitionFilename(fold);
+		case TRAIN:
+			return getTrainPartitionFilename(fold);
+		default:
+			throw new UnsupportedOperationException();
+		}
+	}
+
 	public static String getDevPartitionFilename(int fold) {
 		return String.format(DEVELOPMENT_PARTITION_NAME_FORMAT, fold);
 	}
