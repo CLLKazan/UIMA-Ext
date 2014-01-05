@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Splitter;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 
 /**
  * TODO This is a temporary quick solution to calculate a tagger accuracy on
@@ -56,7 +54,6 @@ public class TrimEvalLogToUnseenWords {
 
 	private void run() throws Exception {
 		List<String> unseenWordsList = TokenInfoWriter.parseFileToTokens(unseenWordInfoFile);
-		Multiset<String> unseenWordsBag = HashMultiset.create(unseenWordsList);
 		Set<String> unseenWords = newHashSet(unseenWordsList);
 		log.info("Finished reading {}. Unique words: {}", unseenWordInfoFile, unseenWords.size());
 		//
@@ -78,6 +75,7 @@ public class TrimEvalLogToUnseenWords {
 		int missedNum = 0;
 		try {
 			String line;
+			@SuppressWarnings("unused")
 			int lineIndex = 0;
 			while ((line = in.readLine()) != null) {
 				lineIndex++;
@@ -103,18 +101,10 @@ public class TrimEvalLogToUnseenWords {
 				String token = goldAnnoDesc.substring(0, txtSepIndex);
 				if (unseenWords.contains(token)) {
 					out.println(line);
-					// for example, this flag is false for 'Partial' records
-					boolean isEssentialRecord = false;
 					if ("Missing".equals(matchStatus)) {
 						missedNum++;
-						isEssentialRecord = true;
 					} else if ("Exact".equals(matchStatus)) {
 						matchedNum++;
-						isEssentialRecord = true;
-					}
-					if (isEssentialRecord && !unseenWordsBag.remove(token)) {
-						throw new IllegalStateException(String.format(
-								"Unexpected word at line %s:\n%s", lineIndex, line));
 					}
 				}
 			}

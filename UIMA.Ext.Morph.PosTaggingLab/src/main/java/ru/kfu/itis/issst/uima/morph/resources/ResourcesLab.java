@@ -8,7 +8,6 @@ import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.REA
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
 import static java.lang.String.format;
 import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.apache.commons.lang3.StringUtils.uncapitalize;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
@@ -252,20 +251,16 @@ public class ResourcesLab extends LabLauncherBase {
 			int unseenWordNum = 0;
 			try {
 				String line;
-				boolean atSentenceBegin = true;
 				while ((line = targetSetReader.readLine()) != null) {
 					if (line.isEmpty()) {
-						atSentenceBegin = true;
 						continue;
 					}
 					TokenInfo tokInfo = TokenInfoWriter.parseLine(line);
 					String tok = tokInfo.token;
-					if (tokInfo.isWord() && !seenWords.contains(tok)
-							&& !(atSentenceBegin && seenWords.contains(uncapitalize(tok)))) {
+					if (tokInfo.isWord() && !seenWords.contains(tok)) {
 						unseenWordsOut.println(line);
 						unseenWordNum++;
 					}
-					atSentenceBegin = false;
 				}
 			} finally {
 				closeQuietly(targetSetReader);
@@ -282,20 +277,14 @@ public class ResourcesLab extends LabLauncherBase {
 			BufferedReader trainSetReader = openReader(file);
 			try {
 				String line;
-				boolean atSentenseBegin = true;
 				while ((line = trainSetReader.readLine()) != null) {
 					if (line.isEmpty()) {
-						atSentenseBegin = true;
 						continue;
 					}
 					TokenInfo tokInfo = TokenInfoWriter.parseLine(line);
 					if (tokInfo.isWord()) {
 						seenWords.add(tokInfo.token);
-						if (atSentenseBegin) {
-							seenWords.add(uncapitalize(tokInfo.token));
-						}
 					}
-					atSentenseBegin = false;
 				}
 			} finally {
 				closeQuietly(trainSetReader);
