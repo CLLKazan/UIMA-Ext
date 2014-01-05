@@ -18,8 +18,8 @@
 	<logger name="org" level="INFO" />
 	<logger name="org.apache" level="INFO" />
 	<logger name="com" level="INFO" />
-	<logger name="ru.ksu" level="INFO" />
-	<logger name="ru.kfu" level="INFO" />
+	<logger name="ru.ksu" level="DEBUG" />
+	<logger name="ru.kfu" level="DEBUG" />
 	<logger name="net" level="INFO" />
 	<logger name="java" level="INFO" />
 	<logger name="javax" level="INFO" />

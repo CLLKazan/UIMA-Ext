@@ -174,37 +174,8 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
-			@Override
-			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
-					throws ResourceInitializationException, IOException {
-				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
-				File modelFile = getModelFile(modelDir);
-				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
-				//
-				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription stanfordAnnotatorDesc = createPrimitiveDescription(
-						StanfordPosAnnotator.class,
-						StanfordPosAnnotator.PARAM_MODEL_FILE, modelFile.getPath(),
-						StanfordPosAnnotator.PARAM_TAG_MAPPER_CLASS,
-						DictionaryBasedTagMapper.class.getName());
-				stanfordAnnotatorDesc.getAnalysisEngineMetaData().getOperationalProperties()
-						.setMultipleDeploymentAllowed(allowTaggerMultiDeployment);
-				try {
-					ExternalResourceFactory.createDependency(stanfordAnnotatorDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							MorphDictionaryHolder.class);
-					bindResource(stanfordAnnotatorDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
-				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-				return createAggregateDescription(
-						goldRemoverDesc, stanfordAnnotatorDesc, xmiWriterDesc);
-			}
-		};
+		UimaTask analysisTask = new StanfordTaggerAnalysisTask(morphDictDesc, inputTS,
+				PartitionType.DEV, allowTaggerMultiDeployment);
 		//
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -242,11 +213,11 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 		Lab.getInstance().run(batchTask);
 	}
 
-	private File getTrainingDataFile(File dir) {
+	private static File getTrainingDataFile(File dir) {
 		return new File(dir, StanfordTrainingDataWriter.TRAINING_DATA_FILENAME);
 	}
 
-	private File getModelFile(File dir) {
+	private static File getModelFile(File dir) {
 		return new File(dir, "stanford.model");
 	}
 
@@ -256,6 +227,52 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 			props.store(os, null);
 		} finally {
 			closeQuietly(os);
+		}
+	}
+
+	static class StanfordTaggerAnalysisTask extends AnalysisTaskBase {
+
+		private ExternalResourceDescription morphDictDesc;
+		private boolean allowTaggerMultiDeployment;
+
+		StanfordTaggerAnalysisTask(ExternalResourceDescription morphDictDesc,
+				TypeSystemDescription inputTS,
+				PartitionType targetPartition,
+				boolean allowTaggerMultiDeployment) {
+			super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
+					inputTS, targetPartition);
+			this.morphDictDesc = morphDictDesc;
+			this.allowTaggerMultiDeployment = allowTaggerMultiDeployment;
+		}
+
+		@Override
+		public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
+				throws ResourceInitializationException, IOException {
+			File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
+			File modelFile = getModelFile(modelDir);
+			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
+			//
+			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
+			AnalysisEngineDescription stanfordAnnotatorDesc = createPrimitiveDescription(
+					StanfordPosAnnotator.class,
+					StanfordPosAnnotator.PARAM_MODEL_FILE, modelFile.getPath(),
+					StanfordPosAnnotator.PARAM_TAG_MAPPER_CLASS,
+					DictionaryBasedTagMapper.class.getName());
+			stanfordAnnotatorDesc.getAnalysisEngineMetaData().getOperationalProperties()
+					.setMultipleDeploymentAllowed(allowTaggerMultiDeployment);
+			try {
+				ExternalResourceFactory.createDependency(stanfordAnnotatorDesc,
+						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
+						MorphDictionaryHolder.class);
+				bindResource(stanfordAnnotatorDesc,
+						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
+						morphDictDesc);
+			} catch (InvalidXMLException e) {
+				throw new ResourceInitializationException(e);
+			}
+			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
+			return createAggregateDescription(
+					goldRemoverDesc, stanfordAnnotatorDesc, xmiWriterDesc);
 		}
 	}
 }

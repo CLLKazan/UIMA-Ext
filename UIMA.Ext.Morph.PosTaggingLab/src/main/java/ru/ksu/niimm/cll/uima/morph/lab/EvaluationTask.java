@@ -36,9 +36,6 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
  * 
  */
 public class EvaluationTask extends ExecutableTaskBase {
-	{
-		setType("Evaluation");
-	}
 	// config fields
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 	private PartitionType targetPartition;
@@ -50,6 +47,18 @@ public class EvaluationTask extends ExecutableTaskBase {
 
 	public EvaluationTask(PartitionType targetPartition) {
 		this.targetPartition = targetPartition;
+		switch (targetPartition) {
+		case TRAIN:
+			throw new IllegalArgumentException();
+		case DEV:
+			setType("Evaluation");
+			break;
+		case TEST:
+			setType("EvaluationFinal");
+			break;
+		default:
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	@Override
