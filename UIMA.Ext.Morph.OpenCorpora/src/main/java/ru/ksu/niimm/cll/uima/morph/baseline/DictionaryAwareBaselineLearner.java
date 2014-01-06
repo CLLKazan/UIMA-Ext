@@ -30,6 +30,7 @@ import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
 
+import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 
 import com.google.common.base.Joiner;
@@ -79,6 +80,9 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 		for (Word word : JCasUtil.select(jcas, Word.class)) {
 			// check corpus word sanity
 			if (word.getWordforms() == null) {
+				continue;
+			}
+			if (word.getToken() instanceof NUM) {
 				continue;
 			}
 			Collection<org.opencorpora.cas.Wordform> corpusWfs = FSCollectionFactory.create(
