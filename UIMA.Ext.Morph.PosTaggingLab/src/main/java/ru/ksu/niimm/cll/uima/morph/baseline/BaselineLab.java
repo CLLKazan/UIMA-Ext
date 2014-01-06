@@ -34,6 +34,7 @@ import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
@@ -124,6 +125,8 @@ public class BaselineLab extends LabLauncherBase {
 
 			@Discriminator
 			Set<String> posCategories;
+			@Discriminator
+			boolean useNumGrammeme;
 
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
@@ -133,7 +136,9 @@ public class BaselineLab extends LabLauncherBase {
 				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
 				AnalysisEngineDescription baselineTaggerDesc = createPrimitiveDescription(
 						BaselineTagger.class,
-						BaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
+						BaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories,
+						BaselineTagger.PARAM_NUM_GRAMMEME,
+						useNumGrammeme ? MorphConstants.NUMR : null);
 				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTagger.class,
 						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
@@ -178,7 +183,8 @@ public class BaselineLab extends LabLauncherBase {
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// model-specific parameters
-				Dimension.create("suffixLength", 2, 3, 4, 5, 6)
+				Dimension.create("suffixLength", 2, 3, 4, 5, 6),
+				Dimension.create("useNumGrammeme", false, true)
 				);
 		// -----------------------------------------------------------------
 		// create and run BatchTask

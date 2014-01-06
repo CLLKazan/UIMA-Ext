@@ -59,7 +59,8 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 public class DictionaryAwareBaselineLab extends LabLauncherBase {
 
 	private static final String DAB_MODEL_FILE_NAME = "dab.ser";
-	private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
+
+	// private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
 
 	public static void main(String[] args) throws IOException {
 		/* configuration parameters:
@@ -70,7 +71,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - working directory (for DKPro-Lab internals) | ='wrk'
 		 */
 		// read configuration from command line arguments
-		System.setProperty("DKPRO_HOME", "wrk/da-baseline");
+		System.setProperty("DKPRO_HOME", "wrk/dict-baseline");
 		DictionaryAwareBaselineLab lab = new DictionaryAwareBaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();
@@ -120,18 +121,22 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 						DictionaryAwareBaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
 						DictionaryAwareBaselineLearner.PARAM_MODEL_OUTPUT_FILE,
 						getDABModelFile(modelDir));
+				/*
 				AnalysisEngineDescription suffixModelTrainerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTrainer.class,
 						SuffixExaminingPosTrainer.PARAM_WFSTORE_FILE, getSuffixModelFile(modelDir));
+						*/
 				try {
 					bindResource(dabModelLearnerDesc,
 							DictionaryAwareBaselineLearner.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+					/*
 					bindResource(suffixModelTrainerDesc,
 							SuffixExaminingPosTrainer.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+							*/
 				} catch (InvalidXMLException e) {
 					throw new IllegalStateException(e);
 				}
-				return createAggregateDescription(dabModelLearnerDesc, suffixModelTrainerDesc);
+				return createAggregateDescription(dabModelLearnerDesc /*, suffixModelTrainerDesc*/);
 			}
 		};
 		/* Create an analysis task (use 'testing' FS with XmiCollectionReader on 'Corpus')
@@ -153,31 +158,38 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
 				AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
 						DictionaryAwareBaselineTagger.class,
-						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
+						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories,
+						DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, true);
+				/*
 				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTagger.class,
 						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
+						*/
 				// bind dictionary and wfStore resources
 				ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
 						getDABModelFile(modelDir));
+				/*
 				ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
 						getSuffixModelFile(modelDir));
+						*/
 				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 				try {
 					bindResource(dabTaggerDesc,
 							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);
 					bindResource(dabTaggerDesc,
 							DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+					/*
 					bindResource(suffixTaggerDesc,
 							SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
 					bindResource(suffixTaggerDesc,
 							SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+							*/
 				} catch (InvalidXMLException e) {
 					throw new ResourceInitializationException(e);
 				}
-				return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, suffixTaggerDesc,
+				return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, /*suffixTaggerDesc,*/
 						xmiWriterDesc);
 			}
 		};
@@ -195,7 +207,6 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - Dimension for PoS-categories
 		 * - DimensionBundle for corpus-splits
 		 */
-		// TODO
 		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
 				DiscreteDomain.integers()).toArray(new Integer[0]);*/
@@ -226,7 +237,9 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		return new File(modelDir, DAB_MODEL_FILE_NAME);
 	}
 
+	/*
 	private File getSuffixModelFile(File modelDir) {
 		return new File(modelDir, SUFFIX_MODEL_FILE_NAME);
 	}
+	*/
 }
