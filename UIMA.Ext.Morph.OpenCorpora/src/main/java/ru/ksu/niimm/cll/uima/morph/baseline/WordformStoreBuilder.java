@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import java.io.File;
 import java.util.BitSet;
 
 /**
@@ -13,5 +12,5 @@ import java.util.BitSet;
 interface WordformStoreBuilder {
 	void increment(String wordString, BitSet posBits);
 
-	void persist(File outFile) throws Exception;
+	WordformStore build();
 }

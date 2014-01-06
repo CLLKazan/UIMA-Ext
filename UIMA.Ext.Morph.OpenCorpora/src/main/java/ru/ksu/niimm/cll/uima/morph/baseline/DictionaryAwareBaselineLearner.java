@@ -39,7 +39,7 @@ import com.google.common.base.Joiner;
  * 
  */
 @OperationalProperties(multipleDeploymentAllowed = false)
-public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnotator {
+public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 
 	public static final String PARAM_MODEL_OUTPUT_FILE = "modelOutputFile";
 
@@ -130,7 +130,8 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 		IOUtils.closeQuietly(unknownWordsOut);
 		IOUtils.closeQuietly(dictNotCompliantOut);
 		try {
-			wfStoreBuilder.persist(modelOutputFile);
+			WordformStore ws = wfStoreBuilder.build();
+			ws.persist(modelOutputFile);
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);
 		}

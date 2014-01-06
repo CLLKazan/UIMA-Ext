@@ -30,6 +30,7 @@ public class SharedDefaultWordformStore extends DefaultWordformStore implements
 			throw new ResourceInitializationException(e);
 		}
 		this.strKeyMap = ws.strKeyMap;
+		this.metadataMap = ws.metadataMap;
 	}
 
 }

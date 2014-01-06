@@ -3,18 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static org.apache.commons.io.FileUtils.openOutputStream;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.BitSet;
 import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Maps;
@@ -25,8 +15,6 @@ import com.google.common.collect.Multiset;
  * 
  */
 class DefaultWordformStoreBuilder implements WordformStoreBuilder {
-
-	private static Logger log = LoggerFactory.getLogger(DefaultWordformStoreBuilder.class);
 
 	// state
 	private Map<String, Multiset<BitSet>> strKeyMap = Maps.newHashMap();
@@ -42,23 +30,7 @@ class DefaultWordformStoreBuilder implements WordformStoreBuilder {
 	}
 
 	@Override
-	public void persist(File outFile) throws Exception {
-		// build
-		DefaultWordformStore ws = build();
-		// serialize store object
-		ObjectOutputStream modelOS = null;
-		try {
-			OutputStream os = new BufferedOutputStream(openOutputStream(outFile));
-			modelOS = new ObjectOutputStream(os);
-			modelOS.writeObject(ws);
-		} finally {
-			IOUtils.closeQuietly(modelOS);
-		}
-		log.info("WordformStore succesfully serialized to {}, size = {} bytes",
-				outFile, outFile.length());
-	}
-
-	private DefaultWordformStore build() {
+	public DefaultWordformStore build() {
 		DefaultWordformStore result = new DefaultWordformStore();
 		result.strKeyMap = Maps.newHashMapWithExpectedSize(strKeyMap.size());
 		for (String str : strKeyMap.keySet()) {

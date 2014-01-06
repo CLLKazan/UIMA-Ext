@@ -25,7 +25,7 @@ import com.google.common.collect.Iterables;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-abstract class DictionaryAwareBaselineAnnotator extends JCasAnnotator_ImplBase {
+abstract class BaselineAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_TARGET_POS_CATEGORIES = "targetPosCategories";
 	public static final String RESOURCE_MORPH_DICTIONARY = "MorphDictionary";
