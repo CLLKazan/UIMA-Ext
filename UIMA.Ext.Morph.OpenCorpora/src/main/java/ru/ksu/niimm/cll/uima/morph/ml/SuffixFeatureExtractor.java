@@ -9,31 +9,23 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleNamedFeatureExtractor;
+import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * @author Rinat Gareev
  * 
  */
-public class SuffixFeatureExtractor implements SimpleNamedFeatureExtractor {
+public class SuffixFeatureExtractor implements SimpleFeatureExtractor {
 
-	private int suffixLength;
-	// derived
-	private final String featureName;
+	private int maxSuffixLength;
 
-	public SuffixFeatureExtractor(int suffixLength) {
-		if (suffixLength <= 0) {
+	public SuffixFeatureExtractor(int maxSuffixLength) {
+		if (maxSuffixLength <= 0) {
 			throw new IllegalArgumentException();
 		}
-		this.suffixLength = suffixLength;
-		featureName = Feature.createName("Suffix", String.valueOf(suffixLength));
-	}
-
-	@Override
-	public String getFeatureName() {
-		return featureName;
+		this.maxSuffixLength = maxSuffixLength;
 	}
 
 	@Override
@@ -41,12 +33,24 @@ public class SuffixFeatureExtractor implements SimpleNamedFeatureExtractor {
 			throws CleartkExtractorException {
 
 		String str = focusAnnotation.getCoveredText();
-		String val;
-		if (str.length() <= suffixLength) {
-			val = str;
-		} else {
-			val = "*" + str.substring(str.length() - suffixLength);
+		List<Feature> result = Lists.newLinkedList();
+		for (int suffixLength = 1; suffixLength <= maxSuffixLength; suffixLength++) {
+			String val;
+			if (str.length() <= suffixLength) {
+				val = str;
+			} else {
+				val = "*" + str.substring(str.length() - suffixLength);
+			}
+			result.add(new Feature(getFeatureName(suffixLength), val));
+			if (str.length() <= suffixLength) {
+				// suffix length increasing so there is no point to produce other features with different name
+				break;
+			}
 		}
-		return ImmutableList.of(new Feature(featureName, val));
+		return result;
+	}
+
+	private String getFeatureName(int suffixLength) {
+		return Feature.createName("Suffix", String.valueOf(suffixLength));
 	}
 }
