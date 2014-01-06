@@ -47,6 +47,17 @@ public class SuffixExaminingPosTagger extends SuffixExaminingPosAnnotator {
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
+		//
+		if (suffixLength > 0) {
+			throw new IllegalStateException("PARAM_SUFFIX_LENGTH must not be specified. " +
+					"It is restored from a model.");
+		}
+		suffixLength = wfStore.getProperty(KEY_SUFFIX_LENGTH, Integer.class);
+		if (suffixLength == null) {
+			throw new IllegalStateException(
+					"Can't restore the suffix length parameter from the model");
+		}
+		//
 		annoAdapter = new DefaultAnnotationAdapter();
 		annoAdapter.init(dict);
 	}

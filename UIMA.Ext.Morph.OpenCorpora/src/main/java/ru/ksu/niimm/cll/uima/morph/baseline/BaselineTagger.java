@@ -4,10 +4,8 @@
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.addCasWordform;
-import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.normalizeToDictionary;
 
 import java.util.BitSet;
-import java.util.Set;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -26,7 +24,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.DefaultAnnotationAdapter;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DictionaryAwareBaselineTagger extends BaselineAnnotator {
+public class BaselineTagger extends BaselineAnnotator {
 
 	public static final String PARAM_USE_DEBUG_GRAMMEMS = "useDebugGrammems";
 	public static final String RESOURCE_WFSTORE = "WordformStore";
@@ -52,35 +50,20 @@ public class DictionaryAwareBaselineTagger extends BaselineAnnotator {
 				continue;
 			}
 			String tokenStr = token.getCoveredText();
-			tokenStr = normalizeToDictionary(tokenStr);
-			Set<BitSet> dictEntries = trimAndMergePosBits(dict.getEntries(tokenStr));
-			if (dictEntries == null || dictEntries.isEmpty()) {
-				if (useDebugGrammems) {
-					setNotDictionary(jCas, addCasWordform(jCas, token));
-				}
-			} else if (dictEntries.size() == 1) {
-				wordAnnoAdapter.apply(jCas, token, null, null, dictEntries.iterator().next());
+			BitSet posBits = wfStore.getPosBits(tokenStr);
+			if (posBits != null) {
+				wordAnnoAdapter.apply(jCas, token, null, null, posBits);
 			} else {
-				BitSet posBits = wfStore.getPosBits(tokenStr);
-				if (posBits != null) {
-					wordAnnoAdapter.apply(jCas, token, null, null, posBits);
-				} else {
-					if (useDebugGrammems) {
-						setAmbiguous(jCas, addCasWordform(jCas, token));
-					}
+				if (useDebugGrammems) {
+					setUnseen(jCas, addCasWordform(jCas, token));
 				}
 			}
 		}
 	}
 
-	public static final String GRAMMEME_NOT_DICT = "not-dict";
-	public static final String GRAMMEME_AMBIGUOUS = "ambiguous";
+	public static final String GRAMMEME_UNSEEN = "unseen";
 
-	private void setNotDictionary(JCas jCas, org.opencorpora.cas.Wordform casWf) {
-		casWf.setGrammems(FSUtils.toStringArray(jCas, GRAMMEME_NOT_DICT));
-	}
-
-	private void setAmbiguous(JCas jCas, org.opencorpora.cas.Wordform casWf) {
-		casWf.setGrammems(FSUtils.toStringArray(jCas, GRAMMEME_AMBIGUOUS));
+	private void setUnseen(JCas jCas, org.opencorpora.cas.Wordform casWf) {
+		casWf.setGrammems(FSUtils.toStringArray(jCas, GRAMMEME_UNSEEN));
 	}
 }

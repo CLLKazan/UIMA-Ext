@@ -19,11 +19,12 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 abstract class SuffixExaminingPosAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_SUFFIX_LENGTH = "suffixLength";
+	public static final String KEY_SUFFIX_LENGTH = "suffixLength";
 	public static final String RESOURCE_MORPH_DICTIONARY = "MorphDictionary";
 
 	// config fields
-	@ConfigurationParameter(name = PARAM_SUFFIX_LENGTH, defaultValue = "3", mandatory = true)
-	protected Integer suffixLength;
+	@ConfigurationParameter(name = PARAM_SUFFIX_LENGTH)
+	protected Integer suffixLength = -1;
 	@ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder dictHolder;
 	protected MorphDictionary dict;

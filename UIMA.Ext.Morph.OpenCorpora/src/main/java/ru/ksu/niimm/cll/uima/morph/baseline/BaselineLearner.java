@@ -5,7 +5,6 @@ package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.normalizeToDictionary;
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.toGramBitSet;
 
 import java.io.File;
@@ -28,58 +27,50 @@ import org.uimafit.util.JCasUtil;
  * 
  */
 @OperationalProperties(multipleDeploymentAllowed = false)
-public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
+public class BaselineLearner extends BaselineAnnotator {
 
-	public static final String PARAM_WFSTORE_FILE = "wfStoreFile";
+	public static final String PARAM_MODEL_OUTPUT_FILE = "modelOutputFile";
 
 	// config fields
-	@ConfigurationParameter(name = PARAM_WFSTORE_FILE, mandatory = true)
-	private File wsFile;
+	@ConfigurationParameter(name = PARAM_MODEL_OUTPUT_FILE, mandatory = true)
+	private File modelOutputFile;
+	// derived
+	private File modelDir;
 	// state fields
-	private WordformStoreBuilder wsBuilder;
-	private int wordsExamined;
-	private int shortWordsExamined;
+	private WordformStoreBuilder wfStoreBuilder;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		if (suffixLength <= 0) {
-			throw new IllegalStateException("PARAM_SUFFIX_LENGTH is not specified");
+		modelDir = modelOutputFile.getParentFile();
+		if (modelDir == null) {
+			// fallback to current directory
+			modelDir = new File(".");
 		}
-		wsBuilder = new DefaultWordformStoreBuilder();
+		//
+		wfStoreBuilder = new DefaultWordformStoreBuilder();
 	}
 
 	@Override
-	public void process(JCas jCas) throws AnalysisEngineProcessException {
-		for (Word word : JCasUtil.select(jCas, Word.class)) {
+	public void process(JCas jcas) throws AnalysisEngineProcessException {
+		for (Word word : JCasUtil.select(jcas, Word.class)) {
 			// check corpus word sanity
 			if (word.getWordforms() == null) {
 				continue;
 			}
 			Collection<Wordform> corpusWfs = FSCollectionFactory.create(
 					word.getWordforms(),
-					Wordform.class);
+					org.opencorpora.cas.Wordform.class);
 			if (corpusWfs.isEmpty()) {
 				continue;
 			}
 			if (corpusWfs.size() > 1) {
 				getLogger().warn(String.format("Too much wordforms for word %s in %s",
-						toPrettyString(word), getDocumentUri(jCas)));
+						toPrettyString(word), getDocumentUri(jcas)));
 			}
 			Wordform corpusWf = corpusWfs.iterator().next();
-			String wordStr = normalizeToDictionary(word.getCoveredText());
-			BitSet corpusWfBits = toGramBitSet(dict, corpusWf);
-			if (wordStr.length() > suffixLength) {
-				String suffix = getSuffix(wordStr);
-				String suffixKey = makeSuffixKey(suffix);
-				wsBuilder.increment(suffixKey, corpusWfBits);
-			} else {
-				// if word length is equal or less than suffixLength
-				// then memorize the whole word
-				wsBuilder.increment(wordStr, corpusWfBits);
-				shortWordsExamined++;
-			}
-			wordsExamined++;
+			BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
+			wfStoreBuilder.increment(word.getCoveredText(), corpusWfGBS);
 		}
 	}
 
@@ -87,14 +78,10 @@ public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
 		super.collectionProcessComplete();
 		try {
-			WordformStore ws = wsBuilder.build();
-			ws.setProperty(KEY_SUFFIX_LENGTH, suffixLength);
-			ws.persist(wsFile);
+			WordformStore ws = wfStoreBuilder.build();
+			ws.persist(modelOutputFile);
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);
 		}
-		getLogger().info(String.format(
-				"Words examined: %s. Words shorter than the suffix length (%s): %s",
-				wordsExamined, suffixLength, shortWordsExamined));
 	}
 }
