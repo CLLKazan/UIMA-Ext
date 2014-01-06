@@ -38,7 +38,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictiona
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -55,23 +54,14 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-@Parameters(separators = " =")
-public class DictionaryAwareBaselineLab extends LabLauncherBase {
+public class BaselineLab extends LabLauncherBase {
 
-	private static final String DAB_MODEL_FILE_NAME = "dab.ser";
+	private static final String BASELINE_MODEL_FILE_NAME = "baseline.ser";
 	private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
 
 	public static void main(String[] args) throws IOException {
-		/* configuration parameters:
-		 * - path to corpus
-		 * - folds number (for cross-validation)
-		 * - PoS-categories
-		 * ? output directory (for reports and model assets)
-		 * - working directory (for DKPro-Lab internals) | ='wrk'
-		 */
-		// read configuration from command line arguments
-		System.setProperty("DKPRO_HOME", "wrk/da-baseline");
-		DictionaryAwareBaselineLab lab = new DictionaryAwareBaselineLab();
+		System.setProperty("DKPRO_HOME", "wrk/freq-baseline");
+		BaselineLab lab = new BaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();
 	}
@@ -81,7 +71,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 	private List<String> _posCategoriesList;
 	private Set<String> _posCategories;
 
-	private DictionaryAwareBaselineLab() {
+	private BaselineLab() {
 	}
 
 	private void run() throws IOException {
@@ -96,50 +86,40 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		// prepare morph dictionary resource
 		final ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
 				CachedSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
-		/*
-		 * Create a pre-processing task (use whole source corpus)
-		 * Aggregate AE:
-		 * - PoS-trimmer with injected PoS-categories parameter
-		 * - XMIWriter (to 'Corpus')
-		 */
+		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
-		/* create a training task (use 'training' FS with XmiCollectionReader on 'Corpus')
-		 * Aggregate AE:
-		 * - DictionaryAwareBaselineLearner (ensure thread-safety!)
-		 */
+		//
 		UimaTask trainingTask = new FeatureExtractionTaskBase("Training", inputTS) {
 			@Discriminator
 			Set<String> posCategories;
+			@Discriminator
+			int suffixLength;
 
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
-				AnalysisEngineDescription dabModelLearnerDesc = createPrimitiveDescription(
-						DictionaryAwareBaselineLearner.class, inputTS,
-						DictionaryAwareBaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
-						DictionaryAwareBaselineLearner.PARAM_MODEL_OUTPUT_FILE,
-						getDABModelFile(modelDir));
+				AnalysisEngineDescription baselineLearnerDesc = createPrimitiveDescription(
+						BaselineLearner.class, inputTS,
+						BaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
+						BaselineLearner.PARAM_MODEL_OUTPUT_FILE,
+						getFreqModelFile(modelDir));
 				AnalysisEngineDescription suffixModelTrainerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTrainer.class,
-						SuffixExaminingPosTrainer.PARAM_WFSTORE_FILE, getSuffixModelFile(modelDir));
+						SuffixExaminingPosTrainer.PARAM_WFSTORE_FILE, getSuffixModelFile(modelDir),
+						SuffixExaminingPosTrainer.PARAM_SUFFIX_LENGTH, suffixLength);
 				try {
-					bindResource(dabModelLearnerDesc,
-							DictionaryAwareBaselineLearner.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+					bindResource(baselineLearnerDesc,
+							BaselineLearner.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 					bindResource(suffixModelTrainerDesc,
 							SuffixExaminingPosTrainer.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 				} catch (InvalidXMLException e) {
 					throw new IllegalStateException(e);
 				}
-				return createAggregateDescription(dabModelLearnerDesc, suffixModelTrainerDesc);
+				return createAggregateDescription(baselineLearnerDesc, suffixModelTrainerDesc);
 			}
 		};
-		/* Create an analysis task (use 'testing' FS with XmiCollectionReader on 'Corpus')
-		 * Aggregate AE:
-		 * - remove gold annotations (Word, etc)
-		 * - DictionaryAwareBaselineTagger
-		 * - XMIWriter
-		 */
+		//
 		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
 
 			@Discriminator
@@ -151,25 +131,25 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
 				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
 				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
-						DictionaryAwareBaselineTagger.class,
-						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
+				AnalysisEngineDescription baselineTaggerDesc = createPrimitiveDescription(
+						BaselineTagger.class,
+						BaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories);
 				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTagger.class,
 						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
 				// bind dictionary and wfStore resources
-				ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
+				ExternalResourceDescription freqWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
-						getDABModelFile(modelDir));
+						getFreqModelFile(modelDir));
 				ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
 						SharedDefaultWordformStore.class,
 						getSuffixModelFile(modelDir));
 				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 				try {
-					bindResource(dabTaggerDesc,
-							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);
-					bindResource(dabTaggerDesc,
-							DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+					bindResource(baselineTaggerDesc,
+							BaselineTagger.RESOURCE_WFSTORE, freqWfStoreDesc);
+					bindResource(baselineTaggerDesc,
+							BaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 					bindResource(suffixTaggerDesc,
 							SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
 					bindResource(suffixTaggerDesc,
@@ -177,11 +157,12 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 				} catch (InvalidXMLException e) {
 					throw new ResourceInitializationException(e);
 				}
-				return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, suffixTaggerDesc,
+				return createAggregateDescription(goldRemoverDesc, baselineTaggerDesc,
+						suffixTaggerDesc,
 						xmiWriterDesc);
 			}
 		};
-		// Create an evaluation task (use 'testing' as gold and analysis output as an evaluation target)
+		// 
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
 		trainingTask.addImport(preprocessingTask, KEY_CORPUS);
@@ -190,21 +171,15 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// -----------------------------------------------------------------
-		/* create parameter space
-		 * - Dimension for the source corpus
-		 * - Dimension for PoS-categories
-		 * - DimensionBundle for corpus-splits
-		 */
-		// TODO
-		/*Integer[] foldValues = ContiguousSet.create(
-				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);*/
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
 				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, 0));
+				Dimension.create(DISCRIMINATOR_FOLD, 0),
+				// model-specific parameters
+				Dimension.create("suffixLength", 2, 3, 4, 5, 6)
+				);
 		// -----------------------------------------------------------------
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
@@ -222,8 +197,8 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		}
 	}
 
-	private File getDABModelFile(File modelDir) {
-		return new File(modelDir, DAB_MODEL_FILE_NAME);
+	private File getFreqModelFile(File modelDir) {
+		return new File(modelDir, BASELINE_MODEL_FILE_NAME);
 	}
 
 	private File getSuffixModelFile(File modelDir) {
