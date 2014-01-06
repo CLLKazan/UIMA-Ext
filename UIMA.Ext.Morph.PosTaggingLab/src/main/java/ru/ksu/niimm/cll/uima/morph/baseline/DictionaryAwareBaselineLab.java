@@ -34,6 +34,7 @@ import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
@@ -159,7 +160,8 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 				AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
 						DictionaryAwareBaselineTagger.class,
 						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories,
-						DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, true);
+						DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, true,
+						DictionaryAwareBaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
 				/*
 				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
 						SuffixExaminingPosTagger.class,
