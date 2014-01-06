@@ -101,9 +101,8 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 				// there is no ambiguity
 			} else {
 				// GBS ~ Grammeme BitSet
-				// TODO-MEMORY OPTIMIZATION- cache BitSets instances
 				BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
-				if (isDictionaryCompliant(dictEntries, corpusWfGBS)) {
+				if (dictEntries.contains(corpusWfGBS)) {
 					wfStoreBuilder.increment(wordString, corpusWfGBS);
 				} else {
 					reportNotDictionaryCompliant(wordString, corpusWf);
@@ -112,6 +111,7 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 		}
 	}
 
+	/*
 	private boolean isDictionaryCompliant(Set<BitSet> dictEntries, BitSet _corpusWfGBS) {
 		for (BitSet deBits : dictEntries) {
 			BitSet corpusWfGBS = (BitSet) _corpusWfGBS.clone();
@@ -122,6 +122,7 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 		}
 		return false;
 	}
+	*/
 
 	@Override
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
