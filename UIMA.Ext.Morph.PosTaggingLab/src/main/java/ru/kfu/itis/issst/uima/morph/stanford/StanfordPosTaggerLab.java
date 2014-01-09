@@ -13,8 +13,6 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
@@ -40,6 +38,15 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.factory.ExternalResourceFactory;
 
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
+import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
+import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Joiner;
@@ -52,22 +59,10 @@ import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
-
-import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -75,9 +70,10 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
  */
 public class StanfordPosTaggerLab extends LabLauncherBase {
 
+	static final String DEFAULT_WRK_DIR = "wrk/stanford-pos-lab";
+
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", "wrk/stanford-pos-lab");
-		Slf4jLoggerImpl.forceUsingThisImplementation();
+		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
 		StanfordPosTaggerLab lab = new StanfordPosTaggerLab();
 		new JCommander(lab, args);
 		lab.run();
@@ -96,16 +92,6 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 
 	private void run() throws Exception {
 		_posCategories = newHashSet(_posCategoriesList);
-		// prepare input TypeSystem
-		final TypeSystemDescription inputTS = createTypeSystemDescription(
-				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"org.opencorpora.morphology-ts");
-		// prepare morph dictionary resource
-		final ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class,
-				LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
 		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//

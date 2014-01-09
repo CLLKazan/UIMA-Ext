@@ -11,8 +11,6 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.io.IoUtils.openPrintWriter;
 import static ru.kfu.itis.cll.uima.io.IoUtils.openReader;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
@@ -43,9 +41,7 @@ import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
@@ -59,8 +55,8 @@ import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 
 /**
@@ -69,8 +65,10 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
  */
 public class ResourcesLab extends LabLauncherBase {
 
+	static final String DEFAULT_WRK_DIR = "wrk/resources";
+
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", "wrk/resources");
+		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
 		ResourcesLab lab = new ResourcesLab();
 		new JCommander(lab, args);
 		lab.run();
@@ -85,16 +83,6 @@ public class ResourcesLab extends LabLauncherBase {
 
 	private void run() throws Exception {
 		_posCategories = newHashSet(_posCategoriesList);
-		// prepare input TypeSystem
-		final TypeSystemDescription inputTS = createTypeSystemDescription(
-				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"org.opencorpora.morphology-ts");
-		// prepare morph dictionary resource
-		final ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class,
-				LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
 		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//

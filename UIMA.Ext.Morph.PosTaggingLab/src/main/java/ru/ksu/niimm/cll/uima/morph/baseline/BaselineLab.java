@@ -8,7 +8,6 @@ import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescripti
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
@@ -25,7 +24,6 @@ import java.util.Set;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
@@ -35,7 +33,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -57,11 +54,12 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
  */
 public class BaselineLab extends LabLauncherBase {
 
+	static final String DEFAULT_WRK_DIR = "wrk/freq-baseline";
 	private static final String BASELINE_MODEL_FILE_NAME = "baseline.ser";
 	private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
 
 	public static void main(String[] args) throws IOException {
-		System.setProperty("DKPRO_HOME", "wrk/freq-baseline");
+		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
 		BaselineLab lab = new BaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();
@@ -78,15 +76,6 @@ public class BaselineLab extends LabLauncherBase {
 	private void run() throws IOException {
 		//
 		_posCategories = newHashSet(_posCategoriesList);
-		// prepare input TypeSystem
-		final TypeSystemDescription inputTS = createTypeSystemDescription(
-				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"org.opencorpora.morphology-ts");
-		// prepare morph dictionary resource
-		final ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
 		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//

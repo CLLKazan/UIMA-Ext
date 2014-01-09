@@ -6,8 +6,6 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
@@ -23,9 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
@@ -39,7 +35,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -65,8 +60,10 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
  */
 public class TieredPosTaggerLab extends LabLauncherBase {
 
+	static final String DEFAULT_WRK_DIR = "wrk/tiered-pos-tagger";
+
 	public static void main(String[] args) throws IOException {
-		System.setProperty("DKPRO_HOME", "wrk/tiered-pos-tagger");
+		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
 		TieredPosTaggerLab lab = new TieredPosTaggerLab();
 		new JCommander(lab).parse(args);
 		lab.run();
@@ -79,15 +76,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 	}
 
 	private void run() throws IOException {
-		// prepare input TypeSystem
-		final TypeSystemDescription inputTS = createTypeSystemDescription(
-				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"org.opencorpora.morphology-ts");
-		// prepare morph dictionary resource
-		final ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
 		// create task instances
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		// -----------------------------------------------------------------
