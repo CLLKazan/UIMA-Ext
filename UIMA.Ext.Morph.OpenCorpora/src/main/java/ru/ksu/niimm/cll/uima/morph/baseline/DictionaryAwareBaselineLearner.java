@@ -99,13 +99,19 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 			//
 			String wordString = normalizeToDictionary(word.getCoveredText());
 			Set<BitSet> dictEntries = trimAndMergePosBits(dict.getEntries(wordString));
+			//
+			BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
+			//
 			if (dictEntries == null || dictEntries.isEmpty()) {
 				reportUnknownWord(wordString);
 			} else if (dictEntries.size() == 1) {
 				// there is no ambiguity
+				// but just check for compliance
+				if (!dictEntries.contains(corpusWfGBS)) {
+					reportNotDictionaryCompliant(wordString, corpusWf);
+				}
 			} else {
 				// GBS ~ Grammeme BitSet
-				BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
 				if (dictEntries.contains(corpusWfGBS)) {
 					wfStoreBuilder.increment(wordString, corpusWfGBS);
 				} else {
