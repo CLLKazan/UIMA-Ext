@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Properties;
 
 /**
  * Some more utils. Lower case 'o' is to avoid name conflicts with other
@@ -37,6 +38,15 @@ public class IoUtils {
 
 	public static PrintWriter openPrintWriter(File file, String encoding, boolean append)
 			throws IOException {
+		return new PrintWriter(openBufferedWriter(file, encoding, append));
+	}
+
+	public static BufferedWriter openBufferedWriter(File file) throws IOException {
+		return openBufferedWriter(file, "utf-8", false);
+	}
+
+	public static BufferedWriter openBufferedWriter(File file, String encoding, boolean append)
+			throws IOException {
 		FileOutputStream fos = openOutputStream(file, append);
 		OutputStreamWriter osr;
 		try {
@@ -45,8 +55,7 @@ public class IoUtils {
 			closeQuietly(fos);
 			throw e;
 		}
-		BufferedWriter bw = new BufferedWriter(osr);
-		return new PrintWriter(bw);
+		return new BufferedWriter(osr);
 	}
 
 	public static BufferedReader openReader(File file) throws IOException {
@@ -63,6 +72,30 @@ public class IoUtils {
 			throw e;
 		}
 		return new BufferedReader(isr);
+	}
+
+	public static void write(Properties props, File outFile) throws IOException {
+		BufferedWriter bw = openBufferedWriter(outFile);
+		try {
+			props.store(bw, null);
+		} finally {
+			closeQuietly(bw);
+		}
+	}
+
+	public static Properties readProperties(File inFile) throws IOException {
+		return readProperties(inFile, "utf-8");
+	}
+
+	public static Properties readProperties(File inFile, String encoding) throws IOException {
+		Properties props = new Properties();
+		BufferedReader r = openReader(inFile, encoding);
+		try {
+			props.load(r);
+		} finally {
+			closeQuietly(r);
+		}
+		return props;
 	}
 
 	private IoUtils() {
