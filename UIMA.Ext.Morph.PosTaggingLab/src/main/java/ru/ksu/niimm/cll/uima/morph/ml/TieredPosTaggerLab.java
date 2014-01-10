@@ -4,8 +4,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
@@ -18,18 +16,13 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.InvalidXMLException;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.jar.SequenceJarClassifierFactory;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
-import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
@@ -40,6 +33,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
@@ -71,6 +65,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 
 	@Parameter(names = { "--pos-tiers" }, required = true)
 	private List<String> _posTiers;
+	@Parameter(names = { "--optimization-max-iterations" }, required = false)
+	private int optMaxIterations = 120;
 
 	private TieredPosTaggerLab() {
 	}
@@ -92,32 +88,14 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 						AccessMode.READWRITE);
 				List<AnalysisEngineDescription> posTaggerDescs = Lists.newArrayList();
 				List<String> posTaggerNames = Lists.newArrayList();
-				for (int i = 0; i < _posTiers.size(); i++) {
-					String posTier = _posTiers.get(i);
-
-					File trainingDir = getTierDir(trainingBaseDir, posTier);
-					AnalysisEngineDescription ptDesc = createPrimitiveDescription(
-							TieredPosSequenceAnnotator.class,
-							TieredPosSequenceAnnotator.PARAM_POS_TIERS, _posTiers,
-							TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
-							TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE, leftContextSize,
-							TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE, rightContextSize,
-							TieredPosSequenceAnnotator.PARAM_DATA_WRITER_FACTORY_CLASS_NAME,
-							CRFSuiteStringOutcomeDataWriterFactory.class.getName(),
-							DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-							trainingDir);
-					ptDesc.getAnalysisEngineMetaData().getOperationalProperties()
-							.setMultipleDeploymentAllowed(false);
-					try {
-						bindResource(ptDesc,
-								TieredPosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY,
-								morphDictDesc);
-					} catch (InvalidXMLException e) {
-						throw new IllegalStateException(e);
-					}
-					posTaggerDescs.add(ptDesc);
-					posTaggerNames.add(ptDesc.getImplementationName() + "-" + posTier);
-				}
+				Map<String, Object> taggerParams = Maps.newHashMap();
+				taggerParams.put(TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE,
+						leftContextSize);
+				taggerParams.put(TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE,
+						rightContextSize);
+				TieredPosSequenceAnnotatorFactory.addTrainingDataWriterDescriptors(
+						_posTiers, taggerParams,
+						trainingBaseDir, morphDictDesc, posTaggerDescs, posTaggerNames);
 				return createAggregateDescription(posTaggerDescs, posTaggerNames,
 						null, null, null, null);
 			}
@@ -141,43 +119,27 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				File trainingBaseDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR,
 						AccessMode.READONLY);
 				File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
-				for (String posTier : _posTiers) {
-					// set training parameters
-					List<String> trainerArgs = Lists.newArrayList();
-					trainerArgs.add("-a");
-					trainerArgs.add("lbfgs");
-					addTrainParam(trainerArgs, "max_iterations", 120);
-					addTrainParam(trainerArgs, "feature.minfreq", featureMinFreq);
-					if (featurePossibleStates) {
-						addTrainParam(trainerArgs, "feature.possible_states", 1);
-					}
-					if (featurePossibleTransitions) {
-						addTrainParam(trainerArgs, "feature.possible_transitions", 1);
-					}
-					addTrainParam(trainerArgs, "c2", c2);
-					// ------
-					File trainingDir = getTierDir(trainingBaseDir, posTier);
-					File modelDir = getTierDir(modelBaseDir, posTier);
-					// TODO The following lines contain a few hacks to avoid
-					// extensive training file duplicates reproduction
-					JarClassifierBuilder<?> _classifierBuilder = JarClassifierBuilder
-							.fromTrainingDirectory(trainingDir);
-					CRFSuiteStringOutcomeClassifierBuilder classifierBuilder =
-							(CRFSuiteStringOutcomeClassifierBuilder) _classifierBuilder;
-					// invoke implementation-specific method (i.e., it is not declared in the interface)
-					classifierBuilder.trainClassifier(modelDir, trainingDir,
-							trainerArgs.toArray(new String[trainerArgs.size()]));
-					classifierBuilder.packageClassifier(modelDir);
+				//
+				// set training parameters
+				List<String> trainerArgs = Lists.newArrayList();
+				trainerArgs.add("-a");
+				trainerArgs.add("lbfgs");
+				addTrainParam(trainerArgs, "max_iterations", optMaxIterations);
+				addTrainParam(trainerArgs, "feature.minfreq", featureMinFreq);
+				if (featurePossibleStates) {
+					addTrainParam(trainerArgs, "feature.possible_states", 1);
 				}
+				if (featurePossibleTransitions) {
+					addTrainParam(trainerArgs, "feature.possible_transitions", 1);
+				}
+				addTrainParam(trainerArgs, "c2", c2);
+				//
+				TieredPosSequenceAnnotatorFactory.trainModels(trainingBaseDir, modelBaseDir,
+						trainerArgs.toArray(new String[trainerArgs.size()]));
 			}
 		};
 		// -----------------------------------------------------------------
 		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
-			@Discriminator
-			int leftContextSize;
-			@Discriminator
-			int rightContextSize;
-
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
@@ -191,30 +153,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				primitiveDescs.add(goldRemoverDesc);
 				primitiveNames.add("goldRemover");
 				//
-				for (int i = 0; i < _posTiers.size(); i++) {
-					String posTier = _posTiers.get(i);
-
-					File modelDir = getTierDir(modelBaseDir, posTier);
-					AnalysisEngineDescription ptDesc = createPrimitiveDescription(
-							TieredPosSequenceAnnotator.class,
-							TieredPosSequenceAnnotator.PARAM_POS_TIERS, _posTiers,
-							TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
-							TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE, leftContextSize,
-							TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE, rightContextSize,
-							TieredPosSequenceAnnotator.PARAM_CLASSIFIER_FACTORY_CLASS_NAME,
-							SequenceJarClassifierFactory.class.getName(),
-							SequenceJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-							JarClassifierBuilder.getModelJarFile(modelDir));
-					try {
-						bindResource(ptDesc,
-								TieredPosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY,
-								morphDictDesc);
-					} catch (InvalidXMLException e) {
-						throw new IllegalStateException(e);
-					}
-					primitiveDescs.add(ptDesc);
-					primitiveNames.add(ptDesc.getImplementationName() + "-" + posTier);
-				}
+				TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
+						modelBaseDir, morphDictDesc, primitiveDescs, primitiveNames);
 				//
 				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 				primitiveDescs.add(xmiWriterDesc);
@@ -236,10 +176,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// -----------------------------------------------------------------
 		// create parameter space
-		// TODO
-		/*Integer[] foldValues = ContiguousSet.create(
-				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);*/
 		Set<String> posCategories = Sets.newLinkedHashSet();
 		for (String pt : _posTiers) {
 			posCategories.addAll(Lists.newLinkedList(posCatSplitter.split(pt)));
@@ -277,12 +213,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
-	}
-
-	private File getTierDir(File baseDir, String posTier) {
-		// TODO escape chars that are not safe for filename
-		posTier = posTier.replace("&", "_and_");
-		return new File(baseDir, posTier);
 	}
 
 	private void addTrainParam(List<String> params, String name, int value) {
