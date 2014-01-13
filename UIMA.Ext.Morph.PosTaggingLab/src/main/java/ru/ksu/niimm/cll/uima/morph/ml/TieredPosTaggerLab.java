@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
@@ -139,31 +141,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			}
 		};
 		// -----------------------------------------------------------------
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
-			@Override
-			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
-					throws ResourceInitializationException, IOException {
-				File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
-				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
-				// 
-				List<AnalysisEngineDescription> primitiveDescs = Lists.newArrayList();
-				List<String> primitiveNames = Lists.newArrayList();
-				//
-				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				primitiveDescs.add(goldRemoverDesc);
-				primitiveNames.add("goldRemover");
-				//
-				TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
-						modelBaseDir, morphDictDesc, primitiveDescs, primitiveNames);
-				//
-				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-				primitiveDescs.add(xmiWriterDesc);
-				primitiveNames.add("xmiWriter");
-				//
-				return createAggregateDescription(primitiveDescs, primitiveNames,
-						null, null, null, null);
-			}
-		};
+		UimaTask analysisTask = new AnalysisTask(inputTS, morphDictDesc, PartitionType.DEV);
 		// -----------------------------------------------------------------
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// -----------------------------------------------------------------
@@ -176,16 +154,12 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// -----------------------------------------------------------------
 		// create parameter space
-		Set<String> posCategories = Sets.newLinkedHashSet();
-		for (String pt : _posTiers) {
-			posCategories.addAll(Lists.newLinkedList(posCatSplitter.split(pt)));
-		}
 		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
 				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
 				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, posCategories),
+				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, getAllCategories(_posTiers)),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// Dimension.create("featureMinFreq", 1, 4, 9, 19),
 				Dimension.create("featureMinFreq", 0),
@@ -221,4 +195,49 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 	}
 
 	private static Splitter posCatSplitter = Splitter.onPattern("[,&]");
+
+	static Set<String> getAllCategories(List<String> posTiers) {
+		Set<String> posCategories = Sets.newLinkedHashSet();
+		for (String pt : posTiers) {
+			posCategories.addAll(Lists.newLinkedList(posCatSplitter.split(pt)));
+		}
+		return posCategories;
+	}
+
+	static class AnalysisTask extends AnalysisTaskBase {
+
+		private ExternalResourceDescription morphDictDesc;
+
+		AnalysisTask(TypeSystemDescription inputTS,
+				ExternalResourceDescription morphDictDesc,
+				PartitionType targetPartition) {
+			super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
+					inputTS, targetPartition);
+			this.morphDictDesc = morphDictDesc;
+		}
+
+		@Override
+		public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
+				throws ResourceInitializationException, IOException {
+			File modelBaseDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
+			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
+			// 
+			List<AnalysisEngineDescription> primitiveDescs = Lists.newArrayList();
+			List<String> primitiveNames = Lists.newArrayList();
+			//
+			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
+			primitiveDescs.add(goldRemoverDesc);
+			primitiveNames.add("goldRemover");
+			//
+			TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
+					modelBaseDir, morphDictDesc, primitiveDescs, primitiveNames);
+			//
+			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
+			primitiveDescs.add(xmiWriterDesc);
+			primitiveNames.add("xmiWriter");
+			//
+			return createAggregateDescription(primitiveDescs, primitiveNames,
+					null, null, null, null);
+		}
+	}
 }
