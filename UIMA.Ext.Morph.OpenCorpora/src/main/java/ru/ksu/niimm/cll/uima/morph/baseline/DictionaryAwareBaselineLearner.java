@@ -32,6 +32,7 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 
 import com.google.common.base.Joiner;
 
@@ -40,13 +41,15 @@ import com.google.common.base.Joiner;
  * 
  */
 @OperationalProperties(multipleDeploymentAllowed = false)
-public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
+public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnotator {
 
 	public static final String PARAM_MODEL_OUTPUT_FILE = "modelOutputFile";
 
 	// config fields
 	@ConfigurationParameter(name = PARAM_MODEL_OUTPUT_FILE, mandatory = true)
 	private File modelOutputFile;
+	@ConfigurationParameter(name = PARAM_TARGET_POS_CATEGORIES, mandatory = true)
+	private String[] targetPosCategories;
 	// derived
 	private File modelDir;
 	// state fields
@@ -71,6 +74,8 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+		//
+		posTrimmer = new PosTrimmer(dict, targetPosCategories);
 		//
 		wfStoreBuilder = new DefaultWordformStoreBuilder();
 	}
@@ -142,6 +147,7 @@ public class DictionaryAwareBaselineLearner extends BaselineAnnotator {
 		IOUtils.closeQuietly(dictNotCompliantOut);
 		try {
 			WordformStore ws = wfStoreBuilder.build();
+			ws.setProperty(PARAM_TARGET_POS_CATEGORIES, targetPosCategories);
 			ws.persist(modelOutputFile);
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);
