@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
@@ -133,55 +134,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - DictionaryAwareBaselineTagger
 		 * - XMIWriter
 		 */
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
-
-			@Discriminator
-			Set<String> posCategories;
-
-			@Override
-			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
-					throws ResourceInitializationException, IOException {
-				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
-				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
-				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
-						DictionaryAwareBaselineTagger.class,
-						DictionaryAwareBaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories,
-						DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, true,
-						DictionaryAwareBaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
-				/*
-				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
-						SuffixExaminingPosTagger.class,
-						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
-						*/
-				// bind dictionary and wfStore resources
-				ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
-						SharedDefaultWordformStore.class,
-						getDABModelFile(modelDir));
-				/*
-				ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
-						SharedDefaultWordformStore.class,
-						getSuffixModelFile(modelDir));
-						*/
-				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-				try {
-					bindResource(dabTaggerDesc,
-							DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);
-					bindResource(dabTaggerDesc,
-							DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-					/*
-					bindResource(suffixTaggerDesc,
-							SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
-					bindResource(suffixTaggerDesc,
-							SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-							*/
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
-				return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, /*suffixTaggerDesc,*/
-						xmiWriterDesc);
-			}
-		};
+		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS, morphDictDesc);
 		// Create an evaluation task (use 'testing' as gold and analysis output as an evaluation target)
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -222,7 +175,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		}
 	}
 
-	private File getDABModelFile(File modelDir) {
+	private static File getDABModelFile(File modelDir) {
 		return new File(modelDir, DAB_MODEL_FILE_NAME);
 	}
 
@@ -231,4 +184,59 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		return new File(modelDir, SUFFIX_MODEL_FILE_NAME);
 	}
 	*/
+
+	static class AnalysisTask extends AnalysisTaskBase {
+		private ExternalResourceDescription morphDictDesc;
+
+		AnalysisTask(PartitionType targetPart,
+				TypeSystemDescription inputTS,
+				ExternalResourceDescription morphDictDesc) {
+			super(PartitionType.DEV.equals(targetPart) ? "Analysis" : "AnalysisFinal",
+					inputTS, targetPart);
+			this.morphDictDesc = morphDictDesc;
+		}
+
+		@Override
+		public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
+				throws ResourceInitializationException, IOException {
+			File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
+			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
+			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
+			AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
+					DictionaryAwareBaselineTagger.class,
+					DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, true,
+					DictionaryAwareBaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
+			/*
+			AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
+					SuffixExaminingPosTagger.class,
+					SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
+					*/
+			// bind dictionary and wfStore resources
+			ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
+					SharedDefaultWordformStore.class,
+					getDABModelFile(modelDir));
+			/*
+			ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
+					SharedDefaultWordformStore.class,
+					getSuffixModelFile(modelDir));
+					*/
+			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
+			try {
+				bindResource(dabTaggerDesc,
+						DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);
+				bindResource(dabTaggerDesc,
+						DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+				/*
+				bindResource(suffixTaggerDesc,
+						SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
+				bindResource(suffixTaggerDesc,
+						SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+						*/
+			} catch (InvalidXMLException e) {
+				throw new ResourceInitializationException(e);
+			}
+			return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, /*suffixTaggerDesc,*/
+					xmiWriterDesc);
+		}
+	}
 }
