@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
@@ -81,8 +82,6 @@ public class BaselineLab extends LabLauncherBase {
 		//
 		UimaTask trainingTask = new FeatureExtractionTaskBase("Training", inputTS) {
 			@Discriminator
-			Set<String> posCategories;
-			@Discriminator
 			int suffixLength;
 
 			@Override
@@ -91,7 +90,6 @@ public class BaselineLab extends LabLauncherBase {
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
 				AnalysisEngineDescription baselineLearnerDesc = createPrimitiveDescription(
 						BaselineLearner.class, inputTS,
-						BaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
 						BaselineLearner.PARAM_MODEL_OUTPUT_FILE,
 						getFreqModelFile(modelDir));
 				AnalysisEngineDescription suffixModelTrainerDesc = createPrimitiveDescription(
@@ -110,52 +108,7 @@ public class BaselineLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
-
-			@Discriminator
-			Set<String> posCategories;
-			@Discriminator
-			boolean useNumGrammeme;
-
-			@Override
-			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
-					throws ResourceInitializationException, IOException {
-				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
-				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
-				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription baselineTaggerDesc = createPrimitiveDescription(
-						BaselineTagger.class,
-						BaselineTagger.PARAM_TARGET_POS_CATEGORIES, posCategories,
-						BaselineTagger.PARAM_NUM_GRAMMEME,
-						useNumGrammeme ? MorphConstants.NUMR : null);
-				AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
-						SuffixExaminingPosTagger.class,
-						SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
-				// bind dictionary and wfStore resources
-				ExternalResourceDescription freqWfStoreDesc = createExternalResourceDescription(
-						SharedDefaultWordformStore.class,
-						getFreqModelFile(modelDir));
-				ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
-						SharedDefaultWordformStore.class,
-						getSuffixModelFile(modelDir));
-				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-				try {
-					bindResource(baselineTaggerDesc,
-							BaselineTagger.RESOURCE_WFSTORE, freqWfStoreDesc);
-					bindResource(baselineTaggerDesc,
-							BaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-					bindResource(suffixTaggerDesc,
-							SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
-					bindResource(suffixTaggerDesc,
-							SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
-				return createAggregateDescription(goldRemoverDesc, baselineTaggerDesc,
-						suffixTaggerDesc,
-						xmiWriterDesc);
-			}
-		};
+		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS, morphDictDesc);
 		// 
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -172,8 +125,7 @@ public class BaselineLab extends LabLauncherBase {
 				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// model-specific parameters
-				Dimension.create("suffixLength", 2, 3, 4, 5, 6),
-				Dimension.create("useNumGrammeme", false, true)
+				Dimension.create("suffixLength", 2, 3, 4, 5, 6)
 				);
 		// -----------------------------------------------------------------
 		// create and run BatchTask
@@ -192,11 +144,60 @@ public class BaselineLab extends LabLauncherBase {
 		}
 	}
 
-	private File getFreqModelFile(File modelDir) {
+	private static File getFreqModelFile(File modelDir) {
 		return new File(modelDir, BASELINE_MODEL_FILE_NAME);
 	}
 
-	private File getSuffixModelFile(File modelDir) {
+	private static File getSuffixModelFile(File modelDir) {
 		return new File(modelDir, SUFFIX_MODEL_FILE_NAME);
+	}
+
+	static class AnalysisTask extends AnalysisTaskBase {
+		private ExternalResourceDescription morphDictDesc;
+
+		AnalysisTask(PartitionType targetPartition,
+				TypeSystemDescription inputTS,
+				ExternalResourceDescription morphDictDesc) {
+			super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
+					inputTS, targetPartition);
+			this.morphDictDesc = morphDictDesc;
+		}
+
+		@Override
+		public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
+				throws ResourceInitializationException, IOException {
+			File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
+			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
+			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
+			AnalysisEngineDescription baselineTaggerDesc = createPrimitiveDescription(
+					BaselineTagger.class,
+					BaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
+			AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
+					SuffixExaminingPosTagger.class,
+					SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
+			// bind dictionary and wfStore resources
+			ExternalResourceDescription freqWfStoreDesc = createExternalResourceDescription(
+					SharedDefaultWordformStore.class,
+					getFreqModelFile(modelDir));
+			ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
+					SharedDefaultWordformStore.class,
+					getSuffixModelFile(modelDir));
+			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
+			try {
+				bindResource(baselineTaggerDesc,
+						BaselineTagger.RESOURCE_WFSTORE, freqWfStoreDesc);
+				bindResource(baselineTaggerDesc,
+						BaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+				bindResource(suffixTaggerDesc,
+						SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
+				bindResource(suffixTaggerDesc,
+						SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+			} catch (InvalidXMLException e) {
+				throw new ResourceInitializationException(e);
+			}
+			return createAggregateDescription(goldRemoverDesc, baselineTaggerDesc,
+					suffixTaggerDesc,
+					xmiWriterDesc);
+		}
 	}
 }
