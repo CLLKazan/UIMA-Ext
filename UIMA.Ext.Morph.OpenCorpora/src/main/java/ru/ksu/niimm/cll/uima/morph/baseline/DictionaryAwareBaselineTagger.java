@@ -22,12 +22,13 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.AnnotationAdapter;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.DefaultAnnotationAdapter;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DictionaryAwareBaselineTagger extends BaselineAnnotator {
+public class DictionaryAwareBaselineTagger extends DictionaryAwareBaselineAnnotator {
 
 	public static final String PARAM_USE_DEBUG_GRAMMEMS = "useDebugGrammems";
 	public static final String PARAM_NUM_GRAMMEME = "numGrammeme";
@@ -54,6 +55,9 @@ public class DictionaryAwareBaselineTagger extends BaselineAnnotator {
 			numGramBS = new BitSet();
 			numGramBS.set(dict.getGrammemNumId(numGrammeme));
 		}
+		// init pos-trimmer
+		String[] targetPosCategories = wfStore.getProperty(PARAM_TARGET_POS_CATEGORIES, String[].class);
+		posTrimmer = new PosTrimmer(dict, targetPosCategories);
 	}
 
 	@Override
