@@ -27,7 +27,9 @@ import java.util.Set;
 import org.annolab.tt4j.ExecutableResolver;
 import org.annolab.tt4j.PlatformDetector;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.factory.ExternalResourceFactory;
 
@@ -166,35 +168,7 @@ public class HunposLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTaskBase("Analysis", inputTS, PartitionType.DEV) {
-			@Override
-			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
-					throws ResourceInitializationException, IOException {
-				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
-				File modelFile = getModelFile(modelDir);
-				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
-				//
-				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription hunposAnnotatorDesc = createPrimitiveDescription(
-						HunposAnnotator.class,
-						HunposAnnotator.PARAM_HUNPOS_MODEL_NAME, modelFile.getPath(),
-						HunposAnnotator.PARAM_TAG_MAPPER_CLASS,
-						DictionaryBasedTagMapper.class.getName());
-				try {
-					ExternalResourceFactory.createDependency(hunposAnnotatorDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							MorphDictionaryHolder.class);
-					bindResource(hunposAnnotatorDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
-				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-				return createAggregateDescription(
-						goldRemoverDesc, hunposAnnotatorDesc, xmiWriterDesc);
-			}
-		};
+		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS, morphDictDesc);
 		//
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -237,7 +211,46 @@ public class HunposLab extends LabLauncherBase {
 		return new File(dir, HunposTrainingDataWriter.TRAINING_DATA_FILENAME);
 	}
 
-	private File getModelFile(File dir) {
+	private static File getModelFile(File dir) {
 		return new File(dir, "hunpos.model");
+	}
+
+	static class AnalysisTask extends AnalysisTaskBase {
+		private ExternalResourceDescription morphDictDesc;
+
+		AnalysisTask(PartitionType targetPartition, TypeSystemDescription inputTS,
+				ExternalResourceDescription morphDictDesc) {
+			super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
+					inputTS, targetPartition);
+			this.morphDictDesc = morphDictDesc;
+		}
+
+		@Override
+		public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
+				throws ResourceInitializationException, IOException {
+			File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
+			File modelFile = getModelFile(modelDir);
+			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
+			//
+			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
+			AnalysisEngineDescription hunposAnnotatorDesc = createPrimitiveDescription(
+					HunposAnnotator.class,
+					HunposAnnotator.PARAM_HUNPOS_MODEL_NAME, modelFile.getPath(),
+					HunposAnnotator.PARAM_TAG_MAPPER_CLASS,
+					DictionaryBasedTagMapper.class.getName());
+			try {
+				ExternalResourceFactory.createDependency(hunposAnnotatorDesc,
+						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
+						MorphDictionaryHolder.class);
+				bindResource(hunposAnnotatorDesc,
+						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
+						morphDictDesc);
+			} catch (InvalidXMLException e) {
+				throw new ResourceInitializationException(e);
+			}
+			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
+			return createAggregateDescription(
+					goldRemoverDesc, hunposAnnotatorDesc, xmiWriterDesc);
+		}
 	}
 }
