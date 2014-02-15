@@ -3,13 +3,10 @@
  */
 package ru.kfu.itis.cll.uima.eval.event;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -17,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.event.logging.AnnotationPrinter;
 import ru.kfu.itis.cll.uima.eval.matching.Matcher;
+import ru.kfu.itis.cll.uima.util.DocumentUtils;
 
 import com.google.common.collect.Sets;
 
@@ -122,16 +120,7 @@ public class LoggingEvaluationListener extends PrintingEvaluationListener {
 		if (!stripDocumentUri || srcUri == null) {
 			return srcUri;
 		}
-		try {
-			URI uri = new URI(srcUri);
-			String name = FilenameUtils.getName(uri.getPath());
-			if (StringUtils.isBlank(name)) {
-				name = srcUri;
-			}
-			return name;
-		} catch (URISyntaxException e) {
-			return srcUri;
-		}
+		return DocumentUtils.getFilenameSafe(srcUri);
 	}
 
 	@SuppressWarnings("unused")
