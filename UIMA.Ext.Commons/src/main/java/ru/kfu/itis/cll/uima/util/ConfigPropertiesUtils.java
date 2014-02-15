@@ -8,9 +8,12 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.kfu.itis.cll.uima.io.IoUtils;
+
 import com.google.common.collect.Maps;
 
 /**
+ * @see IoUtils
  * @author Rinat Gareev
  * 
  */

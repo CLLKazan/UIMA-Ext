@@ -5,6 +5,11 @@ package ru.kfu.itis.cll.uima.util;
 
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FSIterator;
@@ -54,6 +59,24 @@ public class DocumentUtils {
 	public static String getDocumentUri(JCas jcas) {
 		// TODO is there more optimal solution?
 		return getDocumentUri(jcas.getCas());
+	}
+
+	public static String getFilename(String uriStr) throws URISyntaxException {
+		URI uri = new URI(uriStr);
+		return FilenameUtils.getName(uri.getPath());
+	}
+
+	public static String getFilenameSafe(String uriStr) {
+		String name;
+		try {
+			name = getFilename(uriStr);
+			if (StringUtils.isBlank(name)) {
+				name = uriStr;
+			}
+		} catch (URISyntaxException e) {
+			name = uriStr;
+		}
+		return name;
 	}
 
 	private DocumentUtils() {
