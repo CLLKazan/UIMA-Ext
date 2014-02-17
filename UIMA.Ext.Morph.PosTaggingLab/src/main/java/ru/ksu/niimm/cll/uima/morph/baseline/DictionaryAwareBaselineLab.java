@@ -204,7 +204,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
 			AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
 					DictionaryAwareBaselineTagger.class,
-					DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, true,
+					DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, false,
 					DictionaryAwareBaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
 			/*
 			AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
