@@ -51,6 +51,7 @@ public class HunposWrapper<TT> {
 	private PlatformDetector platformDetector;
 	private ExecutableResolver exeResolver;
 	private String processIOEncoding = "utf-8";
+	private File lexiconFile;
 	// state fields
 	private File modelFile;
 	private String processCmd;
@@ -75,6 +76,17 @@ public class HunposWrapper<TT> {
 			modelFile = null;
 		}
 		this.modelName = modelName;
+	}
+
+	public File getLexiconFile() {
+		return lexiconFile;
+	}
+
+	public void setLexiconFile(File lexiconFile) {
+		if (process != null) {
+			throw new IllegalStateException();
+		}
+		this.lexiconFile = lexiconFile;
 	}
 
 	public void setTokenAdapter(TokenAdapter<TT> tokenAdapter) {
@@ -264,6 +276,10 @@ public class HunposWrapper<TT> {
 
 			// TODO
 			// add hunpos-tag options from config fields
+			if (lexiconFile != null) {
+				cmd.add("-m");
+				cmd.add(lexiconFile.getPath());
+			}
 
 			cmd.add(getModelFile().getAbsolutePath());
 			processCmd = Joiner.on(' ').join(cmd);
