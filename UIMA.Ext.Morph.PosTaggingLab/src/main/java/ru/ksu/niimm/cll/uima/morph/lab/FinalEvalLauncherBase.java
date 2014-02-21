@@ -12,11 +12,13 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.collect.Lists;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
@@ -49,13 +51,8 @@ public class FinalEvalLauncherBase extends LabLauncherBase {
 		analysisTask.addImport(modelDir, KEY_MODEL_DIR);
 		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
-		@SuppressWarnings("unchecked")
-		ParameterSpace pSpace = new ParameterSpace(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
-				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, posCategories),
-				Dimension.create(DISCRIMINATOR_FOLD, 0));
+		ParameterSpace pSpace = new ParameterSpace(generateParamDims()
+				.toArray(new Dimension<?>[0]));
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
@@ -67,4 +64,13 @@ public class FinalEvalLauncherBase extends LabLauncherBase {
 		Lab.getInstance().run(batchTask);
 	}
 
+	@SuppressWarnings("unchecked")
+	protected List<Dimension<?>> generateParamDims() {
+		return Lists.newArrayList(
+				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
+				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
+				// posCategories discriminator is used in the preprocessing task
+				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, posCategories),
+				Dimension.create(DISCRIMINATOR_FOLD, 0));
+	}
 }

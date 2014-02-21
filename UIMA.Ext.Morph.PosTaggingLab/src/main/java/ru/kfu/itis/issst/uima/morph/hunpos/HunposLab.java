@@ -79,6 +79,8 @@ public class HunposLab extends LabLauncherBase {
 	@Parameter(names = { "-p", "--pos-categories" }, required = true)
 	private List<String> _posCategoriesList;
 	private Set<String> _posCategories;
+	@Parameter(names = "--lexicon-file", required = true)
+	private File lexiconFile;
 
 	private HunposLab() {
 	}
@@ -193,7 +195,8 @@ public class HunposLab extends LabLauncherBase {
 				// model-specific parameters
 				Dimension.create("tagOrder", 1, 2, 3),
 				Dimension.create("emissionOrder", 1, 2),
-				Dimension.create("rareWordFrequency", 10, 5));
+				Dimension.create("rareWordFrequency", 10, 5),
+				Dimension.create("lexiconFile", null, lexiconFile));
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
@@ -216,7 +219,11 @@ public class HunposLab extends LabLauncherBase {
 	}
 
 	static class AnalysisTask extends AnalysisTaskBase {
+		// config fields
 		private ExternalResourceDescription morphDictDesc;
+		// discriminators
+		@Discriminator
+		File lexiconFile;
 
 		AnalysisTask(PartitionType targetPartition, TypeSystemDescription inputTS,
 				ExternalResourceDescription morphDictDesc) {
@@ -237,7 +244,8 @@ public class HunposLab extends LabLauncherBase {
 					HunposAnnotator.class,
 					HunposAnnotator.PARAM_HUNPOS_MODEL_NAME, modelFile.getPath(),
 					HunposAnnotator.PARAM_TAG_MAPPER_CLASS,
-					DictionaryBasedTagMapper.class.getName());
+					DictionaryBasedTagMapper.class.getName(),
+					HunposAnnotator.PARAM_LEXICON_FILE, lexiconFile);
 			try {
 				ExternalResourceFactory.createDependency(hunposAnnotatorDesc,
 						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
