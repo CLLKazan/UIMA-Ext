@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.hunpos;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,12 +34,15 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_HUNPOS_MODEL_NAME = "hunposModelName";
 	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
+	public static final String PARAM_LEXICON_FILE = "lexiconFile";
 	// config
 	@ConfigurationParameter(name = PARAM_HUNPOS_MODEL_NAME, mandatory = true)
 	private String hpModelName;
 	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
 			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper")
 	private String tagMapperClassName;
+	@ConfigurationParameter(name = PARAM_LEXICON_FILE)
+	private File lexiconFile;
 	// monitors
 	private final Object casMon = new Object();
 	// state fields
@@ -53,6 +57,9 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 
 		hunposTagger = new HunposWrapper<Token>();
 		hunposTagger.setModelName(hpModelName);
+		if (lexiconFile != null) {
+			hunposTagger.setLexiconFile(lexiconFile);
+		}
 		hunposTagger.setTokenAdapter(new TokenAdapter());
 	}
 
