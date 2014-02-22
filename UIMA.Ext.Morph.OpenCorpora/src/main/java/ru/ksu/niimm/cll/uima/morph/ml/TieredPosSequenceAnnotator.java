@@ -65,6 +65,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String PARAM_CURRENT_TIER = "currentTier";
 	public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
 	public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
+	public static final String PARAM_GEN_DICTIONARY_FEATURES = "generateDictionaryFeatures";
 	// config fields
 	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
@@ -77,6 +78,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private int leftContextSize = -1;
 	@ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
 	private int rightContextSize = -1;
+	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true")
+	private boolean generateDictionaryFeatures;
 	// derived
 	private MorphDictionary morphDictionary;
 	private Set<String> currentPosTier;
@@ -121,8 +124,10 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		}
 		// TODO introduce difference between Null and NotApplicable values
 		posExtractor = new CombinedExtractor(gramExtractors.toArray(FE_ARRAY));
-		dictFeatureExtractor = new DictionaryPossibleTagFeatureExtractor(
-				currentPosTier, prevTierPosCategories, morphDictionary);
+		if (generateDictionaryFeatures) {
+			dictFeatureExtractor = new DictionaryPossibleTagFeatureExtractor(
+					currentPosTier, prevTierPosCategories, morphDictionary);
+		}
 
 		if (leftContextSize < 0 || rightContextSize < 0) {
 			throw new IllegalStateException("context size < 0");
@@ -234,7 +239,9 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		List<Feature> tokFeatures = Lists.newLinkedList();
 		tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, word));
 		tokFeatures.addAll(posExtractor.extract(jCas, word));
-		tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
+		if (dictFeatureExtractor != null) {
+			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
+		}
 		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
 		tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
 		return tokFeatures;
