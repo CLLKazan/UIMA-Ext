@@ -82,6 +82,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			int leftContextSize;
 			@Discriminator
 			int rightContextSize;
+			@Discriminator
+			boolean generateDictionaryFeatures;
 
 			@Override
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
@@ -95,6 +97,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 						leftContextSize);
 				taggerParams.put(TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE,
 						rightContextSize);
+				taggerParams.put(TieredPosSequenceAnnotator.PARAM_GEN_DICTIONARY_FEATURES,
+						generateDictionaryFeatures);
 				TieredPosSequenceAnnotatorFactory.addTrainingDataWriterDescriptors(
 						_posTiers, taggerParams,
 						trainingBaseDir, morphDictDesc, posTaggerDescs, posTaggerNames);
@@ -170,7 +174,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				// Dimension.create("featurePossibleStates", false, true));
 				Dimension.create("featurePossibleStates", true),
 				Dimension.create("leftContextSize", 1, 2, 3),
-				Dimension.create("rightContextSize", 1, 2));
+				Dimension.create("rightContextSize", 1, 2),
+				Dimension.create("generateDictionaryFeatures", false, true));
 		// -----------------------------------------------------------------
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
