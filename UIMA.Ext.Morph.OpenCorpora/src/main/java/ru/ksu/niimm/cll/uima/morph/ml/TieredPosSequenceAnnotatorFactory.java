@@ -195,6 +195,8 @@ public class TieredPosSequenceAnnotatorFactory {
 					paramVal = paramValStr;
 				} else if (Integer.TYPE.equals(paramValType) || Integer.class.equals(paramValType)) {
 					paramVal = Integer.valueOf(paramValStr);
+				} else if (Boolean.TYPE.equals(paramValType) || Boolean.class.equals(paramValType)) {
+					paramVal = Boolean.valueOf(paramValStr);
 				} else {
 					// TODO
 					throw new UnsupportedOperationException();
