@@ -112,7 +112,9 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 				new LowerCaseFeatureFunction(),
 				new CapitalTypeFeatureFunction(),
 				new NumericTypeFeatureFunction(),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 3));
+				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 3),
+				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 2),
+				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 1));
 
 		List<SimpleFeatureExtractor> gramExtractors = Lists.newArrayList();
 		List<SimpleFeatureExtractor> contextFeatureExtractors = Lists.newArrayList();
