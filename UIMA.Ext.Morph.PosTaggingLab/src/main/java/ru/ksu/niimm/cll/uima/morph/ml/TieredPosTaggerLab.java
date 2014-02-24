@@ -32,7 +32,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -41,6 +40,7 @@ import com.google.common.collect.Sets;
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
+import de.tudarmstadt.ukp.dkpro.lab.task.Constraint;
 import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
 import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
@@ -65,11 +65,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	@Parameter(names = { "--pos-tiers" }, required = true)
-	private List<String> _posTiers;
-	@Parameter(names = { "--optimization-max-iterations" }, required = false)
-	private int optMaxIterations = 120;
-
 	private TieredPosTaggerLab() {
 	}
 
@@ -78,6 +73,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		// -----------------------------------------------------------------
 		UimaTask featureExtractionTask = new FeatureExtractionTaskBase("FeatureExtraction", inputTS) {
+			@Discriminator
+			List<String> posTiers;
 			@Discriminator
 			int leftContextSize;
 			@Discriminator
@@ -100,7 +97,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				taggerParams.put(TieredPosSequenceAnnotator.PARAM_GEN_DICTIONARY_FEATURES,
 						generateDictionaryFeatures);
 				TieredPosSequenceAnnotatorFactory.addTrainingDataWriterDescriptors(
-						_posTiers, taggerParams,
+						posTiers, taggerParams,
 						trainingBaseDir, morphDictDesc, posTaggerDescs, posTaggerNames);
 				return createAggregateDescription(posTaggerDescs, posTaggerNames,
 						null, null, null, null);
@@ -119,6 +116,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			boolean featurePossibleTransitions;
 			@Discriminator
 			int c2;
+			@Discriminator
+			int optMaxIterations;
 
 			@Override
 			public void execute(TaskContext taskCtx) throws Exception {
@@ -158,24 +157,35 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// -----------------------------------------------------------------
 		// create parameter space
-		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
+				getFileDimension(DISCRIMINATOR_SOURCE_CORPUS_DIR),
+				getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, getAllCategories(_posTiers)),
+				getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
+				getStringListDimension(DISCRIMINATOR_POS_TIERS),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// Dimension.create("featureMinFreq", 1, 4, 9, 19),
-				Dimension.create("featureMinFreq", 0),
+				getIntDimension("featureMinFreq"),
 				// Dimension.create("c2", 1, 10),
-				Dimension.create("c2", 1),
+				getIntDimension("c2"),
 				// Dimension.create("featurePossibleTransitions", false, true),
-				Dimension.create("featurePossibleTransitions", true),
+				getBoolDimension("featurePossibleTransitions"),
 				// Dimension.create("featurePossibleStates", false, true));
-				Dimension.create("featurePossibleStates", true),
-				Dimension.create("leftContextSize", 1, 2, 3),
-				Dimension.create("rightContextSize", 1, 2),
-				Dimension.create("generateDictionaryFeatures", false, true));
+				getBoolDimension("featurePossibleStates"),
+				getIntDimension("optMaxIterations"),
+				getIntDimension("leftContextSize"),
+				getIntDimension("rightContextSize"),
+				getBoolDimension("generateDictionaryFeatures"));
+		pSpace.addConstraint(new Constraint() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean isValid(Map<String, Object> cfg) {
+				List<String> posTiers = (List<String>) cfg.get(DISCRIMINATOR_POS_TIERS);
+				Set<String> expectedPosCats = getAllCategories(posTiers);
+				Set<String> actualPosCats = (Set<String>) cfg.get(DISCRIMINATOR_POS_CATEGORIES);
+				return expectedPosCats.equals(actualPosCats);
+			}
+		});
 		// -----------------------------------------------------------------
 		// create and run BatchTask
 		BatchTask batchTask = new BatchTask();
@@ -245,4 +255,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 					null, null, null, null);
 		}
 	}
+
+	private static final String DISCRIMINATOR_POS_TIERS = "posTiers";
 }

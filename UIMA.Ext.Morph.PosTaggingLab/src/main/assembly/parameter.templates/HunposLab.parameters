@@ -1,0 +1,12 @@
+# path to corpus directory (with XMI-files)
+srcCorpusDir=
+# The directory that contains descriptions of a corpus partitioning
+corpusSplitInfoDir=
+#
+posCategories=POST,Abbr,Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+#
+lexiconFile=null;TODO
+#
+tagOrder=1;2;3
+emissionOrder=1;2
+rareWordFrequency=10;5

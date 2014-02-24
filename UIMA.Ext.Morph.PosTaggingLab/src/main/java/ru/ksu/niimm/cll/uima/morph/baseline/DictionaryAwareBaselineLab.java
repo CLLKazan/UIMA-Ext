@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
@@ -18,7 +17,6 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -36,7 +34,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
@@ -75,17 +72,10 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	// the leading '_' is added to avoid confusion in Task classes
-	@Parameter(names = { "-p", "--pos-categories" }, required = true)
-	private List<String> _posCategoriesList;
-	private Set<String> _posCategories;
-
 	private DictionaryAwareBaselineLab() {
 	}
 
 	private void run() throws IOException {
-		//
-		_posCategories = newHashSet(_posCategoriesList);
 		/*
 		 * Create a pre-processing task (use whole source corpus)
 		 * Aggregate AE:
@@ -152,11 +142,10 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
 				DiscreteDomain.integers()).toArray(new Integer[0]);*/
-		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
+				getFileDimension(DISCRIMINATOR_SOURCE_CORPUS_DIR),
+				getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
+				getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
 				Dimension.create(DISCRIMINATOR_FOLD, 0));
 		// -----------------------------------------------------------------
 		// create and run BatchTask

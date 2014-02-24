@@ -1,0 +1,23 @@
+# path to corpus directory (with XMI-files)
+srcCorpusDir=
+# The directory that contains descriptions of a corpus partitioning
+corpusSplitInfoDir=
+#
+posTiers=POST&Abbr&Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+posCategories=POST,Abbr,Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+#
+featureMinFreq=0
+# The coefficient for L2 regularization
+c2=1
+#
+featurePossibleTransitions=true
+#
+featurePossibleStates=true
+#
+leftContextSize=1;2;3
+#
+rightContextSize=1;2
+#
+generateDictionaryFeatures=false;true
+#
+optMaxIterations=120

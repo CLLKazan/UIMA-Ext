@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.morph.resources;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
 import static java.lang.String.format;
@@ -24,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -45,7 +43,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.google.common.collect.Sets;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
@@ -74,16 +71,10 @@ public class ResourcesLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	@Parameter(names = { "-p", "--pos-categories" }, required = true)
-	private List<String> _posCategoriesList;
-	private Set<String> _posCategories;
-
 	private ResourcesLab() {
 	}
 
 	private void run() throws Exception {
-		_posCategories = newHashSet(_posCategoriesList);
-		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//
 		UimaTask prepareTrainingSetInfo = new PrepareSplitInfoTask(
@@ -119,12 +110,11 @@ public class ResourcesLab extends LabLauncherBase {
 		collectUnseenWordsTest.addImport(prepareTestSetInfo, KEY_SPLIT_INFO_DIR,
 				KEY_TARGET_SPLIT_INFO_DIR);
 		//
-		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
+				getFileDimension(DISCRIMINATOR_SOURCE_CORPUS_DIR),
+				getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
+				getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
 				Dimension.create(DISCRIMINATOR_FOLD, 0));
 		//
 		BatchTask batchTask = new BatchTask();

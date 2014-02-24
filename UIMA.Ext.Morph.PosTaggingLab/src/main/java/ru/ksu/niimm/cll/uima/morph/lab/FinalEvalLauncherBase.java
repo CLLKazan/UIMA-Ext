@@ -12,8 +12,8 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 
@@ -36,13 +36,8 @@ public class FinalEvalLauncherBase extends LabLauncherBase {
 
 	@Parameter(names = { "-m", "--model-dir" }, required = true)
 	private File modelDir;
-	protected Set<String> posCategories;
 
 	protected void run(UimaTask analysisTask) throws Exception {
-		if (posCategories == null) {
-			throw new IllegalStateException("posCategories was not set!");
-		}
-		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//
 		Task evaluationTask = new EvaluationTask(PartitionType.TEST);
@@ -65,12 +60,12 @@ public class FinalEvalLauncherBase extends LabLauncherBase {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected List<Dimension<?>> generateParamDims() {
+	protected List<Dimension<?>> generateParamDims() throws IOException {
 		return Lists.newArrayList(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
+				getFileDimension(DISCRIMINATOR_SOURCE_CORPUS_DIR),
+				getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, posCategories),
+				getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
 				Dimension.create(DISCRIMINATOR_FOLD, 0));
 	}
 }

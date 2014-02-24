@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.morph.stanford;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
@@ -26,7 +25,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -48,7 +46,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.google.common.base.Joiner;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
@@ -79,20 +76,12 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	// the leading '_' is added to avoid confusion in Task classes
-	@Parameter(names = { "-p", "--pos-categories" }, required = true)
-	private List<String> _posCategoriesList;
-	private Set<String> _posCategories;
-	@Parameter(names = "--feature-arch", required = true)
-	private String featureArch;
 	private boolean allowTaggerMultiDeployment = false;
 
 	private StanfordPosTaggerLab() {
 	}
 
 	private void run() throws Exception {
-		_posCategories = newHashSet(_posCategoriesList);
-		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//
 		UimaTask prepareTrainingDataTask = new FeatureExtractionTaskBase(
@@ -176,15 +165,14 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 		/*Integer[] foldValues = ContiguousSet.create(
 				Range.closedOpen(0, foldsNum),
 				DiscreteDomain.integers()).toArray(new Integer[0]);*/
-		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
+				getFileDimension(DISCRIMINATOR_SOURCE_CORPUS_DIR),
+				getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
+				getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// model training parameters
-				Dimension.create("featureArch", featureArch)
+				getStringDimension("featureArch")
 				);
 		//
 		BatchTask batchTask = new BatchTask();

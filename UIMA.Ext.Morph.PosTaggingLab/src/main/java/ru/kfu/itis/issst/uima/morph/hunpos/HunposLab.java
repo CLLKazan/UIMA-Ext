@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.morph.hunpos;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
@@ -22,7 +21,6 @@ import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import org.annolab.tt4j.ExecutableResolver;
 import org.annolab.tt4j.PlatformDetector;
@@ -45,7 +43,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.google.common.collect.Lists;
 
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
@@ -75,19 +72,10 @@ public class HunposLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	// the leading '_' is added to avoid confusion in Task classes
-	@Parameter(names = { "-p", "--pos-categories" }, required = true)
-	private List<String> _posCategoriesList;
-	private Set<String> _posCategories;
-	@Parameter(names = "--lexicon-file", required = true)
-	private File lexiconFile;
-
 	private HunposLab() {
 	}
 
 	private void run() throws Exception {
-		_posCategories = newHashSet(_posCategoriesList);
-		//
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//
 		UimaTask prepareTrainingDataTask = new FeatureExtractionTaskBase(
@@ -181,22 +169,18 @@ public class HunposLab extends LabLauncherBase {
 		evaluationTask.addImport(preprocessingTask, KEY_CORPUS);
 		evaluationTask.addImport(analysisTask, KEY_OUTPUT_DIR);
 		// create parameter space
-		// TODO:LOW determine PartitionTypes and folds number by scanning corpusSplitDir
-		/*Integer[] foldValues = ContiguousSet.create(
-				Range.closedOpen(0, foldsNum),
-				DiscreteDomain.integers()).toArray(new Integer[0]);*/
-		@SuppressWarnings("unchecked")
 		ParameterSpace pSpace = new ParameterSpace(
-				Dimension.create(DISCRIMINATOR_SOURCE_CORPUS_DIR, srcCorpusDir),
-				Dimension.create(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR, corpusSplitDir),
+				getFileDimension(DISCRIMINATOR_SOURCE_CORPUS_DIR),
+				getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
 				// posCategories discriminator is used in the preprocessing task
-				Dimension.create(DISCRIMINATOR_POS_CATEGORIES, _posCategories),
+				getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
 				Dimension.create(DISCRIMINATOR_FOLD, 0),
 				// model-specific parameters
-				Dimension.create("tagOrder", 1, 2, 3),
-				Dimension.create("emissionOrder", 1, 2),
-				Dimension.create("rareWordFrequency", 10, 5),
-				Dimension.create("lexiconFile", null, lexiconFile));
+				getIntDimension("tagOrder"),
+				getIntDimension("emissionOrder"),
+				getIntDimension("rareWordFrequency"),
+				getFileDimension("lexiconFile")
+				);
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(preprocessingTask);
