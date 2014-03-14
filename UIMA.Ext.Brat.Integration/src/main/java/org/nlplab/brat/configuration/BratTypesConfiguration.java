@@ -3,6 +3,8 @@
  */
 package org.nlplab.brat.configuration;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 import static org.nlplab.brat.BratConstants.UI_NOTE_TYPE_NAME;
 
 import java.io.BufferedReader;
@@ -17,6 +19,7 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
@@ -30,12 +33,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev
@@ -64,6 +70,18 @@ public class BratTypesConfiguration {
 					"Type %s is not of expected class %s", t, expectedTypeClass.getSimpleName()));
 		}
 		return (T) t;
+	}
+
+	public Collection<BratEntityType> getEntityTypes() {
+		return getTypes(BratEntityType.class);
+	}
+
+	public Collection<BratRelationType> getRelationTypes() {
+		return getTypes(BratRelationType.class);
+	}
+
+	public Collection<BratEventType> getEventTypes() {
+		return getTypes(BratEventType.class);
 	}
 
 	// aux method
@@ -119,18 +137,6 @@ public class BratTypesConfiguration {
 		out.println("[attributes]");
 	}
 
-	private Collection<BratEntityType> getEntityTypes() {
-		return getTypes(BratEntityType.class);
-	}
-
-	private Collection<BratRelationType> getRelationTypes() {
-		return getTypes(BratRelationType.class);
-	}
-
-	private Collection<BratEventType> getEventTypes() {
-		return getTypes(BratEventType.class);
-	}
-
 	@SuppressWarnings("unchecked")
 	private <T extends BratType> Collection<T> getTypes(Class<T> typeClass) {
 		return (Collection<T>) Collections2.filter(
@@ -156,12 +162,17 @@ public class BratTypesConfiguration {
 		}
 	};
 
+	private static final Joiner roleTypesJoiner = Joiner.on('|');
+
 	private static final Function<EventRole, String> eventRoleToPrint = new Function<EventRole, String>() {
 		@Override
 		public String apply(EventRole input) {
-			return String.format("%s%s:%s",
-					input.getRole(), toPrint(input.getCardinality()),
-					input.getRange().getName());
+			StringBuilder sb = new StringBuilder(input.getRole());
+			sb.append(toPrint(input.getCardinality()));
+			sb.append(':');
+			roleTypesJoiner.appendTo(sb,
+					Collections2.transform(input.getRangeTypes(), bratTypeToName));
+			return sb.toString();
 		}
 	};
 
@@ -201,12 +212,31 @@ public class BratTypesConfiguration {
 		private static final Logger log = LoggerFactory.getLogger(Builder.class);
 
 		private BratTypesConfiguration instance = new BratTypesConfiguration();
+		private Multimap<String, String> macro2TypeNames = HashMultimap.create();
 
 		private Builder() {
 			instance.name2Type = Maps.newLinkedHashMap();
 			// register built-in types
 			BratNoteType uiNoteType = new BratNoteType(UI_NOTE_TYPE_NAME);
 			addType(uiNoteType);
+		}
+
+		public void addTypeMacro(String macroName, Set<String> typeNames) {
+			if (macro2TypeNames.containsKey(macroName)) {
+				throw new IllegalStateException("Duplicate type name macro: " + macroName);
+			}
+			for (String tn : typeNames) {
+				// check existence
+				instance.getType(tn);
+			}
+			macro2TypeNames.putAll(macroName, typeNames);
+		}
+
+		public Collection<String> getMacroTypes(String macroName) {
+			if (!macro2TypeNames.containsKey(macroName)) {
+				throw new IllegalStateException("Unknown type name macro: " + macroName);
+			}
+			return macro2TypeNames.get(macroName);
 		}
 
 		public BratEntityType addEntityType(String typeName) {
@@ -249,29 +279,25 @@ public class BratTypesConfiguration {
 			return brt;
 		}
 
-		public BratEventType addEventType(String typeName, Map<String, String> roleTypeNames) {
-			Map<String, Cardinality> roleCardinalities = Maps.newHashMapWithExpectedSize(
-					roleTypeNames.size());
-			for (String roleName : roleTypeNames.keySet()) {
-				roleCardinalities.put(roleName, Cardinality.OPTIONAL);
-			}
-			return addEventType(typeName, roleTypeNames, roleCardinalities);
-		}
-
 		public BratEventType addEventType(String typeName,
-				Map<String, String> roleTypeNames,
+				Multimap<String, String> roleTypeNames,
 				Map<String, Cardinality> roleCardinalities) {
 			Map<String, EventRole> roles = Maps.newHashMapWithExpectedSize(roleTypeNames.size());
 			// check that role ranges are either Entity or Event
 			for (String roleName : roleTypeNames.keySet()) {
 				checkRoleName(roleName);
-				BratType roleRange = instance.getType(roleTypeNames.get(roleName));
-				if (!(roleRange instanceof BratEntityType) && !(roleRange instanceof BratEventType)) {
-					throw new IllegalArgumentException(String.format(
-							"Illegal event role range type: %s", roleRange));
+				Set<BratType> roleRangeSet = newLinkedHashSet();
+				for (String rtn : roleTypeNames.get(roleName)) {
+					BratType roleRange = instance.getType(rtn);
+					if (!(roleRange instanceof BratEntityType)
+							&& !(roleRange instanceof BratEventType)) {
+						throw new IllegalArgumentException(String.format(
+								"Illegal event role range type: %s", roleRange));
+					}
+					roleRangeSet.add(roleRange);
 				}
 				Cardinality roleCard = roleCardinalities.get(roleName);
-				roles.put(roleName, new EventRole(roleName, roleRange, roleCard));
+				roles.put(roleName, new EventRole(roleName, roleRangeSet, roleCard));
 			}
 			BratEventType bet = new BratEventType(typeName, roles);
 			addType(bet);
@@ -324,7 +350,9 @@ public class BratTypesConfiguration {
 		Builder builder = builder();
 		// map that memorizes inheritance chain of last parsed entity type
 		Map<Integer, BratEntityType> entitiesHierBranch = null;
+		int iLine = 0;
 		while ((line = reader.readLine()) != null) {
+			iLine++;
 			// skip empty lines
 			if (StringUtils.isBlank(line)) {
 				continue;
@@ -333,42 +361,62 @@ public class BratTypesConfiguration {
 			if (line.startsWith("#")) {
 				continue;
 			}
-			ConfigurationFileSection nextSectionHeader = parseSectionHeader(line);
-			if (nextSectionHeader != null) {
-				curSection = nextSectionHeader;
-				// clean prev section state objects
-				entitiesHierBranch = Maps.newTreeMap();
-			} else if (curSection == null) {
-				cantParse(line);
-			} else { // here curSection != null & line is not a declaration of next section
-				switch (curSection) {
-				case ENTITIES:
-					parseEntityLine(builder, line, entitiesHierBranch);
-					break;
-				case RELATIONS:
-					parseRelationLine(builder, line);
-					break;
-				case EVENTS:
-					parseEventLine(builder, line);
-					break;
-				case ATTRIBUTES:
-					// TODO LOW: handle [attributes] section line
-					// do nothing
-					break;
-				default:
-					throw new UnsupportedOperationException();
+			try {
+				ConfigurationFileSection nextSectionHeader = parseSectionHeader(line);
+				if (nextSectionHeader != null) {
+					curSection = nextSectionHeader;
+					// clean prev section state objects
+					entitiesHierBranch = Maps.newTreeMap();
+				} else if (curSection == null) {
+					cantParse(line);
+				} else { // here curSection != null & line is not a declaration of next section
+					switch (curSection) {
+					case ENTITIES:
+						parseEntityLine(builder, line, entitiesHierBranch);
+						break;
+					case RELATIONS:
+						if (line.startsWith("<OVERLAP>")) {
+							// just skip
+						} else {
+							parseRelationLine(builder, line);
+						}
+						break;
+					case EVENTS:
+						if (line.startsWith("<")) {
+							parseMacroLine(builder, line);
+						} else if (line.startsWith("!")) {
+							parseEventParentLine(builder, line);
+						} else {
+							parseEventLine(builder, line);
+						}
+						break;
+					case ATTRIBUTES:
+						// TODO LOW: handle [attributes] section line
+						// do nothing
+						break;
+					default:
+						throw new UnsupportedOperationException();
+					}
 				}
+			} catch (Exception e) {
+				throw new IllegalStateException(String.format(
+						"At line %s", iLine), e);
 			}
 		}
 		return builder.build();
 	}
 
-	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^\\s]+");
+	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^|\\s]+");
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
 	private static final Pattern OPTIONAL_TABS_PATTERN = Pattern.compile("\\t*");
 	private static final Pattern ROLE_DEF_PATTERN = Pattern
-			.compile("([-_\\p{Alnum}]+)([?+*]?):([^,\\s]+)");
+			.compile("([-_\\p{Alnum}]+)([?+*]?):([^,]+)");
 	private static final Pattern ROLE_SEP_PATTERN = Pattern.compile("\\s*,\\s*");
+	private static final Pattern RELATION_PROPERTY_PATTERN = Pattern.compile(
+			"<([-_\\p{Alnum}]+)>:([-_\\p{Alnum}]+)");
+	private static final Pattern MACRO_DEF_NAME = Pattern.compile("<(\\p{Alnum}+)>");
+	private static final Pattern MACRO_DEF_EQ = Pattern.compile("\\s*=\\s*");
+	private static final Splitter typeNameSplitter = Splitter.on('|').trimResults();
 
 	private static void parseEntityLine(Builder b, String line,
 			Map<Integer, BratEntityType> hierBranch) {
@@ -404,6 +452,12 @@ public class BratTypesConfiguration {
 		p.skip(ROLE_SEP_PATTERN);
 		argDef = parseRelationArgDef(p, line);
 		argTypeNames.put(argDef[1], argDef[3]);
+		// parse advanced relation configuration
+		if (p.skipOptional(ROLE_SEP_PATTERN)) {
+			@SuppressWarnings("unused")
+			String[] relPropDef = p.consume(RELATION_PROPERTY_PATTERN);
+			// handle REL-TYPE
+		}
 		p.ensureBlank();
 		b.addRelationType(typeName, argTypeNames);
 	}
@@ -417,36 +471,66 @@ public class BratTypesConfiguration {
 		return argDef;
 	}
 
+	private static void parseMacroLine(Builder b, String line) {
+		StringParser p = new StringParser(line);
+		String macroName = p.consume(MACRO_DEF_NAME)[1];
+		p.skip(MACRO_DEF_EQ);
+		Set<String> typeNames = newHashSet(typeNameSplitter.split(p.getCurrentString()));
+		if (typeNames.isEmpty()) {
+			throw new IllegalStateException("Empty type name macro definition");
+		}
+		b.addTypeMacro(macroName, typeNames);
+	}
+
+	private static void parseEventParentLine(Builder b, String line) {
+		// TODO
+		// just ignore
+	}
+
 	private static void parseEventLine(Builder b, String line) {
 		StringParser p = new StringParser(line);
+		// skip leading space if an event type belong to some category 
+		p.skipOptional(SPACE_PATTERN);
 		String typeName = p.consume1(TYPE_NAME_PATTERN);
 		p.skip(SPACE_PATTERN);
-		Map<String, String> roleTypeNames = Maps.newLinkedHashMap();
+		Multimap<String, String> roleTypeNames = LinkedHashMultimap.create();
 		Map<String, Cardinality> roleCardinalities = Maps.newHashMap();
 		// parse first role definition
-		parseEventRoleDef(p, roleTypeNames, roleCardinalities);
+		parseEventRoleDef(p, b, roleTypeNames, roleCardinalities);
 		// parse remaining role definitions
 		while (!StringUtils.isBlank(p.getCurrentString())) {
 			p.skip(ROLE_SEP_PATTERN);
-			parseEventRoleDef(p, roleTypeNames, roleCardinalities);
+			parseEventRoleDef(p, b, roleTypeNames, roleCardinalities);
 		}
 		b.addEventType(typeName, roleTypeNames, roleCardinalities);
 	}
 
-	private static void parseEventRoleDef(StringParser p, Map<String, String> roleTypeNames,
+	private static void parseEventRoleDef(StringParser p, Builder b,
+			Multimap<String, String> roleTypeNames,
 			Map<String, Cardinality> roleCardinalities) {
 		String roleDef[] = p.consume(ROLE_DEF_PATTERN);
 		String roleName = roleDef[1];
-		roleTypeNames.put(roleName, roleDef[3]);
+		Set<String> typeNames = Sets.newHashSet();
+		for (String tn : typeNameSplitter.split(roleDef[3])) {
+			if (tn.startsWith("<")) {
+				if (!tn.endsWith(">")) {
+					throw new IllegalStateException("Incorrect type name macro usage: " + tn);
+				}
+				tn = tn.substring(1, tn.length() - 1);
+				typeNames.addAll(b.getMacroTypes(tn));
+			} else {
+				typeNames.add(tn);
+			}
+		}
+		roleTypeNames.putAll(roleName, typeNames);
 		roleCardinalities.put(roleName, parseCardinality(roleDef[2]));
 	}
 
 	private static int getPrefixCharNum(char ch, String str) {
-		int result = 0;
 		int i = 0;
 		while (i < str.length() && str.charAt(i) == ch)
-			result++;
-		return result;
+			i++;
+		return i;
 	}
 
 	private static void cantParse(String line) {
