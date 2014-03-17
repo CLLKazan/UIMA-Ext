@@ -16,6 +16,7 @@
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.TreeTagger</module>
+		<module>../UIMA.Ext.DependencyParser</module>
 		<module>../UIMA.Ext.Morph.Search</module>
 		<module>../UIMA.Ext.PhraseRecognizer</module>
 		<module>../UIMA.Ext.NER</module>
@@ -152,6 +153,11 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-phrase-recognizer</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-dep-parser</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
