@@ -28,6 +28,8 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.uimafit.util.CasUtil;
 
+import com.google.common.base.Function;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -240,6 +242,20 @@ public class AnnotationUtils {
 
 	public static <A extends AnnotationFS> OverlapIndex<A> createOverlapIndex(Iterator<A> srcIter) {
 		return TreeMapOverlapIndex.from(srcIter);
+	}
+
+	private static final Function<AnnotationFS, String> coveredTextFunction = new Function<AnnotationFS, String>() {
+		@Override
+		public String apply(AnnotationFS anno) {
+			if (anno == null) {
+				return null;
+			}
+			return anno.getCoveredText();
+		}
+	};
+
+	public static Function<AnnotationFS, String> coveredTextFunction() {
+		return coveredTextFunction;
 	}
 
 	private AnnotationUtils() {
