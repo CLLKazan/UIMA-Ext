@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.Set;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.CleartkProcessingException;
 import org.cleartk.classifier.CleartkSequenceAnnotator;
@@ -183,13 +181,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		List<String> sentLabels = Lists.newArrayList();
 		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
 			// TRAINING
-			FSArray tokWordforms = word.getWordforms();
-			if (tokWordforms == null || tokWordforms.size() == 0) {
-				throw new IllegalStateException(String.format(
-						"No wordforms in Word %s in %s", word,
-						getDocumentUri(jCas.getCas())));
-			}
-			Wordform tokWf = (Wordform) tokWordforms.get(0);
+			Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
 			String outputLabel = extractOutputLabel(tokWf);
 			sentLabels.add(outputLabel);
 			List<Feature> tokFeatures = extractFeatures(jCas, word);
@@ -203,17 +195,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		List<List<Feature>> sentSeq = Lists.newArrayList();
 		List<Wordform> wfSeq = Lists.newArrayList();
 		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
-			// TRAINING
-			FSArray tokWordforms = word.getWordforms();
-			if (tokWordforms == null || tokWordforms.size() == 0) {
-				throw new IllegalStateException(String.format(
-						"No wordforms in Word %s in %s", word,
-						getDocumentUri(jCas.getCas())));
-			}
-			Wordform tokWf = (Wordform) tokWordforms.get(0);
-			if (tokWf == null) {
-				throw new NullPointerException("Token->Wordform");
-			}
+			// TAGGING
+			Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
 			wfSeq.add(tokWf);
 			List<Feature> tokFeatures = extractFeatures(jCas, word);
 			sentSeq.add(tokFeatures);

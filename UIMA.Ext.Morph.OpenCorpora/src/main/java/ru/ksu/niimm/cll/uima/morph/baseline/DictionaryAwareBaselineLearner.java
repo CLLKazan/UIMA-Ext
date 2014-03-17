@@ -3,8 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
-import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.normalizeToDictionary;
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.toGramBitSet;
 
@@ -15,7 +13,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -27,11 +24,11 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 
 import com.google.common.base.Joiner;
@@ -83,24 +80,14 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 	@Override
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
 		for (Word word : JCasUtil.select(jcas, Word.class)) {
-			// check corpus word sanity
-			if (word.getWordforms() == null) {
-				continue;
-			}
 			if (word.getToken() instanceof NUM) {
 				continue;
 			}
-			Collection<org.opencorpora.cas.Wordform> corpusWfs = FSCollectionFactory.create(
-					word.getWordforms(),
-					org.opencorpora.cas.Wordform.class);
-			if (corpusWfs.isEmpty()) {
+			// check corpus word sanity
+			org.opencorpora.cas.Wordform corpusWf = MorphCasUtils.getOnlyWordform(word);
+			if (corpusWf == null) {
 				continue;
 			}
-			if (corpusWfs.size() > 1) {
-				getLogger().warn(String.format("Too much wordforms for word %s in %s",
-						toPrettyString(word), getDocumentUri(jcas)));
-			}
-			org.opencorpora.cas.Wordform corpusWf = corpusWfs.iterator().next();
 			//
 			String wordString = normalizeToDictionary(word.getCoveredText());
 			Set<BitSet> dictEntries = trimAndMergePosBits(dict.getEntries(wordString));
