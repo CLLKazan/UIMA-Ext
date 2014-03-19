@@ -9,20 +9,17 @@ import java.util.BitSet;
 import java.util.Set;
 
 import org.apache.uima.UimaContext;
-import org.apache.uima.cas.CASException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.opencorpora.cas.Wordform;
 import org.uimafit.component.initialize.ExternalResourceInitializer;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
-
-import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -57,16 +54,8 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void parseTag(String tag, Wordform wf, String token) {
-		Set<String> grams = parseTag(tag);
-		if (grams.isEmpty()) {
-			return;
-		}
-		try {
-			wf.setGrammems(FSUtils.toStringArray(wf.getCAS().getJCas(), grams));
-		} catch (CASException e) {
-			throw new RuntimeException(e);
-		}
+	public Set<String> parseTag(String tag, String token) {
+		return parseTag(tag);
 	}
 
 	public static Set<String> parseTag(String tag) {
@@ -80,8 +69,8 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toTag(Wordform wf) {
-		BitSet wfBits = toGramBits(dict, FSUtils.toList(wf.getGrammems()));
+	public String toTag(Set<String> grams) {
+		BitSet wfBits = toGramBits(dict, grams);
 		return toTag(wfBits);
 	}
 

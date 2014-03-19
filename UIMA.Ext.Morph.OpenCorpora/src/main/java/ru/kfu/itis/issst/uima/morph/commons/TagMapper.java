@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.commons;
 
-import org.opencorpora.cas.Wordform;
+import java.util.Set;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -11,7 +11,7 @@ import org.opencorpora.cas.Wordform;
  */
 public interface TagMapper {
 
-	void parseTag(String tag, Wordform wf, String token);
+	Set<String> parseTag(String tag, String token);
 
-	String toTag(Wordform wf);
+	String toTag(Set<String> grammems);
 }
