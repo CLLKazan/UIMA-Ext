@@ -1,20 +1,12 @@
 package ru.kfu.itis.issst.uima.depparser.mst;
 
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.List;
 
 import mstparser.DependencyInstance;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
@@ -31,13 +23,7 @@ import ru.kfu.cll.uima.tokenizer.TokenUtils;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
-import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.issst.uima.depparser.Dependency;
-
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.Lists;
 
 public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 
@@ -46,7 +32,7 @@ public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 	@ConfigurationParameter(name = PARAM_INPUT_FILE, mandatory = true)
 	private File inputFile;
 	// state fields
-	private Iterator<DependencyInstance> depInstIter;
+	private MSTDependencyInstanceIterator depInstIter;
 	private int instancesRead;
 	private URI inputFileUri;
 
@@ -56,10 +42,16 @@ public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 		inputFileUri = inputFile.toURI();
 		//
 		try {
-			depInstIter = new DependencyInstanceIterator();
+			depInstIter = new MSTDependencyInstanceIterator(inputFile);
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		super.close();
+		depInstIter.close();
 	}
 
 	@Override
@@ -140,82 +132,4 @@ public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 	public Progress[] getProgress() {
 		return new Progress[] { new ProgressImpl(instancesRead, -1, Progress.ENTITIES) };
 	}
-
-	private class DependencyInstanceIterator extends AbstractIterator<DependencyInstance>
-			implements Closeable {
-		// state fields
-		private BufferedReader reader;
-		int currentLine;
-
-		public DependencyInstanceIterator() throws IOException {
-			super();
-			reader = IoUtils.openReader(inputFile);
-		}
-
-		@Override
-		protected DependencyInstance computeNext() {
-			// surface forms line
-			String line = readNextLine();
-			if (line == null) {
-				return endOfData();
-			}
-			List<String> forms = newArrayList(mstTokenSplitter.split(line));
-			// pos-tags line
-			line = readNextLine();
-			if (line == null) {
-				getLogger().warn(String.format("Unexpected end of file at line %s", currentLine));
-				return endOfData();
-			}
-			List<String> tags = newArrayList(mstTokenSplitter.split(line));
-			// heads line
-			line = readNextLine();
-			if (line == null) {
-				getLogger().warn(String.format("Unexpected end of file at line %s", currentLine));
-				return endOfData();
-			}
-			List<Integer> heads;
-			{
-				List<String> headStrings = newArrayList(mstTokenSplitter.split(line));
-				heads = Lists.transform(headStrings, new Function<String, Integer>() {
-					@Override
-					public Integer apply(String arg) {
-						return Integer.valueOf(arg);
-					}
-				});
-			}
-			//
-			if (forms.size() != tags.size() || forms.size() != heads.size()) {
-				throw new IllegalStateException(String.format(
-						"Different size of the sequences at lines %s-%s",
-						currentLine - 2, currentLine));
-			}
-			// read delimiter line
-			readNextLine();
-			return new DependencyInstance(
-					forms.toArray(new String[forms.size()]),
-					tags.toArray(new String[tags.size()]),
-					null,
-					ArrayUtils.toPrimitive(heads.toArray(new Integer[heads.size()])));
-		}
-
-		@Override
-		public void close() throws IOException {
-			IOUtils.closeQuietly(reader);
-		}
-
-		private String readNextLine() {
-			String line;
-			try {
-				line = reader.readLine();
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
-			if (line != null) {
-				currentLine++;
-			}
-			return line;
-		}
-	}
-
-	private static final Splitter mstTokenSplitter = Splitter.on('\t');
 }

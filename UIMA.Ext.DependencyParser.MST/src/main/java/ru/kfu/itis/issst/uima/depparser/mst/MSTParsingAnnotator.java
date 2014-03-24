@@ -3,7 +3,6 @@ package ru.kfu.itis.issst.uima.depparser.mst;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
-import static ru.kfu.itis.issst.uima.depparser.mst.PUtils.mstTokenJoiner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -160,17 +159,14 @@ public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 		try {
 			for (Sentence sentence : JCasUtil.select(jcas, Sentence.class)) {
 				List<Word> words = JCasUtil.selectCovered(jcas, Word.class, sentence);
-				mstTokenJoiner.appendTo(out, Lists.transform(words, coveredTextFunction()));
-				out.write("\n");
-				mstTokenJoiner.appendTo(out, Lists.transform(words, tagFunction));
-				out.write("\n");
+				List<String> forms = Lists.transform(words, coveredTextFunction());
+				List<String> tags = Lists.transform(words, tagFunction);
 				// Dummy values for heads
-				List<String> dummyHeads = newArrayListWithExpectedSize(words.size());
+				List<Integer> dummyHeads = newArrayListWithExpectedSize(words.size());
 				for (int i = 0; i < words.size(); i++) {
-					dummyHeads.add("0");
+					dummyHeads.add(0);
 				}
-				mstTokenJoiner.appendTo(out, dummyHeads);
-				out.write("\n\n");
+				MSTFormat.writeInstance(out, forms, tags, dummyHeads);
 			}
 		} finally {
 			IOUtils.closeQuietly(out);
