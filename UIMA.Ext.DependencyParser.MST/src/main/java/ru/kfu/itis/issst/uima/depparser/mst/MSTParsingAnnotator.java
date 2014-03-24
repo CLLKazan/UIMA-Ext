@@ -3,6 +3,7 @@ package ru.kfu.itis.issst.uima.depparser.mst;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
+import static ru.kfu.itis.issst.uima.depparser.mst.PUtils.mstTokenJoiner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -27,20 +28,16 @@ import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.AnnotatorUtils;
 import ru.kfu.itis.issst.uima.depparser.Dependency;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
-import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 
@@ -48,8 +45,6 @@ public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 	public static final String MODEL_PROPERTIES_FILE_EXTENSION = ".props";
 	public static final String MODEL_PROP_ORDER = "order";
 
-	// config fields
-	private TagMapper tagMapper = new DictionaryBasedTagMapper();
 	// state fields
 	private DependencyParser parser;
 	private Function<Word, String> tagFunction;
@@ -58,8 +53,7 @@ public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
 		//
-		InitializableFactory.initialize(tagMapper, ctx);
-		tagFunction = TagUtils.toTagFunction(tagMapper);
+		tagFunction = TagUtils.tagFunction();
 		// TODO:LOW make it works with URL instead of files 
 		String modelFilePath;
 		try {
@@ -138,9 +132,9 @@ public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 				if (head > 0) {
 					dep.setHead(words.get(head - 1));
 				}
-				// the root is its own head
+				// the root
 				else {
-					dep.setHead(w);
+					dep.setHead(null);
 				}
 				dep.addToIndexes();
 			}
@@ -184,6 +178,4 @@ public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 		tempfile.deleteOnExit();
 		return tempfile.getPath();
 	}
-
-	private static final Joiner mstTokenJoiner = Joiner.on('\t');
 }
