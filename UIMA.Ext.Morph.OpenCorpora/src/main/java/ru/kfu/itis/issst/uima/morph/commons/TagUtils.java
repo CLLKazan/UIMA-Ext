@@ -15,7 +15,6 @@ import java.util.Set;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
-import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
@@ -69,18 +68,20 @@ public class TagUtils {
 	public static final Set<String> closedClassPunctuationTags = ImmutableSet
 			.copyOf(punctuationTagMap.values());
 
-	public static final Function<Word, String> toTagFunction(final TagMapper tagMapper) {
-		return new Function<Word, String>() {
-			@Override
-			public String apply(Word word) {
-				if (word == null) {
-					return null;
-				}
-				Wordform wf = MorphCasUtils.requireOnlyWordform(word);
-				return tagMapper.toTag(FSUtils.toSet(wf.getGrammems()));
-			}
-		};
+	public static final Function<Word, String> tagFunction() {
+		return tagFunction;
 	}
+
+	private static final Function<Word, String> tagFunction = new Function<Word, String>() {
+		@Override
+		public String apply(Word word) {
+			if (word == null) {
+				return null;
+			}
+			Wordform wf = MorphCasUtils.requireOnlyWordform(word);
+			return wf.getPos();
+		}
+	};
 
 	private TagUtils() {
 	}
