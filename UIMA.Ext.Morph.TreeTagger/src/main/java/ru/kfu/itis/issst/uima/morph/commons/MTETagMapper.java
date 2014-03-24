@@ -3,19 +3,15 @@
  */
 package ru.kfu.itis.issst.uima.morph.commons;
 
+import static com.google.common.collect.Tables.unmodifiableRowSortedTable;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.uima.cas.CASException;
-import org.apache.uima.jcas.cas.StringArray;
-import org.opencorpora.cas.Wordform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ru.kfu.itis.cll.uima.cas.FSUtils;
-import static com.google.common.collect.Tables.unmodifiableRowSortedTable;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -425,14 +421,14 @@ public class MTETagMapper implements TagMapper {
 	private static final Set<String> TAGS_TO_IGNORE = ImmutableSet.of("-", "SENT");
 
 	@Override
-	public void parseTag(String tag, Wordform wf, String token) {
+	public Set<String> parseTag(String tag, String token) {
 		if (tag == null || tag.isEmpty()) {
 			log.warn("Empty tag '%s' has been returned for token {}", tag, token);
-			return;
+			return null;
 		}
 		if (TAGS_TO_IGNORE.contains(tag)) {
 			log.debug("Can't parse token '{}'", token);
-			return;
+			return null;
 		}
 		char category = tag.charAt(0);
 		RowSortedTable<Integer, Character, TagCodeHandler> catTable = cat2Table.get(category);
@@ -465,15 +461,7 @@ public class MTETagMapper implements TagMapper {
 			throw new IllegalStateException(String.format(
 					"Empty pos for token '%s' with tag '%s'", token, tag));
 		}
-		wf.setPos(wb.pos);
-		if (!wb.grammems.isEmpty()) {
-			try {
-				StringArray grammsArr = FSUtils.toStringArray(wf.getCAS().getJCas(), wb.grammems);
-				wf.setGrammems(grammsArr);
-			} catch (CASException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		return wb.grammems;
 	}
 
 	static interface TagCodeHandler {
@@ -501,7 +489,7 @@ public class MTETagMapper implements TagMapper {
 	}
 
 	@Override
-	public String toTag(Wordform wf) {
+	public String toTag(Set<String> grams) {
 		throw new UnsupportedOperationException();
 	}
 }

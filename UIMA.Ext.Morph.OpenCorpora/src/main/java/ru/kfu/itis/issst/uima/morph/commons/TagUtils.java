@@ -15,6 +15,7 @@ import java.util.Set;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
@@ -76,7 +77,7 @@ public class TagUtils {
 					return null;
 				}
 				Wordform wf = MorphCasUtils.requireOnlyWordform(word);
-				return tagMapper.toTag(wf);
+				return tagMapper.toTag(FSUtils.toSet(wf.getGrammems()));
 			}
 		};
 	}

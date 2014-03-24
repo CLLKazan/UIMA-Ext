@@ -24,6 +24,7 @@ import org.opencorpora.cas.Wordform;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
@@ -79,7 +80,7 @@ public class StanfordTrainingDataWriter extends TrainingDataWriterBase {
 				writeTokenTag(tokStr, tag);
 			} else {
 				Wordform wf = MorphCasUtils.requireOnlyWordform(word);
-				String tag = tagMapper.toTag(wf);
+				String tag = tagMapper.toTag(FSUtils.toSet(wf.getGrammems()));
 				writeTokenTag(tokStr, tag);
 				if (tag != null && TagUtils.isClosedClassTag(tag)) {
 					closedClassTags.add(tag);

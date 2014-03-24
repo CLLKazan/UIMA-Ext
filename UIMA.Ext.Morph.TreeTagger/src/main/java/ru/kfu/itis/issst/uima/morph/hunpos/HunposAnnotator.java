@@ -5,6 +5,7 @@ package ru.kfu.itis.issst.uima.morph.hunpos;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.annolab.tt4j.TokenHandler;
@@ -25,6 +26,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -94,7 +96,8 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 						if (tagMapper == null) {
 							wf.setPos(pos);
 						} else {
-							tagMapper.parseTag(pos, wf, token.getCoveredText());
+							Set<String> grams = tagMapper.parseTag(pos, token.getCoveredText());
+							MorphDictionaryUtils.applyGrammems(grams, wf);
 						}
 
 						FSArray wfArr = new FSArray(jCas, 1);
