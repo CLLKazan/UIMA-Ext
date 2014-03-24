@@ -17,6 +17,8 @@
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.TreeTagger</module>
 		<module>../UIMA.Ext.DependencyParser</module>
+		<module>../UIMA.Ext.DependencyParser.MST</module>
+		<module>../UIMA.Ext.DependencyParser.Lab</module>
 		<module>../UIMA.Ext.Morph.Search</module>
 		<module>../UIMA.Ext.PhraseRecognizer</module>
 		<module>../UIMA.Ext.NER</module>
@@ -158,6 +160,11 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-dep-parser</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-dep-parser-mst</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
