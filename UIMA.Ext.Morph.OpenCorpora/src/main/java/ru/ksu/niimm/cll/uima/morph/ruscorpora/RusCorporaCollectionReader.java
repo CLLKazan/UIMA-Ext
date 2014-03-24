@@ -33,11 +33,8 @@ import org.xml.sax.XMLReader;
 
 import ru.kfu.cll.uima.segmentation.fstype.Paragraph;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.cll.uima.tokenizer.fstype.CAP;
-import ru.kfu.cll.uima.tokenizer.fstype.CW;
-import ru.kfu.cll.uima.tokenizer.fstype.NUM;
+import ru.kfu.cll.uima.tokenizer.TokenUtils;
 import ru.kfu.cll.uima.tokenizer.fstype.SPECIAL;
-import ru.kfu.cll.uima.tokenizer.fstype.SW;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
@@ -132,9 +129,18 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 			int wEnd = srcWf.getEnd();
 			Word w = new Word(jCas, wBegin, wEnd);
 			// make token anno
-			Token tok = makeToken(jCas,
-					docText.substring(wBegin, wEnd),
-					wBegin, wEnd);
+			Token tok;
+			try {
+				tok = TokenUtils.makeToken(jCas,
+						docText.substring(wBegin, wEnd),
+						wBegin, wEnd);
+			} catch (Exception e) {
+				throw new IllegalStateException(String.format("In %s", curFileName));
+			}
+			if (tok instanceof SPECIAL) {
+				getLogger().info(String.format("SPECIAL detected in %s: %s",
+						curFileName, tok.getCoveredText()));
+			}
 			tok.addToIndexes();
 			w.setToken(tok);
 			// make wordform anno 
@@ -147,51 +153,6 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 		}
 		// clear per-CAS state
 		curFileName = null;
-	}
-
-	private Token makeToken(JCas jCas, String str, int begin, int end) {
-		if (str.isEmpty()) {
-			throw new IllegalStateException(String.format(
-					"Empty token (%s,%s) in %s", begin, end, curFileName));
-		}
-		// search for letter
-		int firstLetterIdx = -1;
-		for (int i = 0; i < str.length(); i++) {
-			if (Character.isLetter(str.charAt(i))) {
-				firstLetterIdx = i;
-				break;
-			}
-		}
-		if (firstLetterIdx < 0) {
-			// no letters, search for digit
-			boolean hasDigit = false;
-			for (int i = 0; i < str.length() && !hasDigit; i++) {
-				if (Character.isDigit(str.charAt(i))) {
-					hasDigit = true;
-				}
-			}
-			if (hasDigit) {
-				return new NUM(jCas, begin, end);
-			} else {
-				getLogger().info(String.format("SPECIAL detected in %s: %s",
-						curFileName, str));
-				return new SPECIAL(jCas, begin, end);
-			}
-		}
-		char firstLetter = str.charAt(firstLetterIdx);
-		if (Character.isUpperCase(firstLetter)) {
-			// check for CAP
-			boolean allCap = true;
-			for (int i = 0; i < str.length() && allCap; i++) {
-				char ch = str.charAt(i);
-				if (Character.isLetter(ch) && !Character.isUpperCase(ch)) {
-					allCap = false;
-				}
-			}
-			return allCap ? new CAP(jCas, begin, end) : new CW(jCas, begin, end);
-		} else {
-			return new SW(jCas, begin, end);
-		}
 	}
 
 	@Override
