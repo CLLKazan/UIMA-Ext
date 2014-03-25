@@ -9,9 +9,13 @@ import java.util.BitSet;
 import java.util.Set;
 
 import org.apache.uima.UimaContext;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.ResourceSpecifier;
+import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.component.initialize.ExternalResourceInitializer;
 import org.uimafit.descriptor.ExternalResource;
+import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.initializable.Initializable;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
@@ -26,6 +30,19 @@ import com.google.common.collect.Sets;
  * 
  */
 public class DictionaryBasedTagMapper implements TagMapper, Initializable {
+
+	public static void declareDependencyAndBind(ResourceSpecifier clientResourceDesc,
+			ExternalResourceDescription morphDictDesc) throws ResourceInitializationException {
+		try {
+			ExternalResourceFactory.createDependency(clientResourceDesc,
+					DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
+					MorphDictionaryHolder.class);
+			ExternalResourceFactory.bindResource(clientResourceDesc,
+					DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY, morphDictDesc);
+		} catch (InvalidXMLException e) {
+			throw new ResourceInitializationException(e);
+		}
+	}
 
 	public static final String CLASS_NAME = DictionaryBasedTagMapper.class.getName();
 	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
