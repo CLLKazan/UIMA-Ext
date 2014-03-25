@@ -3,6 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.ArrayList;
@@ -64,6 +65,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
 	public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
 	public static final String PARAM_GEN_DICTIONARY_FEATURES = "generateDictionaryFeatures";
+	public static final String PARAM_GEN_PUNCTUATION_FEATURES = "generatePunctuationFeatures";
+	public static final String PARAM_REUSE_EXISTING_WORD_ANNOTATIONS = "reuseExistingWordAnnotations";
 	// config fields
 	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
@@ -78,6 +81,10 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private int rightContextSize = -1;
 	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true")
 	private boolean generateDictionaryFeatures;
+	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false")
+	private boolean generatePunctuationFeatures;
+	@ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS, defaultValue = "false")
+	private boolean reuseExistingWordAnnotations;
 	// derived
 	private MorphDictionary morphDictionary;
 	private Set<String> currentPosTier;
@@ -150,10 +157,24 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		if (!isTraining() && currentTier == 0) {
-			// make Word annotations
-			WordAnnotator.makeWords(jCas);
+			if (reuseExistingWordAnnotations) {
+				// clean wordforms to avoid erroneous feature extraction or output assignment
+				cleanWordforms(jCas);
+			} else {
+				// ensure that there are no existing annotations
+				// // otherwise things may go irregularly
+				if (JCasUtil.exists(jCas, Word.class)) {
+					throw new IllegalStateException(String.format(
+							"CAS '%s' has Word annotations before this annotator",
+							getDocumentUri(jCas)));
+				}
+				// make Word annotations
+				WordAnnotator.makeWords(jCas);
+			}
 		}
-		adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+		if (generatePunctuationFeatures) {
+			adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+		}
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			process(jCas, sent);
 		}
@@ -228,7 +249,9 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
 		}
 		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
-		tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
+		if (generatePunctuationFeatures) {
+			tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
+		}
 		return tokFeatures;
 	}
 
@@ -294,4 +317,12 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 
 	static final Splitter posCatSplitter = Splitter.on('&').trimResults();
 	private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
+
+	private void cleanWordforms(JCas jCas) {
+		for (Word w : JCasUtil.select(jCas, Word.class)) {
+			Wordform wf = new Wordform(jCas);
+			wf.setWord(w);
+			w.setWordforms(FSUtils.toFSArray(jCas, wf));
+		}
+	}
 }
