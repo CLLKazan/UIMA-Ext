@@ -9,14 +9,18 @@ import mstparser.DependencyInstance;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
+import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.CollectionReaderFactory;
+import org.uimafit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.TokenUtils;
@@ -26,6 +30,18 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.issst.uima.depparser.Dependency;
 
 public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
+
+	public static CollectionReaderDescription createDescription(File inputFile)
+			throws ResourceInitializationException {
+		TypeSystemDescription inputTSD = TypeSystemDescriptionFactory.createTypeSystemDescription(
+				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
+				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
+				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
+		return CollectionReaderFactory.createDescription(
+				MSTCollectionReader.class, inputTSD,
+				PARAM_INPUT_FILE, inputFile.getPath());
+	}
 
 	public static final String PARAM_INPUT_FILE = "inputFile";
 

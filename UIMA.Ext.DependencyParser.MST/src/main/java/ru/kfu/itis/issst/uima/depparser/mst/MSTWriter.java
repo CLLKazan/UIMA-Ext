@@ -1,6 +1,8 @@
 package ru.kfu.itis.issst.uima.depparser.mst;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
+import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
 import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.tagFunction;
 
@@ -12,9 +14,11 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.opencorpora.cas.Word;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
@@ -29,6 +33,15 @@ import com.google.common.collect.Lists;
 
 @OperationalProperties(multipleDeploymentAllowed = false)
 public class MSTWriter extends JCasAnnotator_ImplBase {
+
+	public static final AnalysisEngineDescription createDescription(File outputFile)
+			throws ResourceInitializationException {
+		TypeSystemDescription tsDesc = createTypeSystemDescription(
+				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
+		return createPrimitiveDescription(MSTWriter.class, tsDesc,
+				PARAM_OUTPUT_FILE, outputFile.getPath());
+	}
 
 	public static final String PARAM_OUTPUT_FILE = "outputFile";
 

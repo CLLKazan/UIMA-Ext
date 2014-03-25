@@ -8,12 +8,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.junit.Assert;
 import org.junit.Test;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.issst.uima.depparser.mst.MSTCollectionReader;
@@ -26,17 +22,9 @@ public class MSTReadWriteTest {
 		File inputFile = new File("src/test/resources/mst-example.txt");
 		File outputFile = new File("target/mst-example.txt");
 		//
-		TypeSystemDescription inputTSD = TypeSystemDescriptionFactory.createTypeSystemDescription(
-				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
-				MSTCollectionReader.class, inputTSD,
-				MSTCollectionReader.PARAM_INPUT_FILE, inputFile.getPath());
-		AnalysisEngineDescription writerDesc = AnalysisEngineFactory.createPrimitiveDescription(
-				MSTWriter.class,
-				MSTWriter.PARAM_OUTPUT_FILE, outputFile.getPath());
+		CollectionReaderDescription colReaderDesc = MSTCollectionReader
+				.createDescription(inputFile);
+		AnalysisEngineDescription writerDesc = MSTWriter.createDescription(outputFile);
 		SimplePipeline.runPipeline(colReaderDesc, writerDesc);
 		//
 		List<String> expectedLines = FileUtils.readLines(inputFile, "UTF-8");
