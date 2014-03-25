@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 import mstparser.DependencyInstance;
+import mstparser.DependencyParser;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.uima.depparser.mst.MSTDependencyInstanceIterator;
 
@@ -22,17 +23,20 @@ import com.google.common.collect.Range;
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
+import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
 import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
 import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
 import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 
 public class MSTParserLab extends LabLauncherBase {
 
 	static final String DEFAULT_WRK_DIR = "wrk/mstparser";
-	public static final String KEY_CORPUS_DIR = "Corpus";
+	private static final String KEY_CORPUS_DIR = "Corpus";
+	private static final String KEY_MODEL_DIR = "Model";
+	private static final String KEY_OUTPUT_DIR = "Output";
 
 	public static void main(String[] args) throws Exception {
 		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
@@ -93,12 +97,103 @@ public class MSTParserLab extends LabLauncherBase {
 				}
 			}
 		};
+		// train
+		Task trainingTask = new ExecutableTaskBase() {
+			{
+				setType("Training");
+			}
+			@Discriminator
+			int fold;
+
+			@Override
+			public void execute(TaskContext taskCtx) throws Exception {
+				File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS_DIR, AccessMode.READONLY);
+				File trainFile = new File(corpusDir,
+						getPartitionFilename(PartitionType.TRAIN, fold));
+				//
+				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
+				File modelFile = getModelFile(modelDir);
+				//
+				DependencyParser.main(new String[] { "train",
+						"train-file:" + trainFile.getPath(),
+						"format:MST",
+						"model-name:" + modelFile.getPath()
+				});
+			}
+		};
+		// test
+		Task testTask = new ExecutableTaskBase() {
+			{
+				setType("Testing");
+			}
+			@Discriminator
+			int fold;
+
+			@Override
+			public void execute(TaskContext taskCtx) throws Exception {
+				File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS_DIR, AccessMode.READONLY);
+				File testFile = new File(corpusDir,
+						getPartitionFilename(PartitionType.TEST, fold));
+				//
+				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
+				File modelFile = getModelFile(modelDir);
+				//
+				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
+				File outputFile = getOutputFile(outputDir);
+				//
+				DependencyParser.main(new String[] { "test",
+						"model-name:" + modelFile.getPath(),
+						"test-file:" + testFile.getPath(),
+						"format:MST",
+						"output-file:" + outputFile.getPath()
+				});
+			}
+		};
+		// eval
+		Task evalTask = new ExecutableTaskBase() {
+			{
+				setType("Evaluation");
+			}
+			@Discriminator
+			int fold;
+
+			@Override
+			public void execute(TaskContext taskCtx) throws Exception {
+				File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS_DIR, AccessMode.READONLY);
+				File testFile = new File(corpusDir,
+						getPartitionFilename(PartitionType.TEST, fold));
+				//
+				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.ADD_ONLY);
+				File outputFile = getOutputFile(outputDir);
+				File evalReportFile = new File(outputDir, "eval-report.txt");
+				//
+				BufferedWriter evalReportWriter = openBufferedWriter(evalReportFile);
+				try {
+					evalReportWriter.write(String.format("Fold: %s%n", fold));
+					DependencyEvaluator.evaluate(testFile.getPath(),
+							outputFile.getPath(),
+							"MST", false, evalReportWriter);
+				} finally {
+					closeQuietly(evalReportWriter);
+				}
+			}
+		};
+		// configure data-flow between tasks
+		trainingTask.addImport(corpusPartitioningTask, KEY_CORPUS_DIR);
+		testTask.addImport(corpusPartitioningTask, KEY_CORPUS_DIR);
+		testTask.addImport(trainingTask, KEY_MODEL_DIR);
+		evalTask.addImport(corpusPartitioningTask, KEY_CORPUS_DIR);
+		evalTask.addImport(testTask, KEY_OUTPUT_DIR);
 		//
 		ParameterSpace pSpace = new ParameterSpace(
-				getFileDimension("corpusFile"));
+				getFileDimension("corpusFile"),
+				Dimension.create("fold", makeFoldsDimension(foldsNum)));
 		//
 		BatchTask batchTask = new BatchTask();
 		batchTask.addTask(corpusPartitioningTask);
+		batchTask.addTask(trainingTask);
+		batchTask.addTask(testTask);
+		batchTask.addTask(evalTask);
 		batchTask.setParameterSpace(pSpace);
 		batchTask.setExecutionPolicy(ExecutionPolicy.USE_EXISTING);
 		Lab.getInstance().run(batchTask);
@@ -116,6 +211,14 @@ public class MSTParserLab extends LabLauncherBase {
 		} finally {
 			instIterator.close();
 		}
+	}
+
+	private static Integer[] makeFoldsDimension(int foldNum) {
+		Integer[] result = new Integer[foldNum];
+		for (int i = 0; i < foldNum; i++) {
+			result[i] = i;
+		}
+		return result;
 	}
 
 	/**
@@ -139,5 +242,13 @@ public class MSTParserLab extends LabLauncherBase {
 			result.add(testRange);
 		}
 		return result;
+	}
+
+	private static File getModelFile(File modelDir) {
+		return new File(modelDir, "model.ser");
+	}
+
+	private static File getOutputFile(File outputDir) {
+		return new File(outputDir, "output.txt");
 	}
 }
