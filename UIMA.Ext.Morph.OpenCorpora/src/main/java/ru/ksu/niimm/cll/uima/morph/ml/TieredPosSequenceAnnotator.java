@@ -64,6 +64,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
 	public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
 	public static final String PARAM_GEN_DICTIONARY_FEATURES = "generateDictionaryFeatures";
+	public static final String PARAM_GEN_PUNCTUATION_FEATURES = "generatePunctuationFeatures";
 	// config fields
 	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
@@ -78,6 +79,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private int rightContextSize = -1;
 	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true")
 	private boolean generateDictionaryFeatures;
+	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false")
+	private boolean generatePunctuationFeatures;
 	// derived
 	private MorphDictionary morphDictionary;
 	private Set<String> currentPosTier;
@@ -153,7 +156,9 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 			// make Word annotations
 			WordAnnotator.makeWords(jCas);
 		}
-		adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+		if (generatePunctuationFeatures) {
+			adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+		}
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			process(jCas, sent);
 		}
@@ -228,7 +233,9 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
 		}
 		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
-		tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
+		if (generatePunctuationFeatures) {
+			tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
+		}
 		return tokFeatures;
 	}
 
