@@ -74,7 +74,7 @@ public class AssignPosTags {
 				CachedSerializedDictionaryResource.class,
 				"file:dict.opcorpora.ser");
 		TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
-				tcrfTaggerModelBaseDir, morphDictDesc, aeDescs, aeNames);
+				tcrfTaggerModelBaseDir, true, morphDictDesc, aeDescs, aeNames);
 		//
 		aeDescs.add(TagAssembler.createDescription(morphDictDesc));
 		aeNames.add("tagAssembler");
