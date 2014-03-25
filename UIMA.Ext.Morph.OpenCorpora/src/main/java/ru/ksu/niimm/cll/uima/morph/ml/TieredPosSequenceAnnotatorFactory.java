@@ -118,6 +118,14 @@ public class TieredPosSequenceAnnotatorFactory {
 			ExternalResourceDescription morphDictDesc,
 			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
 			throws ResourceInitializationException, IOException {
+		addTaggerDescriptions(modelBaseDir, false, morphDictDesc, aeDescriptions, aeNames);
+	}
+
+	public static void addTaggerDescriptions(File modelBaseDir,
+			boolean reuseExistingWordAnnotations,
+			ExternalResourceDescription morphDictDesc,
+			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
+			throws ResourceInitializationException, IOException {
 		//
 		File configPropsFile = new File(modelBaseDir, CONFIG_PROPS_FILENAME);
 		Properties configProps = IoUtils.readProperties(configPropsFile);
@@ -131,6 +139,8 @@ public class TieredPosSequenceAnnotatorFactory {
 			File modelDir = getTierDir(modelBaseDir, posTier);
 			//
 			List<Object> finalParams = Lists.newArrayList(
+					TieredPosSequenceAnnotator.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
+					reuseExistingWordAnnotations,
 					TieredPosSequenceAnnotator.PARAM_POS_TIERS, posTiers,
 					TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
 					TieredPosSequenceAnnotator.PARAM_CLASSIFIER_FACTORY_CLASS_NAME,
