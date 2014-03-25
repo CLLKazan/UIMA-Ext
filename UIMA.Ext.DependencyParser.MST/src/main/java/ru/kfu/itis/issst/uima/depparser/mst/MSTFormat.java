@@ -14,13 +14,14 @@ import com.google.common.collect.Lists;
 public class MSTFormat {
 
 	static final Joiner mstTokenJoiner = Joiner.on('\t');
+	static final Joiner mstTagJoiner = Joiner.on('\t').useForNull("null");
 
 	public static void writeInstance(Writer out,
 			Iterable<String> forms, Iterable<String> tags, Iterable<Integer> heads)
 			throws IOException {
 		mstTokenJoiner.appendTo(out, forms);
 		out.write("\n");
-		mstTokenJoiner.appendTo(out, tags);
+		mstTagJoiner.appendTo(out, tags);
 		out.write("\n");
 		mstTokenJoiner.appendTo(out, heads);
 		out.write("\n\n");
