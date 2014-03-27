@@ -1,15 +1,21 @@
 package ru.kfu.itis.issst.corpus.statistics.dao;
 
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath;
+
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.XmlCasDeserializer;
+import org.xml.sax.SAXException;
 
 public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
@@ -18,7 +24,8 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
 	public XmiFileTreeCorpusDAO(String corpusPathString) {
 		corpusFile = new File(corpusPathString);
-		annotatorDirs = corpusFile.listFiles((FileFilter)DirectoryFileFilter.DIRECTORY);
+		annotatorDirs = corpusFile
+				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
 	}
 
 	@Override
@@ -39,9 +46,17 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 	}
 
 	@Override
-	public CAS getDocumentCas(URI docURI) {
-		// TODO Auto-generated method stub
-		return null;
+	public void getDocumentCas(URI docURI, CAS aCAS) throws SAXException,
+			IOException {
+		XmlCasDeserializer.deserialize(new FileInputStream(new File(docURI)),
+				aCAS);
+	}
+
+	@Override
+	public TypeSystemDescription getTypeSystem() {
+		File typeSystemFile = corpusFile
+				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))[0];
+		return createTypeSystemDescriptionFromPath(typeSystemFile.toString());
 	}
 
 }
