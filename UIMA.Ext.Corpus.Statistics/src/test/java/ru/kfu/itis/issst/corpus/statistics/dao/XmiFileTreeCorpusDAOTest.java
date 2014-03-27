@@ -4,9 +4,13 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 public class XmiFileTreeCorpusDAOTest {
 	
@@ -18,7 +22,15 @@ public class XmiFileTreeCorpusDAOTest {
 		for (URI docURI : corpusDAO.getDocs()) {
 			assertTrue(new File(docURI).exists());
 		}
-		assertEquals(corpusDAO.getDocs().size(), 4);
+		assertEquals(4, corpusDAO.getDocs().size());
 	}
 
+	@Test
+	public void testGetAnnotatorId() {
+		Set<String> annotatorIds = new HashSet<String>();
+		for (URI docURI : corpusDAO.getDocs()) {
+			annotatorIds.add(corpusDAO.getAnnotatorId(docURI));
+		}
+		assertEquals(Sets.newHashSet("1", "5"), annotatorIds);
+	}
 }

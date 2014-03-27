@@ -34,8 +34,8 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
 	@Override
 	public String getAnnotatorId(URI docURI) {
-		// TODO Auto-generated method stub
-		return null;
+		File f = new File(docURI);
+		return f.getParentFile().getName();
 	}
 
 	@Override
