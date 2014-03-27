@@ -1,12 +1,14 @@
 package ru.kfu.itis.issst.corpus.statistics.dao;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.uima.cas.CAS;
 
 public class XmiFileTreeCorpusDAO implements CorpusDAO {
@@ -16,12 +18,7 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
 	public XmiFileTreeCorpusDAO(String corpusPathString) {
 		corpusFile = new File(corpusPathString);
-		annotatorDirs = corpusFile.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File current, String name) {
-				return new File(current, name).isDirectory();
-			}
-		});
+		annotatorDirs = corpusFile.listFiles((FileFilter)DirectoryFileFilter.DIRECTORY);
 	}
 
 	@Override
