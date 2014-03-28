@@ -1,5 +1,8 @@
 package ru.kfu.itis.issst.corpus.statistics.dao;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -86,7 +89,7 @@ public class XmiFileTreeCorpusDAOTest {
 				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
 		corpusDAO.getDocumentCas(new URI("62007.txt"), "1", aCAS);
-		assertTrue(aCAS.getDocumentText().contains("РИА Новости"));
+		assertThat(aCAS.getDocumentText(), containsString("РИА Новости"));
 		assertEquals(6, CasUtil.selectAll(aCAS).size());
 		assertEquals(
 				1,
@@ -99,8 +102,8 @@ public class XmiFileTreeCorpusDAOTest {
 				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
 		corpusDAO.getDocumentCas(new URI("62007.txt"), "5", aCAS);
-		assertTrue(aCAS.getDocumentText().contains("РИА Новости"));
-		assertEquals(5, CasUtil.selectAll(aCAS).size());
+		assertThat(aCAS.getDocumentText(), containsString("РИА Новости"));
+		assertThat(CasUtil.selectAll(aCAS).size(), equalTo(5));
 		assertEquals(
 				0,
 				CasUtil.select(

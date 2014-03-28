@@ -18,6 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.ExternalResourceFactory;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
@@ -49,7 +51,7 @@ public class CorpusDAOCollectionReaderTest {
 					XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 					null, null);
 			reader.getNext(aCAS);
-			assertTrue(aCAS.getDocumentText().contains("д"));
+			assertThat(aCAS.getDocumentText(), containsString("д"));
 			String sourceUri = DocumentUtils.getDocumentUri(aCAS);
 			sourceUris.add(sourceUri.substring(sourceUri.length() - 11));
 		}
