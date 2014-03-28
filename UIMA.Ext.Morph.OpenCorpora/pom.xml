@@ -64,10 +64,6 @@
 			<artifactId>cleartk-ml</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-ml-crfsuite</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>ru.kfu.itis.issst.crfsuite4j</groupId>
 			<artifactId>crfsuite4j</artifactId>
 			<version>0.1-SNAPSHOT</version>
