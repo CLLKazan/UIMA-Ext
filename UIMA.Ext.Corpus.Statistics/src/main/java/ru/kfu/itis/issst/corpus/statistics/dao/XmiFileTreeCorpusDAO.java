@@ -26,22 +26,20 @@ import com.google.common.collect.SetMultimap;
 
 public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
-	private File corpusFile;
-	private File[] annotatorDirs;
 	private Map<UriAnnotatorPair, File> fileByURIandAnnotatorId = new HashMap<UriAnnotatorPair, File>();
 	private SetMultimap<URI, String> annotatorsByDocument = HashMultimap
 			.create();
+	private TypeSystemDescription typeSystem;
 
 	public XmiFileTreeCorpusDAO(String corpusPathString)
 			throws URISyntaxException {
-		corpusFile = new File(corpusPathString);
-		annotatorDirs = corpusFile
-				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
-		findFiles();
+		File corpusDirFile = new File(corpusPathString);
+		findFiles(corpusDirFile);
+		findTypeSystem(corpusDirFile);
 	}
 
-	private void findFiles() throws URISyntaxException {
-		for (File dir : annotatorDirs) {
+	private void findFiles(File corpusDirFile) throws URISyntaxException {
+		for (File dir : listAnnotatorDirs(corpusDirFile)) {
 			for (File xmiFile : dir.listFiles()) {
 				URI uri = getDocumentURI(xmiFile);
 				String annotatorId = getAnnotatorId(xmiFile);
@@ -52,12 +50,23 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 		}
 	}
 
+	private File[] listAnnotatorDirs(File corpusDir) {
+		return corpusDir.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+	}
+
 	private String getAnnotatorId(File xmiFile) {
 		return xmiFile.getParentFile().getName();
 	}
 
 	private URI getDocumentURI(File xmiFile) throws URISyntaxException {
 		return new URI(FilenameUtils.removeExtension(xmiFile.getName()));
+	}
+
+	private void findTypeSystem(File corpusDirFile) {
+		File typeSystemFile = corpusDirFile
+				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))[0];
+		typeSystem = createTypeSystemDescriptionFromPath(typeSystemFile
+				.toString());
 	}
 
 	@Override
@@ -77,10 +86,11 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 	@Override
 	public void getDocumentCas(URI docURI, String annotatorId, CAS aCAS)
 			throws SAXException, IOException {
-		if (fileByURIandAnnotatorId.containsKey(new UriAnnotatorPair(docURI, annotatorId))) {
-			XmlCasDeserializer.deserialize(
-					new FileInputStream(fileByURIandAnnotatorId
-							.get(new UriAnnotatorPair(docURI, annotatorId))), aCAS);
+		if (fileByURIandAnnotatorId.containsKey(new UriAnnotatorPair(docURI,
+				annotatorId))) {
+			File xmiFile = fileByURIandAnnotatorId.get(new UriAnnotatorPair(
+					docURI, annotatorId));
+			XmlCasDeserializer.deserialize(new FileInputStream(xmiFile), aCAS);
 		} else {
 			throw new FileNotFoundException();
 		}
@@ -88,9 +98,7 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
 	@Override
 	public TypeSystemDescription getTypeSystem() {
-		File typeSystemFile = corpusFile
-				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))[0];
-		return createTypeSystemDescriptionFromPath(typeSystemFile.toString());
+		return typeSystem;
 	}
 
 	private static class UriAnnotatorPair {
