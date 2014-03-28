@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionException;
@@ -19,6 +21,8 @@ import org.uimafit.factory.ExternalResourceFactory;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
+
+import com.google.common.collect.Sets;
 
 public class CorpusDAOCollectionReaderTest {
 
@@ -39,22 +43,18 @@ public class CorpusDAOCollectionReaderTest {
 	@Test
 	public void testGetNext() throws CollectionException, IOException,
 			ResourceInitializationException, URISyntaxException {
-		CAS aCAS = CasCreationUtils.createCas(
-				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
-				null, null);
-		int docCount = 0;
-		reader.getNext(aCAS);
-		docCount++;
-		assertTrue(aCAS.getDocumentText().contains("д"));
-		assertTrue(DocumentUtils.getDocumentUri(aCAS).endsWith(".txt"));
-		while(reader.hasNext()) {
-			CAS tempCAS = CasCreationUtils.createCas(
+		Set<String> sourceUris = new HashSet<String>();
+		while (reader.hasNext()) {
+			CAS aCAS = CasCreationUtils.createCas(
 					XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 					null, null);
-			reader.getNext(tempCAS);
-			docCount++;
+			reader.getNext(aCAS);
+			assertTrue(aCAS.getDocumentText().contains("д"));
+			String sourceUri = DocumentUtils.getDocumentUri(aCAS);
+			sourceUris.add(sourceUri.substring(sourceUri.length() - 11));
 		}
-		assertEquals(4, docCount);
+		assertEquals(Sets.newHashSet("1/62007.txt", "1/65801.txt",
+				"5/62007.txt", "5/75788.txt"), sourceUris);
 	}
 
 }
