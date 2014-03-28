@@ -24,9 +24,27 @@
 		</typeDescription>
 
 		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Artifact</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
 			<name>ru.kfu.itis.issst.evex.Weapon</name>
 			<description/>
 			<supertypeName>ru.kfu.itis.issst.evex.Artifact</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Job</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Time</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
 		</typeDescription>
 
 		<!--	EVENT	-->
@@ -113,6 +131,47 @@
 			</features>
 		</typeDescription>
 
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.StartPosition</name>
+			<description/>
+			<supertypeName>ru.kfu.itis.issst.evex.Event</supertypeName>
+			<features>
+
+				<featureDescription>
+					<name>personArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ru.kfu.itis.issst.evex.Person</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>employerArg</name>
+					<description/>
+					<rangeTypeName>uima.tcas.Annotation</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>positionArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ru.kfu.itis.issst.evex.Job</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>placeArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>uima.tcas.Annotation</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>timeArg</name>
+					<description/>
+					<rangeTypeName>ru.kfu.itis.issst.evex.Time</rangeTypeName>
+				</featureDescription>
+
+			</features>
+		</typeDescription>
 
 	</types>
 </typeSystemDescription>

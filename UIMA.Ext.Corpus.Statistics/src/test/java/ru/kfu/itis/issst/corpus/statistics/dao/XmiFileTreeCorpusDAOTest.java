@@ -3,39 +3,57 @@ package ru.kfu.itis.issst.corpus.statistics.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.CasCreationUtils;
 import org.apache.uima.util.InvalidXMLException;
+import org.junit.Before;
 import org.junit.Test;
+import org.uimafit.util.CasUtil;
+import org.xml.sax.SAXException;
 
 import com.google.common.collect.Sets;
 
 public class XmiFileTreeCorpusDAOTest {
 
 	private String corpusPathString = "src/test/resources/corpus_example";
-	CorpusDAO corpusDAO = new XmiFileTreeCorpusDAO(corpusPathString);
+	CorpusDAO corpusDAO;
 
-	@Test
-	public void testGetDocs() {
-		for (URI docURI : corpusDAO.getDocs()) {
-			assertTrue(new File(docURI).exists());
-		}
-		assertEquals(4, corpusDAO.getDocs().size());
+	@Before
+	public void setUp() throws URISyntaxException {
+		corpusDAO = new XmiFileTreeCorpusDAO(corpusPathString);
 	}
 
 	@Test
-	public void testGetAnnotatorId() {
-		Set<String> annotatorIds = new HashSet<String>();
-		for (URI docURI : corpusDAO.getDocs()) {
-			annotatorIds.add(corpusDAO.getAnnotatorId(docURI));
-		}
-		assertEquals(Sets.newHashSet("1", "5"), annotatorIds);
+	public void testGetDocuments() throws URISyntaxException {
+		assertEquals(Sets.newHashSet(new URI("62007.txt"),
+				new URI("65801.txt"), new URI("75788.txt")),
+				corpusDAO.getDocuments());
+	}
+
+	@Test
+	public void testGetAnnotatorIds() throws URISyntaxException, IOException {
+		assertEquals(Sets.newHashSet("1", "5"),
+				corpusDAO.getAnnotatorIds(new URI("62007.txt")));
+		assertEquals(Sets.newHashSet("1"),
+				corpusDAO.getAnnotatorIds(new URI("65801.txt")));
+		assertEquals(Sets.newHashSet("5"),
+				corpusDAO.getAnnotatorIds(new URI("75788.txt")));
+	}
+
+	@Test(expected = FileNotFoundException.class)
+	public void testGetAnnotatorIdsForNonexistingDocument()
+			throws URISyntaxException, IOException {
+		corpusDAO.getAnnotatorIds(new URI("49580.txt"));
 	}
 
 	@Test
@@ -46,7 +64,6 @@ public class XmiFileTreeCorpusDAOTest {
 
 		Set<String> typeNames = new HashSet<String>();
 		for (TypeDescription type : typeSystem.getTypes()) {
-			System.out.println(type.getName());
 			typeNames.add(type.getName());
 		}
 
@@ -54,8 +71,57 @@ public class XmiFileTreeCorpusDAOTest {
 				"ru.kfu.itis.cll.uima.commons.DocumentMetadata",
 				"ru.kfu.itis.issst.evex.Person",
 				"ru.kfu.itis.issst.evex.Organization",
-				"ru.kfu.itis.issst.evex.Weapon",
-				"ru.kfu.itis.issst.evex.Event", "ru.kfu.itis.issst.evex.Die"),
-				typeNames);
+				"ru.kfu.itis.issst.evex.Artifact",
+				"ru.kfu.itis.issst.evex.Weapon", "ru.kfu.itis.issst.evex.Job",
+				"ru.kfu.itis.issst.evex.Time", "ru.kfu.itis.issst.evex.Event",
+				"ru.kfu.itis.issst.evex.Die",
+				"ru.kfu.itis.issst.evex.StartPosition"), typeNames);
 	}
+
+	@Test
+	public void testGetDocumentCas() throws ResourceInitializationException,
+			IOException, SAXException, URISyntaxException {
+		CAS aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+				null, null);
+		corpusDAO.getDocumentCas(new URI("62007.txt"), "1", aCAS);
+		assertTrue(aCAS.getDocumentText().contains("РИА Новости"));
+		assertEquals(6, CasUtil.selectAll(aCAS).size());
+		assertEquals(
+				1,
+				CasUtil.select(
+						aCAS,
+						CasUtil.getAnnotationType(aCAS,
+								"ru.kfu.itis.issst.evex.Weapon")).size());
+
+		aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+				null, null);
+		corpusDAO.getDocumentCas(new URI("62007.txt"), "5", aCAS);
+		assertTrue(aCAS.getDocumentText().contains("РИА Новости"));
+		assertEquals(5, CasUtil.selectAll(aCAS).size());
+		assertEquals(
+				0,
+				CasUtil.select(
+						aCAS,
+						CasUtil.getAnnotationType(aCAS,
+								"ru.kfu.itis.issst.evex.Weapon")).size());
+	}
+
+	@Test(expected = FileNotFoundException.class)
+	public void testGetDocumentCasForNonexistingDocument()
+			throws ResourceInitializationException, IOException, SAXException,
+			URISyntaxException {
+		CAS aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+				null, null);
+		corpusDAO.getDocumentCas(new URI("49053.txt"), "1", aCAS);
+	}
+
+	@Test(expected = FileNotFoundException.class)
+	public void testGetDocumentCasForWrongAnnotator()
+			throws ResourceInitializationException, IOException, SAXException,
+			URISyntaxException {
+		CAS aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+				null, null);
+		corpusDAO.getDocumentCas(new URI("75788.txt"), "1", aCAS);
+	}
+
 }

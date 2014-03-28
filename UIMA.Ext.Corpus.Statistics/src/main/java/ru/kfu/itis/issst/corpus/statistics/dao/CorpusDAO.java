@@ -1,9 +1,9 @@
 package ru.kfu.itis.issst.corpus.statistics.dao;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
+import java.net.URISyntaxException;
+import java.util.Set;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
@@ -11,12 +11,12 @@ import org.xml.sax.SAXException;
 
 public interface CorpusDAO {
 
-	List<URI> getDocs();
+	Set<URI> getDocuments() throws URISyntaxException;
 
-	String getAnnotatorId(URI docURI);
+	Set<String> getAnnotatorIds(URI docURI) throws IOException;
 
-	void getDocumentCas(URI docURI, CAS aCAS) throws FileNotFoundException,
-			SAXException, IOException;
+	void getDocumentCas(URI docURI, String annotatorId, CAS aCAS)
+			throws IOException, SAXException;
 
 	TypeSystemDescription getTypeSystem();
 
