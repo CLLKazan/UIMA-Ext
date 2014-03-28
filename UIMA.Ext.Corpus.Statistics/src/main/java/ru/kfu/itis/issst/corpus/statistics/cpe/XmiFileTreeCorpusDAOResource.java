@@ -9,7 +9,6 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.CorpusDAO;
@@ -41,9 +40,5 @@ public class XmiFileTreeCorpusDAOResource implements CorpusDAO,
 	public void getDocumentCas(URI docURI, String annotatorId, CAS aCAS)
 			throws IOException, SAXException {
 		corpusDAO.getDocumentCas(docURI, annotatorId, aCAS);
-	}
-
-	public TypeSystemDescription getTypeSystem() {
-		return corpusDAO.getTypeSystem();
 	}
 }

@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.apache.uima.cas.CAS;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.xml.sax.SAXException;
 
 public interface CorpusDAO {
@@ -17,7 +16,4 @@ public interface CorpusDAO {
 
 	void getDocumentCas(URI docURI, String annotatorId, CAS aCAS)
 			throws IOException, SAXException;
-
-	TypeSystemDescription getTypeSystem();
-
 }

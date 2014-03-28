@@ -25,7 +25,7 @@ import com.google.common.collect.Sets;
 
 public class XmiFileTreeCorpusDAOTest {
 
-	private String corpusPathString = "src/test/resources/corpus_example";
+	String corpusPathString = "src/test/resources/corpus_example";
 	CorpusDAO corpusDAO;
 
 	@Before
@@ -59,7 +59,8 @@ public class XmiFileTreeCorpusDAOTest {
 	@Test
 	public void testGetTypeSystem() throws ResourceInitializationException,
 			InvalidXMLException {
-		TypeSystemDescription typeSystem = corpusDAO.getTypeSystem();
+		TypeSystemDescription typeSystem = XmiFileTreeCorpusDAO
+				.getTypeSystem(corpusPathString);
 		typeSystem.resolveImports();
 
 		Set<String> typeNames = new HashSet<String>();
@@ -81,7 +82,8 @@ public class XmiFileTreeCorpusDAOTest {
 	@Test
 	public void testGetDocumentCas() throws ResourceInitializationException,
 			IOException, SAXException, URISyntaxException {
-		CAS aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+		CAS aCAS = CasCreationUtils.createCas(
+				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
 		corpusDAO.getDocumentCas(new URI("62007.txt"), "1", aCAS);
 		assertTrue(aCAS.getDocumentText().contains("РИА Новости"));
@@ -93,7 +95,8 @@ public class XmiFileTreeCorpusDAOTest {
 						CasUtil.getAnnotationType(aCAS,
 								"ru.kfu.itis.issst.evex.Weapon")).size());
 
-		aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+		aCAS = CasCreationUtils.createCas(
+				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
 		corpusDAO.getDocumentCas(new URI("62007.txt"), "5", aCAS);
 		assertTrue(aCAS.getDocumentText().contains("РИА Новости"));
@@ -110,7 +113,8 @@ public class XmiFileTreeCorpusDAOTest {
 	public void testGetDocumentCasForNonexistingDocument()
 			throws ResourceInitializationException, IOException, SAXException,
 			URISyntaxException {
-		CAS aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+		CAS aCAS = CasCreationUtils.createCas(
+				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
 		corpusDAO.getDocumentCas(new URI("49053.txt"), "1", aCAS);
 	}
@@ -119,7 +123,8 @@ public class XmiFileTreeCorpusDAOTest {
 	public void testGetDocumentCasForWrongAnnotator()
 			throws ResourceInitializationException, IOException, SAXException,
 			URISyntaxException {
-		CAS aCAS = CasCreationUtils.createCas(corpusDAO.getTypeSystem(), null,
+		CAS aCAS = CasCreationUtils.createCas(
+				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
 		corpusDAO.getDocumentCas(new URI("75788.txt"), "1", aCAS);
 	}

@@ -3,6 +3,7 @@ package ru.kfu.itis.issst.corpus.statistics.cpe;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class CorpusDAOCollectionReader extends CasCollectionReader_ImplBase {
 	@ExternalResource(key = CORPUS_DAO_KEY)
 	private CorpusDAO corpusDAO;
 
-	private Set<UriAnnotatorPair> uriAnnotatorPairs;
+	private Set<UriAnnotatorPair> uriAnnotatorPairs = new HashSet<UriAnnotatorPair>();
 	private Iterator<UriAnnotatorPair> uriAnnotatorPairsIterator;
 	private int mCurrentIndex;
 

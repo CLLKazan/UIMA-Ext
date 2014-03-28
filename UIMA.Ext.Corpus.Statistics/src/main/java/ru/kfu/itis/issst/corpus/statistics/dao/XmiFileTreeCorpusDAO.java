@@ -29,13 +29,11 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 	private Map<UriAnnotatorPair, File> fileByURIandAnnotatorId = new HashMap<UriAnnotatorPair, File>();
 	private SetMultimap<URI, String> annotatorsByDocument = HashMultimap
 			.create();
-	private TypeSystemDescription typeSystem;
 
 	public XmiFileTreeCorpusDAO(String corpusPathString)
 			throws URISyntaxException {
 		File corpusDirFile = new File(corpusPathString);
 		findFiles(corpusDirFile);
-		findTypeSystem(corpusDirFile);
 	}
 
 	private void findFiles(File corpusDirFile) throws URISyntaxException {
@@ -60,13 +58,6 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 
 	private URI getDocumentURI(File xmiFile) throws URISyntaxException {
 		return new URI(FilenameUtils.removeExtension(xmiFile.getName()));
-	}
-
-	private void findTypeSystem(File corpusDirFile) {
-		File typeSystemFile = corpusDirFile
-				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))[0];
-		typeSystem = createTypeSystemDescriptionFromPath(typeSystemFile
-				.toString());
 	}
 
 	@Override
@@ -96,8 +87,9 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 		}
 	}
 
-	@Override
-	public TypeSystemDescription getTypeSystem() {
-		return typeSystem;
+	static public TypeSystemDescription getTypeSystem(String corpusPathString) {
+		File typeSystemFile = new File(corpusPathString)
+				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))[0];
+		return createTypeSystemDescriptionFromPath(typeSystemFile.toString());
 	}
 }
