@@ -2,6 +2,11 @@ package ru.kfu.itis.issst.uima.depparser.mst;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
+import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.ExternalResourceFactory.bindResource;
+import static org.uimafit.factory.ExternalResourceFactory.createDependency;
+import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
 
 import java.io.BufferedInputStream;
@@ -10,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
@@ -21,10 +27,15 @@ import mstparser.ParserOptions;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.DataResource;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceAccessException;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.InvalidXMLException;
 import org.opencorpora.cas.Word;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.util.JCasUtil;
@@ -39,6 +50,21 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
+
+	public static AnalysisEngineDescription createDescription(URL modelUrl)
+			throws ResourceInitializationException, InvalidXMLException {
+		TypeSystemDescription tsDesc = createTypeSystemDescription(
+				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
+		AnalysisEngineDescription resultDesc = createPrimitiveDescription(
+				MSTParsingAnnotator.class, tsDesc);
+		createDependency(resultDesc, RESOURCE_MODEL_FILE,
+				// use default interface
+				DataResource.class);
+		ExternalResourceDescription erDepDesc = createExternalResourceDescription(
+				"model", modelUrl.toString());
+		bindResource(resultDesc, RESOURCE_MODEL_FILE, erDepDesc);
+		return resultDesc;
+	}
 
 	public static final String RESOURCE_MODEL_FILE = "modelFile";
 	public static final String MODEL_PROPERTIES_FILE_EXTENSION = ".props";
