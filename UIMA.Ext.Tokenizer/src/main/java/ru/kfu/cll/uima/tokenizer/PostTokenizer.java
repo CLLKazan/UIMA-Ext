@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
@@ -16,7 +17,9 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.uimafit.factory.AnalysisEngineFactory;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.PM;
@@ -37,6 +40,11 @@ import com.google.common.collect.Sets;
  * 
  */
 public class PostTokenizer extends JCasAnnotator_ImplBase {
+
+	public static AnalysisEngineDescription createDescription()
+			throws ResourceInitializationException {
+		return AnalysisEngineFactory.createPrimitiveDescription(PostTokenizer.class);
+	}
 
 	// per-CAS state
 	private Map<AnnotationFS, Collection<? extends AnnotationFS>> mergedMap;

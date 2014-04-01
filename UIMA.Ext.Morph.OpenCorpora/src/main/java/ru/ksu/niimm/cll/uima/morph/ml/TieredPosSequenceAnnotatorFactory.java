@@ -3,40 +3,53 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import static org.apache.commons.io.FileUtils.openOutputStream;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
+import org.cleartk.classifier.CleartkSequenceAnnotator;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.cleartk.classifier.jar.SequenceJarClassifierFactory;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ConfigurationParameterFactory;
 import org.uimafit.util.ReflectionUtil;
+import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
+import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
 public class TieredPosSequenceAnnotatorFactory {
+
+	public static final String POS_TAGGER_DESCRIPTOR_NAME = "pos_tagger";
 
 	public static void addTrainingDataWriterDescriptors(
 			List<String> posTiers,
@@ -126,6 +139,9 @@ public class TieredPosSequenceAnnotatorFactory {
 			ExternalResourceDescription morphDictDesc,
 			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
 			throws ResourceInitializationException, IOException {
+		// prepare TypeSystemDescriptor consisting of produced types
+		TypeSystemDescription tsDesc = createTypeSystemDescription(
+				"org.opencorpora.morphology-ts");
 		//
 		File configPropsFile = new File(modelBaseDir, CONFIG_PROPS_FILENAME);
 		Properties configProps = IoUtils.readProperties(configPropsFile);
@@ -137,23 +153,28 @@ public class TieredPosSequenceAnnotatorFactory {
 		for (int i = 0; i < posTiers.size(); i++) {
 			String posTier = posTiers.get(i);
 			File modelDir = getTierDir(modelBaseDir, posTier);
-			//
+			File modelJarFile = JarClassifierBuilder.getModelJarFile(modelDir);
+			// make model jar path relative to modelBaseDir
+			String jarRelativePath = relativize(modelBaseDir, modelJarFile);
+			// 
 			List<Object> finalParams = Lists.newArrayList(
+					CleartkSequenceAnnotator.PARAM_IS_TRAINING, false,
 					TieredPosSequenceAnnotator.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
 					reuseExistingWordAnnotations,
 					TieredPosSequenceAnnotator.PARAM_POS_TIERS, posTiers,
 					TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
 					TieredPosSequenceAnnotator.PARAM_CLASSIFIER_FACTORY_CLASS_NAME,
-					SequenceJarClassifierFactory.class.getName(),
-					SequenceJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-					JarClassifierBuilder.getModelJarFile(modelDir));
+					JarSequenceClassifierFactory.class.getName(),
+					JarSequenceClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+					jarRelativePath);
 			for (String paramName : annotatorParams.keySet()) {
 				finalParams.add(paramName);
 				finalParams.add(annotatorParams.get(paramName));
 			}
 			//
 			AnalysisEngineDescription ptDesc = createPrimitiveDescription(
-					TieredPosSequenceAnnotator.class, finalParams.toArray());
+					TieredPosSequenceAnnotator.class, tsDesc,
+					finalParams.toArray());
 			try {
 				bindResource(ptDesc,
 						TieredPosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY,
@@ -164,6 +185,54 @@ public class TieredPosSequenceAnnotatorFactory {
 			aeDescriptions.add(ptDesc);
 			aeNames.add(ptDesc.getImplementationName() + "-" + posTier);
 		}
+	}
+
+	public static File createAggregateDescription(
+			File modelBaseDir, // TODO can we get rid of this ERD ?
+			ExternalResourceDescription morphDictDesc)
+			throws ResourceInitializationException, IOException, SAXException {
+		return createAggregateDescription(modelBaseDir, morphDictDesc, false);
+	}
+
+	/**
+	 * <p>
+	 * REQ0: the result descriptor will be in modelBaseDir.
+	 * </p>
+	 * <p>
+	 * REQ1: the result descriptor must works after moving whole modelBaseDir to
+	 * other place or system given that it is in UIMA datapath. <br>
+	 * TODO this means that morphDictDesc must also meet this requirement.
+	 * </p>
+	 * 
+	 * @param modelBaseDir
+	 * @param morphDictDesc
+	 * @param reuseExistingWordAnnotations
+	 * @return path to XML descriptor
+	 * @throws ResourceInitializationException
+	 * @throws IOException
+	 * @throws SAXException
+	 */
+	public static File createAggregateDescription(File modelBaseDir,
+			// TODO can we get rid of this ERD ?
+			ExternalResourceDescription morphDictDesc, boolean reuseExistingWordAnnotations)
+			throws ResourceInitializationException, IOException, SAXException {
+		List<AnalysisEngineDescription> aeDescriptions = Lists.newArrayList();
+		List<String> aeNames = Lists.newArrayList();
+		addTaggerDescriptions(modelBaseDir, reuseExistingWordAnnotations, morphDictDesc,
+				aeDescriptions, aeNames);
+		aeDescriptions.add(TagAssembler.createDescription(morphDictDesc));
+		aeNames.add("tag-assembler");
+		AnalysisEngineDescription aggrDesc = AnalysisEngineFactory.createAggregateDescription(
+				aeDescriptions, aeNames, null, null, null, null);
+		final String descriptorFileName = POS_TAGGER_DESCRIPTOR_NAME + ".xml";
+		File descriptorFile = new File(modelBaseDir, descriptorFileName);
+		OutputStream out = openOutputStream(descriptorFile);
+		try {
+			aggrDesc.toXML(out);
+		} finally {
+			closeQuietly(out);
+		}
+		return descriptorFile;
 	}
 
 	private static File getTierDir(File baseDir, String posTier) {
@@ -237,6 +306,19 @@ public class TieredPosSequenceAnnotatorFactory {
 
 	private static final String CONFIG_PROPS_FILENAME = "config.props";
 	private static final String ANNOTATOR_PARAM_KEY_PREFIX = "annotatorParam.";
+
+	/**
+	 * @param baseDir
+	 * @param target
+	 * @return relative path of target against baseDir
+	 */
+	private static final String relativize(File baseDir, File target) {
+		// TODO:LOW use File#relativize after migration on Java 7
+		// this solution will work well only when target is in baseDir,
+		// but this is enough in the context of this class
+		URI relativeUri = baseDir.toURI().relativize(target.toURI());
+		return FilenameUtils.separatorsToSystem(relativeUri.getPath());
+	}
 
 	private TieredPosSequenceAnnotatorFactory() {
 	}
