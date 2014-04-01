@@ -1,4 +1,4 @@
-package ru.kfu.itis.issst.uima.depparser;
+package ru.kfu.itis.issst.uima.depparser.mst;
 
 import java.io.File;
 import java.io.IOException;
