@@ -22,6 +22,7 @@ public class XmiFileTreeCorpusDAOResource implements CorpusDAO,
 	@Override
 	public void load(DataResource aData) throws ResourceInitializationException {
 		try {
+			System.out.println(aData.getUri());
 			corpusDAO = new XmiFileTreeCorpusDAO(aData.getUri().toString());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

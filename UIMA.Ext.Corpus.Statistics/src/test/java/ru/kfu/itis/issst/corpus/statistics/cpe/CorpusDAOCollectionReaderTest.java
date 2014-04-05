@@ -1,7 +1,8 @@
 package ru.kfu.itis.issst.corpus.statistics.cpe;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,8 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.ExternalResourceFactory;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
@@ -28,7 +27,7 @@ import com.google.common.collect.Sets;
 
 public class CorpusDAOCollectionReaderTest {
 
-	String corpusPathString = "src/test/resources/corpus_example";
+	String corpusPathString = Thread.currentThread().getContextClassLoader().getResource("corpus_example").getPath();
 	ExternalResourceDescription daoDesc;
 	CollectionReader reader;
 
