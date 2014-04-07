@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
@@ -110,6 +111,14 @@ public class Wordform implements Serializable {
 		Wordform that = (Wordform) obj;
 		return new EqualsBuilder().append(this.lemmaId, that.lemmaId)
 				.append(this.grammems, that.grammems).isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this)
+				.add("lemmaId", lemmaId)
+				.add("grammems", grammems)
+				.toString();
 	}
 
 }
