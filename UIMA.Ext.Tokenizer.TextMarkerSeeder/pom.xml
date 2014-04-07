@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.2</version>
+		<version>0.3-SNAPSHOT</version>
 		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-tokenizer-textmarker-seeder</artifactId>

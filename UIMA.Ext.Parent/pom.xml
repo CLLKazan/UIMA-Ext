@@ -6,7 +6,7 @@
 	<artifactId>uima-ext-parent</artifactId>
 	<name>UIMA Ext Parent POM</name>
 	<description />
-	<version>0.2</version>
+	<version>0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -322,6 +322,6 @@
 
 	<scm>
 		<developerConnection>scm:git:git@github.com:CLLKazan/UIMA-Ext.git</developerConnection>
-	  <tag>uima-ext-0.2</tag>
+	  <tag>HEAD</tag>
   </scm>
 </project>
