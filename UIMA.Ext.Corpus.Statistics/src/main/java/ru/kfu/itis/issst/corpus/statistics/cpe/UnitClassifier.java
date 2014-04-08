@@ -2,19 +2,20 @@ package ru.kfu.itis.issst.corpus.statistics.cpe;
 
 import java.util.Set;
 
-import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
+import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.util.CasUtil;
 
 import com.google.common.collect.Sets;
 
 public class UnitClassifier extends CasAnnotator_ImplBase {
+
 	public static final String UNIT_TYPE_NAME = "ru.kfu.itis.issst.corpus.statistics.type.Unit";
 	public static final String CLASS_FEAT_NAME = "class";
 
@@ -38,8 +39,6 @@ public class UnitClassifier extends CasAnnotator_ImplBase {
 
 	@Override
 	public void process(CAS aCAS) throws AnalysisEngineProcessException {
-		Type unitType = CasUtil.getType(aCAS, UNIT_TYPE_NAME);
-
 		for (AnnotationFS unit : CasUtil.select(aCAS, unitType)) {
 			for (Type classType : classTypes) {
 				for (AnnotationFS classAnnotation : CasUtil.select(aCAS,
