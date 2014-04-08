@@ -4,11 +4,14 @@
 package ru.kfu.itis.cll.uima.cpe;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.EntityProcessStatus;
 import org.apache.uima.collection.StatusCallbackListener;
+
+import com.beust.jcommander.internal.Sets;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 
@@ -47,6 +50,9 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 	private int entityReportingInterval = 0;
 
 	private long size = 0;
+
+	private int docsProcessedWithException = 0;
+	private Set<String> docsWithException = Sets.newHashSet();
 
 	/**
 	 * Called when the initialization is completed.
@@ -95,6 +101,12 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 
 		System.out.println("\n\n ------------------ PERFORMANCE REPORT ------------------\n");
 		System.out.println(cpe.getPerformanceReport().toString());
+		if (docsProcessedWithException > 0) {
+			System.out.println(String.format(
+					"There are %s entities that caused exceptions:\n%s\n"
+							+ "Check previous output for details",
+					docsProcessedWithException, docsWithException));
+		}
 	}
 
 	/**
@@ -137,6 +149,8 @@ public class ReportingStatusCallbackListener implements StatusCallbackListener {
 	public void entityProcessComplete(CAS aCas, EntityProcessStatus aStatus) {
 		if (aStatus.isException()) {
 			String docURI = getDocumentURI(aCas);
+			docsWithException.add(docURI);
+			docsProcessedWithException++;
 			System.err.println(String.format("During the processing of %s", docURI));
 			List<Exception> exceptions = aStatus.getExceptions();
 			for (int i = 0; i < exceptions.size(); i++) {
