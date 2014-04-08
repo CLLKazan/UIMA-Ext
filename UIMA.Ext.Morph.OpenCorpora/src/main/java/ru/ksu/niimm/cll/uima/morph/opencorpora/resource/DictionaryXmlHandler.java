@@ -14,6 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -411,7 +412,9 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 		void addWordform(String text, Wordform wf) {
 			if (!wordforms.put(text, wf)) {
-				throw new IllegalStateException(String.format("Duplicate pair <%s, %s>"));
+				log.warn("Duplicate pair <{}, {}> at line {}", new Object[] {
+						text, wf, docLocator.getLineNumber()
+				});
 			}
 		}
 	}
@@ -579,6 +582,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private int acceptedLemmaCounter;
 	private int rejectedLemmaCounter;
 	private ElementHandler rootHandler;
+	private Locator docLocator;
 
 	DictionaryXmlHandler() {
 	}
@@ -591,6 +595,12 @@ class DictionaryXmlHandler extends DefaultHandler {
 	 */
 	public void addLemmaPostProcessor(LemmaPostProcessor lemmaPP) {
 		lemmaPostProcessors.add(lemmaPP);
+	}
+
+	@Override
+	public void setDocumentLocator(Locator locator) {
+		super.setDocumentLocator(locator);
+		this.docLocator = locator;
 	}
 
 	@Override

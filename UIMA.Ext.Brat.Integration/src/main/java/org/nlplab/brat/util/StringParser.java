@@ -81,4 +81,14 @@ public class StringParser {
 					"'%s' expected in the beginning of '%s'", pattern, currentString));
 		}
 	}
+
+	public boolean skipOptional(Pattern pattern) {
+		Matcher m = pattern.matcher(currentString);
+		if (m.lookingAt()) {
+			currentString = currentString.substring(m.end());
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

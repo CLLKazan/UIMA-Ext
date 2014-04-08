@@ -4,6 +4,12 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import java.util.BitSet;
+import java.util.Set;
+
+import org.apache.uima.cas.CASException;
+import org.opencorpora.cas.Wordform;
+
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 
 /**
  * Operations extending MorphDictionary interface
@@ -19,6 +25,17 @@ public class MorphDictionaryUtils {
 			result.set(dict.getGrammemNumId(gr));
 		}
 		return result;
+	}
+
+	public static void applyGrammems(Set<String> grams, Wordform wf) {
+		if (grams == null || grams.isEmpty()) {
+			return;
+		}
+		try {
+			wf.setGrammems(FSUtils.toStringArray(wf.getCAS().getJCas(), grams));
+		} catch (CASException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private MorphDictionaryUtils() {

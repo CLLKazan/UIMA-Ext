@@ -22,6 +22,16 @@ import com.google.common.collect.Sets;
  */
 public class FSTypeUtils {
 
+	public static final String ANNOTATION_TYPE_NAME = "uima.tcas.Annotation";
+
+	public static Type getAnnotationType(TypeSystem ts) {
+		Type result = ts.getType(ANNOTATION_TYPE_NAME);
+		if (result == null) {
+			throw new IllegalStateException();
+		}
+		return result;
+	}
+
 	public static Feature getFeature(Type type, String featName, boolean mustExist) {
 		Feature feature = type.getFeatureByBaseName(featName);
 		if (feature == null && mustExist) {

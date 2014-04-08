@@ -5,9 +5,12 @@ package ru.kfu.itis.issst.uima.brat;
 
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+import static ru.kfu.itis.issst.uima.brat.PUtils.getCollectionElementType;
+import static ru.kfu.itis.issst.uima.brat.PUtils.hasCollectionRange;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +30,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * 
@@ -97,7 +101,8 @@ abstract class UimaBratMappingInitializer {
 			Map<String, String> argTypeNames);
 
 	protected abstract BratEventType getEventType(String typeName,
-			Map<String, String> roleTypeNames);
+			Map<String, String> roleTypeNames,
+			Set<String> multiValuedRoles);
 
 	UimaBratMapping create() throws AnalysisEngineProcessException {
 		// mapping builder
@@ -151,6 +156,7 @@ abstract class UimaBratMappingInitializer {
 			}
 			Map<String, Feature> roleFeatures = Maps.newHashMap();
 			Map<String, String> roleTypeNames = Maps.newLinkedHashMap();
+			Set<String> multiValuedRoles = Sets.newHashSet();
 
 			for (RoleDefinitionValue rdv : eventDef.roleDefinitions) {
 				String roleFeatName = rdv.featureName;
@@ -159,9 +165,12 @@ abstract class UimaBratMappingInitializer {
 				Type roleUimaType = detectRoleUimaType(mpBuilder, roleFeat, rdv.asTypeName);
 				BratType roleBratType = mpBuilder.getType(roleUimaType);
 				roleTypeNames.put(roleFeatName, roleBratType.getName());
+				if (hasCollectionRange(roleFeat)) {
+					multiValuedRoles.add(roleFeatName);
+				}
 			}
 
-			BratEventType bet = getEventType(bratTypeName, roleTypeNames);
+			BratEventType bet = getEventType(bratTypeName, roleTypeNames, multiValuedRoles);
 			checkBratType(bet, bratTypeName);
 			BratNoteMapper noteMapper = type2NoteMapper.get(uimaType);
 			mpBuilder.addEventMapping(uimaType, bet, roleFeatures, noteMapper);
@@ -180,7 +189,11 @@ abstract class UimaBratMappingInitializer {
 			String shortTypeNameHint) {
 		Type uRoleType;
 		if (shortTypeNameHint == null) {
-			uRoleType = roleFeat.getRange();
+			if (hasCollectionRange(roleFeat)) {
+				uRoleType = getCollectionElementType(roleFeat);
+			} else {
+				uRoleType = roleFeat.getRange();
+			}
 		} else {
 			uRoleType = mpBuilder.getUimaTypeByShortName(shortTypeNameHint);
 			if (!ts.subsumes(roleFeat.getRange(), uRoleType)) {

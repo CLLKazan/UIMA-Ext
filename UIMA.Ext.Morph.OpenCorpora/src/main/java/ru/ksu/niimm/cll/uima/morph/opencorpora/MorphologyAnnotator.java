@@ -3,11 +3,14 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
+import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 
 import java.util.List;
 
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -16,7 +19,9 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
@@ -30,6 +35,15 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
  * 
  */
 public class MorphologyAnnotator extends CasAnnotator_ImplBase {
+
+	public static AnalysisEngineDescription createDescription(
+			ExternalResourceDescription morphDictDesc)
+			throws ResourceInitializationException {
+		TypeSystemDescription tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts");
+		return createPrimitiveDescription(MorphologyAnnotator.class,
+				tsDesc,
+				RESOURCE_KEY_DICTIONARY, morphDictDesc);
+	}
 
 	public static final String PARAM_TOKEN_TYPE = "TokenType";
 	public static final String PARAM_ANNOTATION_ADAPTER_CLASS = "AnnotationAdapterClass";

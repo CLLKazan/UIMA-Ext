@@ -35,7 +35,7 @@ import com.google.common.collect.TreeBasedTable;
  */
 public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
-	private static final long serialVersionUID = -4108756831996589900L;
+	private static final long serialVersionUID = -5575575933753079145L;
 	private static final Logger log = LoggerFactory.getLogger(MorphDictionaryImpl.class);
 
 	// meta fields
@@ -54,8 +54,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	// <from, to, type>
 	private Table<Integer, Integer, LemmaLinkType> lemmaLinkTable = TreeBasedTable.create();
 
-	private transient Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
-	private transient Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
+	private Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
+	private Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
 
 	private WordformTST wfByString = new WordformTST();
 	// set of complete tags (lex + wordform) seen in stored wordforms

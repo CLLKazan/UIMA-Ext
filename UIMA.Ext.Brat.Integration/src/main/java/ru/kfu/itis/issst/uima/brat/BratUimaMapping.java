@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.brat;
 
+import static ru.kfu.itis.issst.uima.brat.PUtils.hasCollectionRange;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,62 @@ import com.google.common.collect.Maps;
  * 
  */
 public class BratUimaMapping {
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+		private BratUimaMapping instance = new BratUimaMapping();
+
+		private Builder() {
+			instance.entityTypeMappings = Maps.newHashMap();
+			instance.relationTypeMappings = Maps.newHashMap();
+			instance.eventTypeMappings = Maps.newHashMap();
+		}
+
+		public Builder addEntityMapping(BratEntityType bratType, Type uimaType) {
+			return addEntityMapping(bratType, uimaType, null);
+		}
+
+		public Builder addEntityMapping(BratEntityType bratType, Type uimaType,
+				BratNoteMapper noteMapper) {
+			instance.entityTypeMappings.put(bratType, new BratUimaEntityMapping(bratType, uimaType,
+					noteMapper));
+			return this;
+		}
+
+		public Builder addRelationMapping(BratRelationType bratType, Type uimaType,
+				Map<Feature, String> featureRoles) {
+			return addRelationMapping(bratType, uimaType, featureRoles, null);
+		}
+
+		public Builder addRelationMapping(BratRelationType bratType, Type uimaType,
+				Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
+			instance.relationTypeMappings.put(bratType, new BratUimaRelationMapping(
+					bratType, uimaType, featureRoles, noteMapper));
+			return this;
+		}
+
+		public Builder addEventMapping(BratEventType bratType, Type uimaType,
+				Map<Feature, String> featureRoles) {
+			return addEventMapping(bratType, uimaType, featureRoles, null);
+		}
+
+		public Builder addEventMapping(BratEventType bratType, Type uimaType,
+				Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
+			instance.eventTypeMappings.put(bratType, new BratUimaEventMapping(
+					bratType, uimaType, featureRoles, noteMapper));
+			return this;
+		}
+
+		public BratUimaMapping build() {
+			instance.entityTypeMappings = ImmutableMap.copyOf(instance.entityTypeMappings);
+			instance.relationTypeMappings = ImmutableMap.copyOf(instance.relationTypeMappings);
+			instance.eventTypeMappings = ImmutableMap.copyOf(instance.eventTypeMappings);
+			return instance;
+		}
+	}
 
 	private Map<BratEntityType, BratUimaEntityMapping> entityTypeMappings;
 	private Map<BratRelationType, BratUimaRelationMapping> relationTypeMappings;
@@ -157,6 +215,12 @@ abstract class BratUimaStructureMapping<BT extends BratType> extends BratUimaTyp
 				"Illegal arg mapping %s for Brat type %s",
 				featureRoles, bratType));
 	}
+
+	protected void raiseIllegalMapping(String roleName) {
+		throw new IllegalArgumentException(String.format(
+				"Illegal mapping for role %s#%s in mapping %s",
+				bratType.getName(), roleName, featureRoles));
+	}
 }
 
 class BratUimaRelationMapping extends BratUimaStructureMapping<BratRelationType> {
@@ -169,6 +233,12 @@ class BratUimaRelationMapping extends BratUimaStructureMapping<BratRelationType>
 				|| !argNames.contains(bratType.getArg2Name())) {
 			raiseIllegalMapping();
 		}
+		// check slot arities
+		for (Feature feat : featureRoles.keySet()) {
+			if (hasCollectionRange(feat)) {
+				raiseIllegalMapping();
+			}
+		}
 	}
 }
 
@@ -177,9 +247,15 @@ class BratUimaEventMapping extends BratUimaStructureMapping<BratEventType> {
 	public BratUimaEventMapping(BratEventType bratType, Type uimaType,
 			Map<Feature, String> featureRoles, BratNoteMapper noteMapper) {
 		super(bratType, uimaType, featureRoles, noteMapper);
-		for (String roleName : featureRoles.values()) {
+		// check slot arities
+		for (Feature feat : featureRoles.keySet()) {
+			String roleName = featureRoles.get(feat);
 			if (!bratType.hasRole(roleName)) {
 				raiseIllegalMapping();
+			}
+			if (hasCollectionRange(feat) != bratType.getRole(roleName).getCardinality()
+					.allowsMultipleValues()) {
+				raiseIllegalMapping(roleName);
 			}
 		}
 	}

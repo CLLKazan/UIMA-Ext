@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -28,7 +29,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
-
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
@@ -100,7 +101,8 @@ public class StanfordPosAnnotator extends JCasAnnotator_ImplBase {
 
 				Wordform wf = new Wordform(jCas);
 				wf.setWord(word);
-				tagMapper.parseTag(sw.tag(), wf, t.getCoveredText());
+				Set<String> grams = tagMapper.parseTag(sw.tag(), t.getCoveredText());
+				MorphDictionaryUtils.applyGrammems(grams, wf);
 				word.setWordforms(FSUtils.toFSArray(jCas, wf));
 
 				word.addToIndexes();

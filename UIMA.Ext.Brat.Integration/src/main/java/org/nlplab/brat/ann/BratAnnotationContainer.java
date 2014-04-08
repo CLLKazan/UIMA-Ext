@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,9 +27,12 @@ import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.util.StringParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -43,9 +47,13 @@ public class BratAnnotationContainer {
 	public static final String RELATION_ID_PREFIX = "R";
 	public static final String EVENT_ID_PREFIX = "E";
 	public static final String NOTE_ID_PREFIX = "#";
+	public static final String ATTRIBUTE_ID_PREFIX = "A";
+	public static final String NORMALIZATION_ID_PREFIX = "N";
+	public static final String EQUIV_RELATION_PREFIX = "*";
 
 	// configuration fields
 	private BratTypesConfiguration typesCfg;
+	private Logger log = LoggerFactory.getLogger(getClass());
 	// state fields
 	private MutableInt entityIdCounter = new MutableInt(0);
 	private MutableInt relationIdCounter = new MutableInt(0);
@@ -242,6 +250,10 @@ public class BratAnnotationContainer {
 		BufferedReader reader = new BufferedReader(srcReader);
 		String line;
 		Map<String, BratEventTrigger> eventTriggers = Maps.newHashMap();
+		// because a brat structure annotation may refer to entity (or trigger)
+		// described in next lines reading is done in two passes
+		// first pass - read entity lines
+		List<String> unreadLines = Lists.newLinkedList();
 		while ((line = reader.readLine()) != null) {
 			if (StringUtils.isBlank(line)) {
 				continue;
@@ -256,7 +268,15 @@ public class BratAnnotationContainer {
 					throw new UnsupportedOperationException(String.format(
 							"Unknown BratTextBoundAnnotation subtype: %s", textSpan));
 				}
-			} else if (line.startsWith(RELATION_ID_PREFIX)) {
+			} else {
+				unreadLines.add(line);
+			}
+		}
+		// second pass - read other lines
+		Iterator<String> lineIter = unreadLines.iterator();
+		while (lineIter.hasNext()) {
+			line = lineIter.next();
+			if (line.startsWith(RELATION_ID_PREFIX)) {
 				BratRelation rel = parseRelation(line);
 				add(rel);
 			} else if (line.startsWith(EVENT_ID_PREFIX)) {
@@ -265,6 +285,18 @@ public class BratAnnotationContainer {
 			} else if (line.startsWith(NOTE_ID_PREFIX)) {
 				BratNoteAnnotation note = parseNote(line);
 				add(note);
+			} else if (line.startsWith(ATTRIBUTE_ID_PREFIX)) {
+				// TODO parse attribute lines when attributes are supported
+				// just ignore now
+			} else if (line.startsWith(NORMALIZATION_ID_PREFIX)) {
+				// TODO parse normalization line
+				// just ignore now
+			} else if (line.startsWith(EQUIV_RELATION_PREFIX)) {
+				// TODO parse relation instances
+				log.warn("The following line contains relation instances " +
+						"but its handling is not implemented yet:\n{}",
+						line);
+				// just ignore now
 			} else {
 				throw new UnsupportedOperationException(String.format(
 						"Can't parse line:\n%s", line));
@@ -277,6 +309,7 @@ public class BratAnnotationContainer {
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
 	private static final Pattern TYPE_NAME_PATTERN = Pattern.compile("[^\\s]+");
 	private static final Pattern OFFSETS_PATTERN = Pattern.compile("(\\d+)\\s+(\\d+)");
+	private static final Pattern OFFSETS_DELIM_PATTERN = Pattern.compile("\\s*; *");
 	private static final Pattern ROLE_VALUE_PATTERN = Pattern.compile("([^:]+):(\\w\\d+)");
 
 	private BratTextBoundAnnotation<?> parseTextBoundAnnotation(String str) {
@@ -289,6 +322,12 @@ public class BratAnnotationContainer {
 		String[] offsetStrings = p.consume(OFFSETS_PATTERN);
 		Integer begin = Integer.valueOf(offsetStrings[1]);
 		Integer end = Integer.valueOf(offsetStrings[2]);
+		while (p.skipOptional(OFFSETS_DELIM_PATTERN)) {
+			offsetStrings = p.consume(OFFSETS_PATTERN);
+			// take discontinuous span as (min(begin),max(end)  
+			begin = Math.min(begin, Integer.valueOf(offsetStrings[1]));
+			end = Math.max(end, Integer.valueOf(offsetStrings[2]));
+		}
 		p.skip(TAB_PATTERN);
 		String refText = p.getCurrentString();
 
@@ -327,21 +366,35 @@ public class BratAnnotationContainer {
 		return relation;
 	}
 
-	private BratEvent parseEvent(String str, Map<String, BratEventTrigger> eventTriggers) {
+	private BratEvent parseEvent(final String str, Map<String, BratEventTrigger> eventTriggers) {
 		StringParser p = new StringParser(str);
 		String id = p.consume1(ID_PATTERN);
 		assert id.startsWith(EVENT_ID_PREFIX);
 		p.skip(TAB_PATTERN);
 		String[] triggerRef = p.consume(ROLE_VALUE_PATTERN);
 		String typeName = triggerRef[1];
+		BratEventType type = typesCfg.getType(typeName, BratEventType.class);
 		String triggerId = triggerRef[2];
 		p.skip(SPACE_PATTERN);
-		Map<String, BratAnnotation<?>> roleMap = Maps.newHashMap();
+		Multimap<String, BratAnnotation<?>> roleMap = LinkedHashMultimap.create();
 		while (!StringUtils.isBlank(p.getCurrentString())) {
 			String rv[] = p.consume(ROLE_VALUE_PATTERN);
-			roleMap.put(rv[1].trim(), getAnnotation(rv[2]));
+			String roleName = rv[1].trim();
+			int rvIndex;
+			Object[] roleIndex = parseRoleIndex(roleName);
+			if (roleIndex != null) {
+				roleName = (String) roleIndex[0];
+				rvIndex = (Integer) roleIndex[1];
+			} else {
+				rvIndex = 1;
+			}
+			// validate rvIndex
+			if (roleMap.get(roleName).size() != rvIndex - 1) {
+				log.warn("Illegal value indices for role '{}' in:\n{}",
+						roleName, str);
+			}
+			roleMap.put(roleName, getAnnotation(rv[2]));
 		}
-		BratEventType type = typesCfg.getType(typeName, BratEventType.class);
 		BratEventTrigger trigger = eventTriggers.get(triggerId);
 		if (trigger == null) {
 			throw new IllegalStateException(String.format(
@@ -351,6 +404,20 @@ public class BratAnnotationContainer {
 		BratEvent event = new BratEvent(type, trigger, roleMap);
 		event.setId(id);
 		return event;
+	}
+
+	private static final Pattern digitsPattern = Pattern.compile("\\d+$");
+
+	static Object[] parseRoleIndex(String str) {
+		Matcher m = digitsPattern.matcher(str);
+		if (m.find()) {
+			String roleName = str.substring(0, m.start());
+			String indexStr = m.group();
+			Integer index = Integer.valueOf(indexStr);
+			return new Object[] { roleName, index };
+		} else {
+			return null;
+		}
 	}
 
 	private BratNoteAnnotation parseNote(String str) {
@@ -372,12 +439,23 @@ public class BratAnnotationContainer {
 	}
 
 	private void appendRoleValues(StringBuilder target,
-			Map<String, ? extends BratAnnotation<?>> roleAnnotations) {
+			Multimap<String, ? extends BratAnnotation<?>> roleAnnotations) {
 		Iterator<String> roleNamesIter = roleAnnotations.keySet().iterator();
 		while (roleNamesIter.hasNext()) {
 			String roleName = roleNamesIter.next();
-			BratAnnotation<?> rv = roleAnnotations.get(roleName);
-			target.append(roleName).append(':').append(rv.getId());
+			Collection<? extends BratAnnotation<?>> rvs = roleAnnotations.get(roleName);
+			int i = 1;
+			for (BratAnnotation<?> rv : rvs) {
+				if (i != 1) {
+					target.append(' ');
+				}
+				target.append(roleName);
+				if (i > 1) {
+					target.append(i);
+				}
+				target.append(':').append(rv.getId());
+				i++;
+			}
 			if (roleNamesIter.hasNext()) {
 				target.append(' ');
 			}

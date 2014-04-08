@@ -86,11 +86,10 @@ public class DictionaryComplianceChecker extends JCasAnnotator_ImplBase {
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		for (Word word : JCasUtil.select(jCas, Word.class)) {
-			FSArray docWfs = word.getWordforms();
-			if (docWfs == null || docWfs.size() == 0) {
+			org.opencorpora.cas.Wordform docWf = MorphCasUtils.getOnlyWordform(word);
+			if (docWf == null) {
 				continue;
 			}
-			org.opencorpora.cas.Wordform docWf = (org.opencorpora.cas.Wordform) docWfs.get(0);
 			String wordTxt = normalizeToDictionaryForm(word.getCoveredText());
 			List<Wordform> dictWfs = dict.getEntries(wordTxt);
 			if (dictWfs == null || dictWfs.isEmpty()) {

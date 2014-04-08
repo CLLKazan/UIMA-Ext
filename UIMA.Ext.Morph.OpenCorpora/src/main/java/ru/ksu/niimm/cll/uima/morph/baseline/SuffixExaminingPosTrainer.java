@@ -3,14 +3,11 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
-import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.normalizeToDictionary;
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.toGramBitSet;
 
 import java.io.File;
 import java.util.BitSet;
-import java.util.Collection;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -20,8 +17,9 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
+
+import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -53,20 +51,10 @@ public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		for (Word word : JCasUtil.select(jCas, Word.class)) {
 			// check corpus word sanity
-			if (word.getWordforms() == null) {
+			Wordform corpusWf = MorphCasUtils.getOnlyWordform(word);
+			if (corpusWf == null) {
 				continue;
 			}
-			Collection<Wordform> corpusWfs = FSCollectionFactory.create(
-					word.getWordforms(),
-					Wordform.class);
-			if (corpusWfs.isEmpty()) {
-				continue;
-			}
-			if (corpusWfs.size() > 1) {
-				getLogger().warn(String.format("Too much wordforms for word %s in %s",
-						toPrettyString(word), getDocumentUri(jCas)));
-			}
-			Wordform corpusWf = corpusWfs.iterator().next();
 			String wordStr = normalizeToDictionary(word.getCoveredText());
 			BitSet corpusWfBits = toGramBitSet(dict, corpusWf);
 			if (wordStr.length() > suffixLength) {

@@ -6,6 +6,7 @@ import static org.nlplab.brat.BratConstants.ANN_FILES_ENCODING;
 import static org.nlplab.brat.BratConstants.TXT_FILES_ENCODING;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
+import static ru.kfu.itis.issst.uima.brat.PUtils.toList;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -44,14 +46,18 @@ import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.configuration.EventRole;
+import org.nlplab.brat.configuration.EventRole.Cardinality;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.CasUtil;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 /**
  * TODO adjust this top javadoc
@@ -295,7 +301,7 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 		// assign id to trigger
 		trigger = bac.register(trigger);
 		// fill slots
-		Map<String, BratAnnotation<?>> roleAnnotations = makeRoleMap(
+		Multimap<String, BratAnnotation<?>> roleAnnotations = makeRoleMap(
 				uEvent, bType, evMapping.roleFeatures);
 		// create
 		BratEvent bEvent = new BratEvent(bType, trigger, roleAnnotations);
@@ -327,32 +333,57 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	}
 
 	// fill event roles
-	private Map<String, BratAnnotation<?>> makeRoleMap(AnnotationFS uAnno,
+	private Multimap<String, BratAnnotation<?>> makeRoleMap(AnnotationFS uAnno,
 			BratEventType bratType, Map<String, Feature> roleFeatMap) {
-		Map<String, BratAnnotation<?>> roleAnnotations = Maps.newHashMapWithExpectedSize(
-				roleFeatMap.size());
+		Multimap<String, BratAnnotation<?>> roleAnnotations = LinkedHashMultimap.create();
 		for (String roleName : roleFeatMap.keySet()) {
 			EventRole roleDesc = bratType.getRole(roleName);
+			// check role range types
+			boolean entityInRange = isEveryInstanceOf(roleDesc.getRangeTypes(),
+					BratEntityType.class);
+			if (!entityInRange && !isEveryInstanceOf(roleDesc.getRangeTypes(), BratEventType.class)) {
+				throw new UnsupportedOperationException(String.format(
+						"Mixed entity/event types in role range is not supported: %s", roleDesc));
+			}
+			// 
 			Feature roleFeat = roleFeatMap.get(roleName);
-			FeatureStructure roleFS = uAnno.getFeatureValue(roleFeat);
-			if (roleFS == null) {
+			FeatureStructure _roleFS = uAnno.getFeatureValue(roleFeat);
+			if (_roleFS == null) {
 				continue;
 			}
-			BratAnnotation<?> roleValue;
-			if (roleDesc.getRange() instanceof BratEntityType) {
-				roleValue = context.demandEntity(roleFS);
-			} else { // role value should be event
-				roleValue = context.getEvent(roleFS, false);
-				if (roleValue == null) {
-					// means that a sub-event has not been mapped yet
-					// TODO implement nested event mapping
-					throw new UnsupportedOperationException(
-							"Nested event mapping is not supported yet");
-				}
+			List<FeatureStructure> roleFSList;
+			if (PUtils.hasCollectionRange(roleFeat)) {
+				roleFSList = toList(roleFeat, _roleFS);
+			} else {
+				roleFSList = ImmutableList.of(_roleFS);
 			}
-			roleAnnotations.put(roleName, roleValue);
+			//
+			for (FeatureStructure roleFS : roleFSList) {
+				BratAnnotation<?> rv;
+				if (entityInRange) {
+					rv = context.demandEntity(roleFS);
+				} else { // role value should be event
+					rv = context.getEvent(roleFS, false);
+					if (rv == null) {
+						// means that a sub-event has not been mapped yet
+						// TODO implement nested event mapping
+						throw new UnsupportedOperationException(
+								"Nested event mapping is not supported yet");
+					}
+				}
+				roleAnnotations.put(roleName, rv);
+			}
 		}
 		return roleAnnotations;
+	}
+
+	private static boolean isEveryInstanceOf(Iterable<?> srcCol, Class<?> testClass) {
+		for (Object e : srcCol) {
+			if (!testClass.isInstance(e)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/*
@@ -427,8 +458,17 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 			}
 
 			@Override
-			protected BratEventType getEventType(String typeName, Map<String, String> roleTypeNames) {
-				return tcBuilder.addEventType(typeName, roleTypeNames);
+			protected BratEventType getEventType(String typeName,
+					Map<String, String> roleTypeNames, Set<String> multiValuedRoles) {
+				Map<String, Cardinality> roleCardinalities = Maps.newHashMap();
+				for (String roleName : roleTypeNames.keySet()) {
+					Cardinality card = multiValuedRoles.contains(roleName)
+							? Cardinality.ARRAY
+							: Cardinality.OPTIONAL;
+					roleCardinalities.put(roleName, card);
+				}
+				return tcBuilder.addEventType(typeName,
+						Multimaps.forMap(roleTypeNames), roleCardinalities);
 			}
 		};
 		mapping = initializer.create();

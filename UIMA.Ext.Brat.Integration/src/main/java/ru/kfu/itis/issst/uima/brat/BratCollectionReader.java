@@ -5,10 +5,8 @@ import static org.nlplab.brat.BratConstants.ANN_FILES_ENCODING;
 import static org.nlplab.brat.BratConstants.TXT_FILES_ENCODING;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
-import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.BRAT_NOTE_MAPPERS;
-import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.ENTITIES_TO_BRAT;
-import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.EVENTS_TO_BRAT;
-import static ru.kfu.itis.issst.uima.brat.UIMA2BratAnnotator.RELATIONS_TO_BRAT;
+import static ru.kfu.itis.issst.uima.brat.PUtils.hasCollectionRange;
+import static ru.kfu.itis.issst.uima.brat.PUtils.toCompatibleCollection;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,18 +25,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
+import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.ConfigurationParameterSettings;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.nlplab.brat.ann.BratAnnotation;
@@ -54,51 +50,34 @@ import org.nlplab.brat.configuration.BratEventType;
 import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
-import org.nlplab.brat.configuration.HasRoles;
 import org.uimafit.component.CasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ResourceCreationSpecifierFactory;
+import org.uimafit.factory.initializable.InitializableFactory;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * TODO adjust this top javadoc
- * <p>
- * Brat 2 UIMA Annotator is CAS Annotator to convert Brat standoff format
- * annotations to UIMA annotations. 1) defines input, ouput files directories of
- * .txt and .ann files 2) reading files and process its content using specified
- * file name parameter in DocumentMetadata annotations. 4) reading Brat
- * annotations and converts them to UIMA annotation (*.xmi files) T: text-bound
- * annotation R: relation E: event A: attribute M: modification (alias for
- * attribute, for backward compatibility) N: normalization #: note
- * 
  * @author RGareev (Kazan Federal University)
  * @author pathfinder
  */
-
 public class BratCollectionReader extends CasCollectionReader_ImplBase {
 
 	public static final String PARAM_BRAT_COLLECTION_DIR = "BratCollectionDir";
-	public static final String PARAM_U2B_DESC_PATH = "Uima2BratDescriptorPath";
-	public static final String PARAM_U2B_DESC_NAME = "Uima2BratDescriptorName";
+	public static final String PARAM_MAPPING_FACTORY_CLASS = "mappingFactoryClass";
 
 	@ConfigurationParameter(name = PARAM_BRAT_COLLECTION_DIR, mandatory = true)
 	private File bratCollectionDir;
-	@ConfigurationParameter(name = PARAM_U2B_DESC_PATH)
-	private String u2bDescPath;
-	@ConfigurationParameter(name = PARAM_U2B_DESC_NAME)
-	private String u2bDescName;
-
+	@ConfigurationParameter(name = PARAM_MAPPING_FACTORY_CLASS, mandatory = true)
+	private String mappingFactoryClassName;
 	// config fields
 	private BratTypesConfiguration bratTypesCfg;
-	private BratUimaMapping mapping;
+	private BratUimaMappingFactory mappingFactory;
 	// fields derived from config
+	private BratUimaMapping mapping;
 	private int totalDocsNum = -1;
 	private Feature beginFeature;
 	private Feature endFeature;
@@ -117,14 +96,9 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		// validate parameters
-		if ((u2bDescName == null && u2bDescPath == null)
-				|| (u2bDescName != null && u2bDescPath != null)) {
-			throw new IllegalStateException(String.format(
-					"Illegal parameter settings: %s=%s; %s=%s",
-					PARAM_U2B_DESC_NAME, u2bDescName,
-					PARAM_U2B_DESC_PATH, u2bDescPath));
-		}
+		// initialize mappingFactory
+		mappingFactory = InitializableFactory.create(ctx, mappingFactoryClassName,
+				BratUimaMappingFactory.class);
 		// make bratDocIter
 		File[] annFiles = bratCollectionDir.listFiles(
 				(FileFilter) FileFilterUtils.suffixFileFilter(BratDocument.ANN_FILE_SUFFIX));
@@ -172,107 +146,9 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
-		// initialize Brat -> UIMA mapping
-		// 1) initialize UIMA -> Brat mapping from corresponding descriptor
-		UimaBratMapping u2bMapping;
-		try {
-			u2bMapping = createU2BMapping(ts);
-		} catch (Exception e) {
-			throw new ResourceInitializationException(e);
-		}
-		// 2) reverse it
-		mapping = BratUimaMapping.reverse(u2bMapping);
-	}
-
-	private UimaBratMapping createU2BMapping(TypeSystem ts) throws UIMAException, IOException {
-		AnalysisEngineDescription u2bDesc;
-		if (u2bDescName != null) {
-			u2bDesc = AnalysisEngineFactory.createAnalysisEngineDescription(u2bDescName);
-		} else {
-			u2bDesc = (AnalysisEngineDescription) ResourceCreationSpecifierFactory
-					.createResourceCreationSpecifier(u2bDescPath, null);
-		}
-		ConfigurationParameterSettings u2bParamSettings =
-				u2bDesc.getAnalysisEngineMetaData().getConfigurationParameterSettings();
-		String[] entityToBratStrings = (String[]) u2bParamSettings
-				.getParameterValue(ENTITIES_TO_BRAT);
-		List<EntityDefinitionValue> entitiesToBrat;
-		if (entityToBratStrings == null) {
-			entitiesToBrat = ImmutableList.of();
-		} else {
-			entitiesToBrat = Lists.newLinkedList();
-			for (String s : entityToBratStrings) {
-				entitiesToBrat.add(EntityDefinitionValue.fromString(s));
-			}
-		}
-		String[] relationToBratStrings = (String[]) u2bParamSettings
-				.getParameterValue(RELATIONS_TO_BRAT);
-		List<StructureDefinitionValue> relationsToBrat;
-		if (relationToBratStrings == null) {
-			relationsToBrat = ImmutableList.of();
-		} else {
-			relationsToBrat = Lists.newLinkedList();
-			for (String s : relationToBratStrings) {
-				relationsToBrat.add(StructureDefinitionValue.fromString(s));
-			}
-		}
-		String[] eventToBratStrings = (String[]) u2bParamSettings
-				.getParameterValue(EVENTS_TO_BRAT);
-		List<StructureDefinitionValue> eventsToBrat;
-		if (eventToBratStrings == null) {
-			eventsToBrat = ImmutableList.of();
-		} else {
-			eventsToBrat = Lists.newLinkedList();
-			for (String s : eventToBratStrings) {
-				eventsToBrat.add(StructureDefinitionValue.fromString(s));
-			}
-		}
-		String[] noteMapperDefStrings = (String[]) u2bParamSettings
-				.getParameterValue(BRAT_NOTE_MAPPERS);
-		List<NoteMapperDefinitionValue> noteMapperDefs;
-		if (noteMapperDefStrings == null) {
-			noteMapperDefs = ImmutableList.of();
-		} else {
-			noteMapperDefs = Lists.newLinkedList();
-			for (String s : noteMapperDefStrings) {
-				noteMapperDefs.add(NoteMapperDefinitionValue.fromString(s));
-			}
-		}
-		UimaBratMappingInitializer initializer = new UimaBratMappingInitializer(ts,
-				entitiesToBrat, relationsToBrat, eventsToBrat, noteMapperDefs) {
-			@Override
-			protected BratEntityType getEntityType(String typeName) {
-				return bratTypesCfg.getType(typeName, BratEntityType.class);
-			}
-
-			@Override
-			protected BratRelationType getRelationType(String typeName,
-					Map<String, String> argTypeNames) {
-				BratRelationType result = bratTypesCfg.getType(typeName, BratRelationType.class);
-				checkRoleMappings(result, argTypeNames);
-				return result;
-			}
-
-			@Override
-			protected BratEventType getEventType(String typeName, Map<String, String> roleTypeNames) {
-				BratEventType result = bratTypesCfg.getType(typeName, BratEventType.class);
-				checkRoleMappings(result, roleTypeNames);
-				return result;
-			}
-		};
-		return initializer.create();
-	}
-
-	private void checkRoleMappings(HasRoles targetType, Map<String, String> mpRoleTypeNames) {
-		for (String mpRoleName : mpRoleTypeNames.keySet()) {
-			String mpRoleTypeName = mpRoleTypeNames.get(mpRoleName);
-			BratType mpRoleType = bratTypesCfg.getType(mpRoleTypeName);
-			if (!targetType.isLegalAssignment(mpRoleName, mpRoleType)) {
-				throw new IllegalStateException(String.format(
-						"Incompatible type %s for role %s in %s:",
-						mpRoleTypeName, mpRoleName, targetType));
-			}
-		}
+		mappingFactory.setTypeSystem(ts);
+		mappingFactory.setBratTypes(bratTypesCfg);
+		mapping = mappingFactory.getMapping();
 	}
 
 	@Override
@@ -416,14 +292,32 @@ public class BratCollectionReader extends CasCollectionReader_ImplBase {
 		AnnotationFS result = cas.createAnnotation(strMapping.uimaType, 0, 0);
 		for (Feature roleFeature : strMapping.featureRoles.keySet()) {
 			String roleName = strMapping.featureRoles.get(roleFeature);
-			BratAnnotation<?> roleBratAnno = bAnno.getRoleAnnotations().get(roleName);
-			if (roleBratAnno == null) {
+			Collection<BratAnnotation<?>> roleBratAnnos = bAnno.getRoleAnnotations().get(roleName);
+			if (roleBratAnnos.isEmpty()) {
 				continue;
 			}
-			AnnotationFS roleUimaAnno = mappingCtx.getMapped(roleBratAnno);
-			if (roleUimaAnno != null) {
-				result.setFeatureValue(roleFeature, roleUimaAnno);
+			List<AnnotationFS> roleUimaAnnos = Lists.newLinkedList();
+			for (BratAnnotation<?> roleBratAnno : roleBratAnnos) {
+				AnnotationFS roleUimaAnno = mappingCtx.getMapped(roleBratAnno);
+				if (roleUimaAnno == null) {
+					throw new IllegalStateException(String.format(
+							"Brat annotation %s has not been mapped", roleBratAnno));
+				}
+				roleUimaAnnos.add(roleUimaAnno);
 			}
+			FeatureStructure featVal;
+			if (hasCollectionRange(roleFeature)) {
+				featVal = toCompatibleCollection(cas, roleFeature, roleUimaAnnos);
+			} else {
+				if (roleUimaAnnos.size() > 1) {
+					getLogger().error(String.format(
+							"Too much role '%s' values in anno %s in doc %s. " +
+									"Only the first value will be mapped.",
+							roleName, bAnno.getId(), currentDocName));
+				}
+				featVal = roleUimaAnnos.get(0);
+			}
+			result.setFeatureValue(roleFeature, featVal);
 		}
 		return result;
 	}

@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.2-SNAPSHOT</version>
+		<version>0.3-SNAPSHOT</version>
 		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-morph-opencorpora</artifactId>
@@ -64,13 +63,9 @@
 			<artifactId>cleartk-ml</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-ml-crfsuite</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>ru.kfu.itis.issst.crfsuite4j</groupId>
 			<artifactId>crfsuite4j</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
@@ -112,7 +107,6 @@
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-tokenizer</artifactId>
-			<optional>true</optional>
 		</dependency>
 	</dependencies>
 
