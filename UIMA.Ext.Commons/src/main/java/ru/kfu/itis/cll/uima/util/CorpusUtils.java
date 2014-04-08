@@ -7,6 +7,8 @@ import static com.google.common.collect.Collections2.transform;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -136,7 +138,14 @@ public class CorpusUtils {
 		return result;
 	}
 
-	static Function<File, String> relativePathFunction(final File baseDir) {
+	/**
+	 * @param baseDir
+	 * @return function that returns the path of an arg File relative to the
+	 *         given baseDir. It works only with the assumption that an arg File
+	 *         is within baseDir. This is usually true to deal with a corpus
+	 *         structure.
+	 */
+	public static Function<File, String> relativePathFunction(final File baseDir) {
 		return new Function<File, String>() {
 			@Override
 			public String apply(File arg) {
@@ -152,6 +161,28 @@ public class CorpusUtils {
 				} else {
 					throw new IllegalArgumentException(String.format(
 							"File %s is not in dir %s", arg, baseDir));
+				}
+			}
+		};
+	}
+
+	/**
+	 * @param baseDir
+	 * @return function that returns the URI of an arg File relative to the URI
+	 *         of the given baseDir.
+	 * @see #relativePathFunction(File)
+	 */
+	public static Function<File, URI> relativeURIFunction(final File baseDir) {
+		return new Function<File, URI>() {
+			private URI baseURI = baseDir.toURI();
+
+			@Override
+			public URI apply(File arg) {
+				URI relURI = baseURI.relativize(arg.toURI());
+				try {
+					return new URI("file", relURI.getPath(), null);
+				} catch (URISyntaxException e) {
+					throw new IllegalStateException(e);
 				}
 			}
 		};
