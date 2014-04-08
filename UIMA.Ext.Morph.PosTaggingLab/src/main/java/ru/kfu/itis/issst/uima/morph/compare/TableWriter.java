@@ -11,7 +11,6 @@ import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
@@ -23,12 +22,14 @@ import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 import ru.kfu.itis.issst.uima.morph.compare.impl.HSQLDBAnnotationDao;
 import ru.kfu.itis.issst.uima.morph.compare.impl.HSQLDBFeatureDao;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 @OperationalProperties(multipleDeploymentAllowed = false)
@@ -152,19 +153,11 @@ public class TableWriter extends JCasAnnotator_ImplBase {
 	}
 
 	private String getTag(Word word, String docUri) {
-		FSArray wfs = word.getWordforms();
-		if (wfs == null) {
+		Wordform wf = MorphCasUtils.getOnlyWordform(word);
+		if (wf == null) {
 			return null;
 		}
-		if (wfs.size() == 0) {
-			return null;
-		}
-		if (wfs.size() > 1) {
-			getLogger().warn(String.format(
-					"%s (in %s) has too much wordforms",
-					toPrettyString(word), docUri));
-		}
-		return tagMapper.toTag((Wordform) wfs.get(0));
+		return tagMapper.toTag(FSUtils.toSet(wf.getGrammems()));
 	}
 
 	private void writeTag(long wordId, String tag) {

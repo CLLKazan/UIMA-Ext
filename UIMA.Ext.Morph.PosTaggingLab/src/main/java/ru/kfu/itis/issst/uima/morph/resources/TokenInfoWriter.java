@@ -18,14 +18,15 @@ import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -58,14 +59,8 @@ public class TokenInfoWriter extends TrainingDataWriterBase {
 				}
 				writeInfo(TYPE_NOT_WORD, tokStr, tag);
 			} else {
-				FSArray wfs = word.getWordforms();
-				if (wfs == null || wfs.size() == 0) {
-					throw new IllegalStateException(String.format(
-							"No wordforms in Word %s in %s",
-							toPrettyString(word), getDocumentUri(jCas)));
-				}
-				Wordform wf = (Wordform) wfs.get(0);
-				String tag = tagMapper.toTag(wf);
+				Wordform wf = MorphCasUtils.requireOnlyWordform(word);
+				String tag = tagMapper.toTag(FSUtils.toSet(wf.getGrammems()));
 				writeInfo(TYPE_WORD, tokStr, tag);
 			}
 		}
