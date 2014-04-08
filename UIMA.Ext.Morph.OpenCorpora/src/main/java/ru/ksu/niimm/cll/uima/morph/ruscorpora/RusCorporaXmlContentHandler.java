@@ -35,7 +35,7 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 	private static final String E_HEAD = "head";
 	private static final String E_HTML = "html";
 	private static final Set<String> ELEMENTS_TO_IGNORE = ImmutableSet.of(
-			"i", "b", "em", "formula");
+			"i", "b", "em", "formula", "u", "hr");
 	private static final Set<String> ELEMENTS_TO_SKIP = ImmutableSet.of(
 			"sup", "sub", "table");
 	// config fields
