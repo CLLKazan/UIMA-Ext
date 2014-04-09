@@ -11,7 +11,7 @@ import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.EntityProcessStatus;
 import org.apache.uima.collection.StatusCallbackListener;
 
-import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Sets;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 
