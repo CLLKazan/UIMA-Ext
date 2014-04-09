@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.collect.Sets;
@@ -43,7 +45,7 @@ public class FileListCasDirectory extends FSCasDirectory {
 	}
 
 	@Override
-	protected FileFilter getSourceFileFilter() {
+	protected IOFileFilter getSourceFileFilter() {
 		final Set<String> included = Sets.newHashSet();
 		List<String> includedSrcList;
 		try {
@@ -62,14 +64,11 @@ public class FileListCasDirectory extends FSCasDirectory {
 				included.add(new File(dir, p).getAbsolutePath());
 			}
 		}
-		return new FileFilter() {
+		return FileFilterUtils.asFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File f) {
 				return included.contains(f.getAbsolutePath());
 			}
-		};
+		});
 	}
-	/*
-	 * TODO fix getCAS(URI uri)
-	 */
 }
