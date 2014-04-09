@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
     <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
     <primitive>true</primitive>
@@ -23,6 +24,13 @@
                 <multiValued>false</multiValued>
                 <mandatory>false</mandatory>
             </configurationParameter>
+            <configurationParameter>
+                <name>writeToRelativePath</name>
+                <description>If false this annotator will make an output file using only the filename part from a document source URI. If true it will use the path of an URI as a path relative to OutputDirectory</description>
+                <type>Boolean</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
         </configurationParameters>
         <configurationParameterSettings>
             <nameValuePair>
@@ -31,12 +39,14 @@
                     <boolean>true</boolean>
                 </value>
             </nameValuePair>
+            <nameValuePair>
+                <name>writeToRelativePath</name>
+                <value>
+                    <boolean>false</boolean>
+                </value>
+            </nameValuePair>
         </configurationParameterSettings>
-        <typeSystemDescription>
-            <imports>
-                <import name="ru.kfu.itis.cll.uima.commons.Commons-TypeSystem"/>
-            </imports>
-        </typeSystemDescription>
+        <typeSystemDescription/>
         <fsIndexCollection/>
         <capabilities>
             <capability>

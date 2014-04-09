@@ -38,6 +38,8 @@ import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 
 /**
+ * TODO remove this. There is a proper replacement - TTLab.
+ * 
  * @author Rinat Gareev
  * 
  */

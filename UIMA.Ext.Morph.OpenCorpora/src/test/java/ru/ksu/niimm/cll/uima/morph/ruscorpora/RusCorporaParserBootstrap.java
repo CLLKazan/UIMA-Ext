@@ -99,9 +99,7 @@ public class RusCorporaParserBootstrap {
 			}
 		}
 		// 
-		AnalysisEngineDescription xmiWriterDesc = createPrimitiveDescription(
-				XmiWriter.class,
-				XmiWriter.PARAM_OUTPUTDIR, xmiOutputDir);
+		AnalysisEngineDescription xmiWriterDesc = XmiWriter.createDescription(xmiOutputDir, true);
 		// make NonTokenizedSpanAnnotator
 		AnalysisEngineDescription ntsAnnotatorDesc;
 		{

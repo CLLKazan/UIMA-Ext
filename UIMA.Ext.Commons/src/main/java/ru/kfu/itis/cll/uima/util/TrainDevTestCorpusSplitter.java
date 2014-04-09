@@ -11,12 +11,13 @@ import static ru.kfu.itis.cll.uima.util.CorpusUtils.partitionCorpusByFileSize;
 import static ru.kfu.itis.cll.uima.util.CorpusUtils.toRelativePaths;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -38,6 +39,8 @@ public class TrainDevTestCorpusSplitter {
 	private int partitionsNum;
 	@Parameter(names = { "-s", "--corpus-file-suffix" })
 	private String corpusFileSuffix;
+	@Parameter(names = { "-r", "-R" })
+	private boolean includeSubDirectores = true;
 	@Parameter(names = { "-c", "--corpus-dir" }, required = true)
 	private File corpusDir;
 	// output to current dir
@@ -47,14 +50,15 @@ public class TrainDevTestCorpusSplitter {
 	}
 
 	private void run() throws Exception {
-		FilenameFilter corpusFileFilter;
+		IOFileFilter corpusFileFilter;
 		if (corpusFileSuffix == null) {
 			corpusFileFilter = FileFilterUtils.trueFileFilter();
 		} else {
 			corpusFileFilter = FileFilterUtils.suffixFileFilter(corpusFileSuffix);
 		}
+		IOFileFilter corpusSubDirFilter = includeSubDirectores ? TrueFileFilter.INSTANCE : null;
 		List<Set<File>> partitions = newArrayList(partitionCorpusByFileSize(
-				corpusDir, corpusFileFilter, partitionsNum));
+				corpusDir, corpusFileFilter, corpusSubDirFilter, partitionsNum));
 		if (partitions.size() != partitionsNum) {
 			throw new IllegalStateException();
 		}

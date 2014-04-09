@@ -40,12 +40,16 @@ public class XmiFileListReader extends XmiCollectionReaderBase {
 	@Override
 	protected Iterable<Resource> getResources(UimaContext ctx) throws IOException {
 		String baseDirPath = this.baseDirPath;
-		FilenameUtils.normalize(baseDirPath);
+		baseDirPath = FilenameUtils.normalize(baseDirPath);
 		// ensure that baseDirPath ends with slash for proper relative path handling
 		if (!baseDirPath.endsWith(File.separator)) {
 			baseDirPath += File.separator;
 		}
 		baseDir = new FileSystemResource(baseDirPath);
+		if (!baseDir.exists()) {
+			throw new IllegalStateException(String.format("Directory %s does not exist",
+					baseDir));
+		}
 		List<String> lines = FileUtils.readLines(listFile, "utf-8");
 		resources = Lists.transform(
 				Lists.newArrayList(Iterables.filter(lines, notBlankString)),

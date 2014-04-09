@@ -3,32 +3,41 @@
  */
 package ru.kfu.itis.cll.uima.eval.cas;
 
+import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
+
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCreationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.xml.sax.SAXException;
 
+import ru.kfu.itis.cll.uima.eval.anno.DocumentMetaExtractor;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Maps;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -42,6 +51,9 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 	protected TypeSystem ts;
 	@Autowired
 	protected Environment env;
+	@Autowired
+	protected DocumentMetaExtractor docMetaExtractor;
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public void setTypeSystem(TypeSystem ts) {
@@ -75,11 +87,12 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 	 */
 	@Override
 	public CAS getCas(String docUriStr) throws Exception {
-		URI docUri = new URI(docUriStr);
-		File docFile = new File(docUri);
-		String docFileName = docFile.getName();
-		String xmiFileName = docFileName + ".xmi";
-		File xmiFile = new File(dir, xmiFileName);
+		File xmiFile = getUriToXmiFileMap().get(docUriStr);
+		if (xmiFile == null) {
+			throw new IllegalArgumentException(String.format(
+					"There is no XMI file with doc URI '%s'",
+					docUriStr));
+		}
 		if (!xmiFile.isFile()) {
 			throw new IllegalStateException("Not a file: " + xmiFile);
 		}
@@ -91,7 +104,7 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 	 */
 	@Override
 	public Iterator<CAS> iterator() {
-		Iterator<File> xmiFileIter = Iterators.forArray(getXmiFiles());
+		Iterator<File> xmiFileIter = getXmiFiles().iterator();
 		return Iterators.transform(xmiFileIter, deserializeFunc());
 	}
 
@@ -100,7 +113,7 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 	 */
 	@Override
 	public int size() {
-		return getXmiFiles().length;
+		return getXmiFiles().size();
 	}
 
 	/**
@@ -118,18 +131,43 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 	 * 
 	 * @return file filter for source files in the base dir
 	 */
-	protected FileFilter getSourceFileFilter() {
-		return FileFilterUtils.suffixFileFilter(".xmi");
+	protected IOFileFilter getSourceFileFilter() {
+		return suffixFileFilter(".xmi");
 	}
 
-	private File[] xmiFiles;
+	private Collection<File> xmiFiles;
 
-	private File[] getXmiFiles() {
+	private Collection<File> getXmiFiles() {
 		if (xmiFiles == null) {
-			FileFilter sourceFileFilter = getSourceFileFilter();
-			xmiFiles = dir.listFiles((FileFilter) sourceFileFilter);
+			IOFileFilter sourceFileFilter = getSourceFileFilter();
+			xmiFiles = FileUtils.listFiles(dir, sourceFileFilter, trueFileFilter());
 		}
 		return xmiFiles;
+	}
+
+	private Map<String, File> uriToXmiFileMap;
+
+	private Map<String, File> getUriToXmiFileMap()
+			throws ResourceInitializationException, IOException, SAXException {
+		if (uriToXmiFileMap == null) {
+			log.info("Scanning {} XMIs for document URIs...", dir);
+			uriToXmiFileMap = Maps.newHashMap();
+			CAS wrkCas = createCas();
+			for (final File xmiFile : getXmiFiles()) {
+				deserialize(xmiFile, wrkCas);
+				String docURI = docMetaExtractor.getDocumentUri(wrkCas);
+				final File prevFile;
+				if ((prevFile = uriToXmiFileMap.put(docURI, xmiFile)) != null) {
+					throw new IllegalStateException(
+							String.format(
+									"There are at least 2 files which metadata has the same URI '%s':\n%s\n%s",
+									docURI, prevFile, xmiFile));
+				}
+				wrkCas.reset();
+			}
+			log.info("Scanning {} XMIs for document URIs is finished", dir);
+		}
+		return uriToXmiFileMap;
 	}
 
 	private Function<File, CAS> deserializeFunc() {
@@ -147,14 +185,18 @@ public class FSCasDirectory implements CasDirectory, BeanNameAware {
 
 	private CAS deserialize(File xmiFile) throws UIMAException, SAXException, IOException {
 		CAS cas = createCas();
+		deserialize(xmiFile, cas);
+		postProcessCAS(cas);
+		return cas;
+	}
+
+	private void deserialize(File xmiFile, CAS cas) throws IOException, SAXException {
 		InputStream is = openStream(xmiFile);
 		try {
 			XmiCasDeserializer.deserialize(is, cas);
 		} finally {
 			IOUtils.closeQuietly(is);
 		}
-		postProcessCAS(cas);
-		return cas;
 	}
 
 	private CAS createCas() throws ResourceInitializationException {

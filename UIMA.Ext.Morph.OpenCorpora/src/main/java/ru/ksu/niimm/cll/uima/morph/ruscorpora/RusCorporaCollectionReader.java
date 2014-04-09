@@ -3,20 +3,23 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
+import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
+
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
@@ -38,7 +41,9 @@ import ru.kfu.cll.uima.tokenizer.fstype.SPECIAL;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+import ru.kfu.itis.cll.uima.util.CorpusUtils;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -57,6 +62,8 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 			defaultValue = "ru.ksu.niimm.cll.uima.morph.ruscorpora.RusCorpora2OpenCorporaTagMapper")
 	private String tagMapperClassName;
 	// derived
+	private Function<File, URI> relativeURIFunc;
+	private Function<File, String> relativePathFunc;
 	private List<File> inputFiles;
 	private RusCorporaTagMapper tagMapper;
 	// state fields
@@ -73,12 +80,15 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 			throw new IllegalArgumentException(String.format(
 					"%s is not existing directory", inputDir));
 		}
+		relativeURIFunc = CorpusUtils.relativeURIFunction(inputDir);
+		relativePathFunc = CorpusUtils.relativePathFunction(inputDir);
 		String inputFileExt = DEFAULT_INPUT_FILE_EXT;
 		inputFiles = ImmutableList.copyOf(
-				inputDir.listFiles((FileFilter)
-						FileFilterUtils.suffixFileFilter(inputFileExt)));
-		getLogger().info(String.format("Detected *%s files in %s",
-				inputFileExt, inputFiles.size()));
+				FileUtils.listFiles(inputDir,
+						suffixFileFilter(inputFileExt),
+						TrueFileFilter.INSTANCE));
+		getLogger().info(String.format("Detected *%s files in %s: %s",
+				inputFileExt, inputDir, inputFiles.size()));
 		try {
 			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 			xmlReader = saxParser.getXMLReader();
@@ -95,7 +105,7 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 	@Override
 	public void getNext(JCas jCas) throws IOException, CollectionException {
 		File inputFile = inputFiles.get(++lastReadFileIndex);
-		curFileName = inputFile.getName();
+		curFileName = relativePathFunc.apply(inputFile);
 		InputStream is = new BufferedInputStream(new FileInputStream(inputFile));
 		RusCorporaXmlContentHandler xmlHandler = new RusCorporaXmlContentHandler();
 		try {
@@ -113,7 +123,7 @@ public class RusCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 		// set document meta
 		DocumentMetadata docMeta = new DocumentMetadata(jCas, 0, 0);
 		docMeta.setDocumentSize(docText.length());
-		docMeta.setSourceUri(inputFile.toURI().toString());
+		docMeta.setSourceUri(relativeURIFunc.apply(inputFile).toString());
 		docMeta.addToIndexes();
 		// add paragraphs
 		for (RusCorporaAnnotation para : xmlHandler.getParagraphs()) {
