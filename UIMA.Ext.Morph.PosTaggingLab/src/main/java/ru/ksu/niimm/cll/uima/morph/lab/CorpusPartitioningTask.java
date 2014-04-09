@@ -3,6 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.lab;
 
+import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 
 import java.io.File;
@@ -10,11 +12,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
 
 import ru.kfu.itis.cll.uima.util.CorpusSplit;
 import ru.kfu.itis.cll.uima.util.CorpusUtils;
-
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
 import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
@@ -42,7 +42,7 @@ public class CorpusPartitioningTask extends ExecutableTaskBase {
 	public void execute(TaskContext taskCtx) throws Exception {
 		File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.ADD_ONLY);
 		List<CorpusSplit> corpusSplits = CorpusUtils.createCrossValidationSplits(corpusDir,
-				FileFilterUtils.suffixFileFilter(".xmi"), foldsNum);
+				suffixFileFilter(".xmi"), trueFileFilter(), foldsNum);
 		for (int i = 0; i < corpusSplits.size(); i++) {
 			writeFileLists(corpusDir, i, corpusSplits.get(i));
 		}
