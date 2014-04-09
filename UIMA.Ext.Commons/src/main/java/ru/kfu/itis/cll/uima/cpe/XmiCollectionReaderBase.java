@@ -69,7 +69,8 @@ public abstract class XmiCollectionReaderBase extends CasCollectionReader_ImplBa
 		return new Progress[] { new ProgressImpl(resourcesRead, total, Progress.ENTITIES) };
 	}
 
-	protected abstract Iterable<Resource> getResources(UimaContext ctx) throws IOException;
+	protected abstract Iterable<Resource> getResources(UimaContext ctx)
+			throws IOException, ResourceInitializationException;
 
 	protected abstract Integer getResourcesNumber();
 }
