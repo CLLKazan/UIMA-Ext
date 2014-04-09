@@ -74,10 +74,10 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 		} catch (InvalidXMLException e) {
 			throw new ResourceInitializationException(e);
 		}
-		AnalysisEngineDescription xmiWriterDesc = createPrimitiveDescription(
-				XmiWriter.class,
-				XmiWriter.PARAM_OUTPUTDIR,
-				taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READWRITE));
+		AnalysisEngineDescription xmiWriterDesc = XmiWriter.createDescription(
+				taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READWRITE),
+				// write to relative path
+				true);
 		return createAggregateDescription(posTrimmerDesc, xmiWriterDesc);
 	}
 

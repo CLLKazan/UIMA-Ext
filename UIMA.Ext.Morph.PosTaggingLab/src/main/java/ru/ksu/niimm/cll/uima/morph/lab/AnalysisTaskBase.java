@@ -68,9 +68,7 @@ public abstract class AnalysisTaskBase extends UimaTaskBase {
 
 	protected AnalysisEngineDescription createXmiWriterDesc(File outputDir)
 			throws ResourceInitializationException {
-		return createPrimitiveDescription(
-				XmiWriter.class,
-				XmiWriter.PARAM_OUTPUTDIR, outputDir);
+		return XmiWriter.createDescription(outputDir, true);
 	}
 
 	private File getTargetFileList() {
