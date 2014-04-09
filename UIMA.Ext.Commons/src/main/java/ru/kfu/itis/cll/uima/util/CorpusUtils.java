@@ -6,20 +6,23 @@ package ru.kfu.itis.cll.uima.util;
 import static com.google.common.collect.Collections2.transform;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.SizeFileComparator;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -66,11 +69,25 @@ public class CorpusUtils {
 		return String.format(TEST_PARTITION_NAME_FORMAT, fold);
 	}
 
+	/**
+	 * Partition corpus files specified by filters.
+	 * 
+	 * @param corpusDir
+	 *            corpus base directory
+	 * @param corpusFileFilter
+	 *            filter for corpus files
+	 * @param corpusSubDirFilter
+	 *            filter for corpus subdirectories. If null subdirectories will
+	 *            be ignored.
+	 * @param partitionsNumber
+	 * @return list of file sets (partitions)
+	 */
 	public static List<Set<File>> partitionCorpusByFileSize(File corpusDir,
-			FilenameFilter corpusFileFilter, int partitionsNumber) {
-		log.info("Partitioning corpus {} with filter {}...", corpusDir.getAbsolutePath(),
-				corpusFileFilter);
-		// TODO implement algorithm that is more robust to different file sizes
+			IOFileFilter corpusFileFilter, IOFileFilter corpusSubDirFilter,
+			int partitionsNumber) {
+		log.info("Partitioning corpus {} with file filter {} and subdir filter {}...",
+				new Object[] { corpusDir.getAbsolutePath(), corpusFileFilter, corpusSubDirFilter });
+		// TODO implement an algorithm that is more robust to different file sizes
 		// e.g. it should handle the case when there is no more files to include into the last partition
 		if (partitionsNumber <= 0) {
 			throw new IllegalArgumentException(String.format("Illegal number of partitions: %s",
@@ -80,29 +97,41 @@ public class CorpusUtils {
 			throw new IllegalArgumentException(String.format("%s is not existing directory",
 					corpusDir));
 		}
-		final List<File> corpusFiles = Arrays.asList(corpusDir.listFiles(corpusFileFilter));
-		// sort by decreasing size to smooth differences between parts
-		Collections.sort(corpusFiles, SizeFileComparator.SIZE_REVERSE);
+		final Deque<File> corpusFilesDeq;
+		{
+			List<File> corpusFiles = Lists.newArrayList(
+					FileUtils.listFiles(corpusDir, corpusFileFilter, corpusSubDirFilter));
+			// sort by decreasing size to smooth differences between parts
+			Collections.sort(corpusFiles, SizeFileComparator.SIZE_REVERSE);
+			corpusFilesDeq = Lists.newLinkedList(corpusFiles);
+		}
+		//
 		int totalSize = 0;
-		for (File cf : corpusFiles) {
+		for (File cf : corpusFilesDeq) {
 			totalSize += cf.length();
 		}
 		log.info("Corpus total size (bytes): {}", totalSize);
-		List<Set<File>> result = Lists.newArrayListWithExpectedSize(partitionsNumber);
-		long[] partitionSizes = new long[partitionsNumber];
+		List<FileBucket> buckets = Lists.newArrayListWithExpectedSize(partitionsNumber);
 		// create empty parts
 		for (int i = 0; i < partitionsNumber; i++) {
-			result.add(Sets.<File> newLinkedHashSet());
+			buckets.add(new FileBucket());
 		}
-		int currentPartIdx = 0;
-		for (File cf : corpusFiles) {
-			result.get(currentPartIdx).add(cf);
-			partitionSizes[currentPartIdx] = partitionSizes[currentPartIdx] + cf.length();
-			currentPartIdx = (currentPartIdx + 1) % partitionsNumber;
+		while (!corpusFilesDeq.isEmpty()) {
+			File cf = corpusFilesDeq.pop();
+			buckets.get(0).add(cf);
+			// resort: make the least bucket first
+			Collections.sort(buckets);
 		}
+		// resort: make the largest bucket first
+		Collections.sort(buckets, Collections.reverseOrder());
 		// log
-		log.info("Corpus {} has been partitioned by file sizes. Result partition sizes: {}",
-				corpusDir, Arrays.toString(partitionSizes));
+		log.info("Corpus {} has been partitioned by file sizes. Result partitions:\n{}",
+				corpusDir, Joiner.on('\n').join(buckets));
+		// transform
+		List<Set<File>> result = Lists.newArrayList();
+		for (FileBucket b : buckets) {
+			result.add(b.getFiles());
+		}
 		// sanity checks
 		if (result.size() != partitionsNumber || result.get(result.size() - 1).isEmpty()) {
 			throw new IllegalStateException(
@@ -111,11 +140,27 @@ public class CorpusUtils {
 		return result;
 	}
 
+	/**
+	 * convenience overload of
+	 * {@link #partitionCorpusByFileSize(File, IOFileFilter, IOFileFilter, int)}
+	 * that look up corpus files in all subdirectories.
+	 * 
+	 * @param corpusDir
+	 * @param corpusFileFilter
+	 * @param partitionsNumber
+	 * @return
+	 */
+	public static List<Set<File>> partitionCorpusByFileSize(File corpusDir,
+			IOFileFilter corpusFileFilter, int partitionsNumber) {
+		return partitionCorpusByFileSize(corpusDir, corpusFileFilter, TrueFileFilter.INSTANCE,
+				partitionsNumber);
+	}
+
 	public static List<CorpusSplit> createCrossValidationSplits(File corpusDir,
-			FilenameFilter corpusFileFilter,
+			IOFileFilter corpusFileFilter, IOFileFilter corpusSubDirFilter,
 			final int foldsNum) {
-		List<Set<File>> corpusPartitions = partitionCorpusByFileSize(corpusDir, corpusFileFilter,
-				foldsNum);
+		List<Set<File>> corpusPartitions = partitionCorpusByFileSize(
+				corpusDir, corpusFileFilter, corpusSubDirFilter, foldsNum);
 		List<CorpusSplit> result = Lists.newArrayListWithExpectedSize(foldsNum);
 		for (int f = 0; f < foldsNum; f++) {
 			Set<File> trainingSet = Sets.newLinkedHashSet();
