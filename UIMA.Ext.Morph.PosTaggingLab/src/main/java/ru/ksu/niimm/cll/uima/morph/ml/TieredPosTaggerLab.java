@@ -23,8 +23,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.uimafit.factory.ConfigurationParameterFactory;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
@@ -244,8 +246,22 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			primitiveDescs.add(goldRemoverDesc);
 			primitiveNames.add("goldRemover");
 			//
+			final int posTaggerBegin = primitiveDescs.size();
 			TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
 					modelBaseDir, morphDictDesc, primitiveDescs, primitiveNames);
+			// We should specify additional paths to resolve relative paths of model jars.  
+			// There are several ways to do this. E.g., we can change global UIMA data-path.
+			// But the better solution is to provide the parameter for JarClassifierFactory.
+			final String addSearchPathParam = GenericJarClassifierFactory.PARAM_ADDITIONAL_SEARCH_PATHS;
+			for (int i = posTaggerBegin; i < primitiveDescs.size(); i++) {
+				AnalysisEngineDescription ptDesc = primitiveDescs.get(i);
+				ConfigurationParameterFactory.addConfigurationParameter(ptDesc, addSearchPathParam,
+						new String[] { modelBaseDir.getPath() });
+				// TODO:LOW
+				// disable multiple deployment to avoid heavy memory consumption and related consequences 
+				ptDesc.getAnalysisEngineMetaData().getOperationalProperties()
+						.setMultipleDeploymentAllowed(false);
+			}
 			//
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 			primitiveDescs.add(xmiWriterDesc);
