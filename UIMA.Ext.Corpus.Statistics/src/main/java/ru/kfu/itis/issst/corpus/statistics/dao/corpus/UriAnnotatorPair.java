@@ -1,4 +1,4 @@
-package ru.kfu.itis.issst.corpus.statistics.dao;
+package ru.kfu.itis.issst.corpus.statistics.dao.corpus;
 
 import java.net.URI;
 

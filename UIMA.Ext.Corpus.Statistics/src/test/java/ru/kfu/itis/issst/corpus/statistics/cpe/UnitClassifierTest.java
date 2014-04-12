@@ -22,7 +22,7 @@ import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.util.CasUtil;
 
-import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -35,7 +35,7 @@ public class UnitClassifierTest {
 			.newHashSet("ru.kfu.cll.uima.tokenizer.fstype.W");
 	Set<String> classTypes = Sets.newHashSet("ru.kfu.itis.issst.evex.Person",
 			"ru.kfu.itis.issst.evex.Organization",
-			"ru.kfu.itis.issst.evex.Artifact", "ru.kfu.itis.issst.evex.Weapon");
+			"ru.kfu.itis.issst.evex.Weapon");
 	ExternalResourceDescription daoDesc;
 	CollectionReader reader;
 	AnalysisEngine tokenizerSentenceSplitter;
@@ -83,8 +83,6 @@ public class UnitClassifierTest {
 				unitsByClass.get("ru.kfu.itis.issst.evex.Person"));
 		assertEquals(Sets.newHashSet("ЦСКА"),
 				unitsByClass.get("ru.kfu.itis.issst.evex.Organization"));
-		assertEquals(Sets.newHashSet(),
-				unitsByClass.get("ru.kfu.itis.issst.evex.Artifact"));
 		assertEquals(Sets.newHashSet("штурма", "квартиры"),
 				unitsByClass.get("ru.kfu.itis.issst.evex.Weapon"));
 	}

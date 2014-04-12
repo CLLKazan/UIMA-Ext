@@ -24,7 +24,7 @@ import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.util.CasUtil;
 import org.xml.sax.SAXException;
 
-import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 
 import com.google.common.collect.Sets;
 

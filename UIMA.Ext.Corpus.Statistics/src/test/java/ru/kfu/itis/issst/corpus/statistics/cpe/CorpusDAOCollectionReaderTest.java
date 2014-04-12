@@ -24,7 +24,7 @@ import org.uimafit.factory.ExternalResourceFactory;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
-import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 
 import com.google.common.collect.Sets;
 

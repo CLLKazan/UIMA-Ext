@@ -17,8 +17,8 @@ import org.uimafit.component.CasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ExternalResource;
 import org.xml.sax.SAXException;
 
-import ru.kfu.itis.issst.corpus.statistics.dao.CorpusDAO;
-import ru.kfu.itis.issst.corpus.statistics.dao.UriAnnotatorPair;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.CorpusDAO;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.UriAnnotatorPair;
 
 public class CorpusDAOCollectionReader extends CasCollectionReader_ImplBase {
 

@@ -11,8 +11,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 import org.xml.sax.SAXException;
 
-import ru.kfu.itis.issst.corpus.statistics.dao.CorpusDAO;
-import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.CorpusDAO;
+import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 
 public class XmiFileTreeCorpusDAOResource implements CorpusDAO,
 		SharedResourceObject {
