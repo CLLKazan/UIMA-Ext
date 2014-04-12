@@ -9,6 +9,8 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader;
@@ -19,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.ExternalResourceFactory;
+import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.corpus.statistics.dao.XmiFileTreeCorpusDAO;
@@ -43,7 +46,7 @@ public class CorpusDAOCollectionReaderTest {
 
 	@Test
 	public void testGetNext() throws CollectionException, IOException,
-			ResourceInitializationException, URISyntaxException {
+			ResourceInitializationException, URISyntaxException, SAXException, ParserConfigurationException {
 		Set<String> sourceUris = new HashSet<String>();
 		while (reader.hasNext()) {
 			CAS aCAS = CasCreationUtils.createCas(

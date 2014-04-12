@@ -16,7 +16,6 @@ import com.google.common.collect.Sets;
 
 public class UnitClassifier extends CasAnnotator_ImplBase {
 
-	public static final String UNIT_TYPE_NAME = "ru.kfu.itis.issst.corpus.statistics.type.Unit";
 	public static final String CLASS_FEAT_NAME = "class";
 
 	public static final String PARAM_CLASS_TYPE_NAMES = "classTypeNames";
@@ -30,7 +29,7 @@ public class UnitClassifier extends CasAnnotator_ImplBase {
 	@Override
 	public void typeSystemInit(TypeSystem aTypeSystem)
 			throws AnalysisEngineProcessException {
-		unitType = aTypeSystem.getType(UNIT_TYPE_NAME);
+		unitType = aTypeSystem.getType(UnitAnnotator.UNIT_TYPE_NAME);
 		classFeature = unitType.getFeatureByBaseName(CLASS_FEAT_NAME);
 		for (String classTypeName : classTypeNames) {
 			classTypes.add(aTypeSystem.getType(classTypeName));
