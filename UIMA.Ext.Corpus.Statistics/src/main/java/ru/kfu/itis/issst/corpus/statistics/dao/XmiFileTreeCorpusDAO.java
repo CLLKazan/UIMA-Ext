@@ -13,12 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.XmlCasDeserializer;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.HashMultimap;
@@ -87,9 +92,28 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 		}
 	}
 
-	static public TypeSystemDescription getTypeSystem(String corpusPathString) {
-		File typeSystemFile = new File(corpusPathString)
-				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))[0];
-		return createTypeSystemDescriptionFromPath(typeSystemFile.toString());
+	static public TypeSystemDescription getTypeSystem(String corpusPathString)
+			throws SAXException, IOException, ParserConfigurationException {
+		for (File f : new File(corpusPathString)
+				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))) {
+			if (getXMLRootElement(f).equals("typeSystemDescription")) {
+				return createTypeSystemDescriptionFromPath(f.toString());
+			}
+		}
+		throw new FileNotFoundException();
+	}
+
+	static private String getXMLRootElement(File xmlFile) throws SAXException,
+			IOException, ParserConfigurationException {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(xmlFile);
+
+		// optional, but recommended
+		// read this -
+		// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+		doc.getDocumentElement().normalize();
+
+		return doc.getDocumentElement().getNodeName();
 	}
 }

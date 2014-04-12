@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeDescription;
@@ -61,7 +63,7 @@ public class XmiFileTreeCorpusDAOTest {
 
 	@Test
 	public void testGetTypeSystem() throws ResourceInitializationException,
-			InvalidXMLException {
+			InvalidXMLException, SAXException, IOException, ParserConfigurationException {
 		TypeSystemDescription typeSystem = XmiFileTreeCorpusDAO
 				.getTypeSystem(corpusPathString);
 		typeSystem.resolveImports();
@@ -84,7 +86,7 @@ public class XmiFileTreeCorpusDAOTest {
 
 	@Test
 	public void testGetDocumentCas() throws ResourceInitializationException,
-			IOException, SAXException, URISyntaxException {
+			IOException, SAXException, URISyntaxException, ParserConfigurationException {
 		CAS aCAS = CasCreationUtils.createCas(
 				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
@@ -115,7 +117,7 @@ public class XmiFileTreeCorpusDAOTest {
 	@Test(expected = FileNotFoundException.class)
 	public void testGetDocumentCasForNonexistingDocument()
 			throws ResourceInitializationException, IOException, SAXException,
-			URISyntaxException {
+			URISyntaxException, ParserConfigurationException {
 		CAS aCAS = CasCreationUtils.createCas(
 				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
@@ -125,7 +127,7 @@ public class XmiFileTreeCorpusDAOTest {
 	@Test(expected = FileNotFoundException.class)
 	public void testGetDocumentCasForWrongAnnotator()
 			throws ResourceInitializationException, IOException, SAXException,
-			URISyntaxException {
+			URISyntaxException, ParserConfigurationException {
 		CAS aCAS = CasCreationUtils.createCas(
 				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString), null,
 				null, null);
