@@ -11,7 +11,7 @@
       <supertypeName>uima.tcas.Annotation</supertypeName>
     <features>
         <featureDescription>
-          <name>class</name>
+          <name>annotatorClass</name>
           <description>Class of unit assigned by annotator</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
