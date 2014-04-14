@@ -11,7 +11,8 @@ public class UnitTest {
 
 	@Test
 	public void testGetSortedClasses() throws URISyntaxException {
-		Unit unit = new Unit(new URI("1"), 10, 15, "vasya", "cat");
+		Unit unit = new Unit(new UnitLocation(new URI("1"), 10, 15), "vasya",
+				"cat");
 		assertArrayEquals(new String[] { "cat" }, unit.getSortedClasses());
 		unit.putClassByAnnotatorId("petya", "dog");
 		assertArrayEquals(new String[] { "dog", "cat" },

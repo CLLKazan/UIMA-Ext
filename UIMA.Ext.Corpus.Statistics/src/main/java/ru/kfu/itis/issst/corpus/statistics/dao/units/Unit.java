@@ -10,13 +10,12 @@ public class Unit {
 	private UnitLocation location;
 	private SortedMap<String, String> classByAnnotatorId = Maps.newTreeMap();
 
-	public Unit(URI documentURI, int begin, int end) {
-		location = new UnitLocation(documentURI, begin, end);
+	public Unit(UnitLocation location) {
+		this.location = location;
 	}
 
-	public Unit(URI documentURI, int begin, int end, String annotatorId,
-			String annotatorClass) {
-		this(documentURI, begin, end);
+	public Unit(UnitLocation location, String annotatorId, String annotatorClass) {
+		this(location);
 		classByAnnotatorId.put(annotatorId, annotatorClass);
 	}
 
