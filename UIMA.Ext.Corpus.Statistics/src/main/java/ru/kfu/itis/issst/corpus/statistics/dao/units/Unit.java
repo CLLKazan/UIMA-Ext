@@ -35,6 +35,10 @@ public class Unit {
 		return location.getEnd();
 	}
 
+	public SortedMap<String, String> getClassesByAnnotatorId() {
+		return classByAnnotatorId;
+	}
+
 	public String[] getSortedClasses() {
 		return classByAnnotatorId.values().toArray(new String[0]);
 	}

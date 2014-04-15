@@ -1,5 +1,6 @@
 package ru.kfu.itis.issst.corpus.statistics.dao.units;
 
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
@@ -31,7 +32,19 @@ public class InMemoryUnitsDAO implements UnitsDAO {
 
 	@Override
 	public void toTSV(Writer writer) {
-		// TODO Auto-generated method stub
+		PrintWriter pw = new PrintWriter(writer);
+		for (Unit unit : this.getUnits()) {
+			URI documentURI = unit.getDocumentURI();
+			int begin = unit.getBegin();
+			int end = unit.getEnd();
+			for (Map.Entry<String, String> annotatorIdAndClass : unit
+					.getClassesByAnnotatorId().entrySet()) {
+				String annotatorId = annotatorIdAndClass.getKey();
+				String annotatorClass = annotatorIdAndClass.getValue();
+				pw.format("%s\t%d\t%d\t%s\t%s%n", documentURI, begin, end,
+						annotatorId, annotatorClass);
+			}
+		}
 	}
 
 	@Override
