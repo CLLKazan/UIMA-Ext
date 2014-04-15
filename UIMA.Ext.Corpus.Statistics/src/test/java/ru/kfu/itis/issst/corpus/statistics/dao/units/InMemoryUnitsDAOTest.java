@@ -4,6 +4,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
@@ -29,8 +31,7 @@ public class InMemoryUnitsDAOTest {
 		dao.addUnitItem(new URI("2"), 0, 9, "2", "two");
 	}
 
-	@Test
-	public void testGetUnits() throws URISyntaxException {
+	private void assertUnits(UnitsDAO dao) throws URISyntaxException {
 		Iterable<Unit> units = dao.getUnits();
 		assertEquals(3, Iterables.size(units));
 		boolean unitWasFounded = false;
@@ -47,14 +48,29 @@ public class InMemoryUnitsDAOTest {
 	}
 
 	@Test
-	public void testToTSV() {
+	public void testGetUnits() throws URISyntaxException {
+		assertUnits(dao);
+	}
+
+	private String daoToString() {
 		Writer sw = new StringWriter();
 		dao.toTSV(sw);
-		List<String> tsvLines = Lists.newArrayList(sw.toString().split(
+		return sw.toString();
+	}
+
+	@Test
+	public void testToTSV() {
+		List<String> tsvLines = Lists.newArrayList(daoToString().split(
 				"[\\r\\n]+"));
-		System.out.println(sw.toString());
 		assertEquals(6, tsvLines.size());
 		assertTrue(tsvLines.contains("1\t11\t15\t1\tone"));
+	}
+
+	@Test
+	public void testAddUnitsFromTSV() throws URISyntaxException, IOException {
+		UnitsDAO daoFromTSV = new InMemoryUnitsDAO();
+		daoFromTSV.addUnitsFromTSV(new StringReader(daoToString()));
+		assertUnits(daoFromTSV);
 	}
 
 }

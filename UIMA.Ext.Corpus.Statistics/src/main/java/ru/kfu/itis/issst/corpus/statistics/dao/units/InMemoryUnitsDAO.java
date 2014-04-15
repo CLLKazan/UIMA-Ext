@@ -1,9 +1,12 @@
 package ru.kfu.itis.issst.corpus.statistics.dao.units;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -48,8 +51,20 @@ public class InMemoryUnitsDAO implements UnitsDAO {
 	}
 
 	@Override
-	public void addUnitsFromTSV(Reader reader) {
-		// TODO Auto-generated method stub
+	public void addUnitsFromTSV(Reader reader) throws IOException,
+			URISyntaxException {
+		BufferedReader br = new BufferedReader(reader);
+		String l;
+		while ((l = br.readLine()) != null) {
+			String[] columnDetail = l.split("\t", -1);
+			URI documentURI = new URI(columnDetail[0]);
+			int begin = Integer.parseInt(columnDetail[1]);
+			int end = Integer.parseInt(columnDetail[2]);
+			String annotatorId = columnDetail[3];
+			String annotatorClass = columnDetail[4];
+			this.addUnitItem(documentURI, begin, end, annotatorId,
+					annotatorClass);
+		}
 	}
 
 }
