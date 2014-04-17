@@ -3,6 +3,7 @@ package ru.kfu.itis.issst.corpus.statistics.cpe;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.IOException;
 import java.util.Set;
@@ -15,11 +16,14 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.collection.metadata.CpeDescriptorException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.CasCreationUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.ExternalResourceFactory;
+import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.util.CasUtil;
 import org.xml.sax.SAXException;
@@ -34,6 +38,7 @@ public class UnitAnnotatorTest {
 	Set<String> unitTypes = Sets
 			.newHashSet("ru.kfu.cll.uima.tokenizer.fstype.W");
 	ExternalResourceDescription daoDesc;
+	TypeSystemDescription tsd;
 	CollectionReader reader;
 	AnalysisEngine tokenizerSentenceSplitter;
 	AnalysisEngine unitAnnotator;
@@ -42,10 +47,18 @@ public class UnitAnnotatorTest {
 	public void setUp() throws Exception {
 		daoDesc = ExternalResourceFactory.createExternalResourceDescription(
 				XmiFileTreeCorpusDAOResource.class, corpusPathString);
+		tsd = CasCreationUtils
+				.mergeTypeSystems(Sets.newHashSet(
+						XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString),
+						TypeSystemDescriptionFactory
+								.createTypeSystemDescription(),
+						createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem"),
+						createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")));
 		reader = CollectionReaderFactory.createCollectionReader(
-				CorpusDAOCollectionReader.class,
-				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString),
+				CorpusDAOCollectionReader.class, tsd,
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);
+		CAS aCAS = CasCreationUtils.createCas(tsd, null, null, null);
+		reader.typeSystemInit(aCAS.getTypeSystem());
 		tokenizerSentenceSplitter = AnalysisEngineFactory
 				.createAggregate(Unitizer.createTokenizerSentenceSplitterAED());
 		unitAnnotator = AnalysisEngineFactory.createPrimitive(
@@ -59,6 +72,7 @@ public class UnitAnnotatorTest {
 		for (JCas jCas : new JCasIterable(reader, tokenizerSentenceSplitter,
 				unitAnnotator)) {
 			CAS aCas = jCas.getCas();
+			reader.typeSystemInit(aCas.getTypeSystem());
 			Type unitSourceType = CasUtil.getType(aCas, unitTypes.iterator()
 					.next());
 			Type unitType = aCas.getTypeSystem().getType(
