@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,9 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.uimafit.util.CasUtil;
 import org.xml.sax.SAXException;
-
-import ru.kfu.itis.issst.corpus.statistics.dao.corpus.CorpusDAO;
-import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 
 import com.google.common.collect.Sets;
 
