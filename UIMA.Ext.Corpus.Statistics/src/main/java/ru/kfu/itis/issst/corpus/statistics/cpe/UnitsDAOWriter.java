@@ -1,6 +1,9 @@
 package ru.kfu.itis.issst.corpus.statistics.cpe;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -16,7 +19,6 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.CasUtil;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.units.UnitsDAO;
@@ -44,7 +46,8 @@ public class UnitsDAOWriter extends CasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(context);
 		try {
-			unitsDAO = (UnitsDAO) Class.forName(unitsDAOImplementationClassName).newInstance();
+			unitsDAO = (UnitsDAO) Class
+					.forName(unitsDAOImplementationClassName).newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -89,4 +92,15 @@ public class UnitsDAOWriter extends CasAnnotator_ImplBase {
 			}
 		}
 	}
+
+	@Override
+	public void collectionProcessComplete()
+			throws AnalysisEngineProcessException {
+		try {
+			unitsDAO.toTSV(new BufferedWriter(new FileWriter(unitsTSV)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
