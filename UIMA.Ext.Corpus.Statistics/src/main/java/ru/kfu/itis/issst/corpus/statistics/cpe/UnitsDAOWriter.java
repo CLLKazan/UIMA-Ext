@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -96,10 +97,14 @@ public class UnitsDAOWriter extends CasAnnotator_ImplBase {
 	@Override
 	public void collectionProcessComplete()
 			throws AnalysisEngineProcessException {
+		BufferedWriter outputStream = null;
 		try {
-			unitsDAO.toTSV(new BufferedWriter(new FileWriter(unitsTSV)));
+			outputStream = new BufferedWriter(new FileWriter(unitsTSV));
+			unitsDAO.toTSV(outputStream);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			IOUtils.closeQuietly(outputStream);
 		}
 	}
 

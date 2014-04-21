@@ -1,5 +1,6 @@
 package ru.kfu.itis.issst.corpus.statistics.dao.corpus;
 
+import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath;
 
 import java.io.File;
@@ -84,9 +85,10 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 			throws SAXException, IOException {
 		if (fileByURIandAnnotatorId.containsKey(new UriAnnotatorPair(docURI,
 				annotatorId))) {
-			File xmiFile = fileByURIandAnnotatorId.get(new UriAnnotatorPair(
-					docURI, annotatorId));
-			XmlCasDeserializer.deserialize(new FileInputStream(xmiFile), aCAS);
+			FileInputStream xmiFileIn = new FileInputStream(fileByURIandAnnotatorId.get(new UriAnnotatorPair(
+					docURI, annotatorId)));
+			XmlCasDeserializer.deserialize(xmiFileIn, aCAS);
+			closeQuietly(xmiFileIn);
 		} else {
 			throw new FileNotFoundException();
 		}
