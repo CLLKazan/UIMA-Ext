@@ -20,13 +20,15 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.CasUtil;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.units.UnitsDAO;
 
+@OperationalProperties(multipleDeploymentAllowed = false)
 public class UnitsDAOWriter extends CasAnnotator_ImplBase {
 
-	final static String UNITS_TSV_PATH = "UnitsTSVPath";
+	public final static String UNITS_TSV_PATH = "UnitsTSVPath";
 	@ConfigurationParameter(name = UNITS_TSV_PATH, defaultValue = "units.tsv", description = "Path to file to write units")
 	private File unitsTSV;
 

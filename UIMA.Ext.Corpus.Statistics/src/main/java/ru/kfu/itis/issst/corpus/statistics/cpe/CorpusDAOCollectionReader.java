@@ -14,6 +14,8 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.collection.CollectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.uimafit.component.CasCollectionReader_ImplBase;
 import org.uimafit.descriptor.ExternalResource;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -26,7 +28,7 @@ import ru.kfu.itis.issst.corpus.statistics.dao.corpus.UriAnnotatorPair;
 
 public class CorpusDAOCollectionReader extends CasCollectionReader_ImplBase {
 
-	final static String CORPUS_DAO_KEY = "CorpusDAO";
+	public final static String CORPUS_DAO_KEY = "CorpusDAO";
 	@ExternalResource(key = CORPUS_DAO_KEY)
 	private CorpusDAO corpusDAO;
 
@@ -55,7 +57,6 @@ public class CorpusDAOCollectionReader extends CasCollectionReader_ImplBase {
 	@Override
 	public void initialize(UimaContext context)
 			throws ResourceInitializationException {
-		System.out.println("initialize");
 		super.initialize(context);
 		try {
 			for (URI document : corpusDAO.getDocuments()) {
@@ -77,12 +78,15 @@ public class CorpusDAOCollectionReader extends CasCollectionReader_ImplBase {
 	}
 
 	@Override
-	public void getNext(CAS aCAS) throws IOException, CollectionException  {
+	public void getNext(CAS aCAS) throws IOException, CollectionException {
 		UriAnnotatorPair pair = uriAnnotatorPairsIterator.next();
 		try {
 			corpusDAO
 					.getDocumentCas(pair.getUri(), pair.getAnnotatorId(), aCAS);
 		} catch (SAXException e) {
+			getLogger().error(
+					String.format("Exception at %s annotated by %s.",
+							pair.getUri(), pair.getAnnotatorId()));
 			e.printStackTrace();
 			throw new CollectionException();
 		}

@@ -78,6 +78,10 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-tokenizer</artifactId>
 		</dependency>
