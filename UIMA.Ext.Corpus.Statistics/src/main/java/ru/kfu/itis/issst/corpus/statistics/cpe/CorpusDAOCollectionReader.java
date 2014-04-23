@@ -14,13 +14,11 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.collection.CollectionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.uimafit.component.CasCollectionReader_ImplBase;
-import org.uimafit.descriptor.ExternalResource;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
+import org.uimafit.component.CasCollectionReader_ImplBase;
+import org.uimafit.descriptor.ExternalResource;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.CorpusDAO;

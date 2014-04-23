@@ -47,4 +47,8 @@ public class Unit {
 		classByAnnotatorId.put(annotatorId, annotatorClass);
 	}
 
+	@Override
+	public String toString() {
+		return location.toString() + " " + classByAnnotatorId;
+	}
 }

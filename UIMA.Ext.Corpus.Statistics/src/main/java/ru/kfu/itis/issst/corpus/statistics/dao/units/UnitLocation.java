@@ -58,4 +58,9 @@ public class UnitLocation {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s\t%d\t%d", documentURI, begin, end);
+	}
+
 }
