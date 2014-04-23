@@ -1,8 +1,12 @@
 package ru.kfu.itis.issst.corpus.statistics.cpe;
 
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.junit.Assert.assertEquals;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Set;
 
@@ -84,6 +88,26 @@ public class UnitsDAOWriterTest {
 	public void test() throws CASRuntimeException, UIMAException, IOException {
 		SimplePipeline.runPipeline(reader, tokenizerSentenceSplitter,
 				unitAnnotator, unitClassifier, unitsDAOWriter);
+		Set<String> searchedStrings = Sets.newHashSet(
+				"65801.txt\t545\t549\t1\tru.kfu.itis.issst.evex.Organization",
+				"62007.txt\t1044\t1048\t1\tru.kfu.itis.issst.evex.Person",
+				"62007.txt\t1044\t1048\t5\tru.kfu.itis.issst.evex.Person",
+				"65801.txt\t0\t3\t1\tnull");
+		int founded = 0;
+		BufferedReader inputStream = null;
+		try {
+			inputStream = new BufferedReader(new FileReader(unitsTSV));
+			String l;
+			while ((l = inputStream.readLine()) != null) {
+				if (searchedStrings.contains(l)) {
+					++founded;
+				}
+			}
+		} finally {
+			closeQuietly(inputStream);
+		}
+		assertEquals(searchedStrings.size(), founded);
+
 	}
 
 }
