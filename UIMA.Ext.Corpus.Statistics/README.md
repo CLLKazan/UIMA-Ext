@@ -1,5 +1,5 @@
 #Module description
-Tools for calculating aggreement in annotated corpus.
+Tools for calculating agreement in annotated corpus.
 
 ##Usage example
 ```bash
