@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>uima-ext-events</name>
+	<description/>
+	<version>0.2</version>
+	<vendor>Intelligent Search Systems &amp; Semantic Technologies Lab @ Kazan Federal University</vendor>
+
+	<imports>
+		<import name="ru.kfu.itis.cll.uima.commons.Commons-TypeSystem" />
+	</imports>
+
+	<types>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Person</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Organization</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Artifact</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Weapon</name>
+			<description/>
+			<supertypeName>ru.kfu.itis.issst.evex.Artifact</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Job</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Time</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+		</typeDescription>
+
+		<!--	EVENT	-->
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Event</name>
+			<description/>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+
+			<features>
+				<featureDescription>
+					<name>negation</name>
+					<description/>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>tense</name>
+					<description/>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>generic</name>
+					<description/>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>notAsserted</name>
+					<description>aka "Polarity"</description>
+
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+
+			</features>
+		</typeDescription>
+
+
+
+		<!--	EVENT SubTypes	-->
+
+
+		<!-- Die -->
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.Die</name>
+			<description/>
+			<supertypeName>ru.kfu.itis.issst.evex.Event</supertypeName>
+			<features>
+				<featureDescription>
+					<name>personArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>uima.tcas.Annotation</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>killerArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ru.kfu.itis.issst.evex.Person</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>instrumentArg</name>
+					<description/>
+					<rangeTypeName>uima.tcas.Annotation</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>timeArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ru.kfu.itis.issst.evex.Time</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>placeArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>uima.tcas.Annotation</elementType>
+				</featureDescription>
+			</features>
+		</typeDescription>
+
+		<typeDescription>
+			<name>ru.kfu.itis.issst.evex.StartPosition</name>
+			<description/>
+			<supertypeName>ru.kfu.itis.issst.evex.Event</supertypeName>
+			<features>
+
+				<featureDescription>
+					<name>personArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ru.kfu.itis.issst.evex.Person</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>employerArg</name>
+					<description/>
+					<rangeTypeName>uima.tcas.Annotation</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>positionArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>ru.kfu.itis.issst.evex.Job</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>placeArg</name>
+					<description/>
+					<rangeTypeName>uima.cas.FSArray</rangeTypeName>
+					<elementType>uima.tcas.Annotation</elementType>
+				</featureDescription>
+
+				<featureDescription>
+					<name>timeArg</name>
+					<description/>
+					<rangeTypeName>ru.kfu.itis.issst.evex.Time</rangeTypeName>
+				</featureDescription>
+
+			</features>
+		</typeDescription>
+
+	</types>
+</typeSystemDescription>

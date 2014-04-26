@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<name>SourceDocumentInformation</name>
+	<description>Defines a type for storing information about the original
+		source document from which the current CAS was initialized
+	</description>
+	<version>1.0</version>
+	<vendor />
+	<types>
+		<typeDescription>
+			<name>ru.kfu.itis.issst.corpus.statistics.type.SourceDocumentInformation
+			</name>
+			<description>Stores detailed information about the original source
+				document from which the current CAS was initialized.</description>
+			<supertypeName>uima.tcas.Annotation</supertypeName>
+			<features>
+				<featureDescription>
+					<name>uri</name>
+					<description>URI of document.</description>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+
+				<featureDescription>
+					<name>annotatorId</name>
+					<description>Annotator who annotated this document</description>
+					<rangeTypeName>uima.cas.String</rangeTypeName>
+				</featureDescription>
+			</features>
+		</typeDescription>
+	</types>
+</typeSystemDescription>

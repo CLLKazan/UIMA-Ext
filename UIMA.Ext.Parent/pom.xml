@@ -26,6 +26,7 @@
 		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
+		<module>../UIMA.Ext.Corpus.Statistics</module>
 	</modules>
 
 	<build>

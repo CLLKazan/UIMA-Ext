@@ -1,0 +1,1 @@
+classpath*:ru/kfu/itis/issst/corpus/statistics/type/**/*.xml

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:evex="http:///ru/kfu/itis/issst/evex.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:commons="http:///ru/kfu/itis/cll/uima/commons.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="Гус Хиддинк: &quot;Я наслаждался игрой Вагнера Лава&quot;&#10;Дата публикации: 15:14 17/01/2013&#10;Источник: &quot;Ореанда-Новости&quot;&#10;Город:&#10;ОРЕАНДА-НОВОСТИ / SPORT.RU. Комментируя возвращение в ЦСКА бразильского нападающего Вагнера Лава главный тренер &quot;Анжи&quot; Гус Хиддинк подчеркнул, что это приобретение делает армейцев фаворитами премьер-лиги в еще большей степени.&#10;&quot;ЦСКА лидирует в чемпионате, а значит, эта команда - по умолчанию фаворит. Мы же - в роли догоняющих. Да и в принципе &quot;Анжи&quot; выступил лучше, чем от него ожидали. Но если Вагнер действительно перешел в ЦСКА, то они стали еще в большей степени фаворитами, заполучив нападающего топ-уровня. Я наслаждался его игрой, когда работал тренером сборной России. Видел много игр ЦСКА с участием Вагнера. И говорил людям из РФС: &quot;Сделайте ему российский паспорт! Он мне нужен!&quot; Вагнер - прекрасный игрок и очень опасный форвард&quot; – передаёт слова голландца &quot;СЭ&quot;.&#10;Напомним, что 16 января Вагнер Лав официально вернулся в ЦСКА, подписав контракт на 3,5 года.&#10;"/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="988" language="x-unspecified"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/d:/rinat/data/issst-event-corpus/1/65801.txt" offsetInSource="0" documentSize="988" startProcessingTime="0"/>
+    <evex:Organization xmi:id="21" sofa="1" begin="545" end="549"/>
+    <evex:Person xmi:id="25" sofa="1" begin="514" end="520"/>
+    <evex:StartPosition xmi:id="29" sofa="1" begin="535" end="542" personArg="25" employerArg="21"/>
+    <cas:View sofa="1" members="8 13 21 25 29"/>
+</xmi:XMI>
