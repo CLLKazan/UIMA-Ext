@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:evex="http:///ru/kfu/itis/issst/evex.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:commons="http:///ru/kfu/itis/cll/uima/commons.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="МОСКВА, 20 янв — Р-Спорт. Российский футболист «Порту» Марат Измайлов заявил, что еще не привык играть в таком высоком темпе, в каком действует его новая команда.&#10;Измайлов в субботу забил свой первый гол за «Порту» в матче чемпионата Португалии с «Пасуш-ди-Феррейра» (2:0).&#10;«Я так устал, это было очень волнительно. Я не привык играть в таком высоком темпе. Я не играл весь матч, но помог “Порту” победить. Я пытаюсь делать все возможное, чтобы восстановить свое состояние и помочь команде выиграть титул. Я всегда играл в больших командах, в чемпионате России, в португальской лиге. Для меня просто понимать своих партнеров технически, но физически еще необходимо совершенствоваться», — приводит слова Измайлова A Bola.&#10;В следующем туре чемпионата страны «Порту» примет «Жил Висенте».&#10;"/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="786" language="x-unspecified"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:/d:/rinat/data/issst-event-corpus/5/75788.txt" offsetInSource="0" documentSize="786" startProcessingTime="0"/>
+    <evex:Die xmi:id="21" sofa="1" begin="0" end="6"/>
+    <cas:View sofa="1" members="8 13 21"/>
+</xmi:XMI>
