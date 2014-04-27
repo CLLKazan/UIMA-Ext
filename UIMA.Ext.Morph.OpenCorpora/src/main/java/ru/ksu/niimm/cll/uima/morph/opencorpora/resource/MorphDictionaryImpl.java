@@ -61,29 +61,40 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	// set of complete tags (lex + wordform) seen in stored wordforms
 	private Set<BitSet> tagset = Sets.newHashSet();
 
-	private transient WordformPredictor wfPredictor;
+//	private transient WordformPredictor wfPredictor;
 
 	// state mark
 	private transient boolean complete = false;
 
 	@Override
 	public void setWfPredictor(WordformPredictor wfPredictor) {
-		this.wfPredictor = wfPredictor;
+//		this.wfPredictor = wfPredictor;
+	}
+
+	public void addWordform(String text, Wordform wf) {
+		wf = wf.cloneWithGrammems(internWordformGrammems(wf.getGrammems()));
+		wfByString.put(text, wf);
+		// add complete tag
+		BitSet tag = wf.getGrammems();
+		tag.or(getLemma(wf.getLemmaId()).getGrammems());
+		tagset.add(tag);
 	}
 
 	@Override
 	public List<Wordform> getEntries(String str) {
-		WordformTrieSearchResult result = wfByString.getLongestPrefixMatch(str);
-		if (result.isMatchExact())
-			return Lists.newArrayList(result);
-		else if (wfPredictor != null) {
-			return ImmutableList.copyOf(wfPredictor.predict(str, result));
-		} else {
-			// wfPredictor is not set
-			return ImmutableList.of();
-		}
+		return wfByString.get(str);
+//		WordformTrieSearchResult result = wfByString.getLongestPrefixMatch(str);
+//		if (result.isMatchExact())
+//			return Lists.newArrayList(result);
+//		else if (wfPredictor != null) {
+//			return ImmutableList.copyOf(wfPredictor.predict(str, result));
+//		} else {
+//			// wfPredictor is not set
+//			return ImmutableList.of();
+//		}
 	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -271,15 +282,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	@Override
 	public Map<Integer, LemmaLinkType> getLemmaInlinks(int lemmaId) {
 		return lemmaLinkTable.column(lemmaId);
-	}
-
-	public void addWordform(String text, Wordform wf) {
-		wf = wf.cloneWithGrammems(internWordformGrammems(wf.getGrammems()));
-		wfByString.put(text, wf);
-		// add complete tag
-		BitSet tag = wf.getGrammems();
-		tag.or(getLemma(wf.getLemmaId()).getGrammems());
-		tagset.add(tag);
 	}
 
 	@Override
