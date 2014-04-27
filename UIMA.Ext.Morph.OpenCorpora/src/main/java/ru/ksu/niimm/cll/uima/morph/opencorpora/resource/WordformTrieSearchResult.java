@@ -6,11 +6,11 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 import java.util.Iterator;
 
-public class WordformTSTSearchResult implements Iterable<Wordform>{
+public class WordformTrieSearchResult implements Iterable<Wordform>{
     private boolean isMatchExact;
-    private WordformTST.Node resultNode;
+    private WordformTrie.Node resultNode;
 
-    public WordformTSTSearchResult(boolean matchExact, WordformTST.Node resultNode) {
+    public WordformTrieSearchResult(boolean matchExact, WordformTrie.Node resultNode) {
         isMatchExact = matchExact;
         this.resultNode = resultNode;
     }
@@ -27,7 +27,7 @@ public class WordformTSTSearchResult implements Iterable<Wordform>{
 		    if (resultNode == null)
 			    return Iterators.emptyIterator();
 		    else
-			    return new WordformTST.SubtreeIterator(resultNode);
+			    return new WordformTrie.SubtreeIterator(resultNode);
 	    }
     }
 }

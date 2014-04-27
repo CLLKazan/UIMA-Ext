@@ -11,7 +11,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class WordformTST implements Serializable {
+public class WordformTrie implements Serializable {
 	private static final long serialVersionUID = 6643426248422366315L;
 	
 	private Node rootNode;
@@ -86,7 +86,7 @@ public class WordformTST implements Serializable {
         }
     }
 
-    public WordformTSTSearchResult getLongestPrefixMatch(String key) {
+    public WordformTrieSearchResult getLongestPrefixMatch(String key) {
         getNodeLongestPrefixMatchResult nodeLongestPrefixMatchResult = getNodeLongestPrefixMatch(key);
         if (nodeLongestPrefixMatchResult == null)
             return null;
@@ -94,10 +94,10 @@ public class WordformTST implements Serializable {
         int matchLength = nodeLongestPrefixMatchResult.getMatchLength();
 		if (matchLength == key.length() &&
                     nodeLongestPrefixMatchResult.getResultNode().iterator().hasNext())
-            return new WordformTSTSearchResult(true, nodeLongestPrefixMatchResult.getResultNode());
+            return new WordformTrieSearchResult(true, nodeLongestPrefixMatchResult.getResultNode());
         // otherwise, iterate over wordforms in subtree with root in result node
         else {
-            return new WordformTSTSearchResult(false, nodeLongestPrefixMatchResult.getResultNode());
+            return new WordformTrieSearchResult(false, nodeLongestPrefixMatchResult.getResultNode());
         }
     }
 

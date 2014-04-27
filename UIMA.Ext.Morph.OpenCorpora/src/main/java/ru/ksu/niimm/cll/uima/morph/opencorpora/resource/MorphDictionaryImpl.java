@@ -57,7 +57,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private Map<BitSet, BitSet> uniqWordformGrammemsMap = Maps.newHashMap();
 	private Map<BitSet, BitSet> uniqLemmaGrammemsMap = Maps.newHashMap();
 
-	private WordformTST wfByString = new WordformTST();
+	private WordformTrie wfByString = new WordformTrie();
 	// set of complete tags (lex + wordform) seen in stored wordforms
 	private Set<BitSet> tagset = Sets.newHashSet();
 
@@ -73,7 +73,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	@Override
 	public List<Wordform> getEntries(String str) {
-		WordformTSTSearchResult result = wfByString.getLongestPrefixMatch(str);
+		WordformTrieSearchResult result = wfByString.getLongestPrefixMatch(str);
 		if (result.isMatchExact())
 			return Lists.newArrayList(result);
 		else if (wfPredictor != null) {

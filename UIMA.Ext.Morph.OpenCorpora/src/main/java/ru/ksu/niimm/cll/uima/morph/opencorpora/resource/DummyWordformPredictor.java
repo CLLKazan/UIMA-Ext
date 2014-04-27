@@ -32,7 +32,7 @@ public class DummyWordformPredictor implements WordformPredictor{
     }
 
     @Override
-    public List<Wordform> predict(String str, WordformTSTSearchResult result) {
+    public List<Wordform> predict(String str, WordformTrieSearchResult result) {
         Set<Wordform> wfSet = new HashSet<Wordform>();
         for (Wordform wf : result) {
             Lemma lemma = dict.getLemma(wf.getLemmaId()).cloneWithoutIdAndString();
