@@ -4,7 +4,7 @@
     <parent>
         <artifactId>uima-ext-parent</artifactId>
         <groupId>ru.ksu.niimm.cll.uima</groupId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.3-SNAPSHOT</version>
         <relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
     </parent>
     <artifactId>uima-ext-morph-lemmatizer</artifactId>
@@ -68,6 +68,7 @@
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                     <junitxml>.</junitxml>
                     <filereports>WDF TestSuite.txt</filereports>
+                    <argLine>-Xmx2048m -Djava.library.path=${java.library.path} -Duima.datapath=${uima.datapath}</argLine>
                 </configuration>
                 <executions>
                     <execution>
@@ -131,6 +132,13 @@
         <dependency>
             <groupId>ru.ksu.niimm.cll.uima</groupId>
             <artifactId>uima-ext-eval</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.ksu.niimm.cll.uima</groupId>
+            <artifactId>uima-morph-opencorpora</artifactId>
+            <version>0.3-SNAPSHOT</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
