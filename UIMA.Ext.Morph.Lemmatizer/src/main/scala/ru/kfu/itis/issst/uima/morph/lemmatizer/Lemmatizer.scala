@@ -4,6 +4,7 @@ import scala.collection.JavaConversions._
 import org.apache.uima.jcas.JCas
 import org.uimafit.util.JCasUtil.select
 import org.opencorpora.cas.{Word, Wordform}
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.{Wordform => DictWordform}
 import org.apache.uima.cas.FeatureStructure
 import org.uimafit.descriptor.ExternalResource
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder
@@ -12,13 +13,24 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.{WordUtils, MorphologyAnnotator}
 /**
  * Created by fsqcds on 07/05/14.
  */
-class Lemmatizer() extends org.uimafit.component.JCasAnnotator_ImplBase {
+class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
   @ExternalResource(key = MorphologyAnnotator.RESOURCE_KEY_DICTIONARY)
   private var dictHolder: MorphDictionaryHolder = null
 
+  def jaccardCoef(first: Set[String], second: Set[String]) = {
+    (first & second).size.toDouble / (first | second).size
+  }
+
   def findLemma(wordform: Wordform): String = {
-    val lemmaId = dictHolder.getDictionary.getEntries(WordUtils.normalizeToDictionaryForm
-      (wordform.getWord.getCoveredText)).get(0).getLemmaId
+    val dict = dictHolder.getDictionary
+    val wordText = WordUtils.normalizeToDictionaryForm(wordform.getWord.getCoveredText)
+    val targetGrammems: Set[String] = wordform.getGrammems.toArray.toSet
+
+    val lemmaId = dict.getEntries(wordText).maxBy((dictWf: DictWordform) => {
+      val wfGrammems: Set[String] = dict.toGramSet(dictWf.getGrammems).toSet
+      jaccardCoef(targetGrammems, wfGrammems)
+    }).getLemmaId
+
     dictHolder.getDictionary.getLemma(lemmaId).getString
   }
 
