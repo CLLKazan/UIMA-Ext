@@ -7,8 +7,8 @@
         <version>0.3-SNAPSHOT</version>
         <relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
     </parent>
-    <artifactId>uima-ext-morph-lemmatizer</artifactId>
-    <name>UIMA.Ext.Morph.Lemmatizer</name>
+    <artifactId>uima-ext-lemmatizer-opencorpora</artifactId>
+    <name>UIMA.Ext.Lemmatizer.OpenCorpora</name>
     <description>UIMA Ext Morphological Lemmatizer</description>
 
     <build>
