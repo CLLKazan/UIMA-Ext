@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
@@ -27,33 +27,36 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- * 
  */
 public class GeneratePipelineDescriptorForTPSAnnotator {
 
-	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		if (args.length != 1) {
-			System.err.println("Provide output path!");
-			System.exit(1);
-		}
-		File outFile = new File(args[0]);
-		//
-		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
-		aeDescriptions.put("tokenizer", InitialTokenizer.createDescription());
-		aeDescriptions.put("post-tokenizer", PostTokenizer.createDescription());
-		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
-		Import posTaggerDescImport = new Import_impl();
-		posTaggerDescImport.setName("pos_tagger");
-		aeDescriptions.put("pos-tagger", posTaggerDescImport);
-		//
-		AnalysisEngineDescription outDesc = PipelineDescriptorUtils.createAggregateDescription(
-				ImmutableList.copyOf(aeDescriptions.values()),
-				ImmutableList.copyOf(aeDescriptions.keySet()));
-		OutputStream out = FileUtils.openOutputStream(outFile);
-		try {
-			outDesc.toXML(out);
-		} finally {
-			IOUtils.closeQuietly(out);
-		}
-	}
+    public static void main(String[] args) throws UIMAException, IOException, SAXException {
+        if (args.length != 1) {
+            System.err.println("Provide output path!");
+            System.exit(1);
+        }
+        File outFile = new File(args[0]);
+        //
+        AnalysisEngineDescription outDesc = getDescription();
+        OutputStream out = FileUtils.openOutputStream(outFile);
+        try {
+            outDesc.toXML(out);
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
+    }
+
+    public static AnalysisEngineDescription getDescription() throws UIMAException, IOException {
+        Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
+        aeDescriptions.put("tokenizer", InitialTokenizer.createDescription());
+        aeDescriptions.put("post-tokenizer", PostTokenizer.createDescription());
+        aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
+        Import posTaggerDescImport = new Import_impl();
+        posTaggerDescImport.setName("pos_tagger");
+        aeDescriptions.put("pos-tagger", posTaggerDescImport);
+        //
+        return PipelineDescriptorUtils.createAggregateDescription(
+                ImmutableList.copyOf(aeDescriptions.values()),
+                ImmutableList.copyOf(aeDescriptions.keySet()));
+    }
 }
