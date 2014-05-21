@@ -16,6 +16,7 @@
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.TreeTagger</module>
 		<module>../UIMA.Ext.Morph.PosTaggingLab</module>
+		<module>../UIMA.Ext.Lemmatizer.OpenCorpora</module>
 		<module>../UIMA.Ext.DependencyParser</module>
 		<module>../UIMA.Ext.DependencyParser.MST</module>
 		<module>../UIMA.Ext.DependencyParser.Lab</module>
@@ -27,6 +28,7 @@
 		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.DictionaryPatterns</module>
 		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
+		<module>../UIMA.Ext.Corpus.Statistics</module>
 	</modules>
 
 	<build>
