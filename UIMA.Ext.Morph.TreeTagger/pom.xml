@@ -64,7 +64,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-sentence-splitter-heuristic</artifactId>
+			<artifactId>uima-ext-sentence-splitter-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
