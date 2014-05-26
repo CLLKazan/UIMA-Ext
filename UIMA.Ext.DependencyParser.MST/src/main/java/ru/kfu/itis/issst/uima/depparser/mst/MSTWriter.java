@@ -28,6 +28,7 @@ import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.issst.uima.depparser.Dependency;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +38,7 @@ public class MSTWriter extends JCasAnnotator_ImplBase {
 	public static final AnalysisEngineDescription createDescription(File outputFile)
 			throws ResourceInitializationException {
 		TypeSystemDescription tsDesc = createTypeSystemDescription(
-				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
+				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
 		return createPrimitiveDescription(MSTWriter.class, tsDesc,
 				PARAM_OUTPUT_FILE, outputFile.getPath());

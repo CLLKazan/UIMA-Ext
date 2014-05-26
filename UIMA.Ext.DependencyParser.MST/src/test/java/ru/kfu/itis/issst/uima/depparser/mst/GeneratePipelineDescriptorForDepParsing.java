@@ -18,7 +18,7 @@ import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
-import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.google.common.collect.ImmutableList;
@@ -40,7 +40,7 @@ public class GeneratePipelineDescriptorForDepParsing {
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
 		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
 		//
-		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
+		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
 		//
 		Import posTaggerDescImport = new Import_impl();
 		posTaggerDescImport.setName("pos_tagger");

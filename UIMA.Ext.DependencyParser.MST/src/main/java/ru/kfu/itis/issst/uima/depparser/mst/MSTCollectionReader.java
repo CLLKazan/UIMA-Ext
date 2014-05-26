@@ -27,6 +27,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.issst.uima.depparser.Dependency;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenUtils;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
@@ -37,7 +38,7 @@ public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 		TypeSystemDescription inputTSD = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 				TokenizerAPI.TYPESYSTEM_TOKENIZER,
-				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
+				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
 		return CollectionReaderFactory.createDescription(
 				MSTCollectionReader.class, inputTSD,

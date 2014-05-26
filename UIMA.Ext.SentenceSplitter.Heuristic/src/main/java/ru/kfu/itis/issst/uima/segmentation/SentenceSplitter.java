@@ -4,7 +4,6 @@
 package ru.kfu.itis.issst.uima.segmentation;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 
 import java.util.HashSet;
@@ -44,8 +43,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
-		TypeSystemDescription tsDesc = createTypeSystemDescription(
-				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem");
+		TypeSystemDescription tsDesc = SentenceSplitterAPI.getTypeSystemDescription();
 		return createPrimitiveDescription(SentenceSplitter.class, tsDesc);
 	}
 

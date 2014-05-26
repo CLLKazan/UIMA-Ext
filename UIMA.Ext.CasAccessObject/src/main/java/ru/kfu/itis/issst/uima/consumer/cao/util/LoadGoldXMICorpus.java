@@ -30,7 +30,7 @@ import org.uimafit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
-import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 /**
@@ -86,7 +86,7 @@ public class LoadGoldXMICorpus {
 
 		AnalysisEngineDescription tokenizerDesc = TokenizerAPI.getAEDescription();
 
-		AnalysisEngineDescription sentSplitterDesc = createPrimitiveDescription(SentenceSplitter.class);
+		AnalysisEngineDescription sentSplitterDesc = SentenceSplitterAPI.getAEDescription();
 
 		SimplePipeline.runPipeline(colReaderDesc,
 				tokenizerDesc, sentSplitterDesc,

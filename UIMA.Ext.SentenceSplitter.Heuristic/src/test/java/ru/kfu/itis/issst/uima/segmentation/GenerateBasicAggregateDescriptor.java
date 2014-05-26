@@ -19,7 +19,6 @@ import org.xml.sax.SAXException;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 /**
@@ -36,12 +35,11 @@ public class GenerateBasicAggregateDescriptor {
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
 		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
 
-		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
+		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
 
 		String outputPath = "desc/basic-aggregate.xml";
-		AnalysisEngineDescription desc = PipelineDescriptorUtils.createAggregateDescription(
-				ImmutableList.copyOf(aeDescriptions.values()),
-				ImmutableList.copyOf(aeDescriptions.keySet()));
+		AnalysisEngineDescription desc = PipelineDescriptorUtils
+				.createAggregateDescription(aeDescriptions);
 		FileOutputStream out = FileUtils.openOutputStream(new File(outputPath));
 		try {
 			desc.toXML(out);

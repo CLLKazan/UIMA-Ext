@@ -33,7 +33,7 @@ import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.consumer.cao.CAOWriter;
 import ru.kfu.itis.issst.uima.consumer.cao.impl.MysqlJdbcCasAccessObject;
-import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.beust.jcommander.JCommander;
@@ -102,7 +102,7 @@ public class LoadGoldXMICorpus2 {
 
 		SimplePipeline.runPipeline(colReaderDesc,
 				TokenizerAPI.getAEDescription(),
-				SentenceSplitter.createDescription(),
+				SentenceSplitterAPI.getAEDescription(),
 				uriReplacerDesc, caoWriterDesc);
 	}
 }

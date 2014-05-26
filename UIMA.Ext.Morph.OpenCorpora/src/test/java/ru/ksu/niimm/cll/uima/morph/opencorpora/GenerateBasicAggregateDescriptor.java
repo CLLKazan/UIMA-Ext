@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
-import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
@@ -45,7 +45,7 @@ public class GenerateBasicAggregateDescriptor {
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
 		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
 		//
-		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
+		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
 		//
 		aeDescriptions.put("morphAnalyzer", MorphologyAnnotator.createDescription(morphDictDesc));
 		//

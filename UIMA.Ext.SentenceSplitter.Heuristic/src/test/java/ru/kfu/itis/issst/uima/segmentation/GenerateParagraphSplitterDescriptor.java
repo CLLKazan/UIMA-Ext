@@ -1,7 +1,6 @@
 package ru.kfu.itis.issst.uima.segmentation;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +21,7 @@ public class GenerateParagraphSplitterDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		String outputPath = "src/main/resources/ru/kfu/itis/issst/uima/segmentation/ParagraphSplitter.xml";
-		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem");
+		TypeSystemDescription tsDesc = SentenceSplitterAPI.getTypeSystemDescription();
 		AnalysisEngineDescription desc = createPrimitiveDescription(ParagraphSplitter.class, tsDesc);
 		FileOutputStream out = FileUtils.openOutputStream(new File(outputPath));
 		try {

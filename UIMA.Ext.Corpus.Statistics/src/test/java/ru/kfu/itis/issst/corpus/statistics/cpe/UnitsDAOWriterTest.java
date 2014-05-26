@@ -29,6 +29,7 @@ import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.google.common.collect.Sets;
@@ -64,7 +65,7 @@ public class UnitsDAOWriterTest {
 						TypeSystemDescriptionFactory
 								.createTypeSystemDescription(),
 						TokenizerAPI.getTypeSystemDescription(),
-						createTypeSystemDescription("ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem")));
+						SentenceSplitterAPI.getTypeSystemDescription()));
 		reader = CollectionReaderFactory.createCollectionReader(
 				CorpusDAOCollectionReader.class, tsd,
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);

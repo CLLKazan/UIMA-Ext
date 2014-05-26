@@ -31,6 +31,7 @@ import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
@@ -73,7 +74,7 @@ public class RusCorporaParserBootstrap {
 					.createTypeSystemDescription(
 							"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 							TokenizerAPI.TYPESYSTEM_TOKENIZER,
-							"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
+							SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 							"org.opencorpora.morphology-ts");
 			//
 			if (!enableDictionaryAligning) {

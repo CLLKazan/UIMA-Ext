@@ -21,13 +21,15 @@ import ru.kfu.itis.issst.uima.phrrecog.fsArrayToTraversable
 import org.apache.uima.jcas.cas.StringArray
 import org.apache.uima.jcas.JCas
 import NprCasBuilder._
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 
 class NprCasBuilder(val text: String, additionalTypeSystemNames: List[String]) {
 
   val ts = {
     val tsNames = "ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer" ::
-      "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem" ::
-      "ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem" ::
+      TokenizerAPI.TYPESYSTEM_TOKENIZER ::
+      SentenceSplitterAPI.TYPESYSTEM_SENTENCES ::
       additionalTypeSystemNames
     val tsDesc = createTypeSystemDescription(tsNames: _*)
     val dumbCas = CasCreationUtils.createCas(tsDesc, null, null)
