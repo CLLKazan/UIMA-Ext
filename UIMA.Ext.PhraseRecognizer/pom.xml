@@ -91,6 +91,24 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-tokenizer-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-tokenizer-simple</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-sentence-splitter-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-sentence-splitter-heuristic</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-morph-opencorpora</artifactId>
 		</dependency>
 		<dependency>
@@ -116,15 +134,6 @@
 		<dependency>
 			<groupId>org.scalatest</groupId>
 			<artifactId>scalatest_2.9.2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-tokenizer-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-tokenizer-simple</artifactId>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
