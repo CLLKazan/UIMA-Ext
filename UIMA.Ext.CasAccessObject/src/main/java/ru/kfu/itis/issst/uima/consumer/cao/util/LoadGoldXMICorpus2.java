@@ -27,7 +27,6 @@ import org.apache.uima.resource.metadata.ConfigurationParameterSettings;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.pipeline.SimplePipeline;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.cll.uima.tokenizer.PostTokenizer;
@@ -36,6 +35,7 @@ import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.consumer.cao.CAOWriter;
 import ru.kfu.itis.issst.uima.consumer.cao.impl.MysqlJdbcCasAccessObject;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;

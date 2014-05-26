@@ -8,9 +8,9 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.cll.uima.tokenizer.PostTokenizer;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
 
 public class Unitizer {
 

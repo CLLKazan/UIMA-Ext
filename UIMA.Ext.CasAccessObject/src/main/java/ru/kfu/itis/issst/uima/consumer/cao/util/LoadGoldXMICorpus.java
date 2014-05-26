@@ -28,10 +28,10 @@ import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
 import org.uimafit.pipeline.SimplePipeline;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

@@ -15,10 +15,10 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.xml.sax.SAXException;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.cll.uima.tokenizer.PostTokenizer;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
 

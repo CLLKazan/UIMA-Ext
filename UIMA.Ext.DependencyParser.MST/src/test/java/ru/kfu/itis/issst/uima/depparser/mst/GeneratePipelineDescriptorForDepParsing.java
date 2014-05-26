@@ -17,10 +17,10 @@ import org.apache.uima.resource.metadata.MetaDataObject;
 import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.xml.sax.SAXException;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
 import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.cll.uima.tokenizer.PostTokenizer;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
 
 import com.beust.jcommander.internal.Maps;
 import com.google.common.collect.ImmutableList;
