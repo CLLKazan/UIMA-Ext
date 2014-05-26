@@ -45,7 +45,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
 		TypeSystemDescription tsDesc = createTypeSystemDescription(
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
+				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem");
 		return createPrimitiveDescription(SentenceSplitter.class, tsDesc);
 	}
 

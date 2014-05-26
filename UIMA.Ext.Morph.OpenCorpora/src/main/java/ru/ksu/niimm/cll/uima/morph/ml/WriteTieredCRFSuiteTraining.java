@@ -26,6 +26,7 @@ import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 /**
  * @author Rinat Gareev
@@ -49,8 +50,8 @@ public class WriteTieredCRFSuiteTraining {
 	private void run() throws Exception {
 		TypeSystemDescription tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				TokenizerAPI.TYPESYSTEM_TOKENIZER,
+				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
 				"org.opencorpora.morphology-ts");
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 				XmiCollectionReader.class, tsDesc,

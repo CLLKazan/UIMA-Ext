@@ -7,7 +7,8 @@ import org.apache.uima.cas.text.AnnotationFS;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 
 import com.google.common.collect.ImmutableSet;
-import static ru.kfu.cll.uima.tokenizer.TokenUtils.*;
+
+import static ru.kfu.itis.issst.uima.tokenizer.TokenUtils.*;
 
 public class SegmentationUtils {
 

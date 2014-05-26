@@ -37,7 +37,7 @@ public class MSTWriter extends JCasAnnotator_ImplBase {
 	public static final AnalysisEngineDescription createDescription(File outputFile)
 			throws ResourceInitializationException {
 		TypeSystemDescription tsDesc = createTypeSystemDescription(
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
 		return createPrimitiveDescription(MSTWriter.class, tsDesc,
 				PARAM_OUTPUT_FILE, outputFile.getPath());

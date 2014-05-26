@@ -23,11 +23,12 @@ import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.cll.uima.tokenizer.TokenUtils;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.issst.uima.depparser.Dependency;
+import ru.kfu.itis.issst.uima.tokenizer.TokenUtils;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 
@@ -35,8 +36,8 @@ public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 			throws ResourceInitializationException {
 		TypeSystemDescription inputTSD = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				TokenizerAPI.TYPESYSTEM_TOKENIZER,
+				"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
 		return CollectionReaderFactory.createDescription(
 				MSTCollectionReader.class, inputTSD,

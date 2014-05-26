@@ -9,9 +9,9 @@ import org.uimafit.factory.AnalysisEngineFactory._
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener
 import ru.kfu.itis.cll.uima.cpe.FileDirectoryCollectionReader
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer
-import ru.kfu.cll.uima.segmentation.ParagraphSplitter
-import ru.kfu.cll.uima.tokenizer.PostTokenizer
+import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer
+import ru.kfu.itis.issst.uima.segmentation.ParagraphSplitter
+import ru.kfu.itis.issst.uima.tokenizer.PostTokenizer
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

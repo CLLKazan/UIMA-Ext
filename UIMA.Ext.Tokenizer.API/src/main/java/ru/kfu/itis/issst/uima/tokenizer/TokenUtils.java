@@ -1,4 +1,4 @@
-package ru.kfu.cll.uima.tokenizer;
+package ru.kfu.itis.issst.uima.tokenizer;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FSIterator;

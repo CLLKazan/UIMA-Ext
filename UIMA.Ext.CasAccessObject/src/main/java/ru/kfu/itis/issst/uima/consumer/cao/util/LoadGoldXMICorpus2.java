@@ -28,14 +28,13 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.pipeline.SimplePipeline;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
-import ru.kfu.cll.uima.tokenizer.PostTokenizer;
 import ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.consumer.cao.CAOWriter;
 import ru.kfu.itis.issst.uima.consumer.cao.impl.MysqlJdbcCasAccessObject;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitter;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -102,7 +101,7 @@ public class LoadGoldXMICorpus2 {
 				PARAM_REPLACE_BY, "$1");
 
 		SimplePipeline.runPipeline(colReaderDesc,
-				InitialTokenizer.createDescription(), PostTokenizer.createDescription(),
+				TokenizerAPI.getAEDescription(),
 				SentenceSplitter.createDescription(),
 				uriReplacerDesc, caoWriterDesc);
 	}

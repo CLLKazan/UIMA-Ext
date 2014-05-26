@@ -19,8 +19,8 @@ import org.xml.sax.SAXException;
 public class GenerateSentenceSplitterDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		String outputPath = "src/main/resources/ru/kfu/cll/uima/segmentation/SentenceSplitter.xml";
-		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
+		String outputPath = "src/main/resources/ru/kfu/itis/issst/uima/segmentation/SentenceSplitter.xml";
+		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem");
 		AnalysisEngineDescription desc = createPrimitiveDescription(SentenceSplitter.class, tsDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {

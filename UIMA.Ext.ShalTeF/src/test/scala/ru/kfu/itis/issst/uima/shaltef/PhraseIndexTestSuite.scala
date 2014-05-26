@@ -36,7 +36,7 @@ class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
 
   private val ts = loadTypeSystem("ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer",
     "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-    "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
+    "ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem")
 
   private val sentenceType = ts.getType(classOf[Sentence].getName)
 

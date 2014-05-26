@@ -29,6 +29,7 @@ import org.uimafit.util.CasUtil;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.google.common.collect.Sets;
 
@@ -52,8 +53,8 @@ public class UnitAnnotatorTest {
 						XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString),
 						TypeSystemDescriptionFactory
 								.createTypeSystemDescription(),
-						createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem"),
-						createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")));
+						TokenizerAPI.getTypeSystemDescription(),
+						createTypeSystemDescription("ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem")));
 		reader = CollectionReaderFactory.createCollectionReader(
 				CorpusDAOCollectionReader.class, tsd,
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);

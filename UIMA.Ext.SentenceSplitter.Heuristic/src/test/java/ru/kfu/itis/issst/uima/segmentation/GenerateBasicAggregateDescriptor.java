@@ -3,22 +3,24 @@
  */
 package ru.kfu.itis.issst.uima.segmentation;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.resource.metadata.MetaDataObject;
 import org.xml.sax.SAXException;
 
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
-import ru.kfu.cll.uima.tokenizer.PostTokenizer;
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -31,26 +33,20 @@ public class GenerateBasicAggregateDescriptor {
 	 * @throws ResourceInitializationException
 	 */
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
-		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
-				InitialTokenizer.class, tokenizerTsDesc);
+		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
+		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
 
-		AnalysisEngineDescription postTokenizerDesc = createPrimitiveDescription(
-				PostTokenizer.class, tokenizerTsDesc);
+		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
 
-		TypeSystemDescription ssTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
-		AnalysisEngineDescription ssDesc = createPrimitiveDescription(SentenceSplitter.class,
-				ssTsDesc);
-
-		String outputPath = "src/test/resources/basic-aggregate.xml";
-		AnalysisEngineDescription desc = AnalysisEngineFactory.createAggregateDescription(
-				tokenizerDesc, postTokenizerDesc, ssDesc);
-		FileOutputStream out = new FileOutputStream(outputPath);
+		String outputPath = "desc/basic-aggregate.xml";
+		AnalysisEngineDescription desc = PipelineDescriptorUtils.createAggregateDescription(
+				ImmutableList.copyOf(aeDescriptions.values()),
+				ImmutableList.copyOf(aeDescriptions.keySet()));
+		FileOutputStream out = FileUtils.openOutputStream(new File(outputPath));
 		try {
 			desc.toXML(out);
 		} finally {
 			IOUtils.closeQuietly(out);
 		}
 	}
-
 }

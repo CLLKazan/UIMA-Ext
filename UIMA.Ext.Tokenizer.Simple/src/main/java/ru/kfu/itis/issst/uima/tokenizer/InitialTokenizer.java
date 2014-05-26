@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.cll.uima.tokenizer;
+package ru.kfu.itis.issst.uima.tokenizer;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
@@ -24,6 +24,7 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 
+import static ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI.*;
 import ru.kfu.cll.uima.tokenizer.fstype.BREAK;
 import ru.kfu.cll.uima.tokenizer.fstype.CAP;
 import ru.kfu.cll.uima.tokenizer.fstype.COLON;
@@ -49,15 +50,12 @@ public class InitialTokenizer extends CasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
-		TypeSystemDescription tsDesc = createTypeSystemDescription(
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
+		TypeSystemDescription tsDesc = createTypeSystemDescription(TYPESYSTEM_TOKENIZER);
 		return createPrimitiveDescription(InitialTokenizer.class, tsDesc);
 	}
 
-	public static final String PARAM_SPAN_TYPE = "spanType";
-
 	@ConfigurationParameter(name = PARAM_SPAN_TYPE, mandatory = false)
-	private String spanTypeName = "uima.tcas.DocumentAnnotation";
+	private String spanTypeName = DEFAULT_SPAN_TYPE;
 
 	// derived
 	private Type spanType;

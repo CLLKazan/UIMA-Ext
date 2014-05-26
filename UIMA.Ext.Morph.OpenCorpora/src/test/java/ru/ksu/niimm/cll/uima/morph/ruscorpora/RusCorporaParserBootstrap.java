@@ -25,13 +25,14 @@ import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpan;
@@ -71,8 +72,8 @@ public class RusCorporaParserBootstrap {
 			TypeSystemDescription tsDesc = TypeSystemDescriptionFactory
 					.createTypeSystemDescription(
 							"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-							"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-							"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+							TokenizerAPI.TYPESYSTEM_TOKENIZER,
+							"ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem",
 							"org.opencorpora.morphology-ts");
 			//
 			if (!enableDictionaryAligning) {
@@ -107,10 +108,11 @@ public class RusCorporaParserBootstrap {
 					.createTypeSystemDescription("ru.ksu.niimm.cll.uima.morph.util.ts-util");
 			ntsAnnotatorDesc = createPrimitiveDescription(NonTokenizedSpanAnnotator.class, tsDesc);
 		}
+		// TODO can we use tokenizer through TokenizerAPI ?
 		// make InitialTokenizer for NonTokenizedSpans
 		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
 				InitialTokenizer.class,
-				InitialTokenizer.PARAM_SPAN_TYPE, NonTokenizedSpan.class.getName());
+				TokenizerAPI.PARAM_SPAN_TYPE, NonTokenizedSpan.class.getName());
 		// make AnnotationRemovers
 		AnalysisEngineDescription scaffoldRemover = createPrimitiveDescription(
 				AnnotationRemover.class,

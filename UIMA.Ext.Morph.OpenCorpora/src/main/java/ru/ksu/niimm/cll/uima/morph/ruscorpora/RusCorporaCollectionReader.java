@@ -36,12 +36,12 @@ import org.xml.sax.XMLReader;
 
 import ru.kfu.cll.uima.segmentation.fstype.Paragraph;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.cll.uima.tokenizer.TokenUtils;
 import ru.kfu.cll.uima.tokenizer.fstype.SPECIAL;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 import ru.kfu.itis.cll.uima.util.CorpusUtils;
+import ru.kfu.itis.issst.uima.tokenizer.TokenUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;

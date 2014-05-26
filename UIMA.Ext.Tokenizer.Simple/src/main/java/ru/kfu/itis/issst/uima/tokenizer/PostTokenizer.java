@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.cll.uima.tokenizer;
+package ru.kfu.itis.issst.uima.tokenizer;
 
 import java.util.Collection;
 import java.util.LinkedList;
