@@ -36,6 +36,8 @@ import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.eval.EvaluationLauncher;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 /**
  * TODO remove this. There is a proper replacement - TTLab.
@@ -128,8 +130,8 @@ public class Evaluation {
 			throws IOException, UIMAException {
 		TypeSystemDescription tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
+				TokenizerAPI.TYPESYSTEM_TOKENIZER,
+				SentenceSplitterAPI.TYPESYSTEM_SENTENCES);
 		return CollectionReaderFactory.createDescription(XmiCollectionReader.class,
 				tsDesc,
 				XmiCollectionReader.PARAM_INPUTDIR, inputXmiDir.getPath());

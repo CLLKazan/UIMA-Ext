@@ -3,22 +3,25 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.metadata.MetaDataObject;
 import org.xml.sax.SAXException;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
-import ru.kfu.cll.uima.tokenizer.PostTokenizer;
+import com.google.common.collect.Maps;
+
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
 
@@ -39,12 +42,16 @@ public class GenerateBasicAggregateDescriptor {
 				ConfigurableSerializedDictionaryResource.PARAM_PREDICTOR_CLASS_NAME,
 				DummyWordformPredictor.class.getName());
 
-		AnalysisEngineDescription desc = createAggregateDescription(
-				InitialTokenizer.createDescription(),
-				PostTokenizer.createDescription(),
-				SentenceSplitter.createDescription(),
-				MorphologyAnnotator.createDescription(morphDictDesc),
-				TagAssembler.createDescription(morphDictDesc));
+		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
+		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
+		//
+		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
+		//
+		aeDescriptions.put("morphAnalyzer", MorphologyAnnotator.createDescription(morphDictDesc));
+		//
+		aeDescriptions.put("tag-assembler", TagAssembler.createDescription(morphDictDesc));
+		AnalysisEngineDescription desc = PipelineDescriptorUtils
+				.createAggregateDescription(aeDescriptions);
 
 		String outputPath = "src/test/resources/basic-aggregate.xml";
 

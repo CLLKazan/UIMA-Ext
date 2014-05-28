@@ -4,20 +4,33 @@
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
 import static java.lang.System.currentTimeMillis;
+import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
-import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.metadata.MetaDataObject;
 import org.apache.uima.util.InvalidXMLException;
-import org.apache.uima.util.XMLInputSource;
+import org.uimafit.factory.AnalysisEngineFactory;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+import ru.kfu.itis.cll.uima.consumer.XmiWriter;
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -50,18 +63,27 @@ public class MorphLauncher {
 		System.setProperty("logback.configurationFile",
 				"ru/ksu/niimm/cll/uima/morph/opencorpora/logback.xml");
 
+		// configure dictionary description
+		ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
+				ConfigurableSerializedDictionaryResource.class, "file:dict.opcorpora.ser",
+				ConfigurableSerializedDictionaryResource.PARAM_PREDICTOR_CLASS_NAME,
+				DummyWordformPredictor.class.getName());
 		// configure AE
-		// TODO seems ugly but works and does not require to change descriptors for every
-		// developer
-		XMLInputSource aeDescInput = new XMLInputSource(
-				"target/test-classes/opencorpora/ae-ru-test-MorphAnnotator.xml");
-		AnalysisEngineDescription aeDesc = UIMAFramework.getXMLParser()
-				.parseAnalysisEngineDescription(aeDescInput);
-		aeDesc.getAnalysisEngineMetaData().getConfigurationParameterSettings().setParameterValue(
-				"XmiOutputDir", outputDir.getPath());
+		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
+		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
+		aeDescriptions.put("morphAnalyzer", MorphologyAnnotator.createDescription(morphDictDesc));
+		aeDescriptions
+				.put("xmiWriter",
+						createPrimitiveDescription(
+								XmiWriter.class,
+								createTypeSystemDescription("ru.kfu.itis.cll.uima.commons.Commons-TypeSystem"),
+								XmiWriter.PARAM_OUTPUTDIR, outputDir.getPath()));
+		AnalysisEngineDescription aeDesc = PipelineDescriptorUtils.createAggregateDescription(
+				ImmutableList.copyOf(aeDescriptions.values()),
+				ImmutableList.copyOf(aeDescriptions.keySet()));
 
 		// create AE
-		AnalysisEngine ae = UIMAFramework.produceAnalysisEngine(aeDesc);
+		AnalysisEngine ae = AnalysisEngineFactory.createAggregate(aeDesc);
 
 		// prepare input
 		String inputText = FileUtils.readFileToString(inputFile, encoding);
@@ -76,5 +98,4 @@ public class MorphLauncher {
 		ae.process(cas);
 		System.out.println("Finished in " + (currentTimeMillis() - timeBefore) + " ms");
 	}
-
 }

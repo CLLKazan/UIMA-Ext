@@ -8,6 +8,8 @@ import org.apache.uima.util.CasCreationUtils
 import java.util.Arrays
 import java.io.FileOutputStream
 import org.apache.commons.io.IOUtils
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 
 /**
  * @author Rinat Gareev
@@ -20,8 +22,8 @@ object GenerateTypeDescForCasEditor {
     var tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(
       "ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer",
       "ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-      "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-      "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
+      TokenizerAPI.TYPESYSTEM_TOKENIZER,
+      SentenceSplitterAPI.TYPESYSTEM_SENTENCES);
     tsDesc = CasCreationUtils.mergeTypeSystems(Arrays.asList(tsDesc));
     val fos = new FileOutputStream(outPath);
     try {

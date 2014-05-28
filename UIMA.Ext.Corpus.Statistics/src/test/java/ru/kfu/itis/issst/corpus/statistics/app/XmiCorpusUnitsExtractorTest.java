@@ -4,9 +4,8 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.uima.UIMAException;
 import org.apache.uima.collection.metadata.CpeDescriptorException;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.InvalidXMLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -21,9 +20,8 @@ public class XmiCorpusUnitsExtractorTest {
 	public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	@Test
-	public void test() throws ResourceInitializationException,
-			InvalidXMLException, IOException, SAXException,
-			CpeDescriptorException, ParserConfigurationException {
+	public void test() throws IOException, SAXException,
+			CpeDescriptorException, ParserConfigurationException, UIMAException {
 		XmiCorpusUnitsExtractor.main(new String[] { "-corpus",
 				corpusPathString, "-unit",
 				"ru.kfu.cll.uima.tokenizer.fstype.W", "-class",

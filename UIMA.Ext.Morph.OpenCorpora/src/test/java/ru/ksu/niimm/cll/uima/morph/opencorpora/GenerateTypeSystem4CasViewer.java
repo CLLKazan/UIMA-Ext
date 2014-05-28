@@ -11,6 +11,9 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -21,8 +24,8 @@ public class GenerateTypeSystem4CasViewer {
 		String outputPath = "src/test/resources/opencorpora/aggregate-4CasEditor-TS.xml";
 		TypeSystemDescription tsd = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				TokenizerAPI.TYPESYSTEM_TOKENIZER,
+				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				"org.opencorpora.morphology-ts");
 		tsd = CasCreationUtils.mergeTypeSystems(Arrays.asList(tsd));
 		FileOutputStream os = new FileOutputStream(outputPath);

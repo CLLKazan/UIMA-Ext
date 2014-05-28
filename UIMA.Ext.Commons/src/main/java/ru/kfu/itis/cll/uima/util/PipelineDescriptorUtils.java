@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.uima.Constants;
 import org.apache.uima.UIMAException;
@@ -20,6 +21,8 @@ import org.apache.uima.analysis_engine.metadata.impl.FixedFlow_impl;
 import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.MetaDataObject;
 import org.uimafit.factory.AnalysisEngineFactory;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -80,6 +83,13 @@ public class PipelineDescriptorUtils {
 		desc.getAnalysisEngineMetaData().setFlowConstraints(fixedFlow);
 
 		return desc;
+	}
+
+	public static AnalysisEngineDescription createAggregateDescription(
+			Map<String, MetaDataObject> namedDescriptions) throws UIMAException, IOException {
+		return createAggregateDescription(
+				ImmutableList.copyOf(namedDescriptions.values()),
+				ImmutableList.copyOf(namedDescriptions.keySet()));
 	}
 
 	private PipelineDescriptorUtils() {

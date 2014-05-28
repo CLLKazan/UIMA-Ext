@@ -31,7 +31,12 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-tokenizer</artifactId>
+			<artifactId>uima-ext-tokenizer-simple</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-sentence-splitter-heuristic</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

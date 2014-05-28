@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
@@ -11,7 +12,6 @@ import org.apache.uima.collection.metadata.CpeDescriptorException;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.CpeBuilder;
@@ -41,17 +41,15 @@ public class XmiCorpusUnitsExtractor {
 	private CollectionProcessingEngine cpe;
 
 	public static void main(String[] args)
-			throws ResourceInitializationException, IOException, SAXException,
-			CpeDescriptorException, InvalidXMLException,
-			ParserConfigurationException {
+			throws IOException, SAXException,
+			CpeDescriptorException, ParserConfigurationException, UIMAException {
 		XmiCorpusUnitsExtractor extractor = new XmiCorpusUnitsExtractor(args);
 		extractor.process();
 	}
 
 	XmiCorpusUnitsExtractor(String[] args)
-			throws ResourceInitializationException, IOException, SAXException,
-			CpeDescriptorException, InvalidXMLException,
-			ParserConfigurationException {
+			throws IOException, SAXException,
+			CpeDescriptorException, ParserConfigurationException, UIMAException {
 		XmiCorpusUnitsExtractorParams extractorParams = new XmiCorpusUnitsExtractorParams();
 		new JCommander(extractorParams, args);
 

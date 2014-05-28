@@ -5,10 +5,7 @@
 
 	<delegateAnalysisEngineSpecifiers>
 		<delegateAnalysisEngine key="tokenizer">
-			<import name="ru.kfu.cll.uima.tokenizer.InitialTokenizer" />
-		</delegateAnalysisEngine>
-		<delegateAnalysisEngine key="postTokenizer">
-			<import name="ru.kfu.cll.uima.tokenizer.PostTokenizer" />
+			<import name="ru.kfu.itis.issst.uima.tokenizer.tokenizer-ae" />
 		</delegateAnalysisEngine>
 		<delegateAnalysisEngine key="morphTagger">
 			<import name="ru.kfu.itis.issst.uima.morph.treetagger.MorphTagger" />
@@ -46,7 +43,6 @@
 		<flowConstraints>
 			<fixedFlow>
 				<node>tokenizer</node>
-				<node>postTokenizer</node>
 				<node>morphTagger</node>
 			</fixedFlow>
 		</flowConstraints>

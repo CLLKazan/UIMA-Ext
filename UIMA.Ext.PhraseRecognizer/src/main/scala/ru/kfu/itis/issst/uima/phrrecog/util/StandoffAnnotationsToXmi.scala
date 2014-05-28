@@ -9,9 +9,11 @@ import org.uimafit.factory.AnalysisEngineFactory._
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener
 import ru.kfu.itis.cll.uima.cpe.FileDirectoryCollectionReader
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer
-import ru.kfu.cll.uima.segmentation.ParagraphSplitter
-import ru.kfu.cll.uima.tokenizer.PostTokenizer
+import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer
+import ru.kfu.itis.issst.uima.segmentation.ParagraphSplitter
+import ru.kfu.itis.issst.uima.tokenizer.PostTokenizer
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -37,21 +39,10 @@ object StandoffAnnotationsToXmi {
         PARAM_DIRECTORY_PATH, inputDir)
     }
 
-    val tokenizerDesc = {
-      val tsDesc = createTypeSystemDescription(
-        "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem")
-      createPrimitiveDescription(classOf[InitialTokenizer], tsDesc)
-    }
-
-    val postTokenizerDesc = {
-      val tsDesc = createTypeSystemDescription(
-        "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem")
-      createPrimitiveDescription(classOf[PostTokenizer], tsDesc)
-    }
+    val tokenizerDesc = TokenizerAPI.getAEDescription()
 
     val paraSplitterDesc = {
-      val tsDesc = createTypeSystemDescription(
-        "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
+      val tsDesc = SentenceSplitterAPI.getTypeSystemDescription()
       createPrimitiveDescription(classOf[ParagraphSplitter], tsDesc)
     }
 
@@ -73,7 +64,7 @@ object StandoffAnnotationsToXmi {
     // build cpe
     val cpeBuilder = new CpeBuilder
     cpeBuilder.setReader(colReaderDesc)
-    val aeList = tokenizerDesc :: postTokenizerDesc :: paraSplitterDesc :: standoffParserDesc :: xmiWriterDesc :: Nil
+    val aeList = tokenizerDesc :: paraSplitterDesc :: standoffParserDesc :: xmiWriterDesc :: Nil
     aeList.foreach(cpeBuilder.addAnalysisEngine(_))
     cpeBuilder.setMaxProcessingUnitThreatCount(1)
     val cpe = cpeBuilder.createCpe()

@@ -24,8 +24,8 @@ import org.apache.uima.cas.text.AnnotationIndex
 import org.apache.uima.cas.FSIterator
 import ru.kfu.cll.uima.tokenizer.fstype.NUM
 import org.apache.uima.cas.text.AnnotationFS
-import ru.kfu.cll.uima.segmentation.SegmentationUtils._
-import ru.kfu.cll.uima.tokenizer.TokenUtils._
+import ru.kfu.itis.issst.uima.segmentation.SegmentationUtils._
+import ru.kfu.itis.issst.uima.tokenizer.TokenUtils._
 import ru.kfu.itis.issst.uima.ner.cas.PossibleNE
 import ru.kfu.itis.cll.uima.cas.FSUtils
 

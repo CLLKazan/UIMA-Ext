@@ -83,7 +83,11 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-tokenizer</artifactId>
+			<artifactId>uima-ext-tokenizer-simple</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-sentence-splitter-heuristic</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.statistics</groupId>
