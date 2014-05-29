@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.morph.stanford;
 
-import static com.google.common.collect.Sets.newLinkedHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
@@ -125,15 +124,8 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 				props.setProperty("model", modelFile.getPath());
 				props.setProperty("trainFile", "format=TSV," + trainDataFile.getPath());
 				//
-				Set<String> extractors = newLinkedHashSet();
-				extractors.add(featureArch);
-				//extractors.add("words(-1,1)");
 				//extractors.add("tags(-1,1)");
-				//extractors.add("order(1)");
-				extractors.add("suffix(3)");
-				extractors.add("suffix(3, -1)");
-				extractors.add("unicodeshapes(0)");
-				props.setProperty("arch", Joiner.on(',').join(extractors));
+				props.setProperty("arch", featureArch);
 				// load closed class tags set
 				Set<String> closedClassTags;
 				{
