@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.Parameter;
@@ -49,8 +51,8 @@ public abstract class LabLauncherBase {
 	// prepare input TypeSystem
 	protected TypeSystemDescription inputTS = createTypeSystemDescription(
 			"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-			"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-			"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+			TokenizerAPI.TYPESYSTEM_TOKENIZER,
+			SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 			"org.opencorpora.morphology-ts");
 	// prepare morph dictionary resource
 	protected ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
