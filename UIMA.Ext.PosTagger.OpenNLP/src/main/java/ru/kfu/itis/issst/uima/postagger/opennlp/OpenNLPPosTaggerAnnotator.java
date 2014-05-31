@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.issst.uima.morph.opennlp;
+package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.kfu.itis.issst.uima.morph.opennlp;
+package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import java.util.ArrayList;
 

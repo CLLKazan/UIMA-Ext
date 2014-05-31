@@ -1,12 +1,14 @@
 /**
  * 
  */
-package ru.kfu.itis.issst.uima.morph.opennlp;
+package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import opennlp.tools.postag.POSContextGenerator;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import ru.kfu.itis.issst.uima.postagger.opennlp.ACPOSContextGenerator;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
