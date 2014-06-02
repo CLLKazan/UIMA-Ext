@@ -56,7 +56,7 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 				throw new RuntimeException(e);
 			}
 		}
-		ContextGeneratorUtils.addPreviousTags(prevTagsInHistory, priorDecisions, contexts);
+		ContextGeneratorUtils.addPreviousTags(index, priorDecisions, prevTagsInHistory, contexts);
 		return contexts.toArray(new String[contexts.size()]);
 	}
 }

@@ -34,7 +34,7 @@ public class ACPOSContextGenerator implements POSContextGenerator {
 				result.add((String) acVal);
 			}
 		}
-		ContextGeneratorUtils.addPreviousTags(prevTagsInHistory, prevTags, result);
+		ContextGeneratorUtils.addPreviousTags(pos, prevTags, prevTagsInHistory, result);
 		return result.toArray(new String[result.size()]);
 	}
 }

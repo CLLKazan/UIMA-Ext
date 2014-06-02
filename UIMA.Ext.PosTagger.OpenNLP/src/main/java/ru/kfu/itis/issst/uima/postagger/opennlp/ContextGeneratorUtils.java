@@ -13,13 +13,17 @@ public class ContextGeneratorUtils {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-	public static void addPreviousTags(int prevTagsToAdd, String[] prevTags,
+	public static void addPreviousTags(int index, String[] prevTags, int prevTagsToAdd,
 			Collection<String> targetCol) {
 		if (prevTags == null) {
 			prevTags = EMPTY_STRING_ARRAY;
 		}
+		// sanity check - prev tags must be defined at least till index-1
+		if (index - 1 >= prevTags.length) {
+			throw new IllegalStateException();
+		}
 		for (int pt = 1; pt <= prevTagsToAdd; pt++) {
-			int t = prevTags.length - pt;
+			int t = index - pt;
 			if (t < 0) {
 				break;
 			}
