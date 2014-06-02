@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 
@@ -13,10 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 import opennlp.model.AbstractModel;
-import opennlp.tools.postag.POSContextGenerator;
-import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSTaggerFactory;
 import opennlp.tools.util.BeamSearch;
+import opennlp.tools.util.BeamSearchContextGenerator;
 import opennlp.tools.util.Sequence;
 
 import org.apache.uima.UimaContext;
@@ -30,8 +27,6 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
-
-import com.google.common.collect.Collections2;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
@@ -60,7 +55,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	private String tagMapperClassName;
 	// state
 	private TagMapper tagMapper;
-	private BeamSearch<String> beam;
+	private BeamSearch<Token> beam;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -70,8 +65,8 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 		//
 		POSTaggerFactory factory = modelAggregate.getFactory();
 		AbstractModel posModel = modelAggregate.getPosModel();
-		POSContextGenerator contextGen = factory.getPOSContextGenerator(beamSize);
-		beam = new BeamSearch<String>(beamSize, contextGen, posModel,
+		BeamSearchContextGenerator<Token> contextGen = factory.getContextGenerator();
+		beam = new BeamSearch<Token>(beamSize, contextGen, posModel,
 				factory.getSequenceValidator(), 0);
 	}
 
@@ -84,10 +79,8 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
 	private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
 		Collection<Token> tokens = JCasUtil.select(jCas, Token.class);
-		String[] tokenStrings = Collections2.transform(tokens, coveredTextFunction())
-				.toArray(new String[tokens.size()]);
-		Object[] tokenArr = tokens.toArray();
-		Sequence bestOutSeq = beam.bestSequence(tokenStrings, tokenArr);
+		Token[] tokenArr = tokens.toArray(new Token[tokens.size()]);
+		Sequence bestOutSeq = beam.bestSequence(tokenArr, null);
 		if (bestOutSeq == null) {
 			getLogger().warn(String.format("Can't infer best sequence for sentence in %s:\n%s",
 					getDocumentUri(jCas), toPrettyString(sent)));

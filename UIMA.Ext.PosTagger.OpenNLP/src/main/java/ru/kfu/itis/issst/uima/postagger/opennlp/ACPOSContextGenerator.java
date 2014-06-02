@@ -34,20 +34,7 @@ public class ACPOSContextGenerator implements POSContextGenerator {
 				result.add((String) acVal);
 			}
 		}
-		if (prevTags == null) {
-			prevTags = EMPTY_STRING_ARRAY;
-		}
-		for (int pt = 1; pt <= prevTagsInHistory; pt++) {
-			int t = prevTags.length - pt;
-			if (t < 0) {
-				break;
-			}
-			String val = new StringBuilder("pt").append(pt).append('=').append(prevTags[t])
-					.toString();
-			result.add(val);
-		}
+		ContextGeneratorUtils.addPreviousTags(prevTagsInHistory, prevTags, result);
 		return result.toArray(new String[result.size()]);
 	}
-
-	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 }
