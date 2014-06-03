@@ -5,6 +5,7 @@ package ru.kfu.itis.cll.uima.cpe;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -27,7 +28,8 @@ import com.google.common.collect.AbstractIterator;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class AnnotationIteratorOverCollection<AT extends Annotation> extends AbstractIterator<AT> {
+public class AnnotationIteratorOverCollection<AT extends Annotation> extends AbstractIterator<AT>
+		implements Closeable {
 
 	public static <A extends Annotation> Iterator<A> createIterator(
 			Class<A> annotationClass,
@@ -52,9 +54,14 @@ public class AnnotationIteratorOverCollection<AT extends Annotation> extends Abs
 		jCasIter = jCasIterable.iterator();
 		// init
 		if (jCasIter.hasNext()) {
-			JCas curJCas = jCasIter.next();
-			curJCasAnnotationIter = getIterator(curJCas);
+			getNextCas();
 		}
+	}
+
+	private void getNextCas() {
+		JCas curJCas = jCasIter.next();
+		onCasChange(curJCas);
+		curJCasAnnotationIter = getIterator(curJCas);
 	}
 
 	@Override
@@ -64,8 +71,7 @@ public class AnnotationIteratorOverCollection<AT extends Annotation> extends Abs
 		}
 		while (curJCasAnnotationIter != null && !curJCasAnnotationIter.hasNext()) {
 			if (jCasIter.hasNext()) {
-				JCas curJCas = jCasIter.next();
-				curJCasAnnotationIter = getIterator(curJCas);
+				getNextCas();
 			} else {
 				curJCasAnnotationIter = null;
 			}
@@ -78,5 +84,16 @@ public class AnnotationIteratorOverCollection<AT extends Annotation> extends Abs
 
 	private Iterator<AT> getIterator(JCas jCas) {
 		return JCasUtil.select(jCas, annotationClass).iterator();
+	}
+
+	protected void onCasChange(JCas jCas) {
+		// override in subclasses
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (jCasIter instanceof Closeable) {
+			((Closeable) jCasIter).close();
+		}
 	}
 }

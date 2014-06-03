@@ -17,6 +17,7 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.cleartk.DefaultFeatureToStringEncoderChain;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -28,8 +29,17 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 
 	private final int prevTagsInHistory;
 	private List<SimpleFeatureExtractor> featureExtractors;
-
 	private FeatureEncoderChain<String> featureEncoders = new DefaultFeatureToStringEncoderChain();
+
+	public FeatureExtractorsBasedContextGenerator(int prevTagsInHistory,
+			List<SimpleFeatureExtractor> featureExtractors) {
+		this.prevTagsInHistory = prevTagsInHistory;
+		this.featureExtractors = ImmutableList.copyOf(featureExtractors);
+	}
+
+	public int getPrevTagsInHistory() {
+		return prevTagsInHistory;
+	}
 
 	@Override
 	public String[] getContext(int index, Token[] sequence, String[] priorDecisions,

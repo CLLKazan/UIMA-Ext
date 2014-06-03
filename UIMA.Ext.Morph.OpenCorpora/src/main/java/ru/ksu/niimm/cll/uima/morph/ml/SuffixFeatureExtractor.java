@@ -11,6 +11,10 @@ import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.cll.uima.tokenizer.fstype.W;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
@@ -31,7 +35,11 @@ public class SuffixFeatureExtractor implements SimpleFeatureExtractor {
 	@Override
 	public List<Feature> extract(JCas view, Annotation focusAnnotation)
 			throws CleartkExtractorException {
-
+		if (focusAnnotation instanceof Token) {
+			if (!(focusAnnotation instanceof W)) {
+				return ImmutableList.of();
+			}
+		}
 		String str = focusAnnotation.getCoveredText();
 		List<Feature> result = Lists.newLinkedList();
 		for (int suffixLength = 1; suffixLength <= maxSuffixLength; suffixLength++) {

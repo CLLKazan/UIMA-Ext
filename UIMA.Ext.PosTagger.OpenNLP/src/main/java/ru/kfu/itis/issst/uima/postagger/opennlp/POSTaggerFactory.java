@@ -31,8 +31,20 @@ public class POSTaggerFactory extends BaseToolFactory {
 	private static final String TAG_DICTIONARY_ENTRY_NAME = "tags.tagdict";
 	private static final String FEATURE_EXTRACTORS_ENTRY_NAME = "feature.extractors";
 
+	private FeatureExtractorsBasedContextGenerator contextGenerator;
 	private TagDictionary tagDictionary;
-	private BeamSearchContextGenerator<Token> contextGenerator;
+
+	/**
+	 * This constructor is required for OpenNLP model deserialization
+	 */
+	public POSTaggerFactory() {
+	}
+
+	public POSTaggerFactory(FeatureExtractorsBasedContextGenerator contextGenerator,
+			TagDictionary tagDictionary) {
+		this.contextGenerator = contextGenerator;
+		this.tagDictionary = tagDictionary;
+	}
 
 	public BeamSearchContextGenerator<Token> getContextGenerator() {
 		if (contextGenerator == null && artifactProvider != null) {
@@ -98,15 +110,21 @@ public class POSTaggerFactory extends BaseToolFactory {
 		@Override
 		public FeatureExtractorsBasedContextGenerator create(InputStream in) throws IOException,
 				InvalidFormatException {
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException();
+			Properties props = new Properties();
+			props.load(in);
+
+			return DefaultFeatureExtractors.from(props);
 		}
 
 		@Override
 		public void serialize(FeatureExtractorsBasedContextGenerator artifact, OutputStream out)
 				throws IOException {
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException();
+			if (!(artifact instanceof DefaultFeatureExtractors)) {
+				throw new UnsupportedOperationException();
+			}
+			Properties props = new Properties();
+			DefaultFeatureExtractors.to((DefaultFeatureExtractors) artifact, props);
+			props.store(out, "");
 		}
 
 	}

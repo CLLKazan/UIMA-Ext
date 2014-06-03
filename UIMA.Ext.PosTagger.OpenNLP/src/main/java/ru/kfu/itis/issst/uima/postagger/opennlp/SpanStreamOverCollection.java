@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -16,7 +17,11 @@ import opennlp.tools.util.ObjectStream;
  */
 public class SpanStreamOverCollection<ST extends Annotation> implements ObjectStream<ST> {
 
-	private Iterator<ST> spanIter;
+	private final Iterator<ST> spanIter;
+
+	public SpanStreamOverCollection(Iterator<ST> spanIter) {
+		this.spanIter = spanIter;
+	}
 
 	@Override
 	public ST read() throws IOException {
@@ -33,8 +38,9 @@ public class SpanStreamOverCollection<ST extends Annotation> implements ObjectSt
 
 	@Override
 	public void close() throws IOException {
-		// TODO Auto-generated method stub
-		// XXX
+		if (spanIter instanceof Closeable) {
+			((Closeable) spanIter).close();
+		}
 	}
 
 }

@@ -26,7 +26,7 @@ public class MorphDictionaryAdapter implements TagDictionary {
 	@Override
 	public String[] getTags(String word) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public Set<String> getGramCategories() {
