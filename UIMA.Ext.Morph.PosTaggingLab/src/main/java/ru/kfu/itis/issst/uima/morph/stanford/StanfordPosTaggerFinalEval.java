@@ -30,8 +30,7 @@ public class StanfordPosTaggerFinalEval extends FinalEvalLauncherBase {
 	}
 
 	private void run() throws Exception {
-		UimaTask analysisTask = new StanfordPosTaggerLab.StanfordTaggerAnalysisTask(morphDictDesc,
-				inputTS,
+		UimaTask analysisTask = new StanfordPosTaggerLab.StanfordTaggerAnalysisTask(inputTS,
 				PartitionType.TEST, allowTaggerMultiDeployment);
 		run(analysisTask);
 	}

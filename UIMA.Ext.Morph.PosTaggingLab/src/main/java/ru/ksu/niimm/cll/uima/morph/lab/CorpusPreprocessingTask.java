@@ -22,8 +22,8 @@ import org.uimafit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
+import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmingAnnotator;
-
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
 import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
@@ -74,11 +74,12 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 		} catch (InvalidXMLException e) {
 			throw new ResourceInitializationException(e);
 		}
+		AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription(morphDictDesc);
 		AnalysisEngineDescription xmiWriterDesc = XmiWriter.createDescription(
 				taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READWRITE),
 				// write to relative path
 				true);
-		return createAggregateDescription(posTrimmerDesc, xmiWriterDesc);
+		return createAggregateDescription(posTrimmerDesc, tagAssemblerDesc, xmiWriterDesc);
 	}
 
 }

@@ -10,7 +10,6 @@ import static org.apache.commons.io.FileUtils.readLines;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static ru.kfu.itis.issst.uima.morph.treetagger.DictionaryToTTLexicon.OPEN_CLASS_TAGS_FILENAME;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
@@ -33,13 +32,10 @@ import org.annolab.tt4j.PlatformDetector;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.InvalidXMLException;
-import org.uimafit.factory.ExternalResourceFactory;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
@@ -48,7 +44,6 @@ import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
 import com.google.common.collect.Lists;
@@ -115,15 +110,6 @@ public class TTLab extends LabLauncherBase {
 				AnalysisEngineDescription ttTrainDataWriterDesc = createPrimitiveDescription(
 						TTTrainingDataWriter.class,
 						TTTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
-				try {
-					ExternalResourceFactory.createDependency(ttTrainDataWriterDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							MorphDictionaryHolder.class);
-					bindResource(ttTrainDataWriterDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY, morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
 				return createAggregateDescription(ttTrainDataWriterDesc);
 			}
 		};
@@ -227,14 +213,7 @@ public class TTLab extends LabLauncherBase {
 				//
 				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
 				AnalysisEngineDescription ttDesc = createPrimitiveDescription(MorphTagger.class,
-						MorphTagger.PARAM_TREETAGGER_MODEL_NAME, modelFile.getPath() + ":UTF-8",
-						MorphTagger.PARAM_TAG_MAPPER_CLASS, DictionaryBasedTagMapper.class);
-				try {
-					bindResource(ttDesc, DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
+						MorphTagger.PARAM_TREETAGGER_MODEL_NAME, modelFile.getPath() + ":UTF-8");
 				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 				return createAggregateDescription(goldRemoverDesc, ttDesc, xmiWriterDesc);
 			}

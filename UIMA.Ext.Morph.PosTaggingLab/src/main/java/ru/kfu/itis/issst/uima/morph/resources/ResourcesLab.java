@@ -9,7 +9,6 @@ import static java.lang.String.format;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static ru.kfu.itis.cll.uima.io.IoUtils.openPrintWriter;
 import static ru.kfu.itis.cll.uima.io.IoUtils.openReader;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
@@ -28,19 +27,14 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
-import org.uimafit.factory.ExternalResourceFactory;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
 import com.google.common.collect.Sets;
@@ -78,18 +72,15 @@ public class ResourcesLab extends LabLauncherBase {
 		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
 		//
 		UimaTask prepareTrainingSetInfo = new PrepareSplitInfoTask(
-				"PrepareTrainingSetInfo", PartitionType.TRAIN,
-				inputTS, morphDictDesc);
+				"PrepareTrainingSetInfo", PartitionType.TRAIN, inputTS);
 		prepareTrainingSetInfo.addReport(SegmentationReport.class);
 		//
 		UimaTask prepareDevSetInfo = new PrepareSplitInfoTask(
-				"PrepareDevSetInfo", PartitionType.DEV,
-				inputTS, morphDictDesc);
+				"PrepareDevSetInfo", PartitionType.DEV, inputTS);
 		prepareDevSetInfo.addReport(SegmentationReport.class);
 		//
 		UimaTask prepareTestSetInfo = new PrepareSplitInfoTask(
-				"PrepareTestSetInfo", PartitionType.TEST,
-				inputTS, morphDictDesc);
+				"PrepareTestSetInfo", PartitionType.TEST, inputTS);
 		prepareTestSetInfo.addReport(SegmentationReport.class);
 		//
 		Task collectUnseenWordsDev = new CollectUnseenWordsTask("CollectUnseenWordsDev");
@@ -175,13 +166,9 @@ public class ResourcesLab extends LabLauncherBase {
 
 	private class PrepareSplitInfoTask extends CorpusSplitReadingTaskBase {
 
-		private ExternalResourceDescription morphDictDesc;
-
 		public PrepareSplitInfoTask(
-				String taskType, PartitionType targetSplit,
-				TypeSystemDescription inputTS, ExternalResourceDescription morphDictDesc) {
+				String taskType, PartitionType targetSplit, TypeSystemDescription inputTS) {
 			super(taskType, targetSplit, inputTS);
-			this.morphDictDesc = morphDictDesc;
 		}
 
 		@Override
@@ -192,15 +179,6 @@ public class ResourcesLab extends LabLauncherBase {
 			AnalysisEngineDescription tokInfoWriterDesc = createPrimitiveDescription(
 					TokenInfoWriter.class,
 					TokenInfoWriter.PARAM_OUTPUT_DIR, setInfoDir);
-			try {
-				ExternalResourceFactory.createDependency(tokInfoWriterDesc,
-						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-						MorphDictionaryHolder.class);
-				bindResource(tokInfoWriterDesc,
-						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY, morphDictDesc);
-			} catch (InvalidXMLException e) {
-				throw new ResourceInitializationException(e);
-			}
 			return createAggregateDescription(tokInfoWriterDesc);
 		}
 	}

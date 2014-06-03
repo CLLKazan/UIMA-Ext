@@ -7,7 +7,6 @@ import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.REA
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static ru.kfu.itis.issst.uima.morph.hunpos.DefaultHunposExecutableResolver.trainerResolver;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
@@ -25,22 +24,17 @@ import java.util.List;
 import org.annolab.tt4j.ExecutableResolver;
 import org.annolab.tt4j.PlatformDetector;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
-import org.uimafit.factory.ExternalResourceFactory;
 
 import ru.kfu.itis.cll.uima.io.ProcessIOUtils;
 import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
 import com.google.common.collect.Lists;
@@ -87,15 +81,6 @@ public class HunposLab extends LabLauncherBase {
 				AnalysisEngineDescription hunposTrainDataWriterDesc = createPrimitiveDescription(
 						HunposTrainingDataWriter.class,
 						HunposTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
-				try {
-					ExternalResourceFactory.createDependency(hunposTrainDataWriterDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-							MorphDictionaryHolder.class);
-					bindResource(hunposTrainDataWriterDesc,
-							DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY, morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
 				return createAggregateDescription(hunposTrainDataWriterDesc);
 			}
 		};
@@ -158,7 +143,7 @@ public class HunposLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS, morphDictDesc);
+		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS);
 		//
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -203,17 +188,13 @@ public class HunposLab extends LabLauncherBase {
 	}
 
 	static class AnalysisTask extends AnalysisTaskBase {
-		// config fields
-		private ExternalResourceDescription morphDictDesc;
 		// discriminators
 		@Discriminator
 		File lexiconFile;
 
-		AnalysisTask(PartitionType targetPartition, TypeSystemDescription inputTS,
-				ExternalResourceDescription morphDictDesc) {
+		AnalysisTask(PartitionType targetPartition, TypeSystemDescription inputTS) {
 			super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
 					inputTS, targetPartition);
-			this.morphDictDesc = morphDictDesc;
 		}
 
 		@Override
@@ -227,19 +208,7 @@ public class HunposLab extends LabLauncherBase {
 			AnalysisEngineDescription hunposAnnotatorDesc = createPrimitiveDescription(
 					HunposAnnotator.class,
 					HunposAnnotator.PARAM_HUNPOS_MODEL_NAME, modelFile.getPath(),
-					HunposAnnotator.PARAM_TAG_MAPPER_CLASS,
-					DictionaryBasedTagMapper.class.getName(),
 					HunposAnnotator.PARAM_LEXICON_FILE, lexiconFile);
-			try {
-				ExternalResourceFactory.createDependency(hunposAnnotatorDesc,
-						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-						MorphDictionaryHolder.class);
-				bindResource(hunposAnnotatorDesc,
-						DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-						morphDictDesc);
-			} catch (InvalidXMLException e) {
-				throw new ResourceInitializationException(e);
-			}
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 			return createAggregateDescription(
 					goldRemoverDesc, hunposAnnotatorDesc, xmiWriterDesc);

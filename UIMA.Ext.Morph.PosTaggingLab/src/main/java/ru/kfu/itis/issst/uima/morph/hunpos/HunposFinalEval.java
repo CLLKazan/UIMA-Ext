@@ -24,8 +24,7 @@ public class HunposFinalEval extends FinalEvalLauncherBase {
 	}
 
 	private void run() throws Exception {
-		UimaTask analysisTask = new HunposLab.AnalysisTask(PartitionType.TEST, inputTS,
-				morphDictDesc);
+		UimaTask analysisTask = new HunposLab.AnalysisTask(PartitionType.TEST, inputTS);
 		run(analysisTask);
 	}
 
