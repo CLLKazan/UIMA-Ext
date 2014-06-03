@@ -22,7 +22,6 @@ import org.opencorpora.cas.Word;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
@@ -37,26 +36,19 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 public abstract class TrainingDataWriterBase extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_OUTPUT_DIR = "outputDir";
-	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
 	public static final String TRAINING_DATA_FILENAME = "training-data.txt";
 
 	// config
 	@ConfigurationParameter(name = PARAM_OUTPUT_DIR, mandatory = true)
 	protected File outputDir;
-	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
-			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper")
-	protected String tagMapperClassName;
 	// state fields
 	protected PrintWriter outputWriter;
-	protected TagMapper tagMapper;
 	// per-CAS state fields
 	private Map<Token, Word> token2WordIndex;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		//
-		tagMapper = InitializableFactory.create(ctx, tagMapperClassName, TagMapper.class);
 		//
 		File outputFile = new File(outputDir, TRAINING_DATA_FILENAME);
 		try {

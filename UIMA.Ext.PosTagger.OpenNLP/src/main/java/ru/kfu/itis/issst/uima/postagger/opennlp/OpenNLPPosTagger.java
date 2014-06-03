@@ -9,7 +9,6 @@ import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import opennlp.model.AbstractModel;
 import opennlp.tools.util.BeamSearch;
@@ -25,7 +24,6 @@ import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
@@ -33,8 +31,6 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -42,7 +38,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
  */
 public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
-	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
 	public static final String PARAM_BEAM_SIZE = "beamSize";
 	public static final String RESOURCE_POS_MODEL = "posModel";
 
@@ -50,18 +45,12 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	private POSModel modelAggregate;
 	@ConfigurationParameter(name = PARAM_BEAM_SIZE, defaultValue = "3")
 	private int beamSize;
-	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
-			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper")
-	private String tagMapperClassName;
 	// state
-	private TagMapper tagMapper;
 	private BeamSearch<Token> beam;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		//
-		tagMapper = InitializableFactory.create(ctx, tagMapperClassName, TagMapper.class);
 		//
 		POSTaggerFactory factory = modelAggregate.getFactory();
 		AbstractModel posModel = modelAggregate.getPosModel();
@@ -101,8 +90,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
 				Wordform wf = new Wordform(jCas);
 				wf.setWord(word);
-				Set<String> grams = tagMapper.parseTag(tag, token.getCoveredText());
-				MorphDictionaryUtils.applyGrammems(grams, wf);
+				wf.setPos(tag);
 				word.setWordforms(FSUtils.toFSArray(jCas, wf));
 
 				word.addToIndexes();
