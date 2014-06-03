@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +76,7 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 						if (lemma != null) {
 							wf.setLemma(lemma);
 						}
-						wf.setPos(pos);
+						wf.setPos(postProcessExternalTag(pos));
 
 						wf.setWord(w);
 						FSArray wfArr = new FSArray(jCas, 1);

@@ -5,6 +5,7 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -90,7 +91,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
 				Wordform wf = new Wordform(jCas);
 				wf.setWord(word);
-				wf.setPos(tag);
+				wf.setPos(postProcessExternalTag(tag));
 				word.setWordforms(FSUtils.toFSArray(jCas, wf));
 
 				word.addToIndexes();

@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.stanford;
 
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
@@ -18,14 +20,15 @@ import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.util.JCasUtil;
 
-import com.google.common.collect.Lists;
-
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
+
+import com.google.common.collect.Lists;
+
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
@@ -91,7 +94,7 @@ public class StanfordPosAnnotator extends JCasAnnotator_ImplBase {
 
 				Wordform wf = new Wordform(jCas);
 				wf.setWord(word);
-				wf.setPos(sw.tag());
+				wf.setPos(postProcessExternalTag(sw.tag()));
 				word.setWordforms(FSUtils.toFSArray(jCas, wf));
 
 				word.addToIndexes();
