@@ -5,7 +5,6 @@ package ru.kfu.itis.issst.uima.morph.hunpos;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.*;
 
 import java.util.List;
 
@@ -18,6 +17,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 
@@ -40,10 +40,7 @@ public class HunposTrainingDataWriter extends TrainingDataWriterBase {
 							toPrettyString(tok), getDocumentUri(jCas)));
 					continue;
 				}
-				String tag = punctuationTagMap.get(tokStr);
-				if (tag == null) {
-					tag = OTHER_PUNCTUATION_TAG;
-				}
+				String tag = PunctuationUtils.getPunctuationTag(tokStr);
 				writeTokenTag(tokStr, tag);
 			} else {
 				Wordform wf = MorphCasUtils.requireOnlyWordform(word);

@@ -76,6 +76,14 @@ public class PunctuationUtils {
 		punctuationTagMap = b.build();
 	}
 
+	public static String getPunctuationTag(String tokenStr) {
+		String tag = punctuationTagMap.get(tokenStr);
+		if (tag == null) {
+			tag = OTHER_PUNCTUATION_TAG;
+		}
+		return tag;
+	}
+
 	private PunctuationUtils() {
 	}
 }

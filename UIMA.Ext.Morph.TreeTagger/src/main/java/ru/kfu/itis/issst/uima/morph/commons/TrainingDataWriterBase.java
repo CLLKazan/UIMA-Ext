@@ -3,9 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.morph.commons;
 
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
-import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +27,7 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-
-import com.google.common.collect.Maps;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -75,21 +71,7 @@ public abstract class TrainingDataWriterBase extends JCasAnnotator_ImplBase {
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		try {
-			// prepare token2WordIndex
-			token2WordIndex = Maps.newHashMap();
-			for (Word word : JCasUtil.select(jCas, Word.class)) {
-				Token token = (Token) word.getToken();
-				if (token == null) {
-					throw new IllegalStateException(String.format(
-							"No token assigned for Word %s in %s",
-							toPrettyString(word), getDocumentUri(jCas)));
-				}
-				if (token2WordIndex.put(token, word) != null) {
-					throw new IllegalStateException(String.format(
-							"Shared token for Word %s in %s",
-							toPrettyString(word), getDocumentUri(jCas)));
-				}
-			}
+			token2WordIndex = MorphCasUtils.getToken2WordIndex(jCas);
 			// process each sentence
 			for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 				process(jCas, sent);
