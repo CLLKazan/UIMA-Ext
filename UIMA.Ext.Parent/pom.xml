@@ -19,6 +19,7 @@
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.TreeTagger</module>
 		<module>../UIMA.Ext.Morph.PosTaggingLab</module>
+		<module>../UIMA.Ext.PosTagger.OpenNLP</module>
 		<module>../UIMA.Ext.Lemmatizer.OpenCorpora</module>
 		<module>../UIMA.Ext.DependencyParser</module>
 		<module>../UIMA.Ext.DependencyParser.MST</module>
@@ -127,6 +128,13 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.cleartk</groupId>
+				<artifactId>cleartk-release</artifactId>
+				<version>1.4.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-library</artifactId>
