@@ -1,0 +1,4 @@
+#!/bin/bash
+. setup.sh
+# invoke
+java "${java_opts}" -cp lib/${project.build.finalName}.jar "${logback_opts}" "${uima_datapath}" "${opencorpora_opts}" ru.kfu.itis.issst.uima.postagger.opennlp.MaxentPosTaggerLab

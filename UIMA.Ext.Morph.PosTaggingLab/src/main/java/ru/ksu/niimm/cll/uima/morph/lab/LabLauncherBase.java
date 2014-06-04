@@ -58,6 +58,12 @@ public abstract class LabLauncherBase {
 	protected ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
 			CachedSerializedDictionaryResource.class,
 			LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
+
+	//
+	protected String generateTaskName(String baseName) {
+		return getClass().getSimpleName() + "." + baseName;
+	}
+
 	//
 	private Properties parameterProps;
 

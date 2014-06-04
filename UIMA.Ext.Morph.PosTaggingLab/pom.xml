@@ -63,6 +63,10 @@
 			<artifactId>uima-morph-opencorpora</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-pos-tagger-opennlp</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
 			<artifactId>de.tudarmstadt.ukp.dkpro.lab.uima.engine.cpe</artifactId>
 			<version>0.9.1</version>
