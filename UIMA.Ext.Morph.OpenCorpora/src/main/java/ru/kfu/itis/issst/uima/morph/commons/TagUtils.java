@@ -65,6 +65,10 @@ public class TagUtils {
 						.isEmpty();
 	}
 
+	public static String postProcessExternalTag(String tag) {
+		return !"null".equals(String.valueOf(tag)) ? tag : null;
+	}
+
 	public static final Set<String> closedClassPunctuationTags = ImmutableSet
 			.copyOf(punctuationTagMap.values());
 

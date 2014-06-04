@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.hunpos;
 
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -82,7 +84,8 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 						if (lemma != null) {
 							wf.setLemma(lemma);
 						}
-						wf.setPos(pos);
+						// null tags comes as a 'null' string instances
+						wf.setPos(postProcessExternalTag(pos));
 
 						FSArray wfArr = new FSArray(jCas, 1);
 						wfArr.set(0, wf);

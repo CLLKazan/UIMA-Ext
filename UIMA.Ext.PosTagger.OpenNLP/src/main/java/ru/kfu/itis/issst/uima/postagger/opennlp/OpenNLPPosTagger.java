@@ -3,8 +3,11 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,14 +19,18 @@ import opennlp.tools.util.BeamSearchContextGenerator;
 import opennlp.tools.util.Sequence;
 
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
@@ -41,16 +48,35 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	public static final String PARAM_BEAM_SIZE = "beamSize";
 	public static final String RESOURCE_POS_MODEL = "posModel";
 
+	public static AnalysisEngineDescription createDescription(ExternalResourceDescription modelDesc)
+			throws ResourceInitializationException {
+		// prepare TypeSystemDescriptor consisting of produced types
+		TypeSystemDescription tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts");
+		return AnalysisEngineFactory.createPrimitiveDescription(OpenNLPPosTagger.class, tsDesc,
+				RESOURCE_POS_MODEL, modelDesc);
+	}
+
+	public static AnalysisEngineDescription createDescription(String modelUrl)
+			throws ResourceInitializationException {
+		ExternalResourceDescription modelDesc = createExternalResourceDescription(
+				DefaultPOSModelHolder.class, modelUrl);
+		return createDescription(modelDesc);
+	}
+
 	@ExternalResource(key = RESOURCE_POS_MODEL, mandatory = true)
-	private POSModel modelAggregate;
+	private OpenNLPModelHolder<POSModel> modelAggregateHolder;
 	@ConfigurationParameter(name = PARAM_BEAM_SIZE, defaultValue = "3")
 	private int beamSize;
+	// TODO validate by dictionary lookup
 	// state
+	private POSModel modelAggregate;
 	private BeamSearch<Token> beam;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
+		//
+		modelAggregate = modelAggregateHolder.getModel();
 		//
 		POSTaggerFactory factory = modelAggregate.getFactory();
 		AbstractModel posModel = modelAggregate.getPosModel();
@@ -67,7 +93,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	}
 
 	private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
-		Collection<Token> tokens = JCasUtil.select(jCas, Token.class);
+		Collection<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
 		Token[] tokenArr = tokens.toArray(new Token[tokens.size()]);
 		Sequence bestOutSeq = beam.bestSequence(tokenArr, null);
 		if (bestOutSeq == null) {
@@ -90,7 +116,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
 				Wordform wf = new Wordform(jCas);
 				wf.setWord(word);
-				wf.setPos(tag);
+				wf.setPos(postProcessExternalTag(tag));
 				word.setWordforms(FSUtils.toFSArray(jCas, wf));
 
 				word.addToIndexes();

@@ -23,11 +23,12 @@ public class String2StringFeatureEncoder implements FeatureEncoder<String> {
 
 	@Override
 	public List<String> encode(Feature feature) throws CleartkEncoderException {
-		String result = new StringBuilder(feature.getName())
-				.append(VALUE_DELIMITER)
-				.append(feature.getValue())
-				.toString();
-		return ImmutableList.of(result);
+		StringBuilder sb = new StringBuilder();
+		if (feature.getName() != null) {
+			sb.append(feature.getName()).append(VALUE_DELIMITER);
+		}
+		sb.append(feature.getValue());
+		return ImmutableList.of(sb.toString());
 	}
 
 	@Override
