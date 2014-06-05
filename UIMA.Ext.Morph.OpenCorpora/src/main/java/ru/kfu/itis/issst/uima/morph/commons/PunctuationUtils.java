@@ -4,8 +4,10 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -16,6 +18,7 @@ public class PunctuationUtils {
 	public static final Map<String, String> punctuationTagMap;
 	// tag for unknown punctuation marks or special symbols 
 	public static final String OTHER_PUNCTUATION_TAG = "_P_";
+	public static final Set<String> punctuationTags;
 
 	static {
 		ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
@@ -74,6 +77,11 @@ public class PunctuationUtils {
 		b.put("$", "$");
 		b.put("%", "%");
 		punctuationTagMap = b.build();
+		//
+		punctuationTags = ImmutableSet.<String> builder()
+				.addAll(punctuationTagMap.values())
+				.add(OTHER_PUNCTUATION_TAG)
+				.build();
 	}
 
 	public static String getPunctuationTag(String tokenStr) {
@@ -82,6 +90,17 @@ public class PunctuationUtils {
 			tag = OTHER_PUNCTUATION_TAG;
 		}
 		return tag;
+	}
+
+	public static Set<String> getAllPunctuationTags() {
+		return punctuationTags;
+	}
+
+	public static boolean isPunctuationTag(String tag) {
+		if (tag == null) {
+			return false;
+		}
+		return punctuationTags.contains(tag);
 	}
 
 	private PunctuationUtils() {

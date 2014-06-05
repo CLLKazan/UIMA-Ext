@@ -98,7 +98,7 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 		return targetGramJoiner.join(dict.toGramSet(wfBits));
 	}
 
-	private static final String targetGramDelim = "&";
-	private static final Joiner targetGramJoiner = Joiner.on(targetGramDelim);
-	private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
+	public static final String targetGramDelim = "&";
+	public static final Joiner targetGramJoiner = Joiner.on(targetGramDelim);
+	public static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
 }

@@ -17,6 +17,7 @@ import opennlp.model.AbstractModel;
 import opennlp.tools.util.BeamSearch;
 import opennlp.tools.util.BeamSearchContextGenerator;
 import opennlp.tools.util.Sequence;
+import opennlp.tools.util.SequenceValidator;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -31,6 +32,7 @@ import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.AnalysisEngineFactory;
+import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
@@ -46,7 +48,10 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_BEAM_SIZE = "beamSize";
+	public static final String PARAM_SEQUENCE_VALIDATOR_CLASS = "sequenceValidatorClass";
 	public static final String RESOURCE_POS_MODEL = "posModel";
+	public static final String DEFAULT_SEQUENCE_VALIDATOR_CLASS =
+			"ru.kfu.itis.issst.uima.postagger.opennlp.PunctuationTokenSequenceValidator";
 
 	public static AnalysisEngineDescription createDescription(ExternalResourceDescription modelDesc)
 			throws ResourceInitializationException {
@@ -65,24 +70,32 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 
 	@ExternalResource(key = RESOURCE_POS_MODEL, mandatory = true)
 	private OpenNLPModelHolder<POSModel> modelAggregateHolder;
-	@ConfigurationParameter(name = PARAM_BEAM_SIZE, defaultValue = "3")
+	@ConfigurationParameter(name = PARAM_BEAM_SIZE, defaultValue = "3", mandatory = false)
 	private int beamSize;
-	// TODO validate by dictionary lookup
+	@ConfigurationParameter(name = PARAM_SEQUENCE_VALIDATOR_CLASS, mandatory = false,
+			defaultValue = DEFAULT_SEQUENCE_VALIDATOR_CLASS)
+	private String sequenceValidatorClassName;
 	// state
 	private POSModel modelAggregate;
+	private SequenceValidator<Token> sequenceValidator;
 	private BeamSearch<Token> beam;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
 		//
 		modelAggregate = modelAggregateHolder.getModel();
 		//
+		if (sequenceValidatorClassName != null) {
+			sequenceValidator = InitializableFactory.create(ctx, sequenceValidatorClassName,
+					SequenceValidator.class);
+		}
+		//		
 		POSTaggerFactory factory = modelAggregate.getFactory();
 		AbstractModel posModel = modelAggregate.getPosModel();
 		BeamSearchContextGenerator<Token> contextGen = factory.getContextGenerator();
-		beam = new BeamSearch<Token>(beamSize, contextGen, posModel,
-				factory.getSequenceValidator(), 0);
+		beam = new BeamSearch<Token>(beamSize, contextGen, posModel, sequenceValidator, 0);
 	}
 
 	@Override
