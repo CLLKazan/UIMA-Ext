@@ -21,10 +21,13 @@ import java.util.Iterator;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.component.NoOpAnnotator;
 import org.uimafit.factory.CollectionReaderFactory;
+import org.uimafit.factory.ExternalResourceFactory;
 
 import opennlp.tools.util.TrainingParameters;
 
@@ -50,6 +53,7 @@ import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -137,7 +141,7 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 			}
 		};
 		//
-		UimaTaskBase analysisTask = new AnalysisTask(inputTS, PartitionType.DEV);
+		UimaTaskBase analysisTask = new AnalysisTask(inputTS, PartitionType.DEV, morphDictDesc);
 		//
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -159,8 +163,9 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 				getIntDimension("trainingIterations"),
 				getIntDimension("leftContextSize"),
 				getIntDimension("rightContextSize"),
-				getIntDimension("previousTagsInHistory")
-				// getIntDimension("beamSize")
+				getIntDimension("previousTagsInHistory"),
+				getIntDimension("beamSize"),
+				getBoolDimension("beamSearchValidate")
 				);
 		//
 		BatchTask batchTask = new BatchTask();
@@ -179,17 +184,21 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 	}
 
 	static class AnalysisTask extends AnalysisTaskBase {
-		/*@Discriminator
-		int beamSize;*/
+		@Discriminator
+		Integer beamSize;
 
-		// TODO dictionary for sequence validator
+		@Discriminator
+		Boolean beamSearchValidate;
+
+		private ExternalResourceDescription morphDictDesc;
 
 		AnalysisTask(TypeSystemDescription inputTS,
-				PartitionType targetPartition) {
+				PartitionType targetPartition, ExternalResourceDescription morphDictDesc) {
 			super(PartitionType.DEV.equals(targetPartition)
 					? "MaxentPosTaggerLab.Analysis"
 					: "MaxentPosTaggerLab.AnalysisFinal",
 					inputTS, targetPartition);
+			this.morphDictDesc = morphDictDesc;
 		}
 
 		@Override
@@ -201,9 +210,29 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 			// 
 			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-			// 
+			//
+			Boolean beamSearchValidate = this.beamSearchValidate;
+			if (beamSearchValidate == null) {
+				beamSearchValidate = false;
+			}
 			AnalysisEngineDescription taggerDesc = OpenNLPPosTagger.createDescription(
-					modelUrl.toString());
+					modelUrl.toString(),
+					beamSearchValidate
+							? DictionaryGrammemeLevelTokenSequenceValidator.class.getName()
+							: null,
+					beamSize);
+			if (beamSearchValidate) {
+				try {
+					ExternalResourceFactory.createDependency(taggerDesc,
+							DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
+							MorphDictionaryHolder.class);
+					ExternalResourceFactory.bindResource(taggerDesc,
+							DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
+							morphDictDesc);
+				} catch (InvalidXMLException e) {
+					throw new ResourceInitializationException(e);
+				}
+			}
 			return createAggregateDescription(
 					goldRemoverDesc, taggerDesc, xmiWriterDesc);
 		}
