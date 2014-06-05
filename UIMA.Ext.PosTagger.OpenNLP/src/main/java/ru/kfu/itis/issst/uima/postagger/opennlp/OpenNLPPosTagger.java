@@ -53,19 +53,30 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	public static final String DEFAULT_SEQUENCE_VALIDATOR_CLASS =
 			"ru.kfu.itis.issst.uima.postagger.opennlp.PunctuationTokenSequenceValidator";
 
-	public static AnalysisEngineDescription createDescription(ExternalResourceDescription modelDesc)
+	public static AnalysisEngineDescription createDescription(
+			ExternalResourceDescription modelDesc,
+			String sequenceValidatorClass,
+			Integer beamSize)
 			throws ResourceInitializationException {
 		// prepare TypeSystemDescriptor consisting of produced types
 		TypeSystemDescription tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts");
 		return AnalysisEngineFactory.createPrimitiveDescription(OpenNLPPosTagger.class, tsDesc,
-				RESOURCE_POS_MODEL, modelDesc);
+				RESOURCE_POS_MODEL, modelDesc,
+				PARAM_BEAM_SIZE, beamSize,
+				PARAM_SEQUENCE_VALIDATOR_CLASS, sequenceValidatorClass);
+	}
+
+	public static AnalysisEngineDescription createDescription(String modelUrl,
+			String sequenceValidatorClass, Integer beamSize)
+			throws ResourceInitializationException {
+		ExternalResourceDescription modelDesc = createExternalResourceDescription(
+				DefaultPOSModelHolder.class, modelUrl);
+		return createDescription(modelDesc, sequenceValidatorClass, beamSize);
 	}
 
 	public static AnalysisEngineDescription createDescription(String modelUrl)
 			throws ResourceInitializationException {
-		ExternalResourceDescription modelDesc = createExternalResourceDescription(
-				DefaultPOSModelHolder.class, modelUrl);
-		return createDescription(modelDesc);
+		return createDescription(modelUrl, null, null);
 	}
 
 	@ExternalResource(key = RESOURCE_POS_MODEL, mandatory = true)
