@@ -6,21 +6,21 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
-
-import opennlp.tools.postag.TagDictionary;
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.BeamSearchContextGenerator;
 import opennlp.tools.util.InvalidFormatException;
-import opennlp.tools.util.SequenceValidator;
+import opennlp.tools.util.model.ArtifactProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -28,11 +28,11 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
  */
 public class POSTaggerFactory extends BaseToolFactory {
 
-	private static final String TAG_DICTIONARY_ENTRY_NAME = "tags.tagdict";
+	private static final String GRAM_CATEGORIES_MANIFEST_ENTRY_NAME = "gramCategories";
 	private static final String FEATURE_EXTRACTORS_ENTRY_NAME = "feature.extractors";
 
 	private FeatureExtractorsBasedContextGenerator contextGenerator;
-	private TagDictionary tagDictionary;
+	private ImmutableSet<String> gramCategories;
 
 	/**
 	 * This constructor is required for OpenNLP model deserialization
@@ -41,49 +41,62 @@ public class POSTaggerFactory extends BaseToolFactory {
 	}
 
 	public POSTaggerFactory(FeatureExtractorsBasedContextGenerator contextGenerator,
-			TagDictionary tagDictionary) {
+			Collection<String> gramCategories) {
 		this.contextGenerator = contextGenerator;
-		this.tagDictionary = tagDictionary;
+		this.gramCategories = ImmutableSet.copyOf(gramCategories);
+	}
+
+	@Override
+	protected void init(ArtifactProvider artifactProvider) {
+		super.init(artifactProvider);
+		// it is checked for not null in #validateArtifactMap
+		contextGenerator = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
+		String gramCategoriesStr = artifactProvider
+				.getManifestProperty(GRAM_CATEGORIES_MANIFEST_ENTRY_NAME);
+		if (gramCategoriesStr != null) {
+			gramCategories = ImmutableSet.copyOf(gramCatSplitter.split(gramCategoriesStr));
+		}
 	}
 
 	public BeamSearchContextGenerator<Token> getContextGenerator() {
-		if (contextGenerator == null && artifactProvider != null) {
-			contextGenerator = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
-		}
 		return contextGenerator;
 	}
 
-	public SequenceValidator<Token> getSequenceValidator() {
-		return new DictionaryBasedTokenSequenceValidator(getTagDictionary());
-	}
-
-	public TagDictionary getTagDictionary() {
-		if (tagDictionary == null && artifactProvider != null) {
-			tagDictionary = artifactProvider.getArtifact(TAG_DICTIONARY_ENTRY_NAME);
-		}
-		return tagDictionary;
+	public Set<String> getGramCategories() {
+		return gramCategories;
 	}
 
 	@Override
 	public Map<String, Object> createArtifactMap() {
 		Map<String, Object> artMap = super.createArtifactMap();
-		if (tagDictionary != null) {
-			artMap.put(TAG_DICTIONARY_ENTRY_NAME, tagDictionary);
-		}
 		artMap.put(FEATURE_EXTRACTORS_ENTRY_NAME, contextGenerator);
 		return artMap;
 	}
 
 	@Override
+	public Map<String, String> createManifestEntries() {
+		Map<String, String> manifest = super.createManifestEntries();
+		if (gramCategories != null) {
+			manifest.put(GRAM_CATEGORIES_MANIFEST_ENTRY_NAME, gramCatJoiner.join(gramCategories));
+		}
+		return manifest;
+	}
+
+	private static final Splitter gramCatSplitter = Splitter.on(',');
+	private static final Joiner gramCatJoiner = Joiner.on(',');
+
+	@Override
 	public void validateArtifactMap() throws InvalidFormatException {
+		/*
 		Object tagDictEntry = artifactProvider.getArtifact(TAG_DICTIONARY_ENTRY_NAME);
 		if (tagDictEntry != null) {
 			if (!(tagDictEntry instanceof MorphDictionaryAdapter)) {
 				throw new InvalidFormatException(String.format(
 						"Unknown type of tag dictionary: %s", tagDictEntry.getClass()));
 			}
-			// TODO check dict compliance
+			// TOD check dict compliance
 		}
+		*/
 		Object featExtractorsEntry = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
 		if (featExtractorsEntry == null) {
 			throw new InvalidFormatException("No featureExtractors in artifacts map");
@@ -99,7 +112,7 @@ public class POSTaggerFactory extends BaseToolFactory {
 	@SuppressWarnings("rawtypes")
 	public Map<String, ArtifactSerializer> createArtifactSerializersMap() {
 		Map<String, ArtifactSerializer> artSerMap = super.createArtifactSerializersMap();
-		artSerMap.put("tagdict", new MorphDictionarySerializer());
+		// artSerMap.put("tagdict", new MorphDictionarySerializer());
 		artSerMap.put("extractors", new FeatureExtractorsSerializer());
 		return artSerMap;
 	}
@@ -129,6 +142,7 @@ public class POSTaggerFactory extends BaseToolFactory {
 
 	}
 
+	/*
 	static class MorphDictionarySerializer implements ArtifactSerializer<MorphDictionaryAdapter> {
 
 		private static final Joiner gramCatJoiner = Joiner.on(',');
@@ -152,4 +166,5 @@ public class POSTaggerFactory extends BaseToolFactory {
 			props.store(out, null);
 		}
 	}
+	*/
 }
