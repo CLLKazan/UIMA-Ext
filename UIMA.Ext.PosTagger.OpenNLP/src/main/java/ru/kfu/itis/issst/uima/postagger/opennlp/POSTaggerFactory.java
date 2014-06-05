@@ -49,8 +49,6 @@ public class POSTaggerFactory extends BaseToolFactory {
 	@Override
 	protected void init(ArtifactProvider artifactProvider) {
 		super.init(artifactProvider);
-		// it is checked for not null in #validateArtifactMap
-		contextGenerator = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
 		String gramCategoriesStr = artifactProvider
 				.getManifestProperty(GRAM_CATEGORIES_MANIFEST_ENTRY_NAME);
 		if (gramCategoriesStr != null) {
@@ -59,6 +57,9 @@ public class POSTaggerFactory extends BaseToolFactory {
 	}
 
 	public BeamSearchContextGenerator<Token> getContextGenerator() {
+		if (contextGenerator == null && artifactProvider != null) {
+			contextGenerator = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
+		}
 		return contextGenerator;
 	}
 
