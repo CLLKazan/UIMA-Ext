@@ -18,6 +18,7 @@ import ru.kfu.itis.cll.uima.eval.event.PrintingEvaluationListener;
 import ru.kfu.itis.cll.uima.util.Counter;
 
 import com.beust.jcommander.internal.Lists;
+import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
@@ -34,7 +35,7 @@ public abstract class ConfusionMatrixEvalListener extends PrintingEvaluationList
 	private Table<String, String, Counter<Match>> matrix = HashBasedTable.create();
 	private int partialMatchesIgnored;
 	// per-CAS state
-	private Set<AnnotationFS> goldAnnotationsProcessed;
+	private Set<AnnotationFS> goldAnnotationsProcessed = Sets.newHashSet();
 
 	@Override
 	public void onDocumentChange(String docUri) {
