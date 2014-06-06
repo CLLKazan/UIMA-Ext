@@ -3,8 +3,11 @@
  */
 package ru.ksu.niimm.cll.uima.morph.eval;
 
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
+
 import javax.annotation.PostConstruct;
 
+import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,13 @@ public class PosTaggingConfusionMatrixEvalListener extends ConfusionMatrixEvalLi
 
 	@Override
 	protected String getLabel(AnnotationFS anno) {
-		String tag = casHelper.getTag(anno);
+		FeatureStructure wf = casHelper.getWordform(anno);
+		if (wf == null) {
+			throw new IllegalStateException(String.format(
+					"Word %s (%s) without wordforms",
+					toPrettyString(anno), currentDocUri));
+		}
+		String tag = casHelper.getTag(wf);
 		return String.valueOf(tag);
 	}
 
