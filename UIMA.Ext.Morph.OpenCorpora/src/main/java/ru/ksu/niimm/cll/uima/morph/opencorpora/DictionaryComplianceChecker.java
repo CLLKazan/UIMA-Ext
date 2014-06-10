@@ -22,7 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.uimafit.component.JCasAnnotator_ImplBase;
@@ -33,6 +32,7 @@ import org.uimafit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -78,6 +78,8 @@ public class DictionaryComplianceChecker extends JCasAnnotator_ImplBase {
 			out = new PrintWriter(new BufferedWriter(
 					new OutputStreamWriter(os, "utf-8")),
 					true);
+			// write header
+			out.println("Word\tGrams_diff\tCorpus_grams\tDict_grams");
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
@@ -124,6 +126,13 @@ public class DictionaryComplianceChecker extends JCasAnnotator_ImplBase {
 					gramDiffs.add(gramJoiner.join(grams));
 				}
 				gramSetJoiner.appendTo(record, gramDiffs);
+				// write corpus grams
+				record.append('\t');
+				gramJoiner.appendTo(record, dict.toGramSet(docBits));
+				// write dict grams
+				record.append('\t');
+				gramSetJoiner.appendTo(record,
+						Collections2.transform(dictBitSets, gramBitsToString));
 				out.println(record);
 			}
 		}
@@ -166,6 +175,13 @@ public class DictionaryComplianceChecker extends JCasAnnotator_ImplBase {
 
 	private static Function<String, String> positiveGramFunc = prefixFunction("+");
 	private static Function<String, String> negativeGramFunc = prefixFunction("-");
+
+	private Function<BitSet, String> gramBitsToString = new Function<BitSet, String>() {
+		@Override
+		public String apply(BitSet bits) {
+			return gramJoiner.join(dict.toGramSet(bits));
+		}
+	};
 
 	@Override
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
