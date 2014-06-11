@@ -24,7 +24,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserial
  * @author Rinat Gareev
  * 
  */
-public class CachedSerializedDictionaryResource implements MorphDictionaryHolder {
+public class CachedSerializedDictionaryResource implements MorphDictionaryHolder, GramModelHolder {
 
 	// state fields
 	@SuppressWarnings("unused")
@@ -55,4 +55,10 @@ public class CachedSerializedDictionaryResource implements MorphDictionaryHolder
 	public MorphDictionary getDictionary() {
 		return dict;
 	}
+
+	@Override
+	public GramModel getGramModel() {
+		return dict.getGramModel();
+	}
+
 }

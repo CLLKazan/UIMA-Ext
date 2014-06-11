@@ -189,9 +189,10 @@ public class TieredPosSequenceAnnotatorFactory {
 
 	public static File createAggregateDescription(
 			File modelBaseDir, // TODO can we get rid of this ERD ?
-			ExternalResourceDescription morphDictDesc)
+			ExternalResourceDescription morphDictDesc,
+			ExternalResourceDescription gramModelDesc)
 			throws ResourceInitializationException, IOException, SAXException {
-		return createAggregateDescription(modelBaseDir, morphDictDesc, false);
+		return createAggregateDescription(modelBaseDir, morphDictDesc, gramModelDesc, false);
 	}
 
 	/**
@@ -214,13 +215,14 @@ public class TieredPosSequenceAnnotatorFactory {
 	 */
 	public static File createAggregateDescription(File modelBaseDir,
 			// TODO can we get rid of this ERD ?
-			ExternalResourceDescription morphDictDesc, boolean reuseExistingWordAnnotations)
+			ExternalResourceDescription morphDictDesc, ExternalResourceDescription gramModelDesc,
+			boolean reuseExistingWordAnnotations)
 			throws ResourceInitializationException, IOException, SAXException {
 		List<AnalysisEngineDescription> aeDescriptions = Lists.newArrayList();
 		List<String> aeNames = Lists.newArrayList();
 		addTaggerDescriptions(modelBaseDir, reuseExistingWordAnnotations, morphDictDesc,
 				aeDescriptions, aeNames);
-		aeDescriptions.add(TagAssembler.createDescription(morphDictDesc));
+		aeDescriptions.add(TagAssembler.createDescription(gramModelDesc));
 		aeNames.add("tag-assembler");
 		AnalysisEngineDescription aggrDesc = AnalysisEngineFactory.createAggregateDescription(
 				aeDescriptions, aeNames, null, null, null, null);

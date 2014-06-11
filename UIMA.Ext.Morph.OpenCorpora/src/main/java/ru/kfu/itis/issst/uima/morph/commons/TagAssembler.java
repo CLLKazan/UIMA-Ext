@@ -29,11 +29,11 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 public class TagAssembler extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription(
-			ExternalResourceDescription morphDictDesc) throws ResourceInitializationException {
+			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
 		AnalysisEngineDescription desc = createPrimitiveDescription(
 				TagAssembler.class, // it does not produce any additional annotations => no need in TS 
 				PARAM_TAG_MAPPER_CLASS, DictionaryBasedTagMapper.class.getName());
-		DictionaryBasedTagMapper.declareDependencyAndBind(desc, morphDictDesc);
+		DictionaryBasedTagMapper.declareDependencyAndBind(desc, gramModelDesc);
 		return desc;
 	}
 

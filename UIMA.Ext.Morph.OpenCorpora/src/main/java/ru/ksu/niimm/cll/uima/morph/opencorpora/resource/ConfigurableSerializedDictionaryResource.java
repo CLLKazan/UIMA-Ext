@@ -16,7 +16,8 @@ import org.uimafit.descriptor.ConfigurationParameter;
  * @author Rinat Gareev
  * 
  */
-public class ConfigurableSerializedDictionaryResource implements MorphDictionaryHolder {
+public class ConfigurableSerializedDictionaryResource implements MorphDictionaryHolder,
+		GramModelHolder {
 
 	public static final String PARAM_PREDICTOR_CLASS_NAME = "predictorClassName";
 	private static final Logger log = LoggerFactory
@@ -55,6 +56,11 @@ public class ConfigurableSerializedDictionaryResource implements MorphDictionary
 	@Override
 	public MorphDictionary getDictionary() {
 		return dict;
+	}
+
+	@Override
+	public GramModel getGramModel() {
+		return dict.getGramModel();
 	}
 
 	private WordformPredictor makePredictor(Class<? extends WordformPredictor> predictorClass)
