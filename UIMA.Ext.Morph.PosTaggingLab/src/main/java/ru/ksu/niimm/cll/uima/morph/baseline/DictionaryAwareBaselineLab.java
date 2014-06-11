@@ -26,6 +26,7 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
@@ -195,36 +196,22 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 					DictionaryAwareBaselineTagger.class,
 					DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, false,
 					DictionaryAwareBaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
-			/*
-			AnalysisEngineDescription suffixTaggerDesc = createPrimitiveDescription(
-					SuffixExaminingPosTagger.class,
-					SuffixExaminingPosTagger.PARAM_USE_DEBUG_GRAMMEMS, false);
-					*/
 			// bind dictionary and wfStore resources
 			ExternalResourceDescription dabWfStoreDesc = createExternalResourceDescription(
 					SharedDefaultWordformStore.class,
 					getDABModelFile(modelDir));
-			/*
-			ExternalResourceDescription suffixWfStoreDesc = createExternalResourceDescription(
-					SharedDefaultWordformStore.class,
-					getSuffixModelFile(modelDir));
-					*/
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 			try {
 				bindResource(dabTaggerDesc,
 						DictionaryAwareBaselineTagger.RESOURCE_WFSTORE, dabWfStoreDesc);
 				bindResource(dabTaggerDesc,
 						DictionaryAwareBaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-				/*
-				bindResource(suffixTaggerDesc,
-						SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
-				bindResource(suffixTaggerDesc,
-						SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-						*/
 			} catch (InvalidXMLException e) {
 				throw new ResourceInitializationException(e);
 			}
-			return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, /*suffixTaggerDesc,*/
+			AnalysisEngineDescription tagAssemblerDesc = TagAssembler
+					.createDescription(morphDictDesc);
+			return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, tagAssemblerDesc,
 					xmiWriterDesc);
 		}
 	}
