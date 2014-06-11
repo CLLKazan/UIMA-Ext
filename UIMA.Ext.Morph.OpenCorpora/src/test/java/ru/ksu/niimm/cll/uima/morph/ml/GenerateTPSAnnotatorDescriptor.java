@@ -30,7 +30,7 @@ public class GenerateTPSAnnotatorDescriptor {
 		ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
 				CachedSerializedDictionaryResource.class, "file:dict.opcorpora.ser");
 		File aggrDescFile = TieredPosSequenceAnnotatorFactory.createAggregateDescription(
-				modelBaseDir, morphDictDesc);
+				modelBaseDir, morphDictDesc, morphDictDesc);
 		System.out.println("Produced: " + aggrDescFile);
 	}
 
