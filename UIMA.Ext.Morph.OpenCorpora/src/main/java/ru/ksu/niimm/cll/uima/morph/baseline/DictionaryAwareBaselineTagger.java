@@ -36,7 +36,7 @@ public class DictionaryAwareBaselineTagger extends DictionaryAwareBaselineAnnota
 
 	// config fields
 	@ExternalResource(key = RESOURCE_WFSTORE, mandatory = true)
-	private WordformStore wfStore;
+	private WordformStore<BitSet> wfStore;
 	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false")
 	private boolean useDebugGrammems;
 	private AnnotationAdapter wordAnnoAdapter;
@@ -53,11 +53,12 @@ public class DictionaryAwareBaselineTagger extends DictionaryAwareBaselineAnnota
 		//
 		if (numGrammeme != null) {
 			numGramBS = new BitSet();
-			numGramBS.set(dict.getGrammemNumId(numGrammeme));
+			numGramBS.set(gramModel.getGrammemNumId(numGrammeme));
 		}
 		// init pos-trimmer
-		String[] targetPosCategories = wfStore.getProperty(PARAM_TARGET_POS_CATEGORIES, String[].class);
-		posTrimmer = new PosTrimmer(dict, targetPosCategories);
+		String[] targetPosCategories = wfStore.getProperty(PARAM_TARGET_POS_CATEGORIES,
+				String[].class);
+		posTrimmer = new PosTrimmer(gramModel, targetPosCategories);
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class DictionaryAwareBaselineTagger extends DictionaryAwareBaselineAnnota
 			} else if (dictEntries.size() == 1) {
 				wordAnnoAdapter.apply(jCas, token, null, null, dictEntries.iterator().next());
 			} else {
-				BitSet posBits = wfStore.getPosBits(tokenStr);
+				BitSet posBits = wfStore.getTag(tokenStr);
 				if (posBits != null) {
 					wordAnnoAdapter.apply(jCas, token, null, null, posBits);
 				} else {

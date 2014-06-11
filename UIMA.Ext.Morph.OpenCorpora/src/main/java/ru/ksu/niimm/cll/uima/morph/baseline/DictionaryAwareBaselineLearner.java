@@ -50,7 +50,7 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 	// derived
 	private File modelDir;
 	// state fields
-	private WordformStoreBuilder wfStoreBuilder;
+	private WordformStoreBuilder<BitSet> wfStoreBuilder;
 	private PrintWriter unknownWordsOut;
 	private PrintWriter dictNotCompliantOut;
 
@@ -72,9 +72,9 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 			throw new ResourceInitializationException(e);
 		}
 		//
-		posTrimmer = new PosTrimmer(dict, targetPosCategories);
+		posTrimmer = new PosTrimmer(gramModel, targetPosCategories);
 		//
-		wfStoreBuilder = new DefaultWordformStoreBuilder();
+		wfStoreBuilder = new DefaultWordformStoreBuilder<BitSet>();
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 			String wordString = normalizeToDictionary(word.getCoveredText());
 			Set<BitSet> dictEntries = trimAndMergePosBits(dict.getEntries(wordString));
 			//
-			BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
+			BitSet corpusWfGBS = toGramBitSet(gramModel, corpusWf);
 			//
 			if (dictEntries == null || dictEntries.isEmpty()) {
 				reportUnknownWord(wordString);
@@ -133,7 +133,7 @@ public class DictionaryAwareBaselineLearner extends DictionaryAwareBaselineAnnot
 		IOUtils.closeQuietly(unknownWordsOut);
 		IOUtils.closeQuietly(dictNotCompliantOut);
 		try {
-			WordformStore ws = wfStoreBuilder.build();
+			WordformStore<BitSet> ws = wfStoreBuilder.build();
 			ws.setProperty(PARAM_TARGET_POS_CATEGORIES, targetPosCategories);
 			ws.persist(modelOutputFile);
 		} catch (Exception e) {

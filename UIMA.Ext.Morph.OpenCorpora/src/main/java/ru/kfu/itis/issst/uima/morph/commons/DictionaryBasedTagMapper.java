@@ -18,8 +18,8 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.initializable.Initializable;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelHolder;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -32,39 +32,39 @@ import com.google.common.collect.Sets;
 public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 
 	public static void declareDependencyAndBind(ResourceSpecifier clientResourceDesc,
-			ExternalResourceDescription morphDictDesc) throws ResourceInitializationException {
+			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
 		try {
 			ExternalResourceFactory.createDependency(clientResourceDesc,
-					DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY,
-					MorphDictionaryHolder.class);
+					DictionaryBasedTagMapper.RESOURCE_GRAM_MODEL,
+					GramModelHolder.class);
 			ExternalResourceFactory.bindResource(clientResourceDesc,
-					DictionaryBasedTagMapper.RESOURCE_KEY_MORPH_DICTIONARY, morphDictDesc);
+					DictionaryBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
 		} catch (InvalidXMLException e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
 
 	public static final String CLASS_NAME = DictionaryBasedTagMapper.class.getName();
-	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
+	public static final String RESOURCE_GRAM_MODEL = "gramModel";
 	// config fields
-	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
-	private MorphDictionaryHolder dictHolder;
+	@ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
+	private GramModelHolder gramModelHolder;
 	// derived
-	private MorphDictionary dict;
+	private GramModel gramModel;
 
 	// for UIMA
 	public DictionaryBasedTagMapper() {
 	}
 
 	// for stand-alone usage
-	public DictionaryBasedTagMapper(MorphDictionary dict) {
-		this.dict = dict;
+	public DictionaryBasedTagMapper(GramModel gramModel) {
+		this.gramModel = gramModel;
 	}
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		ExternalResourceInitializer.initialize(ctx, this);
-		dict = dictHolder.getDictionary();
+		gramModel = gramModelHolder.getGramModel();
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	 */
 	@Override
 	public String toTag(Set<String> grams) {
-		BitSet wfBits = toGramBits(dict, grams);
+		BitSet wfBits = toGramBits(gramModel, grams);
 		return toTag(wfBits);
 	}
 
@@ -95,7 +95,7 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 		if (wfBits.isEmpty()) {
 			return null;
 		}
-		return targetGramJoiner.join(dict.toGramSet(wfBits));
+		return targetGramJoiner.join(gramModel.toGramSet(wfBits));
 	}
 
 	public static final String targetGramDelim = "&";

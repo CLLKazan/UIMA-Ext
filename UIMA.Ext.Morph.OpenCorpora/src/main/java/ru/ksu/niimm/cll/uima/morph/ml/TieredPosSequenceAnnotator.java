@@ -43,6 +43,7 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.cleartk.Disposable;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
@@ -87,6 +88,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private boolean reuseExistingWordAnnotations;
 	// derived
 	private MorphDictionary morphDictionary;
+	private GramModel gramModel;
 	private Set<String> currentPosTier;
 	// TODO make bit masks immutable
 	private BitSet currentTierMask;
@@ -109,6 +111,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		}
 		parsePosTiersParameter();
 		morphDictionary = morphDictHolder.getDictionary();
+		gramModel = morphDictionary.getGramModel();
 		this.currentTierMask = makeBitMask(currentPosTier);
 		// check grammems
 		checkDictGrammems();
@@ -125,7 +128,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		List<SimpleFeatureExtractor> contextFeatureExtractors = Lists.newArrayList();
 		contextFeatureExtractors.add(new SuffixFeatureExtractor(3));
 		for (String posCat : prevTierPosCategories) {
-			GrammemeExtractor gramExtractor = new GrammemeExtractor(morphDictionary, posCat);
+			GrammemeExtractor gramExtractor = new GrammemeExtractor(gramModel, posCat);
 			gramExtractors.add(gramExtractor);
 			contextFeatureExtractors.add(gramExtractor);
 		}
@@ -256,12 +259,12 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	}
 
 	private String extractOutputLabel(Wordform wf) {
-		BitSet wfBits = toGramBits(morphDictionary, FSUtils.toList(wf.getGrammems()));
+		BitSet wfBits = toGramBits(gramModel, FSUtils.toList(wf.getGrammems()));
 		wfBits.and(currentTierMask);
 		if (wfBits.isEmpty()) {
 			return null;
 		}
-		return targetGramJoiner.join(morphDictionary.toGramSet(wfBits));
+		return targetGramJoiner.join(gramModel.toGramSet(wfBits));
 	}
 
 	private static final String targetGramDelim = "&";
@@ -294,7 +297,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private BitSet makeBitMask(Iterable<String> posCats) {
 		BitSet result = new BitSet();
 		for (String posCat : posCats) {
-			BitSet posCatBits = morphDictionary.getGrammemWithChildrenBits(posCat, true);
+			BitSet posCatBits = gramModel.getGrammemWithChildrenBits(posCat, true);
 			if (posCatBits == null) {
 				throw new IllegalStateException(String.format(
 						"Unknown grammeme (category): %s", posCat));
@@ -305,8 +308,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	}
 
 	private void checkDictGrammems() {
-		for (int grId = 0; grId < morphDictionary.getGrammemMaxNumId(); grId++) {
-			Grammeme gr = morphDictionary.getGrammem(grId);
+		for (int grId = 0; grId < gramModel.getGrammemMaxNumId(); grId++) {
+			Grammeme gr = gramModel.getGrammem(grId);
 			if (gr != null && gr.getId().contains(targetGramDelim)) {
 				throw new IllegalStateException(String.format(
 						"Grammeme %s contains character that is used as delimiter in this class",

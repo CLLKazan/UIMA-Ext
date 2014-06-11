@@ -4,10 +4,8 @@
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.normalizeToDictionary;
-import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.toGramBitSet;
 
 import java.io.File;
-import java.util.BitSet;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -34,7 +32,7 @@ public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
 	@ConfigurationParameter(name = PARAM_WFSTORE_FILE, mandatory = true)
 	private File wsFile;
 	// state fields
-	private WordformStoreBuilder wsBuilder;
+	private WordformStoreBuilder<String> wsBuilder;
 	private int wordsExamined;
 	private int shortWordsExamined;
 
@@ -44,7 +42,7 @@ public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
 		if (suffixLength <= 0) {
 			throw new IllegalStateException("PARAM_SUFFIX_LENGTH is not specified");
 		}
-		wsBuilder = new DefaultWordformStoreBuilder();
+		wsBuilder = new DefaultWordformStoreBuilder<String>();
 	}
 
 	@Override
@@ -56,15 +54,15 @@ public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
 				continue;
 			}
 			String wordStr = normalizeToDictionary(word.getCoveredText());
-			BitSet corpusWfBits = toGramBitSet(dict, corpusWf);
+			String corpusWfTag = String.valueOf(corpusWf.getPos());
 			if (wordStr.length() > suffixLength) {
 				String suffix = getSuffix(wordStr);
 				String suffixKey = makeSuffixKey(suffix);
-				wsBuilder.increment(suffixKey, corpusWfBits);
+				wsBuilder.increment(suffixKey, corpusWfTag);
 			} else {
 				// if word length is equal or less than suffixLength
 				// then memorize the whole word
-				wsBuilder.increment(wordStr, corpusWfBits);
+				wsBuilder.increment(wordStr, corpusWfTag);
 				shortWordsExamined++;
 			}
 			wordsExamined++;
@@ -75,7 +73,7 @@ public class SuffixExaminingPosTrainer extends SuffixExaminingPosAnnotator {
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
 		super.collectionProcessComplete();
 		try {
-			WordformStore ws = wsBuilder.build();
+			WordformStore<String> ws = wsBuilder.build();
 			ws.setProperty(KEY_SUFFIX_LENGTH, suffixLength);
 			ws.persist(wsFile);
 		} catch (Exception e) {

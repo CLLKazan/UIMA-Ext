@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
@@ -20,24 +21,24 @@ public class Wordform implements Serializable {
 	private static final long serialVersionUID = -8435061415886880938L;
 	private static final BitSet EMPTY_BITSET = new BitSet();
 
-	public static Builder builder(MorphDictionary dict, int lemmaId) {
-		return new Builder(dict, lemmaId);
+	public static Builder builder(GramModel gm, int lemmaId) {
+		return new Builder(gm, lemmaId);
 	}
 
 	public static class Builder {
 		private Wordform instance = new Wordform();
-		private MorphDictionary dict;
+		private GramModel gm;
 
-		public Builder(MorphDictionary dict, int lemmaId) {
+		public Builder(GramModel gm, int lemmaId) {
 			instance.lemmaId = lemmaId;
-			this.dict = dict;
+			this.gm = gm;
 		}
 
 		public Builder addGrammeme(String gramId) {
 			if (instance.grammems == null) {
-				instance.grammems = new BitSet(dict.getGrammemMaxNumId() + 1);
+				instance.grammems = new BitSet(gm.getGrammemMaxNumId() + 1);
 			}
-			int gramNumId = dict.getGrammemNumId(gramId);
+			int gramNumId = gm.getGrammemNumId(gramId);
 			instance.grammems.set(gramNumId);
 			return this;
 		}

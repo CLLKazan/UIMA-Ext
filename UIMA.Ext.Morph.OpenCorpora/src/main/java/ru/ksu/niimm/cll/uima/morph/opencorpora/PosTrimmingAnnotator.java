@@ -25,7 +25,7 @@ import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -33,24 +33,24 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
  */
 public class PosTrimmingAnnotator extends JCasAnnotator_ImplBase {
 
-	public static final String RESOURCE_MORPH_DICTIONARY = "MorphDictionary";
+	public static final String RESOURCE_GRAM_MODEL = "gramModel";
 	public static final String PARAM_TARGET_POS_CATEGORIES = "targetPosCategories";
 
 	public static AnalysisEngineDescription createDescription(String[] targetPosCategories,
-			ExternalResourceDescription morphDictDesc) throws ResourceInitializationException {
+			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
 		AnalysisEngineDescription aeDesc = createPrimitiveDescription(PosTrimmingAnnotator.class,
 				PARAM_TARGET_POS_CATEGORIES, targetPosCategories);
 		try {
-			createDependency(aeDesc, RESOURCE_MORPH_DICTIONARY, MorphDictionaryHolder.class);
-			ExternalResourceFactory.bindResource(aeDesc, RESOURCE_MORPH_DICTIONARY, morphDictDesc);
+			createDependency(aeDesc, RESOURCE_GRAM_MODEL, GramModelHolder.class);
+			ExternalResourceFactory.bindResource(aeDesc, RESOURCE_GRAM_MODEL, gramModelDesc);
 		} catch (InvalidXMLException e) {
 			throw new ResourceInitializationException(e);
 		}
 		return aeDesc;
 	}
 
-	@ExternalResource(key = RESOURCE_MORPH_DICTIONARY)
-	private MorphDictionaryHolder dictHolder;
+	@ExternalResource(key = RESOURCE_GRAM_MODEL)
+	private GramModelHolder gramModelHolder;
 	@ConfigurationParameter(name = PARAM_TARGET_POS_CATEGORIES, mandatory = true)
 	private String[] targetPosCategories;
 	// derived
@@ -59,7 +59,7 @@ public class PosTrimmingAnnotator extends JCasAnnotator_ImplBase {
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-		trimmer = new PosTrimmer(dictHolder.getDictionary(), targetPosCategories);
+		trimmer = new PosTrimmer(gramModelHolder.getGramModel(), targetPosCategories);
 	}
 
 	@Override

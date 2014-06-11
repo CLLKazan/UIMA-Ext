@@ -19,12 +19,11 @@ import org.slf4j.LoggerFactory;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DictionaryDeserializer {
+public class GramModelDeserializer {
 
-	private static Logger log = LoggerFactory.getLogger(DictionaryDeserializer.class);
-	private static final int DICTIONARY_READING_BUFFER_SIZE = 32768;
+	private static final Logger log = LoggerFactory.getLogger(GramModelDeserializer.class);
 
-	public static MorphDictionary from(File file) throws Exception {
+	public static GramModel from(File file) throws Exception {
 		if (!file.isFile()) {
 			throw new IllegalArgumentException(String.format(
 					"%s is not existing file", file));
@@ -32,25 +31,23 @@ public class DictionaryDeserializer {
 		return from(new FileInputStream(file), file.toString());
 	}
 
-	public static MorphDictionary from(InputStream in, String srcLabel) throws Exception {
-		log.info("About to deserialize MorphDictionary from InputStream of {}...", srcLabel);
+	public static GramModel from(InputStream in, String srcLabel) throws Exception {
+		log.info("About to deserialize GramModel from InputStream of {}...", srcLabel);
 		long timeBefore = currentTimeMillis();
-		InputStream is = new BufferedInputStream(in, DICTIONARY_READING_BUFFER_SIZE);
+		InputStream is = new BufferedInputStream(in);
 		ObjectInputStream ois = new ObjectInputStream(is);
-		MorphDictionary dict;
+		GramModel gm;
 		try {
-			// skip gram model
-			@SuppressWarnings("unused")
-			GramModel gm = (GramModel) ois.readObject();
-			dict = (MorphDictionary) ois.readObject();
+			gm = (GramModel) ois.readObject();
 		} finally {
 			IOUtils.closeQuietly(ois);
 		}
-		log.info("Deserialization of MorphDictionary finished in {} ms",
+		log.info("Deserialization of GramModel finished in {} ms",
 				currentTimeMillis() - timeBefore);
-		return dict;
+		return gm;
 	}
 
-	private DictionaryDeserializer() {
+	private GramModelDeserializer() {
 	}
+
 }

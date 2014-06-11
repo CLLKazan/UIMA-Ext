@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.BitSet;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -23,17 +22,17 @@ import com.google.common.collect.Maps;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-class DefaultWordformStore implements WordformStore, Serializable {
+class DefaultWordformStore<TagType> implements WordformStore<TagType>, Serializable {
 
 	private static final long serialVersionUID = 1771570908232250753L;
 
 	protected transient Logger log = LoggerFactory.getLogger(getClass());
 
-	protected Map<String, BitSet> strKeyMap;
+	protected Map<String, TagType> strKeyMap;
 	protected Map<String, Object> metadataMap;
 
 	@Override
-	public BitSet getPosBits(String wf) {
+	public TagType getTag(String wf) {
 		return strKeyMap.get(wf);
 	}
 

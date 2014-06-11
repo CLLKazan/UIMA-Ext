@@ -94,6 +94,7 @@ public class XmlDictionaryParser {
 				new FileOutputStream(outPath), 8192 * 8);
 		ObjectOutputStream out = new ObjectOutputStream(fout);
 		try {
+			out.writeObject(dict.getGramModel());
 			out.writeObject(dict);
 		} finally {
 			out.close();

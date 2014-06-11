@@ -22,6 +22,7 @@ import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LemmaPostProcessor;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.XmlDictionaryParser;
@@ -145,14 +146,15 @@ public class DictionaryToTTLexicon {
 		public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
 			// initialize posTrimmer at the first time
 			// then always return true and do nothing
+			GramModel gm = dict.getGramModel();
 			if (posTrimmer == null) {
-				posTrimmer = new PosTrimmer(dict, Sets.newHashSet(posCategoriesList));
+				posTrimmer = new PosTrimmer(gm, Sets.newHashSet(posCategoriesList));
 			}
 			if (tagMapper == null) {
-				tagMapper = new DictionaryBasedTagMapper(dict);
+				tagMapper = new DictionaryBasedTagMapper(gm);
 			}
 			if (closedClassTagIndicator == null) {
-				closedClassTagIndicator = TagUtils.getClosedClassIndicator(dict);
+				closedClassTagIndicator = TagUtils.getClosedClassIndicator(gm);
 			}
 			return true;
 		}

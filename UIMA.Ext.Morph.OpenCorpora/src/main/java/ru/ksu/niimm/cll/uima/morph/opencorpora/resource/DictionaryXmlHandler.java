@@ -274,6 +274,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	}
 
 	private class GrammemsHandler extends NoOpHandler {
+		private ImmutableGramModel.Builder gmBuilder;
+
 		GrammemsHandler() {
 			super(ELEM_GRAMMEMS);
 		}
@@ -284,8 +286,14 @@ class DictionaryXmlHandler extends DefaultHandler {
 		}
 
 		@Override
+		protected void startSelf(Attributes attrs) {
+			gmBuilder = ImmutableGramModel.builder();
+		}
+
+		@Override
 		protected void endSelf() {
-			dict.completeGramSet();
+			GramModel gm = gmBuilder.build();
+			dict.setGramModel(gm);
 			super.endSelf();
 		}
 	}
@@ -348,7 +356,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 			String alias = aliasHandler.getContent();
 			String description = descHandler.getContent();
 			Grammeme gram = new Grammeme(id, parentId, alias, description);
-			dict.addGrammeme(gram);
+			getParent(GrammemsHandler.class).gmBuilder.addGrammeme(gram);
 			id = null;
 			parentId = null;
 			// child handlers are cleared by super class
@@ -379,7 +387,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 		@Override
 		protected void startSelf(Attributes attrs) {
-			builder = Lemma.builder(dict, requiredInt(attrs, ATTR_LEMMA_ID));
+			builder = Lemma.builder(dict.getGramModel(), requiredInt(attrs, ATTR_LEMMA_ID));
 			wordforms = LinkedHashMultimap.create();
 		}
 
@@ -451,7 +459,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 		@Override
 		protected void startSelf(Attributes attrs) {
 			int lemmaId = getParent(LemmaHandler.class).builder.getLemmaId();
-			builder = Wordform.builder(dict, lemmaId);
+			builder = Wordform.builder(dict.getGramModel(), lemmaId);
 			text = requiredAttr(attrs, ATTR_TEXT);
 		}
 

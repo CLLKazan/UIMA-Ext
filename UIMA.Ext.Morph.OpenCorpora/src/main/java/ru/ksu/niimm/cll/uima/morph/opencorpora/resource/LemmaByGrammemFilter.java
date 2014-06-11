@@ -29,7 +29,7 @@ public class LemmaByGrammemFilter implements LemmaPostProcessor {
 	public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
 		BitSet grBits = lemma.getGrammems();
 		for (int i = grBits.nextSetBit(0); i >= 0; i = grBits.nextSetBit(i + 1)) {
-			Grammeme gr = dict.getGrammem(i);
+			Grammeme gr = dict.getGramModel().getGrammem(i);
 			if (grammemsToReject.contains(gr.getId())) {
 				return false;
 			}

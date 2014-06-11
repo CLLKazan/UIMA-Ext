@@ -15,16 +15,17 @@ import org.apache.uima.resource.SharedResourceObject;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class SharedDefaultWordformStore extends DefaultWordformStore implements
+public class SharedDefaultWordformStore<TagType> extends DefaultWordformStore<TagType> implements
 		SharedResourceObject {
 
 	private static final long serialVersionUID = 7266695078951639418L;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void load(DataResource dr) throws ResourceInitializationException {
-		DefaultWordformStore ws;
+		DefaultWordformStore<TagType> ws;
 		try {
-			ws = (DefaultWordformStore) SerializationUtils.deserialize(
+			ws = (DefaultWordformStore<TagType>) SerializationUtils.deserialize(
 					new BufferedInputStream(dr.getInputStream()));
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);

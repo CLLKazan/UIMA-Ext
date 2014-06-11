@@ -5,21 +5,16 @@ package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.addCasWordform;
 
-import java.util.BitSet;
-
-import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
+import org.opencorpora.cas.Wordform;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.AnnotationAdapter;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.DefaultAnnotationAdapter;
+import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -33,26 +28,11 @@ public class BaselineTagger extends BaselineAnnotator {
 
 	// config fields
 	@ExternalResource(key = RESOURCE_WFSTORE, mandatory = true)
-	private WordformStore wfStore;
+	private WordformStore<String> wfStore;
 	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false")
 	private boolean useDebugGrammems;
-	private AnnotationAdapter wordAnnoAdapter;
 	@ConfigurationParameter(name = PARAM_NUM_GRAMMEME)
 	private String numGrammeme;
-	// derived
-	private BitSet numGramBS;
-
-	@Override
-	public void initialize(UimaContext context) throws ResourceInitializationException {
-		super.initialize(context);
-		wordAnnoAdapter = new DefaultAnnotationAdapter();
-		wordAnnoAdapter.init(dict);
-		//
-		if (numGrammeme != null) {
-			numGramBS = new BitSet();
-			numGramBS.set(dict.getGrammemNumId(numGrammeme));
-		}
-	}
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -60,17 +40,19 @@ public class BaselineTagger extends BaselineAnnotator {
 			if (!PUtils.canCarryWord(token)) {
 				continue;
 			}
-			if (numGramBS != null && token instanceof NUM) {
-				wordAnnoAdapter.apply(jCas, token, null, null, numGramBS);
+			Wordform wf = addCasWordform(jCas, token);
+			if (numGrammeme != null && token instanceof NUM) {
+				wf.setPos(numGrammeme);
 				continue;
 			}
 			String tokenStr = token.getCoveredText();
-			BitSet posBits = wfStore.getPosBits(tokenStr);
-			if (posBits != null) {
-				wordAnnoAdapter.apply(jCas, token, null, null, posBits);
+			String tag = wfStore.getTag(tokenStr);
+			if (tag != null) {
+				tag = TagUtils.postProcessExternalTag(tag);
+				wf.setPos(tag);
 			} else {
 				if (useDebugGrammems) {
-					setUnseen(jCas, addCasWordform(jCas, token));
+					setUnseen(jCas, wf);
 				}
 			}
 		}
@@ -79,6 +61,6 @@ public class BaselineTagger extends BaselineAnnotator {
 	public static final String GRAMMEME_UNSEEN = "unseen";
 
 	private void setUnseen(JCas jCas, org.opencorpora.cas.Wordform casWf) {
-		casWf.setGrammems(FSUtils.toStringArray(jCas, GRAMMEME_UNSEEN));
+		casWf.setPos(GRAMMEME_UNSEEN);
 	}
 }

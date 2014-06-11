@@ -14,7 +14,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 
 /**
@@ -25,8 +25,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
  */
 class PUtils {
 
-	public static BitSet toGramBitSet(MorphDictionary dict, org.opencorpora.cas.Wordform casWf) {
-		return MorphDictionaryUtils.toGramBits(dict, FSUtils.toList(casWf.getGrammems()));
+	public static BitSet toGramBitSet(GramModel gm, org.opencorpora.cas.Wordform casWf) {
+		return MorphDictionaryUtils.toGramBits(gm, FSUtils.toList(casWf.getGrammems()));
 	}
 
 	public static boolean canCarryWord(Token token) {

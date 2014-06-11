@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -26,30 +26,30 @@ import com.google.common.collect.Sets;
 public class PosTrimmer {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private MorphDictionary dict;
+	private GramModel gramModel;
 	private Set<String> targetPosCategories;
 	// derived
 	private final BitSet targetBits; // DO NOT MODIFY!
 	private Set<String> targetTags;
 
-	public PosTrimmer(MorphDictionary dict, String... targetPosCategories) {
-		this(dict, ImmutableSet.copyOf(targetPosCategories));
+	public PosTrimmer(GramModel gramModel, String... targetPosCategories) {
+		this(gramModel, ImmutableSet.copyOf(targetPosCategories));
 	}
 
-	public PosTrimmer(MorphDictionary _dict, Set<String> _targetPosCategories) {
-		dict = _dict;
+	public PosTrimmer(GramModel _gramModel, Set<String> _targetPosCategories) {
+		this.gramModel = _gramModel;
 		targetPosCategories = ImmutableSet.copyOf(_targetPosCategories);
 		//
 		targetBits = new BitSet();
 		for (String cat : targetPosCategories) {
-			BitSet catBS = dict.getGrammemWithChildrenBits(cat, true);
+			BitSet catBS = gramModel.getGrammemWithChildrenBits(cat, true);
 			if (catBS == null) {
 				throw new IllegalStateException(String.format("Unknown grammeme %s", cat));
 			}
 			targetBits.or(catBS);
 		}
 		// 
-		targetTags = ImmutableSet.copyOf(dict.toGramSet(targetBits));
+		targetTags = ImmutableSet.copyOf(gramModel.toGramSet(targetBits));
 		log.info("PosTrimmer will retain following gram tags:\n{}", targetTags);
 	}
 
