@@ -3,10 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.toGramBitSet;
-
 import java.io.File;
-import java.util.BitSet;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -35,7 +32,7 @@ public class BaselineLearner extends BaselineAnnotator {
 	// derived
 	private File modelDir;
 	// state fields
-	private WordformStoreBuilder wfStoreBuilder;
+	private WordformStoreBuilder<String> wfStoreBuilder;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -46,7 +43,7 @@ public class BaselineLearner extends BaselineAnnotator {
 			modelDir = new File(".");
 		}
 		//
-		wfStoreBuilder = new DefaultWordformStoreBuilder();
+		wfStoreBuilder = new DefaultWordformStoreBuilder<String>();
 	}
 
 	@Override
@@ -57,8 +54,8 @@ public class BaselineLearner extends BaselineAnnotator {
 			if (corpusWf == null) {
 				continue;
 			}
-			BitSet corpusWfGBS = toGramBitSet(dict, corpusWf);
-			wfStoreBuilder.increment(word.getCoveredText(), corpusWfGBS);
+			String corpusWfTag = String.valueOf(corpusWf.getPos());
+			wfStoreBuilder.increment(word.getCoveredText(), corpusWfTag);
 		}
 	}
 
@@ -66,7 +63,7 @@ public class BaselineLearner extends BaselineAnnotator {
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
 		super.collectionProcessComplete();
 		try {
-			WordformStore ws = wfStoreBuilder.build();
+			WordformStore<String> ws = wfStoreBuilder.build();
 			ws.persist(modelOutputFile);
 		} catch (Exception e) {
 			throw new AnalysisEngineProcessException(e);

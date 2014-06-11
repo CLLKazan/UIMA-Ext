@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.event.TypedPrintingEvaluationListener;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelDeserializer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -193,19 +193,18 @@ public class GramTagErrorCollector extends TypedPrintingEvaluationListener {
 							+ "does not point to directory with " + SERIALIZED_MORPH_DICT_NAME
 							+ " file");
 		}
-		CachedDictionaryDeserializer deser = CachedDictionaryDeserializer.getInstance();
-		MorphDictionary morphDict = deser.getDictionary(serializedMorphDictFile).dictionary;
-		initGramTree(morphDict);
+		GramModel gm = GramModelDeserializer.from(serializedMorphDictFile);
+		initGramTree(gm);
 
 		super.init();
 	}
 
-	private void initGramTree(MorphDictionary morphDict) {
+	private void initGramTree(GramModel gm) {
 		gramCategoryContent = Maps.newHashMap();
 		gram2Cat = Maps.newHashMap();
-		for (String cat : morphDict.getTopGrammems()) {
-			BitSet catBS = morphDict.getGrammemWithChildrenBits(cat, true);
-			List<String> catGrams = morphDict.toGramSet(catBS);
+		for (String cat : gm.getTopGrammems()) {
+			BitSet catBS = gm.getGrammemWithChildrenBits(cat, true);
+			List<String> catGrams = gm.toGramSet(catBS);
 			gramCategoryContent.put(cat, ImmutableSet.copyOf(catGrams));
 			for (String grId : catGrams) {
 				gram2Cat.put(grId, cat);

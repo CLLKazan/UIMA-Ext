@@ -16,7 +16,7 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -39,11 +39,11 @@ public class TagUtils {
 	 * @return function that returns true if the given gram bits represents a
 	 *         closed class tag
 	 */
-	public static Function<BitSet, Boolean> getClosedClassIndicator(MorphDictionary dict) {
+	public static Function<BitSet, Boolean> getClosedClassIndicator(GramModel gm) {
 		// initialize mask
 		final BitSet closedClassTagsMask = new BitSet();
 		for (String cpGram : closedPosSet) {
-			closedClassTagsMask.set(dict.getGrammemNumId(cpGram));
+			closedClassTagsMask.set(gm.getGrammemNumId(cpGram));
 		}
 		//
 		return new Function<BitSet, Boolean>() {

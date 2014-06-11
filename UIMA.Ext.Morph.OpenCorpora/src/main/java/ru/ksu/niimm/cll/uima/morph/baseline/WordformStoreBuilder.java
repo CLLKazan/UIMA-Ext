@@ -3,14 +3,12 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import java.util.BitSet;
-
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-interface WordformStoreBuilder {
-	void increment(String wordString, BitSet posBits);
+interface WordformStoreBuilder<TagType> {
+	void increment(String wordString, TagType tag);
 
-	WordformStore build();
+	WordformStore<TagType> build();
 }

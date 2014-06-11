@@ -18,13 +18,9 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.LemmaLinkType;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
@@ -41,14 +37,9 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	// meta fields
 	private String version;
 	private String revision;
-	// gram set fields
-	private Map<String, Grammeme> gramMap = Maps.newHashMap();
-	private SortedMap<Integer, Grammeme> numToGram = Maps.newTreeMap();
-	private boolean gramSetLocked;
-	// grammem indexes
-	private Multimap<String, Grammeme> gramByParent;
-	private BitSet posBits;
-	// other fields
+	//
+	private GramModel gramModel;
+	//
 	private Map<Integer, Lemma> lemmaMap = Maps.newHashMap();
 	private Map<Short, LemmaLinkType> lemmaLinkTypeMap = Maps.newHashMap();
 	// <from, to, type>
@@ -65,6 +56,18 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 
 	// state mark
 	private transient boolean complete = false;
+
+	@Override
+	public GramModel getGramModel() {
+		return gramModel;
+	}
+
+	public void setGramModel(GramModel gramModel) {
+		if (this.gramModel != null) {
+			throw new UnsupportedOperationException("Can't change a grammatical model");
+		}
+		this.gramModel = gramModel;
+	}
 
 	@Override
 	public void setWfPredictor(WordformPredictor wfPredictor) {
@@ -98,42 +101,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	@Override
 	public String getRevision() {
 		return revision;
-	}
-
-	@Override
-	public int getGrammemMaxNumId() {
-		if (!gramSetLocked) {
-			throw new IllegalStateException("gramSet is not locked");
-		}
-		return numToGram.lastKey();
-	}
-
-	@Override
-	public int getGrammemNumId(String gramId) {
-		Grammeme gr = gramMap.get(gramId);
-		if (gr == null) {
-			noGrammem(gramId);
-		}
-		return gr.getNumId();
-	}
-
-	@Override
-	public Grammeme getGrammem(int numId) {
-		return numToGram.get(numId);
-	}
-
-	public void addGrammeme(Grammeme gram) {
-		if (gramSetLocked) {
-			throw new IllegalStateException("Gram set was locked");
-		}
-		if (gramMap.put(gram.getId(), gram) != null) {
-			throw new IllegalStateException(String.format(
-					"Duplicate grammem id - %s", gram.getId()));
-		}
-		if (numToGram.put(gram.getNumId(), gram) != null) {
-			throw new IllegalStateException(String.format(
-					"Duplicate grammem num id - %s", gram.getNumId()));
-		}
 	}
 
 	@Override
@@ -191,7 +158,7 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	@Override
 	public String getPos(Lemma lemma) {
 		BitSet lGrams = lemma.getGrammems();
-		lGrams.and(getPosBits());
+		lGrams.and(gramModel.getPosBits());
 		if (lGrams.isEmpty()) {
 			log.error("{} does not have POS grammem", lemma);
 			return null;
@@ -199,63 +166,15 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		if (lGrams.cardinality() > 1) {
 			List<String> posList = Lists.newLinkedList();
 			for (int i = lGrams.nextSetBit(0); i >= 0; i = lGrams.nextSetBit(i + 1)) {
-				posList.add(getGrammem(i).getId());
+				posList.add(gramModel.getGrammem(i).getId());
 			}
 			log.error("{} has more than 1 POS grammem:\n{}\n" +
 					"Will return first w.r.t. numerical id", lemma, posList);
 		}
 		int gramNumId = lGrams.nextSetBit(0);
-		Grammeme result = getGrammem(gramNumId);
+		Grammeme result = gramModel.getGrammem(gramNumId);
 		notNull(result);
 		return result.getId();
-	}
-
-	@Override
-	public BitSet getPosBits() {
-		return (BitSet) posBits.clone();
-	}
-
-	@Override
-	public BitSet getGrammemWithChildrenBits(String gramId, boolean includeTarget) {
-		Grammeme targetGram = getGrammem(gramId);
-		if (targetGram == null) {
-			return null;
-		}
-		return getGrammemWithChildrenBits(targetGram, includeTarget);
-	}
-
-	private BitSet getGrammemWithChildrenBits(Grammeme gram, boolean includeTarget) {
-		BitSet result = new BitSet(getGrammemMaxNumId());
-		if (includeTarget) {
-			result.set(gram.getNumId());
-		}
-		for (Grammeme childGram : gramByParent.get(gram.getId())) {
-			result.or(getGrammemWithChildrenBits(childGram, true));
-		}
-		return result;
-	}
-
-	@Override
-	public Set<String> getTopGrammems() {
-		ImmutableSet.Builder<String> resultBuilder = ImmutableSet.builder();
-		for (Grammeme gr : gramByParent.get(null)) {
-			resultBuilder.add(gr.getId());
-		}
-		return resultBuilder.build();
-	}
-
-	@Override
-	public Grammeme getGrammem(String id) {
-		return gramMap.get(id);
-	}
-
-	@Override
-	public List<String> toGramSet(BitSet gramBits) {
-		ImmutableList.Builder<String> rb = ImmutableList.builder();
-		for (int i = gramBits.nextSetBit(0); i >= 0; i = gramBits.nextSetBit(i + 1)) {
-			rb.add(getGrammem(i).getId());
-		}
-		return rb.build();
 	}
 
 	@Override
@@ -288,29 +207,10 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		log.info("{}#finalize...", this);
 	}
 
-	void completeGramSet() {
-		if (!gramSetLocked) {
-			gramMap = copyOf(gramMap);
-			numToGram = ImmutableSortedMap.copyOf(numToGram);
-			gramSetLocked = true;
-			log.info("Grammeme set has been locked");
-			// build indices 
-			gramByParent = HashMultimap.create();
-			for (Grammeme gr : gramMap.values()) {
-				gramByParent.put(gr.getParentId(), gr);
-			}
-			// 
-			posBits = getGrammemWithChildrenBits("POST", true);
-			isTrue(!posBits.isEmpty());
-			log.info("Grammeme indices have been built");
-		}
-	}
-
 	void complete() {
 		if (complete) {
 			throw new IllegalStateException();
 		}
-		completeGramSet();
 		log.info("Completing dictionary. Valid lemma links: {}, invalid links: {}",
 				lemmaLinkTable.size(), invalidLinkCounter);
 		log.info("Unique wordform grammem bitsets count: {}", uniqWordformGrammemsMap.size());
@@ -340,11 +240,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 				"Lemma link type with id = %s is not registered", id));
 	}
 
-	private void noGrammem(String id) {
-		throw new IllegalStateException(String.format(
-				"Grammem with id = %s is not registered", id));
-	}
-
 	private void makeUnmodifiable() {
 		//	lemmaMap = unmodifiableMap(lemmaMap);
 		// ??? tagset
@@ -361,12 +256,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	private static void notNull(Object obj) {
 		if (obj == null) {
 			throw new IllegalStateException("Unexpected null value");
-		}
-	}
-
-	private static void isTrue(boolean condition) {
-		if (!condition) {
-			throw new IllegalStateException("Assertion failed");
 		}
 	}
 

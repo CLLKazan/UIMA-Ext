@@ -50,7 +50,7 @@ public class DefaultAnnotationAdapter extends AnnotationAdapterBase {
 			casWf.setPos(dict.getPos(lemma));
 			// set grammems
 			grammems.or(lemma.getGrammems());
-			List<String> gramSet = dict.toGramSet(grammems);
+			List<String> gramSet = dict.getGramModel().toGramSet(grammems);
 			casWf.setGrammems(FSUtils.toStringArray(jcas, gramSet));
 
 			// set hosting word
@@ -87,7 +87,7 @@ public class DefaultAnnotationAdapter extends AnnotationAdapterBase {
 		// TODO set 'pos' feature
 		// casWf.setPos(...);
 
-		List<String> gramSet = dict.toGramSet(posBits);
+		List<String> gramSet = dict.getGramModel().toGramSet(posBits);
 		casWf.setGrammems(FSUtils.toStringArray(jcas, gramSet));
 
 		// set hosting word
