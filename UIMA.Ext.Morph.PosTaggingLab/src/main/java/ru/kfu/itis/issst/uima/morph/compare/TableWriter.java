@@ -17,20 +17,15 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
-import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 import ru.kfu.itis.issst.uima.morph.compare.impl.HSQLDBAnnotationDao;
 import ru.kfu.itis.issst.uima.morph.compare.impl.HSQLDBFeatureDao;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 @OperationalProperties(multipleDeploymentAllowed = false)
 public class TableWriter extends JCasAnnotator_ImplBase {
@@ -38,17 +33,13 @@ public class TableWriter extends JCasAnnotator_ImplBase {
 	public static final String PARAM_TAGGING_NAME = "taggingName";
 	public static final String PARAM_DATA_SOURCE_CONFIG_FILE = "dataSourceConfigFile";
 	public static final String PARAM_DISABLE_NEW_TEXT = "disableNewText";
-	public static final String RESOURCE_KEY_MORPH_DICT = "morphDictionary";
 
-	@ExternalResource(key = RESOURCE_KEY_MORPH_DICT, mandatory = true)
-	private MorphDictionaryHolder dictHolder;
 	@ConfigurationParameter(name = PARAM_TAGGING_NAME, mandatory = true)
 	private String taggingName;
 	@ConfigurationParameter(name = PARAM_DATA_SOURCE_CONFIG_FILE, mandatory = true)
 	private File dataSourceConfigFile;
 	@ConfigurationParameter(name = PARAM_DISABLE_NEW_TEXT, defaultValue = "true")
 	private boolean disableNewText;
-	private TagMapper tagMapper;
 	// state fields
 	private BasicDataSource ds;
 	private AnnotationDao wordDao;
@@ -69,8 +60,6 @@ public class TableWriter extends JCasAnnotator_ImplBase {
 		sentDao = new HSQLDBAnnotationDao(ds, Sentence.class.getSimpleName());
 		wordDao = new HSQLDBAnnotationDao(ds, Word.class.getSimpleName());
 		wordPosDao = new HSQLDBFeatureDao(ds, taggingName);
-		//
-		tagMapper = new DictionaryBasedTagMapper(dictHolder.getDictionary());
 	}
 
 	@Override
@@ -157,7 +146,7 @@ public class TableWriter extends JCasAnnotator_ImplBase {
 		if (wf == null) {
 			return null;
 		}
-		return tagMapper.toTag(FSUtils.toSet(wf.getGrammems()));
+		return String.valueOf(wf.getPos());
 	}
 
 	private void writeTag(long wordId, String tag) {

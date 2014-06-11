@@ -4,7 +4,6 @@
 package ru.kfu.itis.issst.uima.morph.compare;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
@@ -12,17 +11,13 @@ import java.io.File;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ExternalResourceFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
-import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -61,10 +56,6 @@ public class WriteTables {
 				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
 				"org.opencorpora.morphology-ts");
 		//
-		ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class,
-				LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
-		//
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 				XmiFileListReader.class, inputTS,
 				XmiFileListReader.PARAM_BASE_DIR, xmiDir,
@@ -75,8 +66,6 @@ public class WriteTables {
 				TableWriter.PARAM_DATA_SOURCE_CONFIG_FILE, dsConfigFile.getPath(),
 				TableWriter.PARAM_DISABLE_NEW_TEXT, !createSpans,
 				TableWriter.PARAM_TAGGING_NAME, taggingName);
-		ExternalResourceFactory.bindResource(tableWriterDesc,
-				TableWriter.RESOURCE_KEY_MORPH_DICT, morphDictDesc);
 		//
 		CpeBuilder cpeBuilder = new CpeBuilder();
 		cpeBuilder.setReader(colReaderDesc);
