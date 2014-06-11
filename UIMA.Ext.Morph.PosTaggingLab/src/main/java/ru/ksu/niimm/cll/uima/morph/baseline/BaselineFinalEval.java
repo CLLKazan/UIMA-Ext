@@ -20,8 +20,7 @@ public class BaselineFinalEval extends FinalEvalLauncherBase {
 	}
 
 	private void run() throws Exception {
-		UimaTask analysisTask = new BaselineLab.AnalysisTask(PartitionType.TEST, inputTS,
-				morphDictDesc);
+		UimaTask analysisTask = new BaselineLab.AnalysisTask(PartitionType.TEST, inputTS);
 		//
 		run(analysisTask);
 	}

@@ -5,7 +5,6 @@ package ru.ksu.niimm.cll.uima.morph.lab;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 
 import java.io.File;
@@ -17,7 +16,6 @@ import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
 import org.uimafit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
@@ -40,12 +38,12 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 	}
 	// config fields
 	private TypeSystemDescription inputTS;
-	private ExternalResourceDescription morphDictDesc;
+	private ExternalResourceDescription gramModelDesc;
 
 	public CorpusPreprocessingTask(TypeSystemDescription inputTS,
-			ExternalResourceDescription morphDictDesc) {
+			ExternalResourceDescription gramModelDesc) {
 		this.inputTS = inputTS;
-		this.morphDictDesc = morphDictDesc;
+		this.gramModelDesc = gramModelDesc;
 	}
 
 	// state fields
@@ -67,18 +65,16 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 			throws ResourceInitializationException, IOException {
 		AnalysisEngineDescription posTrimmerDesc = createPrimitiveDescription(
 				PosTrimmingAnnotator.class, inputTS,
-				PosTrimmingAnnotator.PARAM_TARGET_POS_CATEGORIES, posCategories);
-		try {
-			bindResource(posTrimmerDesc, PosTrimmingAnnotator.RESOURCE_MORPH_DICTIONARY,
-					morphDictDesc);
-		} catch (InvalidXMLException e) {
-			throw new ResourceInitializationException(e);
-		}
-		AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription(morphDictDesc);
+				PosTrimmingAnnotator.PARAM_TARGET_POS_CATEGORIES, posCategories,
+				PosTrimmingAnnotator.RESOURCE_GRAM_MODEL, gramModelDesc);
+		//
+		AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription(gramModelDesc);
+		//
 		AnalysisEngineDescription xmiWriterDesc = XmiWriter.createDescription(
 				taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READWRITE),
 				// write to relative path
 				true);
+		//
 		return createAggregateDescription(posTrimmerDesc, tagAssemblerDesc, xmiWriterDesc);
 	}
 

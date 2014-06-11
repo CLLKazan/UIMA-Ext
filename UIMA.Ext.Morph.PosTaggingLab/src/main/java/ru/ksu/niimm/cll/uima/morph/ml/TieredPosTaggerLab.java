@@ -72,7 +72,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 
 	private void run() throws IOException {
 		// create task instances
-		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
+		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, gramModelDesc);
 		// -----------------------------------------------------------------
 		UimaTask featureExtractionTask = new FeatureExtractionTaskBase("FeatureExtraction", inputTS) {
 			@Discriminator

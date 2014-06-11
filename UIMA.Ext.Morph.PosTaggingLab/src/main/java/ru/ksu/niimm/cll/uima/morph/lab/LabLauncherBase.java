@@ -23,6 +23,7 @@ import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelResource;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Function;
@@ -57,6 +58,9 @@ public abstract class LabLauncherBase {
 	// prepare morph dictionary resource
 	protected ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
 			CachedSerializedDictionaryResource.class,
+			LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
+	protected ExternalResourceDescription gramModelDesc = createExternalResourceDescription(
+			GramModelResource.class,
 			LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
 
 	//

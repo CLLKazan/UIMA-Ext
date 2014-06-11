@@ -82,7 +82,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - PoS-trimmer with injected PoS-categories parameter
 		 * - XMIWriter (to 'Corpus')
 		 */
-		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
+		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, gramModelDesc);
 		/* create a training task (use 'training' FS with XmiCollectionReader on 'Corpus')
 		 * Aggregate AE:
 		 * - DictionaryAwareBaselineLearner (ensure thread-safety!)

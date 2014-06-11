@@ -79,7 +79,7 @@ public class TTLab extends LabLauncherBase {
 	}
 
 	private void run() throws Exception {
-		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
+		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, gramModelDesc);
 		//
 		Task prepareLexiconTask = new ExecutableTaskBase() {
 			{

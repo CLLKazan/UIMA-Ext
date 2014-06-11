@@ -76,7 +76,7 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 	}
 
 	private void run() throws Exception {
-		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
+		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, gramModelDesc);
 		//
 		Task trainingTask = new ExecutableTaskBase() {
 			{

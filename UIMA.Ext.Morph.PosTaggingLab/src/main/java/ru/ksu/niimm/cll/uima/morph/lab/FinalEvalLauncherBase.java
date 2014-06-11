@@ -38,7 +38,7 @@ public class FinalEvalLauncherBase extends LabLauncherBase {
 	private File modelDir;
 
 	protected void run(UimaTask analysisTask) throws Exception {
-		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
+		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, gramModelDesc);
 		//
 		Task evaluationTask = new EvaluationTask(PartitionType.TEST);
 		// configure data-flow between tasks

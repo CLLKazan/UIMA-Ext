@@ -67,7 +67,7 @@ public class BaselineLab extends LabLauncherBase {
 
 	private void run() throws IOException {
 		//
-		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, morphDictDesc);
+		UimaTask preprocessingTask = new CorpusPreprocessingTask(inputTS, gramModelDesc);
 		//
 		UimaTask trainingTask = new FeatureExtractionTaskBase("Training", inputTS) {
 			@Discriminator
@@ -85,19 +85,11 @@ public class BaselineLab extends LabLauncherBase {
 						SuffixExaminingPosTrainer.class,
 						SuffixExaminingPosTrainer.PARAM_WFSTORE_FILE, getSuffixModelFile(modelDir),
 						SuffixExaminingPosTrainer.PARAM_SUFFIX_LENGTH, suffixLength);
-				try {
-					bindResource(baselineLearnerDesc,
-							BaselineLearner.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-					bindResource(suffixModelTrainerDesc,
-							SuffixExaminingPosTrainer.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new IllegalStateException(e);
-				}
 				return createAggregateDescription(baselineLearnerDesc, suffixModelTrainerDesc);
 			}
 		};
 		//
-		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS, morphDictDesc);
+		UimaTask analysisTask = new AnalysisTask(PartitionType.DEV, inputTS);
 		// 
 		Task evaluationTask = new EvaluationTask(PartitionType.DEV);
 		// configure data-flow between tasks
@@ -140,14 +132,10 @@ public class BaselineLab extends LabLauncherBase {
 	}
 
 	static class AnalysisTask extends AnalysisTaskBase {
-		private ExternalResourceDescription morphDictDesc;
-
 		AnalysisTask(PartitionType targetPartition,
-				TypeSystemDescription inputTS,
-				ExternalResourceDescription morphDictDesc) {
+				TypeSystemDescription inputTS) {
 			super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
 					inputTS, targetPartition);
-			this.morphDictDesc = morphDictDesc;
 		}
 
 		@Override
@@ -173,12 +161,8 @@ public class BaselineLab extends LabLauncherBase {
 			try {
 				bindResource(baselineTaggerDesc,
 						BaselineTagger.RESOURCE_WFSTORE, freqWfStoreDesc);
-				bindResource(baselineTaggerDesc,
-						BaselineTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 				bindResource(suffixTaggerDesc,
 						SuffixExaminingPosTagger.RESOURCE_WFSTORE, suffixWfStoreDesc);
-				bindResource(suffixTaggerDesc,
-						SuffixExaminingPosTagger.RESOURCE_MORPH_DICTIONARY, morphDictDesc);
 			} catch (InvalidXMLException e) {
 				throw new ResourceInitializationException(e);
 			}
