@@ -27,6 +27,7 @@ import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 import ru.ksu.niimm.cll.uima.morph.util.BitUtils;
@@ -44,6 +45,7 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 	private MorphDictionaryHolder morphDictionaryHolder;
 	//
 	private MorphDictionary morphDictionary;
+	private GramModel gramModel;
 	// 
 	private List<BitSet> skipMasks;
 
@@ -51,16 +53,17 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		ExternalResourceInitializer.initialize(ctx, this);
 		morphDictionary = morphDictionaryHolder.getDictionary();
+		gramModel = morphDictionary.getGramModel();
 		// TODO this is application-specific tunings. Refactor them out
 		skipMasks = Lists.newLinkedList();
 		{
 			BitSet mask = new BitSet();
-			mask.set(morphDictionary.getGrammemNumId(MorphConstants.Abbr));
+			mask.set(gramModel.getGrammemNumId(MorphConstants.Abbr));
 			skipMasks.add(mask);
 		}
 		{
 			BitSet mask = new BitSet();
-			mask.set(morphDictionary.getGrammemNumId(MorphConstants.Prnt));
+			mask.set(gramModel.getGrammemNumId(MorphConstants.Prnt));
 			skipMasks.add(mask);
 		}
 		skipMasks = ImmutableList.copyOf(skipMasks);
@@ -93,7 +96,7 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 		// parse tag
 		// TODO do not rely on the specific implementation of TagMapper
 		Iterable<String> candidateGrams = targetGramSplitter.split(outcome);
-		BitSet candidateBS = toGramBits(morphDictionary, candidateGrams);
+		BitSet candidateBS = toGramBits(gramModel, candidateGrams);
 		for (BitSet sm : skipMasks) {
 			if (BitUtils.contains(candidateBS, sm)) {
 				return true;

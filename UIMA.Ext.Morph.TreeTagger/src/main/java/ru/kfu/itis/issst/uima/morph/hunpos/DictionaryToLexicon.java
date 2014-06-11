@@ -119,10 +119,10 @@ public class DictionaryToLexicon {
 			// initialize posTrimmer at the first time
 			// then always return true and do nothing
 			if (posTrimmer == null) {
-				posTrimmer = new PosTrimmer(dict, Sets.newHashSet(posCategoriesList));
+				posTrimmer = new PosTrimmer(dict.getGramModel(), Sets.newHashSet(posCategoriesList));
 			}
 			if (tagMapper == null) {
-				tagMapper = new DictionaryBasedTagMapper(dict);
+				tagMapper = new DictionaryBasedTagMapper(dict.getGramModel());
 			}
 			return true;
 		}
