@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -25,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import ru.ksu.niimm.cll.uima.morph.ruscorpora.RNCDictionaryExtension;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -43,19 +47,37 @@ public class XmlDictionaryParser {
 	public static MorphDictionaryImpl parse(InputStream in) throws IOException, SAXException,
 			ParserConfigurationException {
 		return parse(in,
-				// new LemmaByGrammemFilter("Surn", "Patr", "Orgn"),
-				YoLemmaPostProcessor.INSTANCE);
+				// TODO read extension classname from CLI options
+				new RNCDictionaryExtension());
 	}
 
 	public static MorphDictionaryImpl parse(
-			InputStream in, LemmaPostProcessor... lemmaPostProcessors)
+			InputStream in, final LemmaPostProcessor... lemmaPostProcessors)
+			throws IOException, SAXException, ParserConfigurationException {
+		return parse(in, new DictionaryExtensionBase() {
+
+			@Override
+			public List<LemmaPostProcessor> getLexemePostprocessors() {
+				return Arrays.asList(lemmaPostProcessors);
+			}
+		});
+	}
+
+	public static MorphDictionaryImpl parse(InputStream in, DictionaryExtension ext)
 			throws IOException, SAXException, ParserConfigurationException {
 		SAXParser xmlParser = SAXParserFactory.newInstance().newSAXParser();
 		XMLReader xmlReader = xmlParser.getXMLReader();
 
 		DictionaryXmlHandler dictHandler = new DictionaryXmlHandler();
-		for (LemmaPostProcessor lpp : lemmaPostProcessors) {
-			dictHandler.addLemmaPostProcessor(lpp);
+		if (ext.getLexemePostprocessors() != null) {
+			for (LemmaPostProcessor lpp : ext.getLexemePostprocessors()) {
+				dictHandler.addLemmaPostProcessor(lpp);
+			}
+		}
+		if (ext.getGramModelPostProcessors() != null) {
+			for (GramModelPostProcessor gmpp : ext.getGramModelPostProcessors()) {
+				dictHandler.addGramModelPostProcessor(gmpp);
+			}
 		}
 
 		xmlReader.setContentHandler(dictHandler);

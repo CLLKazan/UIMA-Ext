@@ -292,6 +292,9 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 		@Override
 		protected void endSelf() {
+			for (GramModelPostProcessor gmPP : gramModelProcessors) {
+				gmPP.postprocess(gmBuilder);
+			}
 			GramModel gm = gmBuilder.build();
 			dict.setGramModel(gm);
 			super.endSelf();
@@ -582,6 +585,7 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 	// config fields
 	private List<LemmaPostProcessor> lemmaPostProcessors = Lists.newLinkedList();
+	private List<GramModelPostProcessor> gramModelProcessors = Lists.newLinkedList();
 	// state fields
 	private MorphDictionaryImpl dict;
 	private Deque<String> elemStack = Lists.newLinkedList();
@@ -603,6 +607,10 @@ class DictionaryXmlHandler extends DefaultHandler {
 	 */
 	public void addLemmaPostProcessor(LemmaPostProcessor lemmaPP) {
 		lemmaPostProcessors.add(lemmaPP);
+	}
+
+	public void addGramModelPostProcessor(GramModelPostProcessor gmPP) {
+		gramModelProcessors.add(gmPP);
 	}
 
 	@Override
