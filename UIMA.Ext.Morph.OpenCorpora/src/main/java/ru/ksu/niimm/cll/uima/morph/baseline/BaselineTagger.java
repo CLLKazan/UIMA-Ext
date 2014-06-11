@@ -7,7 +7,6 @@ import static ru.ksu.niimm.cll.uima.morph.baseline.PUtils.addCasWordform;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.opencorpora.cas.Wordform;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.JCasUtil;
@@ -40,19 +39,18 @@ public class BaselineTagger extends BaselineAnnotator {
 			if (!PUtils.canCarryWord(token)) {
 				continue;
 			}
-			Wordform wf = addCasWordform(jCas, token);
 			if (numGrammeme != null && token instanceof NUM) {
-				wf.setPos(numGrammeme);
+				addCasWordform(jCas, token).setPos(numGrammeme);
 				continue;
 			}
 			String tokenStr = token.getCoveredText();
 			String tag = wfStore.getTag(tokenStr);
 			if (tag != null) {
 				tag = TagUtils.postProcessExternalTag(tag);
-				wf.setPos(tag);
+				addCasWordform(jCas, token).setPos(tag);
 			} else {
 				if (useDebugGrammems) {
-					setUnseen(jCas, wf);
+					setUnseen(jCas, addCasWordform(jCas, token));
 				}
 			}
 		}
