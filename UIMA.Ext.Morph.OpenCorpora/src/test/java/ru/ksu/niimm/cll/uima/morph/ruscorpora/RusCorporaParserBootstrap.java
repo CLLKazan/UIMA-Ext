@@ -7,7 +7,7 @@ import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescripti
 import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static org.uimafit.factory.ExternalResourceFactory.createDependency;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static ru.ksu.niimm.cll.uima.morph.ruscorpora.DictionaryAligningTagMapper.RESOURCE_KEY_MORPH_DICTIONARY;
+import static ru.ksu.niimm.cll.uima.morph.ruscorpora.DictionaryAligningTagMapper2.RESOURCE_KEY_MORPH_DICTIONARY;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,14 +83,14 @@ public class RusCorporaParserBootstrap {
 						tsDesc,
 						RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath());
 			} else {
-				File daLogFile = new File(xmiOutputDir, "dict-aligning.log");
+				File daLogFile = new File(xmiOutputDir, "dict-aligning2.log");
 				colReaderDesc = CollectionReaderFactory.createDescription(
 						RusCorporaCollectionReader.class,
 						tsDesc,
 						RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath(),
 						RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS,
-						DictionaryAligningTagMapper.class,
-						DictionaryAligningTagMapper.PARAM_OUT_FILE, daLogFile.getPath());
+						DictionaryAligningTagMapper2.class,
+						DictionaryAligningTagMapper2.PARAM_OUT_FILE, daLogFile.getPath());
 				ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
 						CachedSerializedDictionaryResource.class,
 						"file:dict.opcorpora.ser");

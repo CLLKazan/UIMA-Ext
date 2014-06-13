@@ -5,8 +5,10 @@ package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils.normalizeToDictionaryForm;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.getAllGramBits;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.allGramBitsFunction;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.ksu.niimm.cll.uima.morph.ruscorpora.RNCMorphConstants.*;
 import static ru.ksu.niimm.cll.uima.morph.util.BitUtils.contains;
 
 import java.io.BufferedWriter;
@@ -19,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -35,6 +38,7 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
@@ -47,7 +51,7 @@ import com.google.common.collect.Lists;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initializable, Closeable {
+public class DictionaryAligningTagMapper2 implements RusCorporaTagMapper, Initializable, Closeable {
 
 	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
 	public static final String PARAM_OUT_FILE = "outFile";
@@ -61,6 +65,9 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 	private MorphDictionary dict;
 	private GramModel gm;
 	private PrintWriter out;
+	//
+	private BitSet rncDistortionsMask;
+	private PosTrimmer rncTrimmer;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -75,6 +82,16 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+		//
+		rncDistortionsMask = new BitSet();
+		rncDistortionsMask.set(gm.getGrammemNumId(Dist));
+		rncDistortionsMask.set(gm.getGrammemNumId(RNC_Abbr));
+		//
+		rncTrimmer = new PosTrimmer(gm, POST, Anum, Apro, Prnt,
+				GNdr, ANim, NMbr, CAse, Supr,
+				ASpc, TRns, VOic, MOod, TEns, PErs, INvl,
+				Name, Patr, Surn, Fixd,
+				Dist, RNC_Abbr, RNC_INIT);
 	}
 
 	@Override
@@ -93,29 +110,40 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 			// skip
 			return;
 		}
+		if (wfTag.intersects(rncDistortionsMask)) {
+			wfTag.andNot(rncDistortionsMask);
+			if (!dict.containsGramSet(wfTag)) {
+				onDistortedWordWithUnknownTag(wordAnno, wfTag);
+			}
+			return;
+		}
 		//
-		if (!dict.containsGramSet(wfTag)) {
-			// if there is no such tag in dictionary then look the word in it
-			String wordStr = wordAnno.getCoveredText();
-			List<Wordform> dictWfs = dict.getEntries(normalizeToDictionaryForm(wordStr));
-			if (dictWfs == null || dictWfs.isEmpty()) {
-				onUnknownWord(wordAnno, wfTag);
-				return;
+		// if there is no such tag in dictionary then look the word in it
+		String wordStr = wordAnno.getCoveredText();
+		List<Wordform> dictWfs = dict.getEntries(normalizeToDictionaryForm(wordStr));
+		if (dictWfs == null || dictWfs.isEmpty()) {
+			if (!dict.containsGramSet(wfTag)) {
+				onUnknownWordWithUnknownTag(wordAnno, wfTag);
 			}
-			// search for a unique dictionary entry that has a tag extending the given one
-			List<Wordform> wfExtensions = Lists.newLinkedList();
-			for (Wordform dictWf : dictWfs) {
-				BitSet dictWfTag = getAllGramBits(dictWf, dict);
-				if (contains(dictWfTag, wfTag)) {
-					wfExtensions.add(dictWf);
-				}
+			return;
+		}
+		// retain only the gram categories that are represented in RNC tagset
+		Set<BitSet> dictTags = rncTrimmer.trimAndMerge(Lists.transform(dictWfs,
+				allGramBitsFunction(dict)));
+		// search for a unique dictionary entry that has a tag extending the given one
+		List<BitSet> wfExtensions = Lists.newLinkedList();
+		for (BitSet dTag : dictTags) {
+			if (contains(dTag, wfTag)) {
+				wfExtensions.add(dTag);
 			}
-			if (wfExtensions.isEmpty()) {
-				onConflictingTag(wordAnno, wfTag);
-			} else if (wfExtensions.size() > 1) {
-				onAmbiguousWordform(wordAnno, wfTag);
-			} else {
-				BitSet newTag = getAllGramBits(wfExtensions.get(0), dict);
+		}
+		if (wfExtensions.isEmpty()) {
+			onConflictingTag(wordAnno, wfTag);
+		} else if (wfExtensions.size() > 1) {
+			onAmbiguousWordform(wordAnno, wfTag);
+		} else {
+			BitSet newTag = wfExtensions.get(0);
+			if (newTag.cardinality() > wfTag.cardinality()) {
 				List<String> newTagStr = gm.toGramSet(newTag);
 				targetWf.setGrammems(FSUtils.toStringArray(getCAS(targetWf), newTagStr));
 				onTagExtended(wordAnno, wfTag, newTag);
@@ -148,12 +176,13 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 				wordAnno.getCoveredText(), toGramString(wfTag), getPrettyLocation(wordAnno)));
 	}
 
-	/**
-	 * Invoked when there is a word unknown to the dictionary and it was
-	 * assigned unknown tag.
-	 */
-	private void onUnknownWord(Word wordAnno, BitSet wfTag) {
+	private void onUnknownWordWithUnknownTag(Word wordAnno, BitSet wfTag) {
 		out.println(String.format("[U]\t%s\t%s\t%s",
+				wordAnno.getCoveredText(), toGramString(wfTag), getPrettyLocation(wordAnno)));
+	}
+
+	private void onDistortedWordWithUnknownTag(Word wordAnno, BitSet wfTag) {
+		out.println(String.format("[D]\t%s\t%s\t%s",
 				wordAnno.getCoveredText(), toGramString(wfTag), getPrettyLocation(wordAnno)));
 	}
 

@@ -300,8 +300,8 @@ public class RusCorpora2OpenCorporaTagMapper implements RusCorporaTagMapper {
 			.put("distort", gramTag(Dist))
 			.put("anom", noOp)
 			.put("ciph", noOp)
-			.put("INIT", noOp)
-			.put("abbr", gramTag(Abbr))
+			.put("INIT", gramTag(RNCMorphConstants.RNC_INIT))
+			.put("abbr", gramTag(RNCMorphConstants.RNC_Abbr))
 			.put("obsc", noOp)
 			//
 			.build();
