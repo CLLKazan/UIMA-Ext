@@ -22,6 +22,7 @@ import com.google.common.collect.Multimap;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma.Builder;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DictionaryExtensionBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelPostProcessor;
@@ -46,7 +47,8 @@ public class RNCDictionaryExtension extends DictionaryExtensionBase {
 		return Arrays.<LemmaPostProcessor> asList(
 				YoLemmaPostProcessor.INSTANCE,
 				predProcessor,
-				proADJFAsNPRO
+				proADJFAsNPRO,
+				advbAsPred
 				// XXX
 				);
 	}
@@ -97,6 +99,24 @@ public class RNCDictionaryExtension extends DictionaryExtensionBase {
 				newLemma.getGrammems().clear(adjfId);
 				newLemma.getGrammems().clear(aproId);
 				newLemma.getGrammems().set(nproId);
+				add(newLemma, copyWordforms(wfMap));
+			}
+			return true;
+		}
+	};
+
+	private final LemmaPostProcessor advbAsPred = new GeneratingLexemePostProcessorBase() {
+
+		@Override
+		public boolean process(MorphDictionary dict, Builder lemmaBuilder,
+				Multimap<String, Wordform> wfMap) {
+			GramModel gm = dict.getGramModel();
+			int prdxId = gm.getGrammemNumId("Prdx");
+			if (lemmaBuilder.getGrammems().get(prdxId)) {
+				int predId = gm.getGrammemNumId(PRED);
+				Lemma.Builder newLemma = lemmaBuilder.copy(-1);
+				newLemma.getGrammems().clear();
+				newLemma.getGrammems().set(predId);
 				add(newLemma, copyWordforms(wfMap));
 			}
 			return true;
