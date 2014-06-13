@@ -48,7 +48,8 @@ public class RNCDictionaryExtension extends DictionaryExtensionBase {
 				YoLemmaPostProcessor.INSTANCE,
 				predProcessor,
 				proADJFAsNPRO,
-				advbAsPred
+				advbAsPred,
+				subcaseProcessor
 				// XXX
 				);
 	}
@@ -119,6 +120,55 @@ public class RNCDictionaryExtension extends DictionaryExtensionBase {
 				newLemma.getGrammems().set(predId);
 				add(newLemma, copyWordforms(wfMap));
 			}
+			return true;
+		}
+	};
+
+	private final LemmaPostProcessor subcaseProcessor = new LexemePostProcessorBase() {
+		@Override
+		public boolean process(MorphDictionary dict, Builder lemmaBuilder,
+				Multimap<String, Wordform> wfMap) {
+			GramModel gm = dict.getGramModel();
+			Multimap<String, Wordform> newWfs = HashMultimap.create();
+			int gen1Id = gm.getGrammemNumId(gen1);
+			int gen2Id = gm.getGrammemNumId(gen2);
+			int gentId = gm.getGrammemNumId(gent);
+			int acc2Id = gm.getGrammemNumId(acc2);
+			int accsId = gm.getGrammemNumId(accs);
+			int loc1Id = gm.getGrammemNumId(loc1);
+			int loc2Id = gm.getGrammemNumId(loc2);
+			int loctId = gm.getGrammemNumId(loct);
+			for (Map.Entry<String, Wordform> wfEntry : wfMap.entries()) {
+				Wordform wf = wfEntry.getValue();
+				BitSet srcGrams = wf.getGrammems();
+				if (srcGrams.get(gen1Id) || srcGrams.get(gen2Id)) {
+					BitSet newGrams = (BitSet) srcGrams.clone();
+					newGrams.clear(gen1Id);
+					newGrams.clear(gen2Id);
+					newGrams.set(gentId);
+					newWfs.put(wfEntry.getKey(), wf.cloneWithGrammems(newGrams));
+				}
+				if (srcGrams.get(acc2Id)) {
+					BitSet newGrams = (BitSet) srcGrams.clone();
+					newGrams.clear(acc2Id);
+					newGrams.set(accsId);
+					newWfs.put(wfEntry.getKey(), wf.cloneWithGrammems(newGrams));
+				}
+				if (srcGrams.get(loc1Id) || srcGrams.get(loc2Id)) {
+					BitSet newGrams = (BitSet) srcGrams.clone();
+					newGrams.clear(loc1Id);
+					newGrams.clear(loc2Id);
+					newGrams.set(loctId);
+					newWfs.put(wfEntry.getKey(), wf.cloneWithGrammems(newGrams));
+				}
+			}
+			// log
+			for (Map.Entry<String, Wordform> newWfEntry : newWfs.entries()) {
+				logModification("Wordform is added: %s %s",
+						newWfEntry.getKey(), gm.toGramSet(newWfEntry.getValue().getGrammems()));
+			}
+			// add
+			wfMap.putAll(newWfs);
 			return true;
 		}
 	};
