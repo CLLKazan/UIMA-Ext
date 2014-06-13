@@ -4,6 +4,7 @@
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import static ru.ksu.niimm.cll.uima.morph.ruscorpora.RNCMorphConstants.*;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils.normalizeToDictionaryForm;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import java.util.Arrays;
@@ -49,8 +50,9 @@ public class RNCDictionaryExtension extends DictionaryExtensionBase {
 				predProcessor,
 				proADJFAsNPRO,
 				advbAsPred,
-				subcaseProcessor
-				// XXX
+				subcaseProcessor,
+				frequentErrorProcessor,
+				odinProcessor
 				);
 	}
 
@@ -169,6 +171,50 @@ public class RNCDictionaryExtension extends DictionaryExtensionBase {
 			}
 			// add
 			wfMap.putAll(newWfs);
+			return true;
+		}
+	};
+
+	// private final LemmaPostProcessor comgendProcessor = new LexemePostProcessorBase()
+
+	private final LemmaPostProcessor frequentErrorProcessor = new LexemePostProcessorBase() {
+		@Override
+		public void dictionaryParsed(MorphDictionary dict) {
+			GramModel gm = dict.getGramModel();
+			int maxLemmaId = dict.getLemmaMaxId();
+			addSimpleLemma(dict,
+					Lemma.builder(gm, ++maxLemmaId).setString("НЕТ").addGrammeme(PRED).build());
+			addSimpleLemma(dict,
+					Lemma.builder(gm, ++maxLemmaId).setString("СПАСИБО").addGrammeme(PRED).build());
+		}
+
+		private void addSimpleLemma(MorphDictionary _dict, Lemma lemma) {
+			MorphDictionaryImpl dict = (MorphDictionaryImpl) _dict;
+			dict.addLemma(lemma);
+			dict.addWordform(normalizeToDictionaryForm(lemma.getString()),
+					new Wordform(lemma.getId(), new BitSet()));
+		}
+	};
+
+	private final LemmaPostProcessor odinProcessor = new GeneratingLexemePostProcessorBase() {
+		private final String ODIN_LEMMA = normalizeToDictionaryForm("ОДИН");
+
+		@Override
+		public boolean process(MorphDictionary dict, Builder lemmaBuilder,
+				Multimap<String, Wordform> wfMap) {
+			if (ODIN_LEMMA.equals(lemmaBuilder.getString())) {
+				GramModel gm = dict.getGramModel();
+				int adjfId = gm.getGrammemNumId(ADJF);
+				int aproId = gm.getGrammemNumId(Apro);
+				int anumId = gm.getGrammemNumId(Anum);
+				if (lemmaBuilder.getGrammems().get(adjfId)
+						&& lemmaBuilder.getGrammems().get(aproId)) {
+					Lemma.Builder newLemma = lemmaBuilder.copy(-1);
+					newLemma.getGrammems().clear(aproId);
+					newLemma.getGrammems().set(anumId);
+					add(newLemma, copyWordforms(wfMap));
+				}
+			}
 			return true;
 		}
 	};
