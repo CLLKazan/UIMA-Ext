@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
+import org.apache.commons.lang3.event.EventListenerSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,9 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	// state mark
 	private transient boolean complete = false;
 
+	private transient EventListenerSupport<MorphDictionaryListener> listeners = EventListenerSupport
+			.create(MorphDictionaryListener.class);
+
 	@Override
 	public GramModel getGramModel() {
 		return gramModel;
@@ -67,6 +71,16 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 			throw new UnsupportedOperationException("Can't change a grammatical model");
 		}
 		this.gramModel = gramModel;
+		// fire event
+		listeners.fire().onGramModelSet(this);
+	}
+
+	public void addListener(MorphDictionaryListener listener) {
+		listeners.addListener(listener);
+	}
+
+	public void removeListener(MorphDictionaryListener listener) {
+		listeners.removeListener(listener);
 	}
 
 	@Override
@@ -213,6 +227,8 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		BitSet tag = wf.getGrammems();
 		tag.or(getLemma(wf.getLemmaId()).getGrammems());
 		tagset.add(tag);
+		// fire event
+		listeners.fire().onWordformAdded(this, text, wf);
 	}
 
 	@Override

@@ -65,10 +65,17 @@ public class XmlDictionaryParser {
 
 	public static MorphDictionaryImpl parse(InputStream in, DictionaryExtension ext)
 			throws IOException, SAXException, ParserConfigurationException {
+		MorphDictionaryImpl dict = new MorphDictionaryImpl();
+		parse(dict, in, ext);
+		return dict;
+	}
+
+	public static void parse(MorphDictionaryImpl dict, InputStream in, DictionaryExtension ext)
+			throws IOException, SAXException, ParserConfigurationException {
 		SAXParser xmlParser = SAXParserFactory.newInstance().newSAXParser();
 		XMLReader xmlReader = xmlParser.getXMLReader();
 
-		DictionaryXmlHandler dictHandler = new DictionaryXmlHandler();
+		DictionaryXmlHandler dictHandler = new DictionaryXmlHandler(dict);
 		if (ext.getLexemePostprocessors() != null) {
 			for (LemmaPostProcessor lpp : ext.getLexemePostprocessors()) {
 				dictHandler.addLemmaPostProcessor(lpp);
@@ -86,7 +93,6 @@ public class XmlDictionaryParser {
 		long timeBefore = currentTimeMillis();
 		xmlReader.parse(xmlSource);
 		log.info("Parsing finished in {} ms", currentTimeMillis() - timeBefore);
-		return dictHandler.getDictionary();
 	}
 
 	public static void main(String[] args) throws Exception {
