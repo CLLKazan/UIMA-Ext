@@ -596,7 +596,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 	private ElementHandler rootHandler;
 	private Locator docLocator;
 
-	DictionaryXmlHandler() {
+	DictionaryXmlHandler(MorphDictionaryImpl dict) {
+		this.dict = dict;
 	}
 
 	/**
@@ -627,8 +628,6 @@ class DictionaryXmlHandler extends DefaultHandler {
 		acceptedLemmaCounter = 0;
 		rejectedLemmaCounter = 0;
 		finished = false;
-
-		dict = new MorphDictionaryImpl();
 
 		rootHandler = new RootHandler(new DictionaryElemHandler());
 		handlerStack.addFirst(rootHandler);
