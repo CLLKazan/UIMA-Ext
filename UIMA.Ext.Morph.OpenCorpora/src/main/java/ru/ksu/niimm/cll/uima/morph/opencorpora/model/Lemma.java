@@ -34,6 +34,7 @@ public class Lemma implements Serializable {
 
 		public Builder(GramModel gm, int id) {
 			instance.id = id;
+			instance.grammems = new BitSet(gm.getGrammemMaxNumId() + 1);
 			this.gm = gm;
 		}
 
@@ -46,10 +47,11 @@ public class Lemma implements Serializable {
 			return this;
 		}
 
+		public BitSet getGrammems() {
+			return instance.grammems;
+		}
+
 		public Builder addGrammeme(String gramId) {
-			if (instance.grammems == null) {
-				instance.grammems = new BitSet(gm.getGrammemMaxNumId() + 1);
-			}
 			int gramNumId = gm.getGrammemNumId(gramId);
 			instance.grammems.set(gramNumId);
 			return this;

@@ -114,7 +114,7 @@ public class DictionaryToTTLexicon {
 
 	private class WriteTTLexEntryLemmaPostProcessor implements LemmaPostProcessor {
 		@Override
-		public boolean process(MorphDictionary dict, Lemma lemmaObj,
+		public boolean process(MorphDictionary dict, Lemma.Builder lemmaObj,
 				Multimap<String, Wordform> wfMap) {
 			for (String wfStr : wfMap.keySet()) {
 				// collect uniq tags
@@ -143,7 +143,8 @@ public class DictionaryToTTLexicon {
 	// TODO:LOW this looks like a hack but should work well for experimental purposes
 	private class InjectDictionary implements LemmaPostProcessor {
 		@Override
-		public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
+		public boolean process(MorphDictionary dict, Lemma.Builder lemma,
+				Multimap<String, Wordform> wfMap) {
 			// initialize posTrimmer at the first time
 			// then always return true and do nothing
 			GramModel gm = dict.getGramModel();

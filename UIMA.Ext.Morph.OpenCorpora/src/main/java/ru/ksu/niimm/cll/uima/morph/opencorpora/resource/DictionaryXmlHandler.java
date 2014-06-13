@@ -401,8 +401,8 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 		@Override
 		protected void endSelf() {
-			Lemma lemma = builder.build();
-			if (postProcessLemma(lemma, wordforms)) {
+			if (postProcessLemma(builder, wordforms)) {
+				Lemma lemma = builder.build();
 				dict.addLemma(lemma);
 				for (String wfStr : wordforms.keySet()) {
 					for (Wordform wf : wordforms.get(wfStr)) {
@@ -722,9 +722,9 @@ class DictionaryXmlHandler extends DefaultHandler {
 	 *            mutable map of wordform_string => set_of_wordform_objects
 	 * @return true if given lemma must be accepted, false - otherwise.
 	 */
-	private boolean postProcessLemma(Lemma lemma, Multimap<String, Wordform> wfMap) {
+	private boolean postProcessLemma(Lemma.Builder lemmaBuilder, Multimap<String, Wordform> wfMap) {
 		for (LemmaPostProcessor filter : lemmaPostProcessors) {
-			if (!filter.process(dict, lemma, wfMap)) {
+			if (!filter.process(dict, lemmaBuilder, wfMap)) {
 				return false;
 			}
 		}

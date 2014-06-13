@@ -30,7 +30,8 @@ public class YoLemmaPostProcessor implements LemmaPostProcessor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
+	public boolean process(MorphDictionary dict, Lemma.Builder lemmaBuilder,
+			Multimap<String, Wordform> wfMap) {
 		Multimap<String, Wordform> additionalWfs = LinkedHashMultimap.create();
 		for (String wfStr : wfMap.keySet()) {
 			// alternative wordform string

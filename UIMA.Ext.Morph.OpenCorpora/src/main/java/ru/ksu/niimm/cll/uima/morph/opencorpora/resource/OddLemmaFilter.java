@@ -17,8 +17,9 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 public class OddLemmaFilter implements LemmaPostProcessor {
 
 	@Override
-	public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
-		return lemma.getId() % 10 == 0;
+	public boolean process(MorphDictionary dict, Lemma.Builder lemma,
+			Multimap<String, Wordform> wfMap) {
+		return lemma.getLemmaId() % 10 == 0;
 	}
 
 }
