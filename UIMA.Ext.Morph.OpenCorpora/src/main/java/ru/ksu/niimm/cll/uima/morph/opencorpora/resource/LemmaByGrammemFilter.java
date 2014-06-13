@@ -17,7 +17,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class LemmaByGrammemFilter implements LemmaPostProcessor {
+public class LemmaByGrammemFilter extends LexemePostProcessorBase {
 
 	private Set<String> grammemsToReject;
 

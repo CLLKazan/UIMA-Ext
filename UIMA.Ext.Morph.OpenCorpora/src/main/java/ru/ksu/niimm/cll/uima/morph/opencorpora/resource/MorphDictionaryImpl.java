@@ -112,6 +112,20 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		}
 	}
 
+	@Override
+	public int getLemmaMaxId() {
+		int max = Integer.MIN_VALUE;
+		for (Integer curId : lemmaMap.keySet()) {
+			if (curId == null) {
+				continue;
+			}
+			if (curId > max) {
+				max = curId;
+			}
+		}
+		return max;
+	}
+
 	public void addLemmaLinkType(LemmaLinkType linkType) {
 		if (lemmaLinkTypeMap.put(linkType.getId(), linkType) != null) {
 			throw new IllegalStateException(String.format(

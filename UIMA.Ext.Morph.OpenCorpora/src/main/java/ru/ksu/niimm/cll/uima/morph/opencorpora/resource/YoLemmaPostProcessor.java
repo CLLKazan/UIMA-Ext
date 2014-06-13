@@ -16,7 +16,7 @@ import com.google.common.collect.Multimap;
  * @author Rinat Gareev
  * 
  */
-public class YoLemmaPostProcessor implements LemmaPostProcessor {
+public class YoLemmaPostProcessor extends LexemePostProcessorBase {
 
 	private static final String YO_CHARS = "ёЁ";
 	private static final String YO_REPLACEMENTS = "еЕ";

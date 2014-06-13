@@ -16,4 +16,6 @@ public interface LemmaPostProcessor {
 
 	boolean process(MorphDictionary dict, Lemma.Builder lemmaBuilder,
 			Multimap<String, Wordform> wfMap);
+	
+	void dictionaryParsed(MorphDictionary dict);
 }

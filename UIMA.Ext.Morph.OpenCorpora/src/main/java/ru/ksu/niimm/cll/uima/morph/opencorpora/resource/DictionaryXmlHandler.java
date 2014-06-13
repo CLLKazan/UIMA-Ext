@@ -696,6 +696,10 @@ class DictionaryXmlHandler extends DefaultHandler {
 
 	@Override
 	public void endDocument() throws SAXException {
+		log.info("The dictionary xml parsing is finished. Firing 'dictionaryParsed' event...");
+		for (LemmaPostProcessor lpp : lemmaPostProcessors) {
+			lpp.dictionaryParsed(dict);
+		}
 		// sanity check
 		if (!elemStack.isEmpty()) {
 			throw new IllegalStateException(

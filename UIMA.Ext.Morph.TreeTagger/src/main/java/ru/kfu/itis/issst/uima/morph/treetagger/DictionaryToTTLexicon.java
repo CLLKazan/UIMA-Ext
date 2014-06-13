@@ -23,7 +23,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LemmaPostProcessor;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LexemePostProcessorBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.XmlDictionaryParser;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.YoLemmaPostProcessor;
@@ -112,7 +112,7 @@ public class DictionaryToTTLexicon {
 		writeLines(new File(outputDir, CLOSED_CLASS_TAGS_FILENAME), "utf-8", closedClassTags);
 	}
 
-	private class WriteTTLexEntryLemmaPostProcessor implements LemmaPostProcessor {
+	private class WriteTTLexEntryLemmaPostProcessor extends LexemePostProcessorBase {
 		@Override
 		public boolean process(MorphDictionary dict, Lemma.Builder lemmaObj,
 				Multimap<String, Wordform> wfMap) {
@@ -141,7 +141,7 @@ public class DictionaryToTTLexicon {
 	}
 
 	// TODO:LOW this looks like a hack but should work well for experimental purposes
-	private class InjectDictionary implements LemmaPostProcessor {
+	private class InjectDictionary extends LexemePostProcessorBase {
 		@Override
 		public boolean process(MorphDictionary dict, Lemma.Builder lemma,
 				Multimap<String, Wordform> wfMap) {

@@ -38,8 +38,20 @@ public class Lemma implements Serializable {
 			this.gm = gm;
 		}
 
+		public Builder copy(int newId) {
+			Builder result = new Builder(gm, newId);
+			result.instance.grammems = (BitSet) instance.grammems.clone();
+			result.instance.string = instance.string;
+			return result;
+		}
+
 		public int getLemmaId() {
 			return instance.id;
+		}
+
+		public Builder setLemmaId(int id) {
+			instance.id = id;
+			return this;
 		}
 
 		public String getString() {
