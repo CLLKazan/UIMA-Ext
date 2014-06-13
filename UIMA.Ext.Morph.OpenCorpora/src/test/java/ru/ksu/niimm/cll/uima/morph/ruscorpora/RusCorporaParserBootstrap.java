@@ -10,26 +10,17 @@ import static org.uimafit.factory.ExternalResourceFactory.createExternalResource
 import static ru.ksu.niimm.cll.uima.morph.ruscorpora.DictionaryAligningTagMapper2.RESOURCE_KEY_MORPH_DICTIONARY;
 
 import java.io.File;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Type;
-import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
-import org.apache.uima.collection.EntityProcessStatus;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.opencorpora.cas.Word;
-import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.CollectionReaderFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.uimafit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
-import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
-import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
-import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer;
@@ -119,36 +110,8 @@ public class RusCorporaParserBootstrap {
 				AnnotationRemover.class,
 				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 				new String[] { "ru.ksu.niimm.cll.uima.morph.util" });
-		// make AGGREGATE
-		AnalysisEngineDescription aggregateDesc = AnalysisEngineFactory.createAggregateDescription(
+		//
+		SimplePipeline.runPipeline(colReaderDesc,
 				ntsAnnotatorDesc, tokenizerDesc, scaffoldRemover, xmiWriterDesc);
-		//
-		CpeBuilder cpeBuilder = new CpeBuilder();
-		cpeBuilder.setReader(colReaderDesc);
-		cpeBuilder.addAnalysisEngine(aggregateDesc);
-		cpeBuilder.setMaxProcessingUnitThreatCount(3);
-		final CollectionProcessingEngine cpe = cpeBuilder.createCpe();
-		//
-		cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(
-				cpe, 50));
-		cpe.addStatusCallbackListener(new WordCountingListener());
-		cpe.process();
-	}
-
-	private static class WordCountingListener extends StatusCallbackListenerAdapter {
-
-		private AtomicInteger wordCounter = new AtomicInteger(0);
-
-		@Override
-		public void collectionProcessComplete() {
-			System.out.println(String.format("%s words have been parsed", wordCounter));
-		}
-
-		@Override
-		public void entityProcessComplete(CAS cas, EntityProcessStatus aStatus) {
-			Type wordType = cas.getTypeSystem().getType(Word.class.getName());
-			wordCounter.addAndGet(cas.getAnnotationIndex(wordType).size());
-		}
-
 	}
 }
