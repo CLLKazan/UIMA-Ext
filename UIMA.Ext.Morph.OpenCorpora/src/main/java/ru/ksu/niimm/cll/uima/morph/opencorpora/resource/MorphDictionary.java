@@ -39,6 +39,8 @@ public interface MorphDictionary {
 
 	void addLemma(Lemma lemma);
 
+	int getLemmaMaxId();
+
 	String getPos(Lemma lemma);
 
 	Map<Integer, LemmaLinkType> getLemmaOutlinks(int lemmaId);
