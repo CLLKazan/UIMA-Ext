@@ -27,6 +27,7 @@ import org.uimafit.factory.ConfigurationParameterFactory;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
+import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
@@ -249,6 +250,8 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			final int posTaggerBegin = primitiveDescs.size();
 			TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
 					modelBaseDir, morphDictDesc, primitiveDescs, primitiveNames);
+			primitiveDescs.add(TagAssembler.createDescription(this.morphDictDesc));
+			primitiveNames.add("tag-assembler");
 			// We should specify additional paths to resolve relative paths of model jars.  
 			// There are several ways to do this. E.g., we can change global UIMA data-path.
 			// But the better solution is to provide the parameter for JarClassifierFactory.
