@@ -97,11 +97,10 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 	@Override
 	public List<Feature> extract(JCas view, Annotation focusAnnotation)
 			throws CleartkExtractorException {
-		if (!(focusAnnotation instanceof Word)) {
-			throw new IllegalArgumentException(
-					String.format("focusAnnotation must be of Word type"));
+		Word focusWord = PUtils.getWordAnno(view, focusAnnotation);
+		if (focusWord == null || focusWord.getWordforms() == null) {
+			return ImmutableList.of();
 		}
-		Word focusWord = (Word) focusAnnotation;
 		String form = focusWord.getCoveredText();
 		if (!WordUtils.isRussianWord(form)) {
 			return ImmutableList.of(new Feature(FEATURE_NAME, "NotRussian"));

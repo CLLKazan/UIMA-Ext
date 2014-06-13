@@ -3,19 +3,16 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.contextTokenExtractors;
+import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.currentTokenExtractors;
+
 import java.util.List;
 import java.util.Properties;
 
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor.Context;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
+import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.function.CapitalTypeFeatureFunction;
-import org.cleartk.classifier.feature.function.CharacterNGramFeatureFunction;
-import org.cleartk.classifier.feature.function.CharacterNGramFeatureFunction.Orientation;
-import org.cleartk.classifier.feature.function.FeatureFunctionExtractor;
-import org.cleartk.classifier.feature.function.LowerCaseFeatureFunction;
-import org.cleartk.classifier.feature.function.NumericTypeFeatureFunction;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
@@ -62,23 +59,9 @@ public class DefaultFeatureExtractors extends FeatureExtractorsBasedContextGener
 	public static List<SimpleFeatureExtractor> defaultExtractors(int leftContextSize,
 			int rightContextSize) {
 		List<SimpleFeatureExtractor> feList = Lists.newLinkedList();
-		feList.add(new FeatureFunctionExtractor(
-				new CoveredTextExtractor(),
-				new LowerCaseFeatureFunction(),
-				new CapitalTypeFeatureFunction(),
-				new NumericTypeFeatureFunction(),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 3, 4, true),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 2, 3, true),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 1, 2, true)));
+		feList.addAll(currentTokenExtractors());
 
-		FeatureFunctionExtractor ctxTokenFeatureExtractor = new FeatureFunctionExtractor(
-				new CoveredTextExtractor(),
-				new LowerCaseFeatureFunction(),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 3, 4, true),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 2, 3, true),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 1, 2, true));
-
-		// TODO introduce difference between Null and NotApplicable values
+		List<SimpleFeatureExtractor> ctxTokenFeatureExtractors = contextTokenExtractors();
 
 		if (leftContextSize < 0 || rightContextSize < 0) {
 			throw new IllegalStateException("context size < 0");
@@ -93,7 +76,9 @@ public class DefaultFeatureExtractors extends FeatureExtractorsBasedContextGener
 		if (rightContextSize > 0) {
 			contexts.add(new CleartkExtractor.Following(rightContextSize));
 		}
-		feList.add(new CleartkExtractor(Token.class, ctxTokenFeatureExtractor,
+		feList.add(new CleartkExtractor(Token.class,
+				new CombinedExtractor(ctxTokenFeatureExtractors
+						.toArray(new SimpleFeatureExtractor[0])),
 				contexts.toArray(new Context[contexts.size()])));
 		return feList;
 	}

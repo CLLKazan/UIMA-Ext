@@ -4,6 +4,8 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.contextTokenExtractors;
+import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.currentTokenExtractors;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.ArrayList;
@@ -24,14 +26,7 @@ import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor.Context;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.CoveredTextExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.cleartk.classifier.feature.function.CapitalTypeFeatureFunction;
-import org.cleartk.classifier.feature.function.CharacterNGramFeatureFunction;
-import org.cleartk.classifier.feature.function.CharacterNGramFeatureFunction.Orientation;
-import org.cleartk.classifier.feature.function.FeatureFunctionExtractor;
-import org.cleartk.classifier.feature.function.LowerCaseFeatureFunction;
-import org.cleartk.classifier.feature.function.NumericTypeFeatureFunction;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.descriptor.ConfigurationParameter;
@@ -39,6 +34,7 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.cleartk.Disposable;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
@@ -116,17 +112,11 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		// check grammems
 		checkDictGrammems();
 
-		tokenFeatureExtractor = new FeatureFunctionExtractor(new CoveredTextExtractor(),
-				new LowerCaseFeatureFunction(),
-				new CapitalTypeFeatureFunction(),
-				new NumericTypeFeatureFunction(),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 3),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 2),
-				new CharacterNGramFeatureFunction(Orientation.RIGHT_TO_LEFT, 0, 1));
+		tokenFeatureExtractor = new CombinedExtractor(currentTokenExtractors().toArray(
+				new SimpleFeatureExtractor[0]));
 
 		List<SimpleFeatureExtractor> gramExtractors = Lists.newArrayList();
-		List<SimpleFeatureExtractor> contextFeatureExtractors = Lists.newArrayList();
-		contextFeatureExtractors.add(new SuffixFeatureExtractor(3));
+		List<SimpleFeatureExtractor> contextFeatureExtractors = contextTokenExtractors();
 		for (String posCat : prevTierPosCategories) {
 			GrammemeExtractor gramExtractor = new GrammemeExtractor(gramModel, posCat);
 			gramExtractors.add(gramExtractor);
@@ -152,7 +142,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		if (rightContextSize > 0) {
 			contexts.add(new CleartkExtractor.Following(rightContextSize));
 		}
-		contextFeatureExtractor = new CleartkExtractor(Word.class,
+		contextFeatureExtractor = new CleartkExtractor(Token.class,
 				new CombinedExtractor(contextFeatureExtractors.toArray(FE_ARRAY)),
 				contexts.toArray(new Context[contexts.size()]));
 	}
@@ -176,7 +166,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 			}
 		}
 		if (generatePunctuationFeatures) {
-			adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+			// adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+			throw new UnsupportedOperationException("generatePunctuationFeatures == true");
 		}
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			process(jCas, sent);
@@ -203,7 +194,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private void trainingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
 		List<List<Feature>> sentSeq = Lists.newArrayList();
 		List<String> sentLabels = Lists.newArrayList();
-		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
+		for (Token token : JCasUtil.selectCovered(jCas, Token.class, sent)) {
 			// TRAINING
 			Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
 			String outputLabel = extractOutputLabel(tokWf);

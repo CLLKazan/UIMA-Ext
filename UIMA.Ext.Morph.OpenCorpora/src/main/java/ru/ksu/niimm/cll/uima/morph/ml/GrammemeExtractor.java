@@ -17,9 +17,7 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.util.FSCollectionFactory;
-import org.uimafit.util.JCasUtil;
 
-import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 
@@ -51,17 +49,7 @@ public class GrammemeExtractor implements SimpleFeatureExtractor {
 	@Override
 	public List<Feature> extract(JCas view, Annotation focusAnnotation)
 			throws CleartkExtractorException {
-		Word wordAnno = null;
-		if (focusAnnotation instanceof Word) {
-			wordAnno = (Word) focusAnnotation;
-		} else if (focusAnnotation instanceof Token) {
-			List<Word> wordsCovered = JCasUtil.selectCovered(Word.class, focusAnnotation);
-			if (!wordsCovered.isEmpty()) {
-				wordAnno = wordsCovered.get(0);
-			}
-		} else {
-			throw CleartkExtractorException.wrongAnnotationType(Word.class, focusAnnotation);
-		}
+		Word wordAnno = PUtils.getWordAnno(view, focusAnnotation);
 		if (wordAnno == null || wordAnno.getWordforms() == null) {
 			return ImmutableList.of();
 		}
