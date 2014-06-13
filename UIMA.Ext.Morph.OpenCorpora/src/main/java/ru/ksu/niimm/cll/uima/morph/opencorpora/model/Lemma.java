@@ -42,6 +42,10 @@ public class Lemma implements Serializable {
 			return instance.id;
 		}
 
+		public String getString() {
+			return instance.string;
+		}
+
 		public Builder setString(String string) {
 			instance.string = string;
 			return this;
