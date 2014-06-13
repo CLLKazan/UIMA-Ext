@@ -107,7 +107,6 @@ public class DictionaryAligningTagMapper2 implements RusCorporaTagMapper, Initia
 		final BitSet wfTag = toGramBits(gm, FSUtils.toList(targetWf.getGrammems()));
 		// skip INIT as a whole new category
 		if (wfTag.get(gm.getGrammemNumId(RNCMorphConstants.RNC_INIT))) {
-			// skip
 			return;
 		}
 		if (wfTag.intersects(rncDistortionsMask)) {
@@ -122,7 +121,8 @@ public class DictionaryAligningTagMapper2 implements RusCorporaTagMapper, Initia
 		String wordStr = wordAnno.getCoveredText();
 		List<Wordform> dictWfs = dict.getEntries(normalizeToDictionaryForm(wordStr));
 		if (dictWfs == null || dictWfs.isEmpty()) {
-			if (!dict.containsGramSet(wfTag)) {
+			// wfTag.isEmpty => NON-LEX
+			if (!wfTag.isEmpty() && !dict.containsGramSet(wfTag)) {
 				onUnknownWordWithUnknownTag(wordAnno, wfTag);
 			}
 			return;
