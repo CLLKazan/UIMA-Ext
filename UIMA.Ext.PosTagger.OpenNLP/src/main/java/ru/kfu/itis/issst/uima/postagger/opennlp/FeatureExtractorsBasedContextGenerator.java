@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,9 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.cleartk.DefaultFeatureToStringEncoderChain;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer.GetDictionaryResult;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -28,13 +32,32 @@ import com.google.common.collect.Sets;
 public class FeatureExtractorsBasedContextGenerator implements BeamSearchContextGenerator<Token> {
 
 	private final int prevTagsInHistory;
+	protected final File morphDictFile;
 	private List<SimpleFeatureExtractor> featureExtractors;
 	private FeatureEncoderChain<String> featureEncoders = new DefaultFeatureToStringEncoderChain();
+	//
+	private GetDictionaryResult morphDictKey;
+	private MorphDictionary morphDictionary;
+	private DictionaryBasedContextGenerator dictContextGen;
 
 	public FeatureExtractorsBasedContextGenerator(int prevTagsInHistory,
-			List<SimpleFeatureExtractor> featureExtractors) {
+			List<SimpleFeatureExtractor> featureExtractors,
+			File morphDictFile,
+			Iterable<String> targetGramCategories) {
 		this.prevTagsInHistory = prevTagsInHistory;
+		this.morphDictFile = morphDictFile;
 		this.featureExtractors = ImmutableList.copyOf(featureExtractors);
+		if (morphDictFile != null) {
+			try {
+				morphDictKey = CachedDictionaryDeserializer.getInstance().getDictionary(
+						morphDictFile);
+			} catch (Exception e) {
+				throw new IllegalStateException(e);
+			}
+			morphDictionary = morphDictKey.dictionary;
+			dictContextGen = new DictionaryBasedContextGenerator(targetGramCategories,
+					morphDictionary);
+		}
 	}
 
 	public int getPrevTagsInHistory() {
@@ -67,6 +90,10 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 			}
 		}
 		ContextGeneratorUtils.addPreviousTags(index, priorDecisions, prevTagsInHistory, contexts);
+		if (dictContextGen != null) {
+			String prevTag = ContextGeneratorUtils.getPreviousTag(index, priorDecisions);
+			contexts.addAll(dictContextGen.extract(curToken, prevTag));
+		}
 		return contexts.toArray(new String[contexts.size()]);
 	}
 }
