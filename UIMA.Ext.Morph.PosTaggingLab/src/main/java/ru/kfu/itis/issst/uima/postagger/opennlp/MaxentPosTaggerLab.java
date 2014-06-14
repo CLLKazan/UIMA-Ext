@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
@@ -84,6 +85,8 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 			}
 
 			@Discriminator
+			Set<String> posCategories;
+			@Discriminator
 			int fold;
 			@Discriminator
 			File corpusSplitInfoDir;
@@ -133,7 +136,9 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 				// configure tagger factory
 				trainer.setTaggerFactory(new POSTaggerFactory(
 						new DefaultFeatureExtractors(
-								previousTagsInHistory, leftContextSize, rightContextSize),
+								// XXX
+								previousTagsInHistory, leftContextSize, rightContextSize,
+								null, posCategories),
 						// no need for a dictionary in training
 						null));
 				// run
