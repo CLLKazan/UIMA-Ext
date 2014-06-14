@@ -6,6 +6,7 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.currentTokenExtractors;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,6 +18,7 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 /**
@@ -29,7 +31,13 @@ public class DefaultFeatureExtractors extends FeatureExtractorsBasedContextGener
 		int prevTagsInHistory = ConfigPropertiesUtils.getIntProperty(props, "prevTags");
 		int leftContextSize = ConfigPropertiesUtils.getIntProperty(props, "leftContext");
 		int rightContextSize = ConfigPropertiesUtils.getIntProperty(props, "rightContext");
-		return new DefaultFeatureExtractors(prevTagsInHistory, leftContextSize, rightContextSize);
+		File morphDictFile = ConfigPropertiesUtils.getFileProperty(props, "morphDictFile", false);
+		String targetGramCategoriesStr = ConfigPropertiesUtils.getStringProperty(
+				props, "targetGramCategories");
+		Iterable<String> targetGramCategories = Splitter.on(',').trimResults()
+				.split(targetGramCategoriesStr);
+		return new DefaultFeatureExtractors(prevTagsInHistory, leftContextSize, rightContextSize,
+				morphDictFile, targetGramCategories);
 	}
 
 	public static void to(DefaultFeatureExtractors obj, Properties props) {
@@ -42,8 +50,10 @@ public class DefaultFeatureExtractors extends FeatureExtractorsBasedContextGener
 	private int rightContextSize;
 
 	public DefaultFeatureExtractors(int prevTagsInHistory,
-			int leftContextSize, int rightContextSize) {
-		super(prevTagsInHistory, defaultExtractors(leftContextSize, rightContextSize));
+			int leftContextSize, int rightContextSize,
+			File morphDictFile, Iterable<String> targetGramCategories) {
+		super(prevTagsInHistory, defaultExtractors(leftContextSize, rightContextSize),
+				morphDictFile, targetGramCategories);
 		this.leftContextSize = leftContextSize;
 		this.rightContextSize = rightContextSize;
 	}

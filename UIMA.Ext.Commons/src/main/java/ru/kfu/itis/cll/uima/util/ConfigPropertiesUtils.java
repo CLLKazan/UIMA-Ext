@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.cll.uima.util;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -79,6 +80,21 @@ public class ConfigPropertiesUtils {
 		return sb.toString();
 	}
 
+	public static String getStringProperty(Properties props, String key) {
+		return getStringProperty(props, key, true);
+	}
+
+	public static String getStringProperty(Properties props, String key, boolean required) {
+		String valStr = props.getProperty(key);
+		if (valStr == null) {
+			if (required)
+				throw new IllegalStateException(String.format("No value for '%s'", key));
+			else
+				return null;
+		}
+		return valStr;
+	}
+
 	public static Integer getIntProperty(Properties props, String key, boolean required) {
 		String valStr = props.getProperty(key);
 		if (valStr == null) {
@@ -97,6 +113,17 @@ public class ConfigPropertiesUtils {
 
 	public static Integer getIntProperty(Properties props, String key) {
 		return getIntProperty(props, key, true);
+	}
+
+	public static File getFileProperty(Properties props, String key, boolean required) {
+		String valStr = props.getProperty(key);
+		if (valStr == null) {
+			if (required)
+				throw new IllegalStateException(String.format("No value for '%s'", key));
+			else
+				return null;
+		}
+		return new File(valStr);
 	}
 
 	private ConfigPropertiesUtils() {

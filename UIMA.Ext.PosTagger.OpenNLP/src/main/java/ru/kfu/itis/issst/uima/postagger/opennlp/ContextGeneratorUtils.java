@@ -35,6 +35,22 @@ public class ContextGeneratorUtils {
 		}
 	}
 
+	public static String getPreviousTag(int index, String[] prevTags) {
+		if (prevTags == null) {
+			return null;
+		}
+		// sanity check - prev tags must be defined at least till index-1
+		if (index - 1 >= prevTags.length) {
+			throw new IllegalStateException();
+		}
+		int prevTagIndex = index - 1;
+		if (prevTagIndex >= 0) {
+			return prevTags[prevTagIndex];
+		} else {
+			return null;
+		}
+	}
+
 	private ContextGeneratorUtils() {
 	}
 }
