@@ -3,6 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.currentTokenExtractors;
@@ -11,6 +12,7 @@ import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUt
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
 
@@ -34,9 +36,12 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
+import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.cleartk.Disposable;
+import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
@@ -95,7 +100,10 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private SimpleFeatureExtractor dictFeatureExtractor;
 	private SimpleFeatureExtractor posExtractor;
 	private CleartkExtractor contextFeatureExtractor;
+	// per-CAS
 	private SimpleFeatureExtractor adjacentPunctuationFeatureExtractor;
+	//
+	private Map<Token, Word> token2WordIndex;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -165,14 +173,19 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 				WordAnnotator.makeWords(jCas);
 			}
 		}
-		if (generatePunctuationFeatures) {
-			// adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
-			throw new UnsupportedOperationException("generatePunctuationFeatures == true");
+		token2WordIndex = MorphCasUtils.getToken2WordIndex(jCas);
+		try {
+			if (generatePunctuationFeatures) {
+				// adjacentPunctuationFeatureExtractor = new AdjacentPunctuationFeatureExtractor(jCas);
+				throw new UnsupportedOperationException("generatePunctuationFeatures == true");
+			}
+			for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
+				process(jCas, sent);
+			}
+		} finally {
+			adjacentPunctuationFeatureExtractor = null;
+			token2WordIndex.clear();
 		}
-		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
-			process(jCas, sent);
-		}
-		adjacentPunctuationFeatureExtractor = null;
 	}
 
 	@Override
@@ -195,25 +208,39 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		List<List<Feature>> sentSeq = Lists.newArrayList();
 		List<String> sentLabels = Lists.newArrayList();
 		for (Token token : JCasUtil.selectCovered(jCas, Token.class, sent)) {
-			// TRAINING
-			Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
-			String outputLabel = extractOutputLabel(tokWf);
+			// classification label
+			String outputLabel;
+			Word word = token2WordIndex.get(token);
+			if (word == null) {
+				if (token instanceof NUM || token instanceof W) {
+					throw new IllegalStateException(String.format(
+							"Token %s in %s does not have corresponding Word annotation",
+							toPrettyString(token), getDocumentUri(jCas)));
+				}
+				outputLabel = PunctuationUtils.OTHER_PUNCTUATION_TAG;
+			} else {
+				Wordform wf = MorphCasUtils.requireOnlyWordform(word);
+				outputLabel = extractOutputLabel(wf);
+			}
 			sentLabels.add(outputLabel);
-			List<Feature> tokFeatures = extractFeatures(jCas, word);
+			List<Feature> tokFeatures = extractFeatures(jCas, token);
 			sentSeq.add(tokFeatures);
 		}
-		// TRAINING
 		dataWriter.write(Instances.toInstances(sentLabels, sentSeq));
 	}
 
 	private void taggingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
 		List<List<Feature>> sentSeq = Lists.newArrayList();
 		List<Wordform> wfSeq = Lists.newArrayList();
-		for (Word word : JCasUtil.selectCovered(jCas, Word.class, sent)) {
-			// TAGGING
-			Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
-			wfSeq.add(tokWf);
-			List<Feature> tokFeatures = extractFeatures(jCas, word);
+		for (Token token : JCasUtil.selectCovered(jCas, Token.class, sent)) {
+			Word word = token2WordIndex.get(token);
+			if (word == null) {
+				wfSeq.add(null);
+			} else {
+				Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
+				wfSeq.add(tokWf);
+			}
+			List<Feature> tokFeatures = extractFeatures(jCas, token);
 			sentSeq.add(tokFeatures);
 		}
 		List<String> labelSeq = classifier.classify(sentSeq);
@@ -229,22 +256,33 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 				// do nothing, it means there is no a new PoS-tag for this wordform
 				continue;
 			}
-			Iterable<String> newGrams = targetGramSplitter.split(label);
 			Wordform wf = wfSeq.get(i);
-			MorphCasUtils.addGrammemes(jCas, wf, newGrams);
+			if (wf == null) {
+				if (!label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
+					getLogger().warn(String.format(
+							"Classifier predicted the gram value for a non-word token: %s",
+							label));
+				}
+				// else - punctuation tag for punctuation token - OK
+			} else if (label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
+				getLogger().warn("Classifier predicted the punctuation tag for a word token");
+			} else {
+				Iterable<String> newGrams = targetGramSplitter.split(label);
+				MorphCasUtils.addGrammemes(jCas, wf, newGrams);
+			}
 		}
 	}
 
-	private List<Feature> extractFeatures(JCas jCas, Word word) throws CleartkExtractorException {
+	private List<Feature> extractFeatures(JCas jCas, Token token) throws CleartkExtractorException {
 		List<Feature> tokFeatures = Lists.newLinkedList();
-		tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, word));
-		tokFeatures.addAll(posExtractor.extract(jCas, word));
+		tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, token));
+		tokFeatures.addAll(posExtractor.extract(jCas, token));
 		if (dictFeatureExtractor != null) {
-			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, word));
+			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, token));
 		}
-		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, word));
+		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, token));
 		if (generatePunctuationFeatures) {
-			tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, word));
+			tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, token));
 		}
 		return tokFeatures;
 	}
