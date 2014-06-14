@@ -110,8 +110,11 @@ public class RusCorporaParserBootstrap {
 				AnnotationRemover.class,
 				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 				new String[] { "ru.ksu.niimm.cll.uima.morph.util" });
+		AnalysisEngineDescription specialWTokenRemover = SpecialWTokenRemover.createDescription();
 		//
 		SimplePipeline.runPipeline(colReaderDesc,
-				ntsAnnotatorDesc, tokenizerDesc, scaffoldRemover, xmiWriterDesc);
+				ntsAnnotatorDesc, tokenizerDesc,
+				scaffoldRemover, specialWTokenRemover,
+				xmiWriterDesc);
 	}
 }
