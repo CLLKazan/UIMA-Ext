@@ -4,10 +4,7 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.punctuationTagMap;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.CONJ;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.NPRO;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PRCL;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PREP;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import java.util.BitSet;
 import java.util.Set;
@@ -32,7 +29,7 @@ import com.google.common.collect.Sets;
  */
 public class TagUtils {
 
-	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, PREP, CONJ, PRCL);
+	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, Apro, PREP, CONJ, PRCL);
 
 	/**
 	 * @param dict
