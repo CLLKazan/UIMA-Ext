@@ -6,10 +6,13 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.uima.UIMAFramework;
 
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.BeamSearchContextGenerator;
@@ -17,6 +20,10 @@ import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer.GetDictionaryResult;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -121,13 +128,37 @@ public class POSTaggerFactory extends BaseToolFactory {
 	static class FeatureExtractorsSerializer implements
 			ArtifactSerializer<FeatureExtractorsBasedContextGenerator> {
 
+		// A serializer instance is hold in a BaseModel instance,
+		// so this key will have the same life-time as this BaseModel
+		private Object dictCacheKey;
+
 		@Override
 		public FeatureExtractorsBasedContextGenerator create(InputStream in) throws IOException,
 				InvalidFormatException {
+			if (dictCacheKey != null) {
+				throw new UnsupportedOperationException();
+			}
 			Properties props = new Properties();
 			props.load(in);
+			MorphDictionary dict = null;
+			if (ConfigPropertiesUtils.getStringProperty(props,
+					DefaultFeatureExtractors.PROP_DICTIONARY_VERSION, false) != null) {
+				// load dictionary
+				// TODO refactor out
+				URL serDictUrl = UIMAFramework.newDefaultResourceManager()
+						.resolveRelativePath("dict.opcorpora.ser");
+				GetDictionaryResult getDictResult;
+				try {
+					getDictResult = CachedDictionaryDeserializer.getInstance()
+							.getDictionary(serDictUrl, serDictUrl.openStream());
+				} catch (Exception e) {
+					throw new IllegalStateException(e);
+				}
+				dictCacheKey = getDictResult.cacheKey;
+				dict = getDictResult.dictionary;
+			}
 
-			return DefaultFeatureExtractors.from(props);
+			return DefaultFeatureExtractors.from(props, dict);
 		}
 
 		@Override

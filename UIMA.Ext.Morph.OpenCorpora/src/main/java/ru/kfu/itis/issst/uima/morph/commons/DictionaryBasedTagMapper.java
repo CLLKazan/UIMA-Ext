@@ -8,6 +8,7 @@ import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUt
 import java.util.BitSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -76,7 +77,7 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	}
 
 	public static Set<String> parseTag(String tag) {
-		if (tag == null || tag.equalsIgnoreCase("null")) {
+		if (StringUtils.isEmpty(tag) || tag.equalsIgnoreCase("null")) {
 			return Sets.newLinkedHashSet();
 		}
 		return Sets.newLinkedHashSet(targetGramSplitter.split(tag));

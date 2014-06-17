@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -17,8 +16,6 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.cleartk.DefaultFeatureToStringEncoderChain;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer.GetDictionaryResult;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.google.common.collect.ImmutableList;
@@ -32,36 +29,36 @@ import com.google.common.collect.Sets;
 public class FeatureExtractorsBasedContextGenerator implements BeamSearchContextGenerator<Token> {
 
 	private final int prevTagsInHistory;
-	protected final File morphDictFile;
 	private List<SimpleFeatureExtractor> featureExtractors;
 	private FeatureEncoderChain<String> featureEncoders = new DefaultFeatureToStringEncoderChain();
+	private Set<String> targetGramCategories;
+	private MorphDictionary morphDict;
 	//
-	private GetDictionaryResult morphDictKey;
-	private MorphDictionary morphDictionary;
 	private DictionaryBasedContextGenerator dictContextGen;
 
 	public FeatureExtractorsBasedContextGenerator(int prevTagsInHistory,
 			List<SimpleFeatureExtractor> featureExtractors,
-			File morphDictFile,
-			Iterable<String> targetGramCategories) {
+			Iterable<String> targetGramCategories,
+			MorphDictionary morphDict) {
 		this.prevTagsInHistory = prevTagsInHistory;
-		this.morphDictFile = morphDictFile;
 		this.featureExtractors = ImmutableList.copyOf(featureExtractors);
-		if (morphDictFile != null) {
-			try {
-				morphDictKey = CachedDictionaryDeserializer.getInstance().getDictionary(
-						morphDictFile);
-			} catch (Exception e) {
-				throw new IllegalStateException(e);
-			}
-			morphDictionary = morphDictKey.dictionary;
-			dictContextGen = new DictionaryBasedContextGenerator(targetGramCategories,
-					morphDictionary);
+		this.targetGramCategories = Sets.newLinkedHashSet(targetGramCategories);
+		this.morphDict = morphDict;
+		if (this.morphDict != null) {
+			dictContextGen = new DictionaryBasedContextGenerator(targetGramCategories, morphDict);
 		}
 	}
 
 	public int getPrevTagsInHistory() {
 		return prevTagsInHistory;
+	}
+
+	public Iterable<String> getTargetGramCategories() {
+		return targetGramCategories;
+	}
+
+	public MorphDictionary getMorphDict() {
+		return morphDict;
 	}
 
 	@Override
