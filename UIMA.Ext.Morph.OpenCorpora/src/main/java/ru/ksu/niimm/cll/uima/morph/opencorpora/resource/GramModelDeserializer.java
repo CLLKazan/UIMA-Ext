@@ -7,10 +7,10 @@ import static java.lang.System.currentTimeMillis;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +24,7 @@ public class GramModelDeserializer {
 	private static final Logger log = LoggerFactory.getLogger(GramModelDeserializer.class);
 
 	public static GramModel from(File file) throws Exception {
-		if (!file.isFile()) {
-			throw new IllegalArgumentException(String.format(
-					"%s is not existing file", file));
-		}
-		return from(new FileInputStream(file), file.toString());
+		return from(FileUtils.openInputStream(file), file.toString());
 	}
 
 	public static GramModel from(InputStream in, String srcLabel) throws Exception {
