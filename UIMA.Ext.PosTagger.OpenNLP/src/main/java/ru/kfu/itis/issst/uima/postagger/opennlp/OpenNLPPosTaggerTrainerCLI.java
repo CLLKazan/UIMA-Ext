@@ -75,7 +75,7 @@ public class OpenNLPPosTaggerTrainerCLI {
 			}
 			// TODO dict param
 			trainer.setTaggerFactory(new POSTaggerFactory(
-					DefaultFeatureExtractors.from(props),
+					DefaultFeatureExtractors.from(props, null),
 					null));
 		}
 		// input sentence stream
