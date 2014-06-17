@@ -87,7 +87,7 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 		tokenStr = WordUtils.normalizeToDictionaryForm(tokenStr);
 		List<Wordform> dictEntries = morphDictionary.getEntries(tokenStr);
 		if (dictEntries == null || dictEntries.isEmpty()) {
-			return true;
+			return !TagUtils.isClosedClassTag(outcome);
 		}
 		// dictEntries is not empty so null-tag is not valid in most cases
 		if (outcome == null) {
