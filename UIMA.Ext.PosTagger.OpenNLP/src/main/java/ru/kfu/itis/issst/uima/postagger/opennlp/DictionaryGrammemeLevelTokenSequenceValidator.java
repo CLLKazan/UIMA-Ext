@@ -18,9 +18,12 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicate;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
+import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicate;
+import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicateConjunction;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
@@ -49,6 +52,9 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 	private GramModel gramModel;
 	// 
 	private List<BitSet> skipMasks;
+	private TwoTagPredicate agreementPredicate;
+	private int adjfId;
+	private int nounId;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -73,6 +79,14 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 			skipMasks.add(mask);
 		}
 		skipMasks = ImmutableList.copyOf(skipMasks);
+		//
+		agreementPredicate = TwoTagPredicateConjunction.and(
+				AgreementPredicate.numberAgreement(gramModel),
+				AgreementPredicate.genderAgreement(gramModel),
+				AgreementPredicate.caseAgreement(gramModel));
+		//
+		adjfId = gramModel.getGrammemNumId(MorphConstants.ADJF);
+		nounId = gramModel.getGrammemNumId(MorphConstants.NOUN);
 	}
 
 	@Override
@@ -112,6 +126,11 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 		List<BitSet> dictBSes = Lists.transform(dictEntries, allGramBitsFunction(morphDictionary));
 		for (BitSet de : dictBSes) {
 			if (BitUtils.contains(de, candidateBS)) {
+				return true;
+			}
+			// check nominalization
+			if (candidateBS.get(nounId) && de.get(adjfId)
+					&& agreementPredicate.apply(candidateBS, de)) {
 				return true;
 			}
 		}
