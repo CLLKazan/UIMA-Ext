@@ -1,0 +1,9 @@
+# path to corpus directory (with XMI-files)
+srcCorpusDir=
+# The directory that contains descriptions of a corpus partitioning
+corpusSplitInfoDir=
+#
+posCategories=POST,RNC_INIT,Apro,Anum,Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+#
+beamSize=10
+beamSearchValidate=true;false
