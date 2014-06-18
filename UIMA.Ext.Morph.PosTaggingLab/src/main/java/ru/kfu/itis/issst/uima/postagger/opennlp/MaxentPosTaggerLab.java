@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
@@ -53,7 +54,10 @@ import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
+import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
@@ -102,6 +106,8 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 			int rightContextSize;
 			@Discriminator
 			int previousTagsInHistory;
+			@Discriminator
+			boolean generateDictionaryFeatures;
 
 			@Override
 			public void execute(TaskContext taskCtx) throws Exception {
@@ -134,13 +140,24 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 						sentIter);
 				trainer.setSentenceStream(sentStream);
 				// configure tagger factory
+				// // prepare dict if required
+				MorphDictionary morphDict = null;
+				if (generateDictionaryFeatures) {
+					URL serDictUrl = UIMAFramework.newDefaultResourceManager()
+							.resolveRelativePath(LabConstants.MORPH_DICT_FILENAME);
+					// TODO handle cache key
+					morphDict = CachedDictionaryDeserializer.getInstance()
+							.getDictionary(serDictUrl, serDictUrl.openStream()).dictionary;
+				}
+				//
 				trainer.setTaggerFactory(new POSTaggerFactory(
 						new DefaultFeatureExtractors(
-								// XXX
-								previousTagsInHistory, leftContextSize, rightContextSize,
-								null, posCategories),
+								previousTagsInHistory,
+								leftContextSize, rightContextSize,
+								posCategories,
+								morphDict),
 						// no need for a dictionary in training
-						null));
+						posCategories));
 				// run
 				trainer.train();
 			}
@@ -169,6 +186,7 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 				getIntDimension("leftContextSize"),
 				getIntDimension("rightContextSize"),
 				getIntDimension("previousTagsInHistory"),
+				getBoolDimension("generateDictionaryFeatures"),
 				getIntDimension("beamSize"),
 				getBoolDimension("beamSearchValidate")
 				);
