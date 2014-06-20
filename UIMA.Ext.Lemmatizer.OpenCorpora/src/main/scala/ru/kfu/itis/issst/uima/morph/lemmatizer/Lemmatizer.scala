@@ -39,8 +39,10 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
       word.getWordforms.toArray.foreach((wordformFS: FeatureStructure) => {
         val wordform = wordformFS.asInstanceOf[Wordform]
         try {
-          val lemma = findLemma(wordform)
-          wordform.setLemma(lemma)
+          if (wordform.getGrammems != null) {
+            val lemma = findLemma(wordform)
+            wordform.setLemma(lemma)
+          }
         }
         catch {
           case e: IndexOutOfBoundsException => {}

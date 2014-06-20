@@ -141,6 +141,12 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.ksu.niimm.cll.uima</groupId>
+            <artifactId>uima-ext-dep-parser-mst</artifactId>
+            <version>0.3-SNAPSHOT</version>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <properties>

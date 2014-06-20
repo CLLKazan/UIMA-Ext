@@ -24,13 +24,13 @@ class LemmatizerSpec extends FlatSpec with Matchers {
     val lemmatizerDesc = AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer], MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, extDictDesc)
     val aggregateDesc = AnalysisEngineFactory.createAggregateDescription(posPipelineDesc, lemmatizerDesc)
     val jCas = CasCreationUtils.createCas(aggregateDesc).getJCas
-    jCas.setDocumentText("Душа моя озарена неземной радостью")
+    jCas.setDocumentText("Душа моя озарена неземной радостью. Oracle купил Sun")
     SimplePipeline.runPipeline(jCas, aggregateDesc)
     val lemmas = select(jCas, classOf[Word]).flatMap((word: Word) => {
       word.getWordforms.toArray.map((wordformFS: FeatureStructure) => {
         wordformFS.asInstanceOf[Wordform].getLemma
       })
     })
-    lemmas should be(List("душа", "мой", "озарён", "неземной", "радость"))
+    lemmas should be(List("душа", "мой", "озарён", "неземной", "радость", null, "купил", null))
   }
 }
