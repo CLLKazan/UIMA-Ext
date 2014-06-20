@@ -48,7 +48,7 @@ public class GeneratePipelineDescriptorForDepParsing {
 		}
 	}
 
-  public static AnalysisEngineDescription getDescription() {
+  public static AnalysisEngineDescription getDescription() throws UIMAException, IOException {
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
 		aeDescriptions.put("tokenizer", InitialTokenizer.createDescription());
 		aeDescriptions.put("post-tokenizer", PostTokenizer.createDescription());
