@@ -37,23 +37,9 @@ public class GeneratePipelineDescriptorForDepParsing {
 			System.exit(1);
 		}
 		File outFile = new File(args[0]);
+
+    AnalysisEngineDescription outDesc = getDescription();
 		//
-		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
-		aeDescriptions.put("tokenizer", InitialTokenizer.createDescription());
-		aeDescriptions.put("post-tokenizer", PostTokenizer.createDescription());
-		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
-		//
-		Import posTaggerDescImport = new Import_impl();
-		posTaggerDescImport.setName("pos_tagger");
-		aeDescriptions.put("pos-tagger", posTaggerDescImport);
-		//
-		Import depParserDescImport = new Import_impl();
-		depParserDescImport.setName("dep_parser");
-		aeDescriptions.put("dep-parser", depParserDescImport);
-		// 
-		AnalysisEngineDescription outDesc = PipelineDescriptorUtils.createAggregateDescription(
-				ImmutableList.copyOf(aeDescriptions.values()),
-				ImmutableList.copyOf(aeDescriptions.keySet()));
 		OutputStream out = FileUtils.openOutputStream(outFile);
 		try {
 			outDesc.toXML(out);
@@ -61,4 +47,23 @@ public class GeneratePipelineDescriptorForDepParsing {
 			IOUtils.closeQuietly(out);
 		}
 	}
+
+  public static AnalysisEngineDescription getDescription() {
+		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
+		aeDescriptions.put("tokenizer", InitialTokenizer.createDescription());
+		aeDescriptions.put("post-tokenizer", PostTokenizer.createDescription());
+		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
+
+		Import posTaggerDescImport = new Import_impl();
+		posTaggerDescImport.setName("pos_tagger");
+		aeDescriptions.put("pos-tagger", posTaggerDescImport);
+
+		Import depParserDescImport = new Import_impl();
+		depParserDescImport.setName("dep_parser");
+		aeDescriptions.put("dep-parser", depParserDescImport);
+
+		return PipelineDescriptorUtils.createAggregateDescription(
+				ImmutableList.copyOf(aeDescriptions.values()),
+				ImmutableList.copyOf(aeDescriptions.keySet()));
+  }
 }
