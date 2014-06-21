@@ -24,14 +24,19 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
   def findLemma(wordform: Wordform): String = {
     val dict = dictHolder.getDictionary
     val wordText = WordUtils.normalizeToDictionaryForm(wordform.getWord.getCoveredText)
-    val targetGrammems: Set[String] = wordform.getGrammems.toArray.toSet
+    val entries = dict.getEntries(wordText)
+    val targetGrammems = wordform.getGrammems
 
-    val lemmaId = dict.getEntries(wordText).maxBy((dictWf: DictWordform) => {
-      val wfGrammems: Set[String] = dict.toGramSet(dictWf.getGrammems).toSet
-      jaccardCoef(targetGrammems, wfGrammems)
-    }).getLemmaId
+    if (entries.size > 0 && targetGrammems != null) {
+      val lemmaId = dict.getEntries(wordText).maxBy((dictWf: DictWordform) => {
+        val wfGrammems: Set[String] = dict.toGramSet(dictWf.getGrammems).toSet
+        jaccardCoef(targetGrammems.toArray.toSet, wfGrammems)
+      }).getLemmaId
 
-    dictHolder.getDictionary.getLemma(lemmaId).getString
+      dictHolder.getDictionary.getLemma(lemmaId).getString
+    } else {
+      wordText
+    }
   }
 
   def process(aJCAS: JCas) {
@@ -39,10 +44,8 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
       word.getWordforms.toArray.foreach((wordformFS: FeatureStructure) => {
         val wordform = wordformFS.asInstanceOf[Wordform]
         try {
-          if (wordform.getGrammems != null) {
-            val lemma = findLemma(wordform)
-            wordform.setLemma(lemma)
-          }
+          val lemma = findLemma(wordform)
+          wordform.setLemma(lemma)
         }
         catch {
           case e: IndexOutOfBoundsException => {}
