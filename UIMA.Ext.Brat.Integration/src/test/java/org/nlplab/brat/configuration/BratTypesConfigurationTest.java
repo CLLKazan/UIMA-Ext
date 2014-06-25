@@ -31,6 +31,10 @@ public class BratTypesConfigurationTest {
 		assertEquals(Cardinality.ONE, startOrgType.getRole("Org-Arg").getCardinality());
 		assertEquals(1, startOrgType.getRole("Org-Arg").getRangeTypes().size());
 		assertEquals(orgType, startOrgType.getRole("Org-Arg").getRangeTypes().iterator().next());
+		// check empty event parsing
+		BratEventType shType = btConf.getType("Something-Happened", BratEventType.class);
+		assertEquals("Something-Happened", shType.getName());
+		assertEquals(0, shType.getRoles().size());
 	}
 
 }
