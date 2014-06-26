@@ -256,6 +256,9 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 					throw new ResourceInitializationException(e);
 				}
 			}
+			// disable for comparative evaluation of tagging time
+			taggerDesc.getAnalysisEngineMetaData().getOperationalProperties()
+					.setMultipleDeploymentAllowed(false);
 			return createAggregateDescription(
 					goldRemoverDesc, taggerDesc, xmiWriterDesc);
 		}
