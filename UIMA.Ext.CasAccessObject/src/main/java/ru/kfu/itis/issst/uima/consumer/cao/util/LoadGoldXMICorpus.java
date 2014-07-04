@@ -28,10 +28,10 @@ import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
 import org.uimafit.pipeline.SimplePipeline;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -84,10 +84,9 @@ public class LoadGoldXMICorpus {
 				PARAM_PATTERN, "file:.+/([^/]+)$",
 				PARAM_REPLACE_BY, "$1");
 
-		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
-				InitialTokenizer.class);
+		AnalysisEngineDescription tokenizerDesc = TokenizerAPI.getAEDescription();
 
-		AnalysisEngineDescription sentSplitterDesc = createPrimitiveDescription(SentenceSplitter.class);
+		AnalysisEngineDescription sentSplitterDesc = SentenceSplitterAPI.getAEDescription();
 
 		SimplePipeline.runPipeline(colReaderDesc,
 				tokenizerDesc, sentSplitterDesc,

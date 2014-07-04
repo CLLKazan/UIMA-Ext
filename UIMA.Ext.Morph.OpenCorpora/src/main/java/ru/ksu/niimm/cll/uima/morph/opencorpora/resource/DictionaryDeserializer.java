@@ -39,6 +39,9 @@ public class DictionaryDeserializer {
 		ObjectInputStream ois = new ObjectInputStream(is);
 		MorphDictionary dict;
 		try {
+			// skip gram model
+			@SuppressWarnings("unused")
+			GramModel gm = (GramModel) ois.readObject();
 			dict = (MorphDictionary) ois.readObject();
 		} finally {
 			IOUtils.closeQuietly(ois);

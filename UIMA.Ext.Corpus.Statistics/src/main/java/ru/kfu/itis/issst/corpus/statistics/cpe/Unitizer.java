@@ -1,16 +1,13 @@
 package ru.kfu.itis.issst.corpus.statistics.cpe;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import java.io.IOException;
 
+import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
-import ru.kfu.cll.uima.tokenizer.PostTokenizer;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 public class Unitizer {
 
@@ -20,18 +17,12 @@ public class Unitizer {
 	}
 
 	public static AnalysisEngineDescription createTokenizerSentenceSplitterAED()
-			throws ResourceInitializationException {
-		TypeSystemDescription tokenizerTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem");
-		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
-				InitialTokenizer.class, tokenizerTsDesc);
-		AnalysisEngineDescription postTokenizerDesc = createPrimitiveDescription(
-				PostTokenizer.class, tokenizerTsDesc);
+			throws UIMAException, IOException {
 
-		TypeSystemDescription ssTsDesc = createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem");
-		AnalysisEngineDescription ssDesc = createPrimitiveDescription(
-				SentenceSplitter.class, ssTsDesc);
+		AnalysisEngineDescription tokenizerDesc = TokenizerAPI.getAEDescription();
 
-		return AnalysisEngineFactory.createAggregateDescription(tokenizerDesc,
-				postTokenizerDesc, ssDesc);
+		AnalysisEngineDescription ssDesc = SentenceSplitterAPI.getAEDescription();
+
+		return AnalysisEngineFactory.createAggregateDescription(tokenizerDesc, ssDesc);
 	}
 }

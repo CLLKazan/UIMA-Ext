@@ -391,13 +391,13 @@ class RusCorporaXmlContentHandler extends DefaultHandler {
 			}
 			wf.setPos(grs.next());
 			wf.setLexGrammems(Sets.newLinkedHashSet(Lists.newArrayList(grs)));
-			if (grSets.hasNext()) {
-				// wf grammems
+			// wf grammems
+			Set<String> wfGrams = Sets.newLinkedHashSet();
+			while (grSets.hasNext()) {
 				grSetStr = grSets.next();
-				wf.setWordformGrammems(Sets.newLinkedHashSet(grSplitter.split(grSetStr)));
-			} else {
-				wf.setWordformGrammems(Sets.<String> newLinkedHashSet());
+				wfGrams.addAll(Sets.newLinkedHashSet(grSplitter.split(grSetStr)));
 			}
+			wf.setWordformGrammems(wfGrams);
 		}
 	}
 

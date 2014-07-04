@@ -1,8 +1,5 @@
 package ru.ksu.niimm.cll.uima.morph.eval;
 
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
-import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
-import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.featureExist;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.POST;
 
 import java.io.File;
@@ -15,18 +12,16 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.uima.cas.ArrayFS;
-import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
-import org.apache.uima.cas.StringArrayFS;
-import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.opencorpora.cas.Word;
-import org.opencorpora.cas.Wordform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.kfu.itis.cll.uima.eval.event.TypedPrintingEvaluationListener;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelDeserializer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -39,30 +34,24 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 import com.google.common.collect.Table;
 
-import ru.kfu.itis.cll.uima.eval.event.PrintingEvaluationListener;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-
 /**
  * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class GramTagErrorCollector extends PrintingEvaluationListener {
+public class GramTagErrorCollector extends TypedPrintingEvaluationListener {
 
 	public static final String MORPH_DICT_HOME_KEY = "opencorpora.home";
 	public static final String SERIALIZED_MORPH_DICT_NAME = "dict.opcorpora.ser";
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	@Autowired
 	private TypeSystem ts;
 	private File serializedMorphDictFile;
 	// derived
+	private MorphEvalHelper casHelper;
 	private Map<String, Set<String>> gramCategoryContent;
 	private Map<String, String> gram2Cat;
-	private Feature wordformsFeat;
-	private Feature gramsFeat;
 	// state fields
 	private Table<String, String, MutableInt> errorTable = HashBasedTable.create();
 
@@ -72,11 +61,11 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 
 	@Override
 	public void onPartialMatch(final AnnotationFS goldAnno, final AnnotationFS sysAnno) {
-		final FeatureStructure goldWf = getWordform(goldAnno);
-		final FeatureStructure sysWf = getWordform(sysAnno);
-		final Set<String> goldGrams = getGrammems(goldWf);
+		final FeatureStructure goldWf = casHelper.getWordform(goldAnno);
+		final FeatureStructure sysWf = casHelper.getWordform(sysAnno);
+		final Set<String> goldGrams = casHelper.getGrammems(goldWf);
 		final String goldGC = getGramClass(goldWf, goldGrams);
-		final Set<String> sysGrams = getGrammems(sysWf);
+		final Set<String> sysGrams = casHelper.getGrammems(sysWf);
 		final String sysGC = getGramClass(sysWf, sysGrams);
 		// check gram class
 		checkTags(goldGC, sysGC);
@@ -179,42 +168,11 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 		}
 	}
 
-	private FeatureStructure getWordform(AnnotationFS word) {
-		ArrayFS wfs = (ArrayFS) word.getFeatureValue(wordformsFeat);
-		if (wfs == null || wfs.size() == 0) {
-			return null;
-		}
-		if (wfs.size() > 1) {
-			log.warn(">1 wordforms for {} in {}", toPrettyString(word), currentDocUri);
-		}
-		return wfs.get(0);
-	}
-
-	private Set<String> getGrammems(FeatureStructure wf) {
-		if (wf == null) {
-			return ImmutableSet.of();
-		}
-		StringArrayFS grams = (StringArrayFS) wf.getFeatureValue(gramsFeat);
-		if (grams == null) {
-			return ImmutableSet.of();
-		}
-		ImmutableSet.Builder<String> resultBuilder = ImmutableSet.builder();
-		for (int i = 0; i < grams.size(); i++) {
-			resultBuilder.add(grams.get(i));
-		}
-		return resultBuilder.build();
-	}
-
 	@PostConstruct
 	@Override
 	protected void init() throws Exception {
-		Type wordType = ts.getType(Word.class.getName());
-		annotationTypeExist(Word.class.getName(), wordType);
-		Type wfType = ts.getType(Wordform.class.getName());
-		annotationTypeExist(Wordform.class.getName(), wfType);
-		wordformsFeat = featureExist(wordType, "wordforms");
-		gramsFeat = featureExist(wfType, "grammems");
-
+		casHelper = new MorphEvalHelper(ts);
+		//
 		if (serializedMorphDictFile == null) {
 			String mdHomePath = System.getProperty(MORPH_DICT_HOME_KEY);
 			if (mdHomePath != null) {
@@ -235,19 +193,18 @@ public class GramTagErrorCollector extends PrintingEvaluationListener {
 							+ "does not point to directory with " + SERIALIZED_MORPH_DICT_NAME
 							+ " file");
 		}
-		CachedDictionaryDeserializer deser = CachedDictionaryDeserializer.getInstance();
-		MorphDictionary morphDict = deser.getDictionary(serializedMorphDictFile).dictionary;
-		initGramTree(morphDict);
+		GramModel gm = GramModelDeserializer.from(serializedMorphDictFile);
+		initGramTree(gm);
 
 		super.init();
 	}
 
-	private void initGramTree(MorphDictionary morphDict) {
+	private void initGramTree(GramModel gm) {
 		gramCategoryContent = Maps.newHashMap();
 		gram2Cat = Maps.newHashMap();
-		for (String cat : morphDict.getTopGrammems()) {
-			BitSet catBS = morphDict.getGrammemWithChildrenBits(cat, true);
-			List<String> catGrams = morphDict.toGramSet(catBS);
+		for (String cat : gm.getTopGrammems()) {
+			BitSet catBS = gm.getGrammemWithChildrenBits(cat, true);
+			List<String> catGrams = gm.toGramSet(catBS);
 			gramCategoryContent.put(cat, ImmutableSet.copyOf(catGrams));
 			for (String grId : catGrams) {
 				gram2Cat.put(grId, cat);

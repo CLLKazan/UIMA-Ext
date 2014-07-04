@@ -19,10 +19,10 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
  */
 public class MorphDictionaryUtils {
 
-	public static BitSet toGramBits(MorphDictionary dict, Iterable<String> grams) {
-		BitSet result = new BitSet(dict.getGrammemMaxNumId());
+	public static BitSet toGramBits(GramModel gm, Iterable<String> grams) {
+		BitSet result = new BitSet(gm.getGrammemMaxNumId());
 		for (String gr : grams) {
-			result.set(dict.getGrammemNumId(gr));
+			result.set(gm.getGrammemNumId(gr));
 		}
 		return result;
 	}

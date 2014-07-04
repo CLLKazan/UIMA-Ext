@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 
 /**
  * TODO rename to Lexeme
@@ -24,21 +24,38 @@ public class Lemma implements Serializable {
 	private static final long serialVersionUID = 7426278009038784123L;
 	private static final BitSet EMPTY_BITSET = new BitSet();
 
-	public static Builder builder(MorphDictionary dict, int id) {
-		return new Builder(dict, id);
+	public static Builder builder(GramModel gm, int id) {
+		return new Builder(gm, id);
 	}
 
 	public static class Builder {
 		private Lemma instance = new Lemma();
-		private MorphDictionary dict;
+		private GramModel gm;
 
-		public Builder(MorphDictionary dict, int id) {
+		public Builder(GramModel gm, int id) {
 			instance.id = id;
-			this.dict = dict;
+			instance.grammems = new BitSet(gm.getGrammemMaxNumId() + 1);
+			this.gm = gm;
+		}
+
+		public Builder copy(int newId) {
+			Builder result = new Builder(gm, newId);
+			result.instance.grammems = (BitSet) instance.grammems.clone();
+			result.instance.string = instance.string;
+			return result;
 		}
 
 		public int getLemmaId() {
 			return instance.id;
+		}
+
+		public Builder setLemmaId(int id) {
+			instance.id = id;
+			return this;
+		}
+
+		public String getString() {
+			return instance.string;
 		}
 
 		public Builder setString(String string) {
@@ -46,11 +63,12 @@ public class Lemma implements Serializable {
 			return this;
 		}
 
+		public BitSet getGrammems() {
+			return instance.grammems;
+		}
+
 		public Builder addGrammeme(String gramId) {
-			if (instance.grammems == null) {
-				instance.grammems = new BitSet(dict.getGrammemMaxNumId() + 1);
-			}
-			int gramNumId = dict.getGrammemNumId(gramId);
+			int gramNumId = gm.getGrammemNumId(gramId);
 			instance.grammems.set(gramNumId);
 			return this;
 		}

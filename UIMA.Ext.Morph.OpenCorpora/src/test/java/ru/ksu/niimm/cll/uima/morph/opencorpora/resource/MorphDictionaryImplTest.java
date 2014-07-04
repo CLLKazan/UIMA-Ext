@@ -17,6 +17,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 public class MorphDictionaryImplTest {
 
 	MorphDictionary dict;
+	GramModel gm;
 
 	@Before
 	public void setUp() throws Exception {
@@ -25,6 +26,7 @@ public class MorphDictionaryImplTest {
 				.getResource("opencorpora/dict.opcorpora.test.xml").getPath()));
 		try {
 			dict = XmlDictionaryParser.parse(fis);
+			gm = dict.getGramModel();
 		} finally {
 			IOUtils.closeQuietly(fis);
 		}
@@ -37,16 +39,16 @@ public class MorphDictionaryImplTest {
 		assertEquals(3, dict.getEntries("село").size());
 		assertEquals(3, dict.getEntries("а").size());
 		assertEquals(4, dict.getEntries("мыркающий").size());
-		int prtfGramIdx = dict.getGrammemNumId("PRTF");
-		int verbGramIdx = dict.getGrammemNumId("VERB");
+		int prtfGramIdx = gm.getGrammemNumId("PRTF");
+		int verbGramIdx = gm.getGrammemNumId("VERB");
 		assertTrue(Wordform.getAllGramBits(dict.getEntries("мыркающий").get(0),
 				dict).get(prtfGramIdx));
 		assertFalse(Wordform.getAllGramBits(
 				dict.getEntries("мыркающий").get(0), dict).get(verbGramIdx));
-		int mascGramIdx = dict.getGrammemNumId("masc");
-		int singGramIdx = dict.getGrammemNumId("sing");
-		int femnGramIdx = dict.getGrammemNumId("femn");
-		int plurGramIdx = dict.getGrammemNumId("plur");
+		int mascGramIdx = gm.getGrammemNumId("masc");
+		int singGramIdx = gm.getGrammemNumId("sing");
+		int femnGramIdx = gm.getGrammemNumId("femn");
+		int plurGramIdx = gm.getGrammemNumId("plur");
 		assertTrue(dict.getEntries("мыркающий").get(0).getGrammems()
 				.get(mascGramIdx));
 		assertTrue(dict.getEntries("мыркающий").get(0).getGrammems()

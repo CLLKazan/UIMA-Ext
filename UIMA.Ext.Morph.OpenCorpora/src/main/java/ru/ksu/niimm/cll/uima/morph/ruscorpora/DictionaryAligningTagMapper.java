@@ -36,6 +36,7 @@ import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
@@ -58,6 +59,7 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 	private File outFile;
 	// config-derived
 	private MorphDictionary dict;
+	private GramModel gm;
 	private PrintWriter out;
 
 	@Override
@@ -65,6 +67,7 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 		ExternalResourceInitializer.initialize(ctx, this);
 		ConfigurationParameterInitializer.initialize(this, ctx);
 		dict = dictHolder.getDictionary();
+		gm = dict.getGramModel();
 		try {
 			FileOutputStream os = FileUtils.openOutputStream(outFile);
 			Writer bw = new BufferedWriter(new OutputStreamWriter(os, "utf-8"));
@@ -84,7 +87,13 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 		Word wordAnno = targetWf.getWord();
 		delegate.mapFromRusCorpora(srcWf, targetWf);
 		// first - check whether tag is in tagset
-		final BitSet wfTag = toGramBits(dict, FSUtils.toList(targetWf.getGrammems()));
+		final BitSet wfTag = toGramBits(gm, FSUtils.toList(targetWf.getGrammems()));
+		// skip INIT as a whole new category
+		if (wfTag.get(gm.getGrammemNumId(RNCMorphConstants.RNC_INIT))) {
+			// skip
+			return;
+		}
+		//
 		if (!dict.containsGramSet(wfTag)) {
 			// if there is no such tag in dictionary then look the word in it
 			String wordStr = wordAnno.getCoveredText();
@@ -107,7 +116,7 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 				onAmbiguousWordform(wordAnno, wfTag);
 			} else {
 				BitSet newTag = getAllGramBits(wfExtensions.get(0), dict);
-				List<String> newTagStr = dict.toGramSet(newTag);
+				List<String> newTagStr = gm.toGramSet(newTag);
 				targetWf.setGrammems(FSUtils.toStringArray(getCAS(targetWf), newTagStr));
 				onTagExtended(wordAnno, wfTag, newTag);
 			}
@@ -154,7 +163,7 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 	}
 
 	private String toGramString(BitSet gramBits) {
-		return gramJoiner.join(dict.toGramSet(gramBits));
+		return gramJoiner.join(dict.getGramModel().toGramSet(gramBits));
 	}
 
 	private static final Joiner gramJoiner = Joiner.on(',');

@@ -3,9 +3,10 @@
  */
 package ru.kfu.itis.issst.uima.morph.hunpos;
 
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
+
 import java.io.File;
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.annolab.tt4j.TokenHandler;
@@ -18,15 +19,12 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.initializable.InitializableFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
-import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -35,27 +33,20 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 public class HunposAnnotator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_HUNPOS_MODEL_NAME = "hunposModelName";
-	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
 	public static final String PARAM_LEXICON_FILE = "lexiconFile";
 	// config
 	@ConfigurationParameter(name = PARAM_HUNPOS_MODEL_NAME, mandatory = true)
 	private String hpModelName;
-	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
-			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper")
-	private String tagMapperClassName;
 	@ConfigurationParameter(name = PARAM_LEXICON_FILE)
 	private File lexiconFile;
 	// monitors
 	private final Object casMon = new Object();
 	// state fields
-	private TagMapper tagMapper;
 	private HunposWrapper<Token> hunposTagger;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-
-		tagMapper = InitializableFactory.create(ctx, tagMapperClassName, TagMapper.class);
 
 		hunposTagger = new HunposWrapper<Token>();
 		hunposTagger.setModelName(hpModelName);
@@ -93,12 +84,8 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 						if (lemma != null) {
 							wf.setLemma(lemma);
 						}
-						if (tagMapper == null) {
-							wf.setPos(pos);
-						} else {
-							Set<String> grams = tagMapper.parseTag(pos, token.getCoveredText());
-							MorphDictionaryUtils.applyGrammems(grams, wf);
-						}
+						// null tags comes as a 'null' string instances
+						wf.setPos(postProcessExternalTag(pos));
 
 						FSArray wfArr = new FSArray(jCas, 1);
 						wfArr.set(0, wf);

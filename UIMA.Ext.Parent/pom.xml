@@ -11,10 +11,15 @@
 
 	<modules>
 		<module>../UIMA.Ext.Commons</module>
-		<module>../UIMA.Ext.Tokenizer</module>
+		<module>../UIMA.Ext.Tokenizer.API</module>
+		<module>../UIMA.Ext.Tokenizer.Simple</module>
+		<module>../UIMA.Ext.SentenceSplitter.API</module>
+		<module>../UIMA.Ext.SentenceSplitter.Heuristic</module>
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.TreeTagger</module>
+		<module>../UIMA.Ext.Morph.PosTaggingLab</module>
+		<module>../UIMA.Ext.PosTagger.OpenNLP</module>
 		<module>../UIMA.Ext.Lemmatizer.OpenCorpora</module>
 		<module>../UIMA.Ext.DependencyParser</module>
 		<module>../UIMA.Ext.DependencyParser.MST</module>
@@ -124,6 +129,13 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>org.cleartk</groupId>
+				<artifactId>cleartk-release</artifactId>
+				<version>1.4.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-library</artifactId>
 				<version>${scala.version}</version>
@@ -135,7 +147,22 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
-				<artifactId>uima-tokenizer</artifactId>
+				<artifactId>uima-ext-tokenizer-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-tokenizer-simple</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-sentence-splitter-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-sentence-splitter-heuristic</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -151,6 +178,11 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-morph-treetagger</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-pos-tagger-opennlp</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

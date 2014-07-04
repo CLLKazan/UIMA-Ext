@@ -23,6 +23,7 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.google.common.base.Joiner;
@@ -45,6 +46,7 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 
 	// config fields
 	private MorphDictionary morphDict;
+	private GramModel gramModel;
 	// derived
 	private final Map<Grammeme, BitSet> targetTagCategoriesMap;
 	// TODO make targetCategoriesMask immutable!
@@ -55,10 +57,12 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 	public DictionaryPossibleTagFeatureExtractor(Iterable<String> targetTagCategories,
 			Iterable<String> availableTagCategories,
 			MorphDictionary morphDict) {
+		this.morphDict = morphDict;
+		this.gramModel = morphDict.getGramModel();
 		// re-pack into a set to avoid duplicates and maintain ID-based ordering
 		TreeSet<Grammeme> tagCatGrams = Sets.newTreeSet(Grammeme.numIdComparator());
 		for (String tc : targetTagCategories) {
-			Grammeme tcGram = morphDict.getGrammem(tc);
+			Grammeme tcGram = gramModel.getGrammem(tc);
 			if (tcGram == null) {
 				throw new IllegalArgumentException(String.format(
 						"Tag category %s does not exist", tc));
@@ -69,7 +73,7 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 		this.targetCategoriesMask = new BitSet();
 		StringBuilder baseFeatureNameBuilder = new StringBuilder(FEATURE_NAME);
 		for (Grammeme tcg : tagCatGrams) {
-			BitSet tcBits = morphDict.getGrammemWithChildrenBits(tcg.getId(), true);
+			BitSet tcBits = gramModel.getGrammemWithChildrenBits(tcg.getId(), true);
 			targetTagCategoriesMap.put(tcg, tcBits);
 			targetCategoriesMask.or(tcBits);
 			baseFeatureNameBuilder.append('_').append(tcg.getId());
@@ -81,25 +85,22 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 		}
 		this.availableCategoriesMask = new BitSet();
 		for (String posCat : availableTagCategories) {
-			BitSet posCatBits = morphDict.getGrammemWithChildrenBits(posCat, true);
+			BitSet posCatBits = gramModel.getGrammemWithChildrenBits(posCat, true);
 			if (posCatBits == null) {
 				throw new IllegalStateException(String.format(
 						"Grammeme %s does not exist!", posCat));
 			}
 			availableCategoriesMask.or(posCatBits);
 		}
-		// 
-		this.morphDict = morphDict;
 	}
 
 	@Override
 	public List<Feature> extract(JCas view, Annotation focusAnnotation)
 			throws CleartkExtractorException {
-		if (!(focusAnnotation instanceof Word)) {
-			throw new IllegalArgumentException(
-					String.format("focusAnnotation must be of Word type"));
+		Word focusWord = PUtils.getWordAnno(view, focusAnnotation);
+		if (focusWord == null || focusWord.getWordforms() == null) {
+			return ImmutableList.of();
 		}
-		Word focusWord = (Word) focusAnnotation;
 		String form = focusWord.getCoveredText();
 		if (!WordUtils.isRussianWord(form)) {
 			return ImmutableList.of(new Feature(FEATURE_NAME, "NotRussian"));
@@ -113,7 +114,7 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 				Wordform.allGramBitsFunction(morphDict));
 		//
 		org.opencorpora.cas.Wordform focusWf = focusWord.getWordforms(0);
-		BitSet focusWfBits = toGramBits(morphDict, FSUtils.toList(focusWf.getGrammems()));
+		BitSet focusWfBits = toGramBits(gramModel, FSUtils.toList(focusWf.getGrammems()));
 		focusWfBits.and(availableCategoriesMask);
 		// 
 		Set<BitSet> tokenPossibleTags = Sets.newHashSetWithExpectedSize(dictWfBitSets.size());
@@ -131,7 +132,7 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 			if (tokenPossibleBits.isEmpty()) {
 				featValue = "NULL";
 			} else {
-				featValue = gramJoiner.join(morphDict.toGramSet(tokenPossibleBits));
+				featValue = gramJoiner.join(gramModel.toGramSet(tokenPossibleBits));
 			}
 			resultList.add(new Feature(baseFeatureName, featValue));
 		}

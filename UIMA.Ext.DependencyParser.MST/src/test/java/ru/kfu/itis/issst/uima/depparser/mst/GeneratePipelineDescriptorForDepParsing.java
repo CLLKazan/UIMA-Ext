@@ -17,13 +17,12 @@ import org.apache.uima.resource.metadata.MetaDataObject;
 import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.xml.sax.SAXException;
 
-import ru.kfu.cll.uima.segmentation.SentenceSplitter;
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer;
-import ru.kfu.cll.uima.tokenizer.PostTokenizer;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
-import com.beust.jcommander.internal.Maps;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -38,7 +37,7 @@ public class GeneratePipelineDescriptorForDepParsing {
 		}
 		File outFile = new File(args[0]);
 
-    AnalysisEngineDescription outDesc = getDescription();
+		AnalysisEngineDescription outDesc = getDescription();
 		//
 		OutputStream out = FileUtils.openOutputStream(outFile);
 		try {
@@ -48,12 +47,12 @@ public class GeneratePipelineDescriptorForDepParsing {
 		}
 	}
 
-  public static AnalysisEngineDescription getDescription() throws UIMAException, IOException {
+	public static AnalysisEngineDescription getDescription() throws UIMAException, IOException {
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
-		aeDescriptions.put("tokenizer", InitialTokenizer.createDescription());
-		aeDescriptions.put("post-tokenizer", PostTokenizer.createDescription());
-		aeDescriptions.put("sentenceSplitter", SentenceSplitter.createDescription());
-
+		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
+		//
+		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
+		//
 		Import posTaggerDescImport = new Import_impl();
 		posTaggerDescImport.setName("pos_tagger");
 		aeDescriptions.put("pos-tagger", posTaggerDescImport);
@@ -65,5 +64,5 @@ public class GeneratePipelineDescriptorForDepParsing {
 		return PipelineDescriptorUtils.createAggregateDescription(
 				ImmutableList.copyOf(aeDescriptions.values()),
 				ImmutableList.copyOf(aeDescriptions.keySet()));
-  }
+	}
 }

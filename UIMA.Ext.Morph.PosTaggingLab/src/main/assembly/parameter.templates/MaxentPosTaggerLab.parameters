@@ -1,0 +1,17 @@
+# path to corpus directory (with XMI-files)
+srcCorpusDir=
+# The directory that contains descriptions of a corpus partitioning
+corpusSplitInfoDir=
+#
+posCategories=POST,Abbr,Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+# training
+trainingAlgorithm=MAXENT
+trainingIterations=130
+featureCutoff=5;0
+leftContextSize=2
+rightContextSize=1
+previousTagsInHistory=2;1;3
+generateDictionaryFeatures=true;false
+# analysis
+beamSize=3
+beamSearchValidate=false;true

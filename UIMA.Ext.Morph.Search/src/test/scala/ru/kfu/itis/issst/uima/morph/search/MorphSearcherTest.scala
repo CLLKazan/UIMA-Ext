@@ -7,7 +7,7 @@ import org.scalatest.FunSuite
 import org.uimafit.factory.AnalysisEngineFactory._
 import org.uimafit.factory.TypeSystemDescriptionFactory._
 import org.uimafit.factory.ExternalResourceFactory._
-import ru.kfu.cll.uima.tokenizer.InitialTokenizer
+import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.SerializedDictionaryResource
 import java.io.File

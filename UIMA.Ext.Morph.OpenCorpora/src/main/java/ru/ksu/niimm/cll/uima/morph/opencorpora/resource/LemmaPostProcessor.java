@@ -14,5 +14,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
  */
 public interface LemmaPostProcessor {
 
-	boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap);
+	boolean process(MorphDictionary dict, Lemma.Builder lemmaBuilder,
+			Multimap<String, Wordform> wfMap);
+	
+	void dictionaryParsed(MorphDictionary dict);
 }

@@ -19,7 +19,7 @@
 		</configurationParameters>
 		<typeSystemDescription>
 			<imports>
-				<import name="ru.kfu.cll.uima.segmentation.segmentation-TypeSystem"/>
+				<import name="ru.kfu.itis.issst.uima.segmentation.segmentation-TypeSystem"/>
 				<import name="ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer"/>
 			</imports>
 		</typeSystemDescription>

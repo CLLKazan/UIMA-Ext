@@ -27,6 +27,8 @@ import org.uimafit.pipeline.JCasIterable;
 import org.uimafit.util.CasUtil;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -56,8 +58,8 @@ public class UnitClassifierTest {
 						XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString),
 						TypeSystemDescriptionFactory
 								.createTypeSystemDescription(),
-						createTypeSystemDescription("ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem"),
-						createTypeSystemDescription("ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")));
+						TokenizerAPI.getTypeSystemDescription(),
+						SentenceSplitterAPI.getTypeSystemDescription()));
 		reader = CollectionReaderFactory.createCollectionReader(
 				CorpusDAOCollectionReader.class, tsd,
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);

@@ -17,7 +17,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class LemmaByGrammemFilter implements LemmaPostProcessor {
+public class LemmaByGrammemFilter extends LexemePostProcessorBase {
 
 	private Set<String> grammemsToReject;
 
@@ -26,10 +26,11 @@ public class LemmaByGrammemFilter implements LemmaPostProcessor {
 	}
 
 	@Override
-	public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
-		BitSet grBits = lemma.getGrammems();
+	public boolean process(MorphDictionary dict, Lemma.Builder lemmaBuilder,
+			Multimap<String, Wordform> wfMap) {
+		BitSet grBits = lemmaBuilder.getGrammems();
 		for (int i = grBits.nextSetBit(0); i >= 0; i = grBits.nextSetBit(i + 1)) {
-			Grammeme gr = dict.getGrammem(i);
+			Grammeme gr = dict.getGramModel().getGrammem(i);
 			if (grammemsToReject.contains(gr.getId())) {
 				return false;
 			}

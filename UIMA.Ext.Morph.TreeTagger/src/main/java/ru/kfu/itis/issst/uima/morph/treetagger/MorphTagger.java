@@ -3,14 +3,14 @@
  */
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
+import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
+
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.annolab.tt4j.TokenHandler;
 import org.annolab.tt4j.TreeTaggerWrapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
@@ -25,8 +25,6 @@ import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
-import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -35,32 +33,17 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
 public class MorphTagger extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_TREETAGGER_MODEL_NAME = "treeTaggerModelName";
-	public static final String PARAM_TAG_MAPPER_CLASS = "tagMapperClass";
 	// config
 	@ConfigurationParameter(name = PARAM_TREETAGGER_MODEL_NAME, mandatory = true)
 	private String ttModelName;
-	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS, defaultValue = "ru.kfu.itis.issst.uima.morph.treetagger.MTETagMapper")
-	private String tagMapperClassName;
 	// monitors
 	private final Object casMon = new Object();
 	// state fields
-	private TagMapper tagMapper;
 	private TreeTaggerWrapper<Token> treeTagger;
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
 		super.initialize(ctx);
-
-		if (!StringUtils.isBlank(tagMapperClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<TagMapper> tagMapperClass = (Class<TagMapper>) Class
-						.forName(tagMapperClassName);
-				tagMapper = tagMapperClass.newInstance();
-			} catch (Exception e) {
-				throw new ResourceInitializationException(e);
-			}
-		}
 
 		treeTagger = new TreeTaggerWrapper<Token>();
 		treeTagger.setAdapter(new TokenAdapter());
@@ -93,12 +76,7 @@ public class MorphTagger extends JCasAnnotator_ImplBase {
 						if (lemma != null) {
 							wf.setLemma(lemma);
 						}
-						if (tagMapper == null) {
-							wf.setPos(pos);
-						} else {
-							Set<String> grams = tagMapper.parseTag(pos, token.getCoveredText());
-							MorphDictionaryUtils.applyGrammems(grams, wf);
-						}
+						wf.setPos(postProcessExternalTag(pos));
 
 						wf.setWord(w);
 						FSArray wfArr = new FSArray(jCas, 1);

@@ -4,10 +4,7 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.punctuationTagMap;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.CONJ;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.NPRO;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PRCL;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.PREP;
+import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import java.util.BitSet;
 import java.util.Set;
@@ -16,7 +13,7 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -32,18 +29,18 @@ import com.google.common.collect.Sets;
  */
 public class TagUtils {
 
-	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, PREP, CONJ, PRCL);
+	private static final Set<String> closedPosSet = ImmutableSet.of(NPRO, Apro, PREP, CONJ, PRCL);
 
 	/**
 	 * @param dict
 	 * @return function that returns true if the given gram bits represents a
 	 *         closed class tag
 	 */
-	public static Function<BitSet, Boolean> getClosedClassIndicator(MorphDictionary dict) {
+	public static Function<BitSet, Boolean> getClosedClassIndicator(GramModel gm) {
 		// initialize mask
 		final BitSet closedClassTagsMask = new BitSet();
 		for (String cpGram : closedPosSet) {
-			closedClassTagsMask.set(dict.getGrammemNumId(cpGram));
+			closedClassTagsMask.set(gm.getGrammemNumId(cpGram));
 		}
 		//
 		return new Function<BitSet, Boolean>() {
@@ -63,6 +60,10 @@ public class TagUtils {
 				|| !Sets.intersection(
 						DictionaryBasedTagMapper.parseTag(tag), closedPosSet)
 						.isEmpty();
+	}
+
+	public static String postProcessExternalTag(String tag) {
+		return !"null".equals(String.valueOf(tag)) ? tag : null;
 	}
 
 	public static final Set<String> closedClassPunctuationTags = ImmutableSet

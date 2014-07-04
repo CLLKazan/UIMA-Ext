@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="initialTokenizer">
+			<import name="ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="postTokenizer">
+			<import name="ru.kfu.itis.issst.uima.tokenizer.PostTokenizer" />
+		</delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+	<analysisEngineMetaData>
+		<name>InitialTokenizer+PostTokenizer</name>
+		<description>Unicode-classes-based tokenizer with additional heuristic post-processing</description>
+		<version>1.0</version>
+		<vendor>ISSST Lab at Kazan Federal University</vendor>
+		<configurationParameters>
+			<configurationParameter>
+				<name>spanType</name>
+				<type>String</type>
+				<mandatory>false</mandatory>
+				<overrides>
+					<parameter>initialTokenizer/spanType</parameter>
+				</overrides>
+			</configurationParameter>
+		</configurationParameters>
+		<flowConstraints>
+			<fixedFlow>
+				<node>initialTokenizer</node>
+				<node>postTokenizer</node>
+			</fixedFlow>
+		</flowConstraints>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<resourceManagerConfiguration />
+</analysisEngineDescription>

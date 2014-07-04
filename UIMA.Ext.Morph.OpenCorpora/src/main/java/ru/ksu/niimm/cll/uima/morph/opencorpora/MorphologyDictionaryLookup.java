@@ -69,7 +69,7 @@ public class MorphologyDictionaryLookup {
 					}
 					for (Wordform se : sEntries) {
 						BitSet gramBits = getAllGramBits(se, dict);
-						List<String> grams = dict.toGramSet(gramBits);
+						List<String> grams = dict.getGramModel().toGramSet(gramBits);
 						writeEntry(s, grams);
 					}
 				}

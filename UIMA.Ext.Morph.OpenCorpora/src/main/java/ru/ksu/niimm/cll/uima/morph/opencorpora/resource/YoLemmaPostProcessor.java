@@ -16,7 +16,7 @@ import com.google.common.collect.Multimap;
  * @author Rinat Gareev
  * 
  */
-public class YoLemmaPostProcessor implements LemmaPostProcessor {
+public class YoLemmaPostProcessor extends LexemePostProcessorBase {
 
 	private static final String YO_CHARS = "ёЁ";
 	private static final String YO_REPLACEMENTS = "еЕ";
@@ -30,7 +30,8 @@ public class YoLemmaPostProcessor implements LemmaPostProcessor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean process(MorphDictionary dict, Lemma lemma, Multimap<String, Wordform> wfMap) {
+	public boolean process(MorphDictionary dict, Lemma.Builder lemmaBuilder,
+			Multimap<String, Wordform> wfMap) {
 		Multimap<String, Wordform> additionalWfs = LinkedHashMultimap.create();
 		for (String wfStr : wfMap.keySet()) {
 			// alternative wordform string

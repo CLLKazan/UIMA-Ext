@@ -22,6 +22,8 @@ import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
@@ -35,7 +37,7 @@ import com.google.common.collect.Maps;
  * 
  */
 public class WriteFeatures {
-	
+
 	public static void main(String[] args) throws Exception {
 		WriteFeatures obj = new WriteFeatures();
 		JCommander com = new JCommander(obj);
@@ -72,8 +74,8 @@ public class WriteFeatures {
 		// setup TypeSystem
 		TypeSystemDescription inputTS = createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
+				TokenizerAPI.TYPESYSTEM_TOKENIZER,
+				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				"org.opencorpora.morphology-ts");
 		// setup a training set collection reader
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
@@ -103,7 +105,7 @@ public class WriteFeatures {
 		cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(cpe, 50));
 		cpe.process();
 	}
-	
+
 	static {
 		Slf4jLoggerImpl.forceUsingThisImplementation();
 	}

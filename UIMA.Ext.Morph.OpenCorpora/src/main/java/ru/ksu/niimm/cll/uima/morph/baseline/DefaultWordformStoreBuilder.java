@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import java.util.BitSet;
 import java.util.Map;
 
 import com.google.common.collect.HashMultiset;
@@ -14,39 +13,39 @@ import com.google.common.collect.Multiset;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-class DefaultWordformStoreBuilder implements WordformStoreBuilder {
+class DefaultWordformStoreBuilder<TagType> implements WordformStoreBuilder<TagType> {
 
 	// state
-	private Map<String, Multiset<BitSet>> strKeyMap = Maps.newHashMap();
+	private Map<String, Multiset<TagType>> strKeyMap = Maps.newHashMap();
 
 	@Override
-	public void increment(String wordString, BitSet posBits) {
-		Multiset<BitSet> posSet = strKeyMap.get(wordString);
-		if (posSet == null) {
-			posSet = HashMultiset.create();
-			strKeyMap.put(wordString, posSet);
+	public void increment(String wordString, TagType tag) {
+		Multiset<TagType> tags = strKeyMap.get(wordString);
+		if (tags == null) {
+			tags = HashMultiset.create();
+			strKeyMap.put(wordString, tags);
 		}
-		posSet.add(posBits);
+		tags.add(tag);
 	}
 
 	@Override
-	public DefaultWordformStore build() {
-		DefaultWordformStore result = new DefaultWordformStore();
+	public DefaultWordformStore<TagType> build() {
+		DefaultWordformStore<TagType> result = new DefaultWordformStore<TagType>();
 		result.strKeyMap = Maps.newHashMapWithExpectedSize(strKeyMap.size());
-		for (String str : strKeyMap.keySet()) {
-			Multiset<BitSet> gbsBag = strKeyMap.get(str);
+		for (String wf : strKeyMap.keySet()) {
+			Multiset<TagType> tagBag = strKeyMap.get(wf);
 			int max = 0;
-			BitSet maxBS = null;
-			for (Multiset.Entry<BitSet> gbsEntry : gbsBag.entrySet()) {
-				if (gbsEntry.getCount() > max) {
-					max = gbsEntry.getCount();
-					maxBS = gbsEntry.getElement();
+			TagType maxTag = null;
+			for (Multiset.Entry<TagType> tagEntry : tagBag.entrySet()) {
+				if (tagEntry.getCount() > max) {
+					max = tagEntry.getCount();
+					maxTag = tagEntry.getElement();
 				}
 			}
-			if (maxBS == null) {
+			if (maxTag == null) {
 				throw new IllegalStateException();
 			}
-			result.strKeyMap.put(str, maxBS);
+			result.strKeyMap.put(wf, maxTag);
 		}
 		return result;
 	}

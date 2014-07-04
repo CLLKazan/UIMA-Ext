@@ -31,12 +31,14 @@ import org.apache.uima.cas.text.AnnotationIndex
 import ru.kfu.itis.issst.uima.shaltef.util.CasTestUtils
 import ru.kfu.itis.issst.uima.shaltef.util.NprCasBuilder
 import ru.kfu.itis.cll.uima.cas.FSUtils
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 
 class PhraseIndexTestSuite extends FunSuite with CasTestUtils {
 
   private val ts = loadTypeSystem("ru.kfu.itis.issst.uima.phrrecog.ts-phrase-recognizer",
-    "ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-    "ru.kfu.cll.uima.segmentation.segmentation-TypeSystem")
+    TokenizerAPI.TYPESYSTEM_TOKENIZER,
+    SentenceSplitterAPI.TYPESYSTEM_SENTENCES)
 
   private val sentenceType = ts.getType(classOf[Sentence].getName)
 
