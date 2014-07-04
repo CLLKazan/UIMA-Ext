@@ -87,7 +87,7 @@ public class MatchingConfigurationInitializerTest extends AbstractJUnit4SpringCo
 		expectedBuilder.addFSCollectionFeatureMatcher("subChunks", expectedBuilder, true);
 		CompositeMatcher<AnnotationFS> expectedMatcher = expectedBuilder.build();
 		assertMatchersEqual(
-				TypeBasedMatcherDispatcher.<AnnotationFS> builder()
+				TypeBasedMatcherDispatcher.<AnnotationFS> builder(ts)
 						.addSubmatcher(chunkType, expectedMatcher).build(),
 				actualMatcher);
 	}
@@ -104,7 +104,7 @@ public class MatchingConfigurationInitializerTest extends AbstractJUnit4SpringCo
 
 		Type firstType = ts.getType("test.TestFirst");
 		Type secondType = ts.getType("test.TestSecond");
-		Builder<AnnotationFS> expectedBuilder = TypeBasedMatcherDispatcher.builder();
+		Builder<AnnotationFS> expectedBuilder = TypeBasedMatcherDispatcher.builder(ts);
 		expectedBuilder.addSubmatcher(firstType,
 				CompositeMatcher.builderForAnnotation(firstType).addTypeChecker().build());
 		expectedBuilder.addSubmatcher(secondType,

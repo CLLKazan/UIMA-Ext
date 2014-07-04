@@ -65,7 +65,7 @@ public class MatchingConfigurationInitializer {
 					KEY_MATCHING_CONFIGURATION_TARGET_TYPE));
 		}
 		TypeBasedMatcherDispatcher.Builder<AnnotationFS> builder =
-				TypeBasedMatcherDispatcher.builder();
+				TypeBasedMatcherDispatcher.builder(ts);
 		List<String> targetTypeNames = Arrays.asList(StringUtils.split(
 				targetTypeNamesStr, ",;"));
 		for (String ttn : targetTypeNames) {
@@ -213,10 +213,11 @@ public class MatchingConfigurationInitializer {
 					Type componentType = MatchingUtils.getComponentType(featRange);
 					if (componentType.isPrimitive()) {
 						subMatcherStrings.remove("primitive");
-						if(!subMatcherStrings.isEmpty()){
-							throw new IllegalStateException(String.format(
-									"Illegal matcher description for primitive collection feature %s:\n%s",
-									feature, subMatcherStrings));
+						if (!subMatcherStrings.isEmpty()) {
+							throw new IllegalStateException(
+									String.format(
+											"Illegal matcher description for primitive collection feature %s:\n%s",
+											feature, subMatcherStrings));
 						}
 						builder.addPrimitiveCollectionFeatureMatcher(featName, ignoreOrder);
 					} else {

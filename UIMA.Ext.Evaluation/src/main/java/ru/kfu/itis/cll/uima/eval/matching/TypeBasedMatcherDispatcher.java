@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
+import org.apache.uima.cas.TypeSystem;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -25,8 +26,8 @@ import com.google.common.collect.Maps;
  */
 public class TypeBasedMatcherDispatcher<FST extends FeatureStructure> extends MatcherBase<FST> {
 
-	public static <FST extends FeatureStructure> Builder<FST> builder() {
-		return new Builder<FST>();
+	public static <FST extends FeatureStructure> Builder<FST> builder(TypeSystem ts) {
+		return new Builder<FST>(ts);
 	}
 
 	public static class Builder<FST extends FeatureStructure> {
@@ -37,7 +38,8 @@ public class TypeBasedMatcherDispatcher<FST extends FeatureStructure> extends Ma
 			return this;
 		}
 
-		Builder() {
+		Builder(TypeSystem ts) {
+			instance.ts = ts;
 			instance.type2matcher = Maps.newHashMap();
 		}
 
@@ -47,6 +49,7 @@ public class TypeBasedMatcherDispatcher<FST extends FeatureStructure> extends Ma
 		}
 	}
 
+	private TypeSystem ts;
 	private Map<Type, Matcher<FST>> type2matcher;
 
 	private TypeBasedMatcherDispatcher() {
@@ -74,6 +77,13 @@ public class TypeBasedMatcherDispatcher<FST extends FeatureStructure> extends Ma
 	private Matcher<FST> getSubmatcher(FST ref) {
 		Type refType = ref.getType();
 		Matcher<FST> submatcher = type2matcher.get(refType);
+		while (submatcher == null) {
+			refType = ts.getParent(refType);
+			if (refType == null) {
+				break;
+			}
+			submatcher = type2matcher.get(refType);
+		}
 		if (submatcher == null) {
 			throw new IllegalStateException(String.format(
 					"There is no submatcher for type %s", refType));
