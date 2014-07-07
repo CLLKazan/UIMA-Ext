@@ -3,12 +3,12 @@ package ru.kfu.itis.issst.uima.morph.lemmatizer
 import scala.collection.JavaConversions._
 import org.apache.uima.jcas.JCas
 import org.uimafit.util.JCasUtil.select
-import org.opencorpora.cas.{Word, Wordform}
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.{Wordform => DictWordform}
+import org.opencorpora.cas.{ Word, Wordform }
+import ru.ksu.niimm.cll.uima.morph.opencorpora.model.{ Wordform => DictWordform }
 import org.apache.uima.cas.FeatureStructure
 import org.uimafit.descriptor.ExternalResource
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder
-import ru.ksu.niimm.cll.uima.morph.opencorpora.{WordUtils, MorphologyAnnotator}
+import ru.ksu.niimm.cll.uima.morph.opencorpora.{ WordUtils, MorphologyAnnotator }
 
 /**
  * Created by fsqcds on 07/05/14.
@@ -29,7 +29,7 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
 
     if (entries.size > 0 && targetGrammems != null) {
       val lemmaId = dict.getEntries(wordText).maxBy((dictWf: DictWordform) => {
-        val wfGrammems: Set[String] = dict.toGramSet(dictWf.getGrammems).toSet
+        val wfGrammems: Set[String] = dict.getGramModel().toGramSet(dictWf.getGrammems).toSet
         jaccardCoef(targetGrammems.toArray.toSet, wfGrammems)
       }).getLemmaId
 
@@ -46,8 +46,7 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
         try {
           val lemma = findLemma(wordform)
           wordform.setLemma(lemma)
-        }
-        catch {
+        } catch {
           case e: IndexOutOfBoundsException => {}
         }
       })
