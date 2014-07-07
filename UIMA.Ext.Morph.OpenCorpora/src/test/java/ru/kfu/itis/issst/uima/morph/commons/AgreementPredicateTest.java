@@ -26,7 +26,7 @@ public class AgreementPredicateTest {
 
 	@Test
 	public void testCaseAgreement() {
-		AgreementPredicate pred = AgreementPredicate.caseAgreement(gm);
+		AgreementPredicate pred = AgreementPredicates.caseAgreement(gm);
 		assertEquals(false, pred.apply(bits("NOUN"), bits("NOUN&gent")));
 		assertEquals(true, pred.apply(bits("NOUN&gent"), bits("ADJF&gent")));
 		assertEquals(true, pred.apply(bits("NOUN&gen1"), bits("ADJF&gent")));
@@ -51,7 +51,7 @@ public class AgreementPredicateTest {
 
 	@Test
 	public void testNumberAggreement() {
-		AgreementPredicate pred = AgreementPredicate.numberAgreement(gm);
+		AgreementPredicate pred = AgreementPredicates.numberAgreement(gm);
 		assertEquals(false, pred.apply(bits("CONJ"), bits("NOUN&sing")));
 		assertEquals(false, pred.apply(bits("ADJF&plur"), bits("")));
 		assertEquals(false, pred.apply(bits("ADJF&plur"), bits("NOUN&sing")));
@@ -62,7 +62,7 @@ public class AgreementPredicateTest {
 
 	@Test
 	public void testGenderAgreement() {
-		AgreementPredicate pred = AgreementPredicate.genderAgreement(gm);
+		AgreementPredicate pred = AgreementPredicates.genderAgreement(gm);
 		assertEquals(false, pred.apply(bits(""), bits("")));
 		assertEquals(false, pred.apply(bits("VERB"), bits("")));
 		assertEquals(false, pred.apply(bits("ADJF&GNdr&Apro"), bits("NUMR")));

@@ -3,10 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static ru.kfu.itis.issst.uima.morph.commons.AgreementPredicate.caseAgreement;
-import static ru.kfu.itis.issst.uima.morph.commons.AgreementPredicate.genderAgreement;
-import static ru.kfu.itis.issst.uima.morph.commons.AgreementPredicate.numberAgreement;
-import static ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicateConjunction.and;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
@@ -17,7 +13,7 @@ import java.util.TreeSet;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
-import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicate;
+import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
@@ -30,7 +26,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -75,18 +70,7 @@ public class DictionaryBasedContextGenerator {
 			targetCategoriesMask.or(tcBits);
 		}
 		//
-		AgreementPredicate numAgr = numberAgreement(gramModel);
-		AgreementPredicate gndrAgr = genderAgreement(gramModel);
-		AgreementPredicate caseAgr = caseAgreement(gramModel);
-		namedPredicates = ImmutableMap.<String, TwoTagPredicate> builder()
-				.put("NumberAgr", numAgr)
-				.put("GenderAgr", gndrAgr)
-				.put("CaseAgr", caseAgr)
-				.put("NumberGenderAgr", and(numAgr, gndrAgr))
-				.put("NumberCaseAgr", and(numAgr, caseAgr))
-				.put("GenderCaseAgr", and(gndrAgr, caseAgr))
-				.put("NumberGenderCaseAgr", and(numAgr, gndrAgr, caseAgr))
-				.build();
+		namedPredicates = AgreementPredicates.numberGenderCaseCombinations(gramModel);
 	}
 
 	public List<String> extract(Token focusToken, String prevTag) {

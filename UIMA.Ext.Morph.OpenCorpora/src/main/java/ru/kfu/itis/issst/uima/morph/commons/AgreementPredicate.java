@@ -3,7 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.morph.commons;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
@@ -26,37 +25,6 @@ import com.google.common.collect.Multimap;
  * 
  */
 public class AgreementPredicate implements TwoTagPredicate {
-
-	public static AgreementPredicate caseAgreement(GramModel gm) {
-		return caseAgrBuilder.build(gm);
-	}
-
-	public static AgreementPredicate numberAgreement(GramModel gm) {
-		return numberAgrBuilder.build(gm);
-	}
-
-	public static AgreementPredicate genderAgreement(GramModel gm) {
-		return genderAgrBuilder.build(gm);
-	}
-
-	private static final Builder caseAgrBuilder = new Builder()
-			.agree(nomn)
-			.agree(gent).agree(gent, gen1).agree(gent, gen2).agree(gen1).agree(gen2)
-			.agree(accs).agree(nomn, acc2).agree(acc2)
-			.agree(datv)
-			.agree(ablt)
-			.agree(loct).agree(loct, loc1).agree(loct, loc2).agree(loc1).agree(loc2)
-			.agree(voct);
-
-	private static final Builder numberAgrBuilder = new Builder()
-			.agree(sing)
-			.agree(plur);
-
-	private static final Builder genderAgrBuilder = new Builder()
-			.agree(masc).agree(masc, GNdr)
-			.agree(femn).agree(femn, GNdr)
-			.agree(neut).agree(neut, GNdr)
-			.agree(GNdr);
 
 	public static class Builder {
 		private Multimap<Set<String>, Set<String>> agreementMap = HashMultimap.create();
