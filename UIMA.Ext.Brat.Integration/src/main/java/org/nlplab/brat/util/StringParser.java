@@ -82,6 +82,14 @@ public class StringParser {
 		}
 	}
 
+	/**
+	 * Attempt to skip a substring starting from the beginning of the current
+	 * string and matched by the given pattern.
+	 * 
+	 * @param pattern
+	 * @return true if the given pattern is matched against the beginning of the
+	 *         current string
+	 */
 	public boolean skipOptional(Pattern pattern) {
 		Matcher m = pattern.matcher(currentString);
 		if (m.lookingAt()) {

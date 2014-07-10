@@ -492,15 +492,17 @@ public class BratTypesConfiguration {
 		// skip leading space if an event type belong to some category 
 		p.skipOptional(SPACE_PATTERN);
 		String typeName = p.consume1(TYPE_NAME_PATTERN);
-		p.skip(SPACE_PATTERN);
 		Multimap<String, String> roleTypeNames = LinkedHashMultimap.create();
 		Map<String, Cardinality> roleCardinalities = Maps.newHashMap();
-		// parse first role definition
-		parseEventRoleDef(p, b, roleTypeNames, roleCardinalities);
-		// parse remaining role definitions
-		while (!StringUtils.isBlank(p.getCurrentString())) {
-			p.skip(ROLE_SEP_PATTERN);
+		// allow events without roles
+		if (p.skipOptional(SPACE_PATTERN)) {
+			// parse first role definition
 			parseEventRoleDef(p, b, roleTypeNames, roleCardinalities);
+			// parse remaining role definitions
+			while (!StringUtils.isBlank(p.getCurrentString())) {
+				p.skip(ROLE_SEP_PATTERN);
+				parseEventRoleDef(p, b, roleTypeNames, roleCardinalities);
+			}
 		}
 		b.addEventType(typeName, roleTypeNames, roleCardinalities);
 	}
