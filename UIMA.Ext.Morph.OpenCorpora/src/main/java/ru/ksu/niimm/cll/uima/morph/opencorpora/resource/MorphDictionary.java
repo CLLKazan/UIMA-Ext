@@ -37,11 +37,10 @@ public interface MorphDictionary {
 	 */
 	Lemma getLemma(int lemmaId);
 
+	// TODO move to a interface that is kind of MutableMorphDictionary 
 	void addLemma(Lemma lemma);
 
 	int getLemmaMaxId();
-
-	String getPos(Lemma lemma);
 
 	Map<Integer, LemmaLinkType> getLemmaOutlinks(int lemmaId);
 

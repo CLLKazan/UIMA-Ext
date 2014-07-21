@@ -11,10 +11,10 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- *
+ * 
  */
 public interface GramModel {
-	
+
 	int getGrammemMaxNumId();
 
 	int getGrammemNumId(String gramId);
@@ -26,7 +26,7 @@ public interface GramModel {
 	 * @return grammeme with given string id or null if it does not exist.
 	 */
 	Grammeme getGrammem(String id);
-	
+
 	/**
 	 * @param gramId
 	 * @param includeTarget
@@ -50,6 +50,14 @@ public interface GramModel {
 	 * @return list of string ids ordered by grammeme numerical id (ascending)
 	 */
 	List<String> toGramSet(BitSet grammems);
-	
+
 	BitSet getPosBits();
+
+	/**
+	 * @return PoS-label from the given gram bits if there are any; otherwise -
+	 *         null.
+	 * @throws IllegalArgumentException
+	 *             if there are > 1 PoS-bits set in the given bitset.
+	 */
+	String getPos(BitSet gramBits);
 }

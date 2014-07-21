@@ -19,6 +19,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
@@ -111,6 +112,26 @@ public class ImmutableGramModel implements GramModel, Serializable {
 		return (BitSet) posBits.clone();
 	}
 
+	@Override
+	public String getPos(BitSet lGrams) {
+		lGrams.and(getPosBits());
+		if (lGrams.isEmpty()) {
+			return null;
+		}
+		if (lGrams.cardinality() > 1) {
+			List<String> posList = Lists.newLinkedList();
+			for (int i = lGrams.nextSetBit(0); i >= 0; i = lGrams.nextSetBit(i + 1)) {
+				posList.add(getGrammem(i).getId());
+			}
+			throw new IllegalArgumentException(String.format(
+					"More than 1 POS grammeme:\n%s", posList));
+		}
+		int gramNumId = lGrams.nextSetBit(0);
+		Grammeme result = getGrammem(gramNumId);
+		notNull(result);
+		return result.getId();
+	}
+
 	private void noGrammem(String id) {
 		throw new IllegalStateException(String.format(
 				"Grammem with id = %s is not registered", id));
@@ -163,6 +184,12 @@ public class ImmutableGramModel implements GramModel, Serializable {
 	private static void isTrue(boolean condition) {
 		if (!condition) {
 			throw new IllegalStateException("Assertion failed");
+		}
+	}
+
+	private static void notNull(Object obj) {
+		if (obj == null) {
+			throw new IllegalStateException("Unexpected null value");
 		}
 	}
 }

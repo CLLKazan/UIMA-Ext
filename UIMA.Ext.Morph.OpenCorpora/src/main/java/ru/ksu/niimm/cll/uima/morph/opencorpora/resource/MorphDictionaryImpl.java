@@ -14,7 +14,6 @@ import org.apache.commons.lang3.event.EventListenerSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.LemmaLinkType;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
@@ -184,28 +183,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 	}
 
 	@Override
-	public String getPos(Lemma lemma) {
-		BitSet lGrams = lemma.getGrammems();
-		lGrams.and(gramModel.getPosBits());
-		if (lGrams.isEmpty()) {
-			log.error("{} does not have POS grammem", lemma);
-			return null;
-		}
-		if (lGrams.cardinality() > 1) {
-			List<String> posList = Lists.newLinkedList();
-			for (int i = lGrams.nextSetBit(0); i >= 0; i = lGrams.nextSetBit(i + 1)) {
-				posList.add(gramModel.getGrammem(i).getId());
-			}
-			log.error("{} has more than 1 POS grammem:\n{}\n" +
-					"Will return first w.r.t. numerical id", lemma, posList);
-		}
-		int gramNumId = lGrams.nextSetBit(0);
-		Grammeme result = gramModel.getGrammem(gramNumId);
-		notNull(result);
-		return result.getId();
-	}
-
-	@Override
 	public boolean containsGramSet(BitSet tag) {
 		return tagset.contains(tag);
 	}
@@ -281,12 +258,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 			throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		complete = true;
-	}
-
-	private static void notNull(Object obj) {
-		if (obj == null) {
-			throw new IllegalStateException("Unexpected null value");
-		}
 	}
 
 	private BitSet internWordformGrammems(BitSet grammems) {

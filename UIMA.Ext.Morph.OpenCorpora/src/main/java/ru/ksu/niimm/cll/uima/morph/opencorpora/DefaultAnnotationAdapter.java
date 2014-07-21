@@ -47,7 +47,7 @@ public class DefaultAnnotationAdapter extends AnnotationAdapterBase {
 			// set lemma norm
 			casWf.setLemma(lemma.getString());
 			// set pos
-			casWf.setPos(dict.getPos(lemma));
+			casWf.setPos(dict.getGramModel().getPos(lemma.getGrammems()));
 			// set grammems
 			grammems.or(lemma.getGrammems());
 			List<String> gramSet = dict.getGramModel().toGramSet(grammems);
