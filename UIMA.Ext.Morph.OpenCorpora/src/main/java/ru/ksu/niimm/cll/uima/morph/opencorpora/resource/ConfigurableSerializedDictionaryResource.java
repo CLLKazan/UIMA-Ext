@@ -42,7 +42,7 @@ public class ConfigurableSerializedDictionaryResource implements MorphDictionary
 				Class<? extends WordformPredictor> wfPredictorClass = (Class<? extends WordformPredictor>)
 						Class.forName(wfPredictorClassName);
 				WordformPredictor wfPredictor = makePredictor(wfPredictorClass);
-				dict.setWfPredictor(wfPredictor);
+				((MorphDictionaryImpl) dict).setWfPredictor(wfPredictor);
 				log.info("{} was set in deserialized MorphDictionary",
 						wfPredictor.getClass().getSimpleName());
 			} else {

@@ -82,7 +82,6 @@ public class MorphDictionaryImpl implements Serializable, MorphDictionary {
 		listeners.removeListener(listener);
 	}
 
-	@Override
 	public void setWfPredictor(WordformPredictor wfPredictor) {
 		this.wfPredictor = wfPredictor;
 	}

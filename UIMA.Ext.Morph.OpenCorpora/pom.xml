@@ -7,30 +7,12 @@
 		<version>0.3-SNAPSHOT</version>
 		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
-	<artifactId>uima-morph-opencorpora</artifactId>
-	<name>UIMA.Morph.OpenCorpora</name>
-	<description>UIMA Analyzer based on OpenCorpora Morphology dictionary.</description>
+	<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
+	<name>UIMA.Ext.Morph.Dictionary.OpenCorpora</name>
+	<description>the Morph.Dictionary.API implementation based on the dictionary of OpenCorpora project</description>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>add-jcasgen-sources</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src/main/jcas</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<executions>
@@ -70,16 +52,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-morph-dictionary-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-ext-commons</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.cleartk</groupId>
-			<artifactId>cleartk-ml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ru.kfu.itis.issst.crfsuite4j</groupId>
-			<artifactId>crfsuite4j</artifactId>
-			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
@@ -142,62 +119,4 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>make-jcas</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>generate-jcas-sources</id>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<phase>generate-sources</phase>
-								<configuration>
-									<executable>java</executable>
-									<arguments>
-										<argument>-classpath</argument>
-										<classpath />
-										<argument>-Duima.datapath=src/main/resources</argument>
-										<argument>org.apache.uima.tools.jcasgen.Jg</argument>
-										<argument>-jcasgeninput</argument>
-										<argument>src/main/resources/org/opencorpora/morphology-ts.xml</argument>
-										<argument>-jcasgenoutput</argument>
-										<argument>src/main/jcas</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>remove-imported-jcas</id>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<phase>process-sources</phase>
-								<configuration>
-									<target>
-										<delete includeemptydirs="true" verbose="true">
-											<fileset dir="src/main/jcas">
-												<exclude name="org/opencorpora/cas/**/*.java" />
-											</fileset>
-										</delete>
-									</target>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

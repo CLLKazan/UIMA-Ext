@@ -3,24 +3,20 @@
  */
 package ru.kfu.itis.issst.uima.depparser.lab;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-
 import java.io.File;
 import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
-import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.metadata.MetaDataObject;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.depparser.mst.MSTCollectionReader;
 import ru.kfu.itis.issst.uima.depparser.mst.MSTWriter;
-import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
-import ru.ksu.niimm.cll.uima.morph.ml.TieredPosSequenceAnnotatorFactory;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -68,22 +64,17 @@ public class AssignPosTags {
 		//
 		cpeBuilder.setReader(MSTCollectionReader.createDescription(inputFile));
 		//
-		List<AnalysisEngineDescription> aeDescs = Lists.newLinkedList();
+		List<MetaDataObject> aeDescs = Lists.newLinkedList();
 		List<String> aeNames = Lists.newLinkedList();
-		ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-				CachedSerializedDictionaryResource.class,
-				"file:dict.opcorpora.ser");
-		TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
-				tcrfTaggerModelBaseDir, true, morphDictDesc, aeDescs, aeNames);
 		//
-		aeDescs.add(TagAssembler.createDescription(morphDictDesc));
-		aeNames.add("tagAssembler");
+		aeDescs.add(PosTaggerAPI.getAEImport());
+		aeNames.add("pos-tagger");
 		//
 		aeDescs.add(MSTWriter.createDescription(outputFile));
 		aeNames.add("mstWriter");
 		//
-		AnalysisEngineDescription pipeDesc = createAggregateDescription(aeDescs, aeNames,
-				null, null, null, null);
+		AnalysisEngineDescription pipeDesc =
+				PipelineDescriptorUtils.createAggregateDescription(aeDescs, aeNames);
 		cpeBuilder.addAnalysisEngine(pipeDesc);
 		//
 		CollectionProcessingEngine cpe = cpeBuilder.createCpe();

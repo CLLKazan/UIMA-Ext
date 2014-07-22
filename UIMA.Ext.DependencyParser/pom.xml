@@ -46,7 +46,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-morph-opencorpora</artifactId>
+			<artifactId>uima-ext-postagger-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>

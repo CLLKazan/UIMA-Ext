@@ -26,7 +26,7 @@ public class SerializedDictionaryResource implements MorphDictionaryHolder {
 	public void load(DataResource dr) throws ResourceInitializationException {
 		try {
 			dict = DictionaryDeserializer.from(dr.getInputStream(), String.valueOf(dr.getUrl()));
-			dict.setWfPredictor(new DummyWordformPredictor(dict));
+			((MorphDictionaryImpl) dict).setWfPredictor(new DummyWordformPredictor(dict));
 			log.info("DummyWordformPredictor was set in Deserialized MorphDictionary");
 		} catch (Exception e) {
 			throw new ResourceInitializationException(e);

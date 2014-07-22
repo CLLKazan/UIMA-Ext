@@ -172,7 +172,17 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
-				<artifactId>uima-morph-opencorpora</artifactId>
+				<artifactId>uima-ext-morph-dictionary-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-postagger-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -198,6 +208,11 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-dep-parser-mst</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-ml-crfsuite</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

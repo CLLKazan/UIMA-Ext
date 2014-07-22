@@ -1,6 +1,5 @@
 package ru.kfu.itis.issst.uima.depparser.lab;
 
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
@@ -16,9 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Function;
@@ -45,9 +44,8 @@ public abstract class LabLauncherBase {
 			SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 			"org.opencorpora.morphology-ts");
 	// prepare morph dictionary resource
-	protected ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-			CachedSerializedDictionaryResource.class,
-			"file:dict.opcorpora.ser");
+	protected ExternalResourceDescription morphDictDesc = MorphDictionaryAPI
+			.getResourceDescriptionForCachedInstance();
 	//
 	private Properties parameterProps;
 
