@@ -182,12 +182,17 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-postagger-treetagger</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
-				<artifactId>uima-ext-morph-treetagger</artifactId>
+				<artifactId>uima-ext-postagger-util-rnc</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

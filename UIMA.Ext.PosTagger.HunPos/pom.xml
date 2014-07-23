@@ -31,6 +31,25 @@
 			<artifactId>uima-ext-commons</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-postagger-api</artifactId>
+		</dependency>
+		<!-- TODO eliminate this dependency-->
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-postagger-treetagger</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-postagger-util-rnc</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-core</artifactId>
 		</dependency>

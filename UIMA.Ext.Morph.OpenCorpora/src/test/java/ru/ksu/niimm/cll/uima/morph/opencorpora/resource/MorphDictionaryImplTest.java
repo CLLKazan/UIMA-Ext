@@ -16,7 +16,7 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 
 public class MorphDictionaryImplTest {
 
-	MorphDictionary dict;
+	MorphDictionaryImpl dict;
 	GramModel gm;
 
 	@Before

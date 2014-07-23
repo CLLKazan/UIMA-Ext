@@ -60,7 +60,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-morph-opencorpora</artifactId>
+			<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>

@@ -93,7 +93,7 @@
         </dependency>
         <dependency>
             <groupId>ru.ksu.niimm.cll.uima</groupId>
-            <artifactId>uima-morph-opencorpora</artifactId>
+            <artifactId>uima-ext-morph-dictionary-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.uima</groupId>
