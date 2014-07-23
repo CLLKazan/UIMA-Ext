@@ -97,6 +97,11 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	
 	<profiles>
