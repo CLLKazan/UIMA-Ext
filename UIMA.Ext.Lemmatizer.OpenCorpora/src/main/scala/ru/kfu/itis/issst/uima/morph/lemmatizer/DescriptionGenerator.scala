@@ -4,9 +4,13 @@ import java.io.File
 import org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription
 import org.uimafit.factory.AnalysisEngineFactory
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator
-import ru.kfu.itis.issst.uima.depparser.mst.GeneratePipelineDescriptorForDepParsing
 import ru.kfu.itis.cll.uima.io.IoUtils
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI
+import org.apache.uima.resource.metadata.MetaDataObject
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
+import org.apache.uima.resource.metadata.impl.Import_impl
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils
 
 object DescriptionGenerator {
   def getDescription() = {
@@ -15,11 +19,18 @@ object DescriptionGenerator {
   }
 
   def getDescriptionWithDep() = {
-    val depPipelineDesc = GeneratePipelineDescriptorForDepParsing.getDescription()
+    val aeDescriptions = scala.collection.mutable.Map.empty[String, MetaDataObject]
+    aeDescriptions("tokenizer") = TokenizerAPI.getAEImport()
+    aeDescriptions("sentenceSplitter") = SentenceSplitterAPI.getAEImport()
+    //
+    val posTaggerDescImport = new Import_impl()
+    posTaggerDescImport.setName("pos_tagger")
+    aeDescriptions("pos-tagger") = posTaggerDescImport
+    //
+    aeDescriptions("lemmatizer") = getDescription()
 
-    val lemmatizerDesc = getDescription()
-
-    AnalysisEngineFactory.createAggregateDescription(depPipelineDesc, lemmatizerDesc)
+    import scala.collection.JavaConversions._
+    PipelineDescriptorUtils.createAggregateDescription(aeDescriptions)
   }
 
   def serializeDescriptionWithDep(pathToXML: String) = {
