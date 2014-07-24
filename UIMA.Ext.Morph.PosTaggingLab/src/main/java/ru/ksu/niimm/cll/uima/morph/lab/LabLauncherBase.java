@@ -3,8 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.lab;
 
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,6 @@ import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelResource;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Function;
@@ -56,12 +54,10 @@ public abstract class LabLauncherBase {
 			SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 			"org.opencorpora.morphology-ts");
 	// prepare morph dictionary resource
-	protected ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-			CachedSerializedDictionaryResource.class,
-			LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
-	protected ExternalResourceDescription gramModelDesc = createExternalResourceDescription(
-			GramModelResource.class,
-			LabConstants.URL_RELATIVE_MORPH_DICTIONARY);
+	protected ExternalResourceDescription morphDictDesc = getMorphDictionaryAPI()
+			.getResourceDescriptionForCachedInstance();
+	protected ExternalResourceDescription gramModelDesc = getMorphDictionaryAPI()
+			.getGramModelDescription();
 
 	//
 	protected String generateTaskName(String baseName) {

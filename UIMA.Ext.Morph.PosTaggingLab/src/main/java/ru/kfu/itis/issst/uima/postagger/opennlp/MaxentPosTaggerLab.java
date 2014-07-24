@@ -5,6 +5,7 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 import static ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask.getTrainingListFile;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
@@ -16,7 +17,6 @@ import java.util.Set;
 
 import opennlp.tools.util.TrainingParameters;
 
-import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
@@ -34,9 +34,7 @@ import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
@@ -138,11 +136,8 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 				// // prepare dict if required
 				MorphDictionary morphDict = null;
 				if (generateDictionaryFeatures) {
-					URL serDictUrl = UIMAFramework.newDefaultResourceManager()
-							.resolveRelativePath(LabConstants.MORPH_DICT_FILENAME);
 					// TODO handle cache key
-					morphDict = CachedDictionaryDeserializer.getInstance()
-							.getDictionary(serDictUrl, serDictUrl.openStream()).dictionary;
+					morphDict = getMorphDictionaryAPI().getCachedInstance().getResource();
 				}
 				//
 				trainer.setTaggerFactory(new POSTaggerFactory(

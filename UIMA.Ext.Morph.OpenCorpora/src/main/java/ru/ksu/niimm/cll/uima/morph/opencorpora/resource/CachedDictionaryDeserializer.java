@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +54,7 @@ public class CachedDictionaryDeserializer {
 				if (Objects.equal(url, cEntry.getKey().getUrl())) {
 					cacheKey = cEntry.getKey();
 					dictionary = cEntry.getValue();
+					IOUtils.closeQuietly(in);
 					log.info("Reusing MorphDictionary instance deserialized from {}", url);
 					break;
 				}

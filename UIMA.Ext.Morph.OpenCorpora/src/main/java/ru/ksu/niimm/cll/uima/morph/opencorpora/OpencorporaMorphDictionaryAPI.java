@@ -5,12 +5,20 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 
+import java.net.URL;
+
+import org.apache.uima.UIMAFramework;
 import org.apache.uima.resource.ExternalResourceDescription;
 
+import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer.GetDictionaryResult;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelResource;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -37,4 +45,25 @@ public class OpencorporaMorphDictionaryAPI implements MorphDictionaryAPI {
 				ConfigurableSerializedDictionaryResource.PARAM_PREDICTOR_CLASS_NAME,
 				DummyWordformPredictor.class.getName());
 	}
+
+	@Override
+	public ExternalResourceDescription getGramModelDescription() {
+		return createExternalResourceDescription(
+				GramModelResource.class,
+				DEFAULT_SERIALIZED_DICT_RELATIVE_URL);
+	}
+
+	@Override
+	public CachedResourceTuple<MorphDictionary> getCachedInstance() throws Exception {
+		URL serDictUrl = UIMAFramework.newDefaultResourceManager()
+				.resolveRelativePath(DEFAULT_SERIALIZED_DICT_RELATIVE_PATH);
+		if (serDictUrl == null) {
+			throw new IllegalStateException(String.format("Can't find %s in UIMA datapath",
+					DEFAULT_SERIALIZED_DICT_RELATIVE_PATH));
+		}
+		GetDictionaryResult gdr = CachedDictionaryDeserializer.getInstance().getDictionary(
+				serDictUrl, serDictUrl.openStream());
+		return new CachedResourceTuple<MorphDictionary>(gdr.cacheKey, gdr.dictionary);
+	}
+
 }
