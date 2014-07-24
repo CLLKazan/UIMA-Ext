@@ -6,7 +6,6 @@ package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static org.uimafit.factory.ExternalResourceFactory.createDependency;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static ru.ksu.niimm.cll.uima.morph.ruscorpora.DictionaryAligningTagMapper2.RESOURCE_KEY_MORPH_DICTIONARY;
 
 import java.io.File;
@@ -22,10 +21,12 @@ import org.uimafit.pipeline.SimplePipeline;
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.OpencorporaMorphDictionaryAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpan;
 import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpanAnnotator;
@@ -82,9 +83,13 @@ public class RusCorporaParserBootstrap {
 						RusCorporaCollectionReader.PARAM_TAG_MAPPER_CLASS,
 						DictionaryAligningTagMapper2.class,
 						DictionaryAligningTagMapper2.PARAM_OUT_FILE, daLogFile.getPath());
-				ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-						CachedSerializedDictionaryResource.class,
-						"file:dict.opcorpora.ser");
+				MorphDictionaryAPI dictAPI = MorphDictionaryAPIFactory.getMorphDictionaryAPI();
+				if (!(dictAPI instanceof OpencorporaMorphDictionaryAPI)) {
+					throw new UnsupportedOperationException(String.format(
+							"Doesn't work with " + dictAPI.getClass().getName()));
+				}
+				ExternalResourceDescription morphDictDesc = dictAPI
+						.getResourceDescriptionForCachedInstance();
 				createDependency(colReaderDesc,
 						RESOURCE_KEY_MORPH_DICTIONARY,
 						MorphDictionaryHolder.class);
