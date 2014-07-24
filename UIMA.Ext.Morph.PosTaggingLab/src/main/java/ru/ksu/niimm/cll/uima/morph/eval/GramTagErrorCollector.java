@@ -2,7 +2,6 @@ package ru.ksu.niimm.cll.uima.morph.eval;
 
 import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.POST;
 
-import java.io.File;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.event.TypedPrintingEvaluationListener;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelDeserializer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -41,23 +40,15 @@ import com.google.common.collect.Table;
  */
 public class GramTagErrorCollector extends TypedPrintingEvaluationListener {
 
-	public static final String MORPH_DICT_HOME_KEY = "opencorpora.home";
-	public static final String SERIALIZED_MORPH_DICT_NAME = "dict.opcorpora.ser";
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private TypeSystem ts;
-	private File serializedMorphDictFile;
 	// derived
 	private MorphEvalHelper casHelper;
 	private Map<String, Set<String>> gramCategoryContent;
 	private Map<String, String> gram2Cat;
 	// state fields
 	private Table<String, String, MutableInt> errorTable = HashBasedTable.create();
-
-	public void setSerializedMorphDictFile(File serializedMorphDictFile) {
-		this.serializedMorphDictFile = serializedMorphDictFile;
-	}
 
 	@Override
 	public void onPartialMatch(final AnnotationFS goldAnno, final AnnotationFS sysAnno) {
@@ -173,27 +164,7 @@ public class GramTagErrorCollector extends TypedPrintingEvaluationListener {
 	protected void init() throws Exception {
 		casHelper = new MorphEvalHelper(ts);
 		//
-		if (serializedMorphDictFile == null) {
-			String mdHomePath = System.getProperty(MORPH_DICT_HOME_KEY);
-			if (mdHomePath != null) {
-				File mdHomeDir = new File(mdHomePath);
-				if (!mdHomeDir.isDirectory()) {
-					throw new IllegalStateException(String.format(
-							"%s is not existing directory", mdHomeDir));
-				}
-				serializedMorphDictFile = new File(mdHomeDir, SERIALIZED_MORPH_DICT_NAME);
-				if (!serializedMorphDictFile.isFile()) {
-					serializedMorphDictFile = null;
-				}
-			}
-		}
-		if (serializedMorphDictFile == null) {
-			throw new IllegalStateException(
-					"serializedMorphDictFile property has not been set and opencorpora.home system property "
-							+ "does not point to directory with " + SERIALIZED_MORPH_DICT_NAME
-							+ " file");
-		}
-		GramModel gm = GramModelDeserializer.from(serializedMorphDictFile);
+		GramModel gm = MorphDictionaryAPIFactory.getMorphDictionaryAPI().getGramModel();
 		initGramTree(gm);
 
 		super.init();

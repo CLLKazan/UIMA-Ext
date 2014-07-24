@@ -5,6 +5,7 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.uima.UIMAFramework;
@@ -17,6 +18,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserial
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelDeserializer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
@@ -55,15 +58,31 @@ public class OpencorporaMorphDictionaryAPI implements MorphDictionaryAPI {
 
 	@Override
 	public CachedResourceTuple<MorphDictionary> getCachedInstance() throws Exception {
-		URL serDictUrl = UIMAFramework.newDefaultResourceManager()
-				.resolveRelativePath(DEFAULT_SERIALIZED_DICT_RELATIVE_PATH);
-		if (serDictUrl == null) {
-			throw new IllegalStateException(String.format("Can't find %s in UIMA datapath",
-					DEFAULT_SERIALIZED_DICT_RELATIVE_PATH));
-		}
+		URL serDictUrl = getSerializedDictionaryURL();
 		GetDictionaryResult gdr = CachedDictionaryDeserializer.getInstance().getDictionary(
 				serDictUrl, serDictUrl.openStream());
 		return new CachedResourceTuple<MorphDictionary>(gdr.cacheKey, gdr.dictionary);
 	}
 
+	@Override
+	public GramModel getGramModel() throws Exception {
+		URL serDictUrl = getSerializedDictionaryURL();
+		return GramModelDeserializer.from(serDictUrl.openStream(), serDictUrl.toString());
+	}
+
+	private URL getSerializedDictionaryURL() {
+		URL serDictUrl;
+		try {
+			serDictUrl = UIMAFramework.newDefaultResourceManager()
+					.resolveRelativePath(DEFAULT_SERIALIZED_DICT_RELATIVE_PATH);
+		} catch (MalformedURLException e) {
+			// should never happen as the URL is hard-coded here
+			throw new IllegalStateException(e);
+		}
+		if (serDictUrl == null) {
+			throw new IllegalStateException(String.format("Can't find %s in UIMA datapath",
+					DEFAULT_SERIALIZED_DICT_RELATIVE_PATH));
+		}
+		return serDictUrl;
+	}
 }
