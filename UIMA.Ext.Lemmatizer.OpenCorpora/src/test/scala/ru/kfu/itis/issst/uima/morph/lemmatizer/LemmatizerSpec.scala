@@ -13,6 +13,7 @@ import java.io.File
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator
 import org.opencorpora.cas.{Wordform, Word}
 import org.apache.uima.cas.FeatureStructure
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory
 
 /**
  * Created by fsqcds on 07/05/14.
@@ -20,7 +21,7 @@ import org.apache.uima.cas.FeatureStructure
 class LemmatizerSpec extends FlatSpec with Matchers {
   "Lemmatizer" should "generate correct lemmas" in {
     val posPipelineDesc = GeneratePipelineDescriptorForTPSAnnotator.getDescription
-    val extDictDesc = createExternalResourceDescription(classOf[CachedSerializedDictionaryResource], new File("dict.opcorpora.ser"))
+    val extDictDesc = MorphDictionaryAPIFactory.getMorphDictionaryAPI.getResourceDescriptionForCachedInstance
     val lemmatizerDesc = AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer], MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, extDictDesc)
     val aggregateDesc = AnalysisEngineFactory.createAggregateDescription(posPipelineDesc, lemmatizerDesc)
     val jCas = CasCreationUtils.createCas(aggregateDesc).getJCas

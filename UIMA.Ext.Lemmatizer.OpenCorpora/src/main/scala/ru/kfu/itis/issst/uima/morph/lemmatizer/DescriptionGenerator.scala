@@ -11,10 +11,11 @@ import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 import org.apache.uima.resource.metadata.impl.Import_impl
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory
 
 object DescriptionGenerator {
   def getDescription() = {
-    val extDictDesc = MorphDictionaryAPI.getResourceDescriptionForCachedInstance()
+    val extDictDesc = MorphDictionaryAPIFactory.getMorphDictionaryAPI.getResourceDescriptionForCachedInstance
     AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer], MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, extDictDesc)
   }
 

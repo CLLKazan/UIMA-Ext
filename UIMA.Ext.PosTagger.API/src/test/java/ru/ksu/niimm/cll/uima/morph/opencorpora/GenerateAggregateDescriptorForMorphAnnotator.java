@@ -31,8 +31,6 @@ import com.google.common.collect.Maps;
  */
 public class GenerateAggregateDescriptorForMorphAnnotator {
 
-	public static final String MORPH_DICT_URL = "file:dict.opcorpora.ser";
-
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		if (args.length != 1) {
 			System.err.println("Usage: <output-path>");
