@@ -206,11 +206,6 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
-				<artifactId>uima-ext-pos-tagger-opennlp</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-postagger-freq-baseline</artifactId>
 				<version>${project.version}</version>
 			</dependency>
