@@ -71,28 +71,5 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-eval</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-tokenizer-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-sentence-splitter-api</artifactId>
-		</dependency>
-		<!-- TODO remove OR move this 2 deps into test scope -->
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-tokenizer-simple</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-sentence-splitter-heuristic</artifactId>
-			<optional>true</optional>
-		</dependency>
 	</dependencies>
 </project>
