@@ -1,0 +1,1 @@
+ru.ksu.niimm.cll.uima.morph.opencorpora.OpencorporaMorphDictionaryAPI

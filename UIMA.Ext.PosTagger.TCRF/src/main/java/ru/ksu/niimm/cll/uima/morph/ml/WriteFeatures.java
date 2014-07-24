@@ -21,7 +21,7 @@ import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
-import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
@@ -82,7 +82,8 @@ public class WriteFeatures {
 				XmiCollectionReader.PARAM_INPUTDIR, trainingSetXmiDir.getPath());
 		cpeBuilder.setReader(colReaderDesc);
 		// setup a morph dictionary
-		ExternalResourceDescription morphDictDesc = MorphDictionaryAPI
+		ExternalResourceDescription morphDictDesc = MorphDictionaryAPIFactory
+				.getMorphDictionaryAPI()
 				.getResourceDescriptionForCachedInstance();
 		// setup a pipeline extracting features
 		List<AnalysisEngineDescription> taggerDescs = Lists.newArrayList();

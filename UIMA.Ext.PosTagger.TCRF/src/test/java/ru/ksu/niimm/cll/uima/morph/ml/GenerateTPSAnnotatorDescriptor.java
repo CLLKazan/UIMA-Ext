@@ -10,7 +10,7 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.xml.sax.SAXException;
 
-import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -24,8 +24,8 @@ public class GenerateTPSAnnotatorDescriptor {
 			System.exit(1);
 		}
 		File modelBaseDir = new File(args[0]);
-		// TODO
-		ExternalResourceDescription morphDictDesc = MorphDictionaryAPI
+		ExternalResourceDescription morphDictDesc = MorphDictionaryAPIFactory
+				.getMorphDictionaryAPI()
 				.getResourceDescriptionForCachedInstance();
 		File aggrDescFile = TieredPosSequenceAnnotatorFactory.createAggregateDescription(
 				modelBaseDir, morphDictDesc, morphDictDesc);

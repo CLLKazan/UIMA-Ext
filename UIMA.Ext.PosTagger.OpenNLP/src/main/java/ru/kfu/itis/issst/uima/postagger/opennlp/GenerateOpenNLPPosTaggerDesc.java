@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,8 +15,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.xml.sax.SAXException;
-
-import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -33,7 +33,7 @@ public class GenerateOpenNLPPosTaggerDesc {
 		System.out.println("Using modelUrl:" + new URL(modelUrl));
 		File outputFile = new File(args[1]);
 		AnalysisEngineDescription taggerDesc = OpenNLPPosTagger.createDescription(modelUrl,
-				MorphDictionaryAPI.getResourceDescriptionForCachedInstance());
+				getMorphDictionaryAPI().getResourceDescriptionForCachedInstance());
 		FileOutputStream out = FileUtils.openOutputStream(outputFile);
 		try {
 			taggerDesc.toXML(out);

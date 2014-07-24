@@ -3,6 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,7 +20,6 @@ import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
-import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
@@ -41,7 +42,7 @@ public class GenerateAggregateDescriptorForMorphAnnotator {
 		// NOTE! A file URL for generated SerializedDictionaryResource description assumes 
 		// that the required dictionary file is within one of UIMA datapath folders.
 		// So users of the generated aggregate descriptor should setup 'uima.datapath' properly .
-		ExternalResourceDescription morphDictDesc = MorphDictionaryAPI
+		ExternalResourceDescription morphDictDesc = getMorphDictionaryAPI()
 				.getResourceDescriptionWithPredictorEnabled();
 
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();

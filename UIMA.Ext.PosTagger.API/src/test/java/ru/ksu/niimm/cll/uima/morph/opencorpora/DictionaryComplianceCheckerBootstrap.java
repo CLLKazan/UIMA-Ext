@@ -5,6 +5,7 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 import java.io.File;
 import java.util.List;
@@ -22,7 +23,6 @@ import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
-import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
@@ -77,7 +77,7 @@ public class DictionaryComplianceCheckerBootstrap {
 				DictionaryComplianceChecker.PARAM_OUT_FILE, outFile,
 				DictionaryComplianceChecker.PARAM_TARGET_POS_CATEGORIES, posCategories);
 		//
-		ExternalResourceDescription morphDictDesc = MorphDictionaryAPI
+		ExternalResourceDescription morphDictDesc = getMorphDictionaryAPI()
 				.getResourceDescriptionForCachedInstance();
 		ExternalResourceFactory.bindResource(dcCheckerDesc,
 				DictionaryComplianceChecker.RESOURCE_DICTIONARY, morphDictDesc);
