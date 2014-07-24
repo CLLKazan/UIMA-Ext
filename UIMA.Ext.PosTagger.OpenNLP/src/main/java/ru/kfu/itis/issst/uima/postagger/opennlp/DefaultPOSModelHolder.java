@@ -5,20 +5,35 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import opennlp.tools.util.InvalidFormatException;
+import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
+import org.uimafit.component.ExternalResourceAware;
+import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.descriptor.ExternalResource;
+import org.uimafit.factory.ExternalResourceFactory;
+
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DefaultPOSModelHolder implements SharedResourceObject, OpenNLPModelHolder<POSModel> {
+public class DefaultPOSModelHolder implements OpenNLPModelHolder<POSModel>,
+		SharedResourceObject, ExternalResourceAware {
 
+	public static final String RESOURCE_MORPH_DICT = "morphDict";
+	// config
+	@ConfigurationParameter(name = ExternalResourceFactory.PARAM_RESOURCE_NAME)
+	private String resourceName;
+	@ExternalResource(key = RESOURCE_MORPH_DICT, mandatory = false)
+	private MorphDictionaryHolder morphDictionaryHolder;
+	private URL modelUrl;
+	// state
 	private POSModel model;
 
 	@Override
@@ -26,20 +41,9 @@ public class DefaultPOSModelHolder implements SharedResourceObject, OpenNLPModel
 		if (model != null) {
 			throw new IllegalStateException();
 		}
-		try {
-			InputStream is = dr.getInputStream();
-			if (is == null) {
-				throw new IllegalStateException("Can't get InputStream for resource initialization");
-			}
-			try {
-				model = new POSModel(is);
-			} finally {
-				IOUtils.closeQuietly(is);
-			}
-		} catch (InvalidFormatException e) {
-			throw new ResourceInitializationException(e);
-		} catch (IOException e) {
-			throw new ResourceInitializationException(e);
+		modelUrl = dr.getUrl();
+		if (modelUrl == null) {
+			throw new IllegalStateException("Can't derive an URL from DataResource");
 		}
 	}
 
@@ -48,4 +52,24 @@ public class DefaultPOSModelHolder implements SharedResourceObject, OpenNLPModel
 		return model;
 	}
 
+	@Override
+	public String getResourceName() {
+		return resourceName;
+	}
+
+	@Override
+	public void afterResourcesInitialized() {
+		MorphDictionary dict = morphDictionaryHolder == null
+				? null
+				: morphDictionaryHolder.getDictionary();
+		InputStream is = null;
+		try {
+			is = modelUrl.openStream();
+			model = new POSModel(is, dict);
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
+	}
 }

@@ -30,7 +30,6 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
-import ru.ksu.niimm.cll.uima.morph.ruscorpora.RNCMorphConstants;
 import ru.ksu.niimm.cll.uima.morph.util.BitUtils;
 
 import com.google.common.collect.ImmutableList;
@@ -70,7 +69,9 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 		}
 		{
 			BitSet mask = new BitSet();
-			mask.set(gramModel.getGrammemNumId(RNCMorphConstants.RNC_INIT));
+			// mask.set(gramModel.getGrammemNumId(RNCMorphConstants.RNC_INIT));
+			// FIXME eliminate this hard-coding, derive skipMask, etc. from the configuration
+			mask.set(gramModel.getGrammemNumId("RNC_INIT"));
 			skipMasks.add(mask);
 		}
 		{

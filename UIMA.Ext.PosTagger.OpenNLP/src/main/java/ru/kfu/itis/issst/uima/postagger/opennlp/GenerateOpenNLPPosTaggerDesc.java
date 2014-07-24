@@ -14,6 +14,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.xml.sax.SAXException;
 
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -30,7 +32,8 @@ public class GenerateOpenNLPPosTaggerDesc {
 		// check
 		System.out.println("Using modelUrl:" + new URL(modelUrl));
 		File outputFile = new File(args[1]);
-		AnalysisEngineDescription taggerDesc = OpenNLPPosTagger.createDescription(modelUrl);
+		AnalysisEngineDescription taggerDesc = OpenNLPPosTagger.createDescription(modelUrl,
+				MorphDictionaryAPI.getResourceDescriptionForCachedInstance());
 		FileOutputStream out = FileUtils.openOutputStream(outputFile);
 		try {
 			taggerDesc.toXML(out);

@@ -6,13 +6,10 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.apache.uima.UIMAFramework;
 
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.BeamSearchContextGenerator;
@@ -21,8 +18,6 @@ import opennlp.tools.util.model.ArtifactProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer.GetDictionaryResult;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.google.common.base.Joiner;
@@ -30,6 +25,17 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 
 /**
+ * Custom implementation of {@link BaseToolFactory} for PoS-tagger.
+ * <p>
+ * Description of the {@link MorphDictionary} injection:
+ * <ul>
+ * <li>training: passed as a part of contextGenerator, during the serialization
+ * of contextGenerator store only a version of the dictionary;
+ * <li>tagging: passed to a model (with InputStream of serialized artifacts),
+ * that is {@link ArtifactProvider}, it will be injected back to a
+ * contextGenerator.
+ * </ul>
+ * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
@@ -95,16 +101,6 @@ public class POSTaggerFactory extends BaseToolFactory {
 
 	@Override
 	public void validateArtifactMap() throws InvalidFormatException {
-		/*
-		Object tagDictEntry = artifactProvider.getArtifact(TAG_DICTIONARY_ENTRY_NAME);
-		if (tagDictEntry != null) {
-			if (!(tagDictEntry instanceof MorphDictionaryAdapter)) {
-				throw new InvalidFormatException(String.format(
-						"Unknown type of tag dictionary: %s", tagDictEntry.getClass()));
-			}
-			// TOD check dict compliance
-		}
-		*/
 		Object featExtractorsEntry = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
 		if (featExtractorsEntry == null) {
 			throw new InvalidFormatException("No featureExtractors in artifacts map");
@@ -120,12 +116,29 @@ public class POSTaggerFactory extends BaseToolFactory {
 	@SuppressWarnings("rawtypes")
 	public Map<String, ArtifactSerializer> createArtifactSerializersMap() {
 		Map<String, ArtifactSerializer> artSerMap = super.createArtifactSerializersMap();
-		// artSerMap.put("tagdict", new MorphDictionarySerializer());
 		artSerMap.put("extractors", new FeatureExtractorsSerializer());
+		// artSerMap.put("dict", new MorphologyDictionarySerializer());
 		return artSerMap;
 	}
 
-	static class FeatureExtractorsSerializer implements
+	/*
+	static class MorphologyDictionarySerializer implements ArtifactSerializer<MorphDictionary> {
+		@Override
+		public MorphDictionary create(InputStream in) throws IOException, InvalidFormatException {
+			// MUST never be called
+			// because a dictionary instance is supposed to be managed by UIMA
+			throw new UnsupportedOperationException("MorphDictionary should be injected by UIMA!");
+			// TOD insert here the code that will check compatibility of the injected dictionary with one that defined in the model
+		}
+
+		@Override
+		public void serialize(MorphDictionary artifact, OutputStream out) throws IOException {
+			// do nothing
+		}
+	}
+	*/
+
+	class FeatureExtractorsSerializer implements
 			ArtifactSerializer<FeatureExtractorsBasedContextGenerator> {
 
 		// A serializer instance is hold in a BaseModel instance,
@@ -144,18 +157,14 @@ public class POSTaggerFactory extends BaseToolFactory {
 			if (ConfigPropertiesUtils.getStringProperty(props,
 					DefaultFeatureExtractors.PROP_DICTIONARY_VERSION, false) != null) {
 				// load dictionary
-				// TODO refactor out
-				URL serDictUrl = UIMAFramework.newDefaultResourceManager()
-						.resolveRelativePath("dict.opcorpora.ser");
-				GetDictionaryResult getDictResult;
-				try {
-					getDictResult = CachedDictionaryDeserializer.getInstance()
-							.getDictionary(serDictUrl, serDictUrl.openStream());
-				} catch (Exception e) {
-					throw new IllegalStateException(e);
+				if (artifactProvider == null) {
+					throw new IllegalStateException("ArtifactProvider is null");
 				}
-				dictCacheKey = getDictResult.cacheKey;
-				dict = getDictResult.dictionary;
+				dict = artifactProvider.getArtifact(POSModel.MORPH_DICT_ENTRY_NAME);
+				if (dict == null) {
+					throw new IllegalStateException(
+							"ArtifactProvider did not provide expected MorphDictionary");
+				}
 			}
 
 			return DefaultFeatureExtractors.from(props, dict);
@@ -173,30 +182,4 @@ public class POSTaggerFactory extends BaseToolFactory {
 		}
 
 	}
-
-	/*
-	static class MorphDictionarySerializer implements ArtifactSerializer<MorphDictionaryAdapter> {
-
-		private static final Joiner gramCatJoiner = Joiner.on(',');
-		private static final Splitter gramCatSplitter = Splitter.on(',');
-
-		@Override
-		public MorphDictionaryAdapter create(InputStream in) throws IOException,
-				InvalidFormatException {
-			Properties props = new Properties();
-			props.load(in);
-			Set<String> gramCats = ImmutableSet.copyOf(gramCatSplitter.split(
-					props.getProperty(MorphDictionaryAdapter.PARAM_GRAM_CATEGORIES)));
-			return new MorphDictionaryAdapter(gramCats);
-		}
-
-		@Override
-		public void serialize(MorphDictionaryAdapter mda, OutputStream out) throws IOException {
-			Properties props = new Properties();
-			props.setProperty(MorphDictionaryAdapter.PARAM_GRAM_CATEGORIES,
-					gramCatJoiner.join(mda.getGramCategories()));
-			props.store(out, null);
-		}
-	}
-	*/
 }

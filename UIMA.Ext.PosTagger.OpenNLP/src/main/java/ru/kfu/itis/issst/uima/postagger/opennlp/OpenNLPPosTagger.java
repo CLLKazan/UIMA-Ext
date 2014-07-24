@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
@@ -66,17 +67,35 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 				PARAM_SEQUENCE_VALIDATOR_CLASS, sequenceValidatorClass);
 	}
 
+	/**
+	 * Create description for this tagger with the specified model, sequence
+	 * validator implementation, beam size and optional injection of morph
+	 * dictionary.
+	 * 
+	 */
 	public static AnalysisEngineDescription createDescription(String modelUrl,
-			String sequenceValidatorClass, Integer beamSize)
+			String sequenceValidatorClass, Integer beamSize,
+			ExternalResourceDescription morphDictDesc)
 			throws ResourceInitializationException {
 		ExternalResourceDescription modelDesc = createExternalResourceDescription(
 				DefaultPOSModelHolder.class, modelUrl);
+		if (morphDictDesc != null) {
+			bindExternalResource(modelDesc,
+					DefaultPOSModelHolder.RESOURCE_MORPH_DICT, morphDictDesc);
+		}
 		return createDescription(modelDesc, sequenceValidatorClass, beamSize);
 	}
 
-	public static AnalysisEngineDescription createDescription(String modelUrl)
+	/**
+	 * Create description for this tagger with the specified model, optional
+	 * injection of morph dictionary, the default value of beam size and the
+	 * default implementation of sequence validator.
+	 * 
+	 */
+	public static AnalysisEngineDescription createDescription(String modelUrl,
+			ExternalResourceDescription morphDictDesc)
 			throws ResourceInitializationException {
-		return createDescription(modelUrl, null, null);
+		return createDescription(modelUrl, null, null, morphDictDesc);
 	}
 
 	@ExternalResource(key = RESOURCE_POS_MODEL, mandatory = true)

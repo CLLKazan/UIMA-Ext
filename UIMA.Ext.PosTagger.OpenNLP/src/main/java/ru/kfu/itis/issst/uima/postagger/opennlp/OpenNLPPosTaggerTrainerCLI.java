@@ -4,7 +4,6 @@
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
@@ -28,10 +27,10 @@ import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmingAnnotator;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -80,9 +79,8 @@ public class OpenNLPPosTaggerTrainerCLI {
 		}
 		// input sentence stream
 		{
-			ExternalResourceDescription morphDictDesc = createExternalResourceDescription(
-					CachedSerializedDictionaryResource.class,
-					"file:dict.opcorpora.ser");
+			ExternalResourceDescription morphDictDesc = MorphDictionaryAPI
+					.getResourceDescriptionForCachedInstance();
 			TypeSystemDescription tsd = createTypeSystemDescription(
 					"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 					TokenizerAPI.TYPESYSTEM_TOKENIZER,
