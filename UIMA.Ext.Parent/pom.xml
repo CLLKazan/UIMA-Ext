@@ -23,7 +23,7 @@
 		<module>../UIMA.Ext.PosTagger.API</module>
 		<module>../UIMA.Ext.PosTagger.DictBaseline</module>
 		<module>../UIMA.Ext.PosTagger.FreqBaseline</module>
-		<module>../UIMA.Ext.Morph.TreeTagger</module>
+		<module>../UIMA.Ext.PosTagger.TreeTagger</module>
 		<module>../UIMA.Ext.PosTagger.HunPos</module>
 		<module>../UIMA.Ext.PosTagger.Stanford</module>
 		<module>../UIMA.Ext.PosTagger.OpenNLP</module>
