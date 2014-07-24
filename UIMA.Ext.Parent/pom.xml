@@ -18,7 +18,7 @@
 		<module>../UIMA.Ext.SentenceSplitter.Heuristic</module>
 		<module>../UIMA.Ext.Evaluation</module>
 		<module>../UIMA.Ext.Morph.Dictionary.API</module>
-		<module>../UIMA.Ext.Morph.OpenCorpora</module>
+		<module>../UIMA.Ext.Morph.Dictionary.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.Predict.OpenCorpora</module>
 		<module>../UIMA.Ext.PosTagger.API</module>
 		<module>../UIMA.Ext.PosTagger.DictBaseline</module>
