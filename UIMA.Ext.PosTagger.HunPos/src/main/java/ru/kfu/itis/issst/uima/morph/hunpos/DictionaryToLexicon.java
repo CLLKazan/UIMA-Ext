@@ -18,7 +18,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
@@ -58,7 +58,7 @@ public class DictionaryToLexicon {
 	@Parameter(names = { "-p", "--pos-categories" }, required = true)
 	private List<String> posCategoriesList;
 	//
-	private DictionaryBasedTagMapper tagMapper;
+	private GramModelBasedTagMapper tagMapper;
 	private PosTrimmer posTrimmer;
 	// state fields
 	private Multimap<String, String> lexiconMM;
@@ -113,7 +113,7 @@ public class DictionaryToLexicon {
 		public void onGramModelSet(MorphDictionary dict) {
 			GramModel gm = dict.getGramModel();
 			posTrimmer = new PosTrimmer(gm, Sets.newHashSet(posCategoriesList));
-			tagMapper = new DictionaryBasedTagMapper(gm);
+			tagMapper = new GramModelBasedTagMapper(gm);
 		}
 	}
 

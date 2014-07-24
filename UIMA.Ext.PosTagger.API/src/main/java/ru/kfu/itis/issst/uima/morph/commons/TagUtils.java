@@ -58,7 +58,7 @@ public class TagUtils {
 	public static boolean isClosedClassTag(String tag) {
 		return closedClassPunctuationTags.contains(tag)
 				|| !Sets.intersection(
-						DictionaryBasedTagMapper.parseTag(tag), closedPosSet)
+						GramModelBasedTagMapper.parseTag(tag), closedPosSet)
 						.isEmpty();
 	}
 

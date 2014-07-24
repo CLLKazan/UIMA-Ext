@@ -30,22 +30,22 @@ import com.google.common.collect.Sets;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class DictionaryBasedTagMapper implements TagMapper, Initializable {
+public class GramModelBasedTagMapper implements TagMapper, Initializable {
 
 	public static void declareDependencyAndBind(ResourceSpecifier clientResourceDesc,
 			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
 		try {
 			ExternalResourceFactory.createDependency(clientResourceDesc,
-					DictionaryBasedTagMapper.RESOURCE_GRAM_MODEL,
+					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL,
 					GramModelHolder.class);
 			ExternalResourceFactory.bindResource(clientResourceDesc,
-					DictionaryBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
+					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
 		} catch (InvalidXMLException e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
 
-	public static final String CLASS_NAME = DictionaryBasedTagMapper.class.getName();
+	public static final String CLASS_NAME = GramModelBasedTagMapper.class.getName();
 	public static final String RESOURCE_GRAM_MODEL = "gramModel";
 	// config fields
 	@ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
@@ -54,11 +54,11 @@ public class DictionaryBasedTagMapper implements TagMapper, Initializable {
 	private GramModel gramModel;
 
 	// for UIMA
-	public DictionaryBasedTagMapper() {
+	public GramModelBasedTagMapper() {
 	}
 
 	// for stand-alone usage
-	public DictionaryBasedTagMapper(GramModel gramModel) {
+	public GramModelBasedTagMapper(GramModel gramModel) {
 		this.gramModel = gramModel;
 	}
 

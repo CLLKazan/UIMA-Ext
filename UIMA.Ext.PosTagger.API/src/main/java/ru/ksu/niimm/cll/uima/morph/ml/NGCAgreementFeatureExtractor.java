@@ -19,7 +19,7 @@ import org.opencorpora.cas.Wordform;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicate;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
@@ -44,7 +44,7 @@ public class NGCAgreementFeatureExtractor implements SimpleFeatureExtractor {
 		this.gramModel = gramModel;
 		this.namedPredicates = AgreementPredicates.numberGenderCaseCombinations(gramModel);
 		// TODO:LOW
-		tagMapper = new DictionaryBasedTagMapper(gramModel);
+		tagMapper = new GramModelBasedTagMapper(gramModel);
 	}
 
 	@Override

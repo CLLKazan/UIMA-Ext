@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicate;
@@ -51,7 +51,7 @@ public class DictionaryBasedContextGenerator {
 			MorphDictionary morphDict) {
 		this.morphDict = morphDict;
 		this.gramModel = morphDict.getGramModel();
-		this.tagMapper = new DictionaryBasedTagMapper(gramModel);
+		this.tagMapper = new GramModelBasedTagMapper(gramModel);
 		// re-pack into a set to avoid duplicates and maintain ID-based ordering
 		TreeSet<Grammeme> tagCatGrams = Sets.newTreeSet(Grammeme.numIdComparator());
 		for (String tc : targetGramCategories) {

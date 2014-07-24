@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
@@ -61,7 +61,7 @@ public class DictionaryToTTLexicon {
 	@Parameter(names = { "-p", "--pos-categories" }, required = true)
 	private List<String> posCategoriesList;
 	//
-	private DictionaryBasedTagMapper tagMapper;
+	private GramModelBasedTagMapper tagMapper;
 	private PosTrimmer posTrimmer;
 	private Function<BitSet, Boolean> closedClassTagIndicator;
 	// state fields
@@ -152,7 +152,7 @@ public class DictionaryToTTLexicon {
 				posTrimmer = new PosTrimmer(gm, Sets.newHashSet(posCategoriesList));
 			}
 			if (tagMapper == null) {
-				tagMapper = new DictionaryBasedTagMapper(gm);
+				tagMapper = new GramModelBasedTagMapper(gm);
 			}
 			if (closedClassTagIndicator == null) {
 				closedClassTagIndicator = TagUtils.getClosedClassIndicator(gm);

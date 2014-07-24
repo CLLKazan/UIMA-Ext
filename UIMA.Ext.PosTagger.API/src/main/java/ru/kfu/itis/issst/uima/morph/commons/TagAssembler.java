@@ -32,8 +32,8 @@ public class TagAssembler extends JCasAnnotator_ImplBase {
 			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
 		AnalysisEngineDescription desc = createPrimitiveDescription(
 				TagAssembler.class, // it does not produce any additional annotations => no need in TS 
-				PARAM_TAG_MAPPER_CLASS, DictionaryBasedTagMapper.class.getName());
-		DictionaryBasedTagMapper.declareDependencyAndBind(desc, gramModelDesc);
+				PARAM_TAG_MAPPER_CLASS, GramModelBasedTagMapper.class.getName());
+		GramModelBasedTagMapper.declareDependencyAndBind(desc, gramModelDesc);
 		return desc;
 	}
 
@@ -41,7 +41,7 @@ public class TagAssembler extends JCasAnnotator_ImplBase {
 
 	// config
 	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
-			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper")
+			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper")
 	private String tagMapperClassName;
 	private TagMapper tagMapper;
 

@@ -19,7 +19,7 @@ import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicate;
@@ -116,7 +116,7 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 		}
 		// parse tag
 		// TODO do not rely on the specific implementation of TagMapper
-		Iterable<String> candidateGrams = DictionaryBasedTagMapper.parseTag(outcome);
+		Iterable<String> candidateGrams = GramModelBasedTagMapper.parseTag(outcome);
 		BitSet candidateBS = toGramBits(gramModel, candidateGrams);
 		for (BitSet sm : skipMasks) {
 			if (BitUtils.contains(candidateBS, sm)) {
