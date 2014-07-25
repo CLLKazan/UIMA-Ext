@@ -8,12 +8,11 @@ import org.uimafit.pipeline.SimplePipeline
 import org.uimafit.util.JCasUtil.select
 import org.apache.uima.util.CasCreationUtils
 import org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource
 import java.io.File
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator
-import org.opencorpora.cas.{Wordform, Word}
+import org.opencorpora.cas.{ Wordform, Word }
 import org.apache.uima.cas.FeatureStructure
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator
 
 /**
  * Created by fsqcds on 07/05/14.

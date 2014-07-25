@@ -3,7 +3,6 @@ package ru.kfu.itis.issst.uima.morph.lemmatizer
 import java.io.File
 import org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription
 import org.uimafit.factory.AnalysisEngineFactory
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphologyAnnotator
 import ru.kfu.itis.cll.uima.io.IoUtils
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI
 import org.apache.uima.resource.metadata.MetaDataObject
@@ -12,6 +11,7 @@ import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 import org.apache.uima.resource.metadata.impl.Import_impl
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator
 
 object DescriptionGenerator {
   def getDescription() = {

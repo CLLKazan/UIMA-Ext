@@ -21,7 +21,7 @@ import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator;
 public class GenerateMorphAnnotatorPrimitiveDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		String outputPath = "src/main/resources/ru/ksu/niimm/cll/uima/morph/opencorpora/MorphologyAnnotator.xml";
+		String outputPath = "src/main/resources/ru/kfu/itis/issst/uima/morph/dictionary/MorphologyAnnotator.xml";
 		TypeSystemDescription tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts");
 		AnalysisEngineDescription desc = createPrimitiveDescription(MorphologyAnnotator.class, tsDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
