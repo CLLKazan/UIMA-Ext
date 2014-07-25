@@ -22,6 +22,7 @@ import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
@@ -75,7 +76,7 @@ public class WriteFeatures {
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 				TokenizerAPI.TYPESYSTEM_TOKENIZER,
 				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
-				"org.opencorpora.morphology-ts");
+				PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 		// setup a training set collection reader
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 				XmiCollectionReader.class, inputTS,

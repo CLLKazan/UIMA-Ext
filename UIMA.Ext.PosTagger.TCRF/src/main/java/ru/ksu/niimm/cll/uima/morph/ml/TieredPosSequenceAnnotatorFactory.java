@@ -7,7 +7,6 @@ import static org.apache.commons.io.FileUtils.openOutputStream;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,14 +33,15 @@ import org.uimafit.factory.ConfigurationParameterFactory;
 import org.uimafit.util.ReflectionUtil;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -140,8 +140,7 @@ public class TieredPosSequenceAnnotatorFactory {
 			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
 			throws ResourceInitializationException, IOException {
 		// prepare TypeSystemDescriptor consisting of produced types
-		TypeSystemDescription tsDesc = createTypeSystemDescription(
-				"org.opencorpora.morphology-ts");
+		TypeSystemDescription tsDesc = PosTaggerAPI.getTypeSystemDescription();
 		//
 		File configPropsFile = new File(modelBaseDir, CONFIG_PROPS_FILENAME);
 		Properties configProps = IoUtils.readProperties(configPropsFile);

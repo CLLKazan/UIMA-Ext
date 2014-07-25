@@ -30,6 +30,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.CW;
 import ru.kfu.cll.uima.tokenizer.fstype.PM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryLoader4Tests;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 /**
@@ -56,7 +57,7 @@ public class DictionaryBasedContextGeneratorTest {
 				dict);
 		TypeSystemDescription tsd = TypeSystemDescriptionFactory.createTypeSystemDescription(
 				TokenizerAPI.TYPESYSTEM_TOKENIZER,
-				"org.opencorpora.morphology-ts");
+				PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 		CAS cas = CasCreationUtils.createCas(tsd, null, null);
 		cas.setDocumentText(testTxt);
 		jCas = cas.getJCas();

@@ -18,6 +18,9 @@ import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -52,9 +55,9 @@ public class WriteTables {
 	private void run() throws Exception {
 		TypeSystemDescription inputTS = createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
-				"ru.kfu.cll.uima.tokenizer.tokenizer-TypeSystem",
-				"ru.kfu.cll.uima.segmentation.segmentation-TypeSystem",
-				"org.opencorpora.morphology-ts");
+				TokenizerAPI.TYPESYSTEM_TOKENIZER,
+				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
+				PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 		//
 		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 				XmiFileListReader.class, inputTS,

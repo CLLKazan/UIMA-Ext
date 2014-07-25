@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
@@ -52,7 +53,7 @@ public abstract class LabLauncherBase {
 			"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 			TokenizerAPI.TYPESYSTEM_TOKENIZER,
 			SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
-			"org.opencorpora.morphology-ts");
+			PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 	// prepare morph dictionary resource
 	protected ExternalResourceDescription morphDictDesc = getMorphDictionaryAPI()
 			.getResourceDescriptionForCachedInstance();

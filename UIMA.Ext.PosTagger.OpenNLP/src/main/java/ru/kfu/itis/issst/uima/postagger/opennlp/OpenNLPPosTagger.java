@@ -5,7 +5,6 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
@@ -26,7 +25,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
@@ -41,6 +39,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -60,8 +59,8 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 			Integer beamSize)
 			throws ResourceInitializationException {
 		// prepare TypeSystemDescriptor consisting of produced types
-		TypeSystemDescription tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts");
-		return AnalysisEngineFactory.createPrimitiveDescription(OpenNLPPosTagger.class, tsDesc,
+		return AnalysisEngineFactory.createPrimitiveDescription(OpenNLPPosTagger.class,
+				PosTaggerAPI.getTypeSystemDescription(),
 				RESOURCE_POS_MODEL, modelDesc,
 				PARAM_BEAM_SIZE, beamSize,
 				PARAM_SEQUENCE_VALIDATOR_CLASS, sequenceValidatorClass);

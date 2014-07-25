@@ -65,7 +65,7 @@ public class DictionaryComplianceCheckerBootstrap {
 							"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 							TokenizerAPI.TYPESYSTEM_TOKENIZER,
 							SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
-							"org.opencorpora.morphology-ts");
+							PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 			//
 			colReaderDesc = CollectionReaderFactory.createDescription(
 					XmiCollectionReader.class,

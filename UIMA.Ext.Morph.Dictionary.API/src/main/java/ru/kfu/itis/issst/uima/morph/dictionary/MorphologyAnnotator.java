@@ -4,7 +4,6 @@
 package ru.kfu.itis.issst.uima.morph.dictionary;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 
 import java.util.List;
@@ -36,12 +35,24 @@ import ru.kfu.itis.issst.uima.morph.model.Wordform;
  */
 public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 
+	/**
+	 * @param annotationAdapterClass
+	 * @param tsDesc
+	 *            a type-system description that declares types produced by the
+	 *            specified {@link AnnotationAdapter}
+	 * @param morphDictDesc
+	 *            description of {@link MorphDictionaryHolder}
+	 * @return
+	 * @throws ResourceInitializationException
+	 */
 	public static AnalysisEngineDescription createDescription(
+			Class<? extends AnnotationAdapter> annotationAdapterClass,
+			TypeSystemDescription tsDesc,
 			ExternalResourceDescription morphDictDesc)
 			throws ResourceInitializationException {
-		TypeSystemDescription tsDesc = createTypeSystemDescription("org.opencorpora.morphology-ts");
 		return createPrimitiveDescription(MorphologyAnnotator.class,
 				tsDesc,
+				PARAM_ANNOTATION_ADAPTER_CLASS, annotationAdapterClass.getName(),
 				RESOURCE_KEY_DICTIONARY, morphDictDesc);
 	}
 

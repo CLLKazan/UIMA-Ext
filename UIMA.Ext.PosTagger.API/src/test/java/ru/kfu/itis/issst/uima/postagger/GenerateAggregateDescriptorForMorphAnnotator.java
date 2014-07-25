@@ -49,7 +49,9 @@ public class GenerateAggregateDescriptorForMorphAnnotator {
 		//
 		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
 		//
-		aeDescriptions.put("morphAnalyzer", MorphologyAnnotator.createDescription(morphDictDesc));
+		aeDescriptions.put("morphAnalyzer", MorphologyAnnotator.createDescription(
+				DefaultAnnotationAdapter.class, PosTaggerAPI.getTypeSystemDescription(),
+				morphDictDesc));
 		//
 		aeDescriptions.put("tag-assembler", TagAssembler.createDescription(morphDictDesc));
 		AnalysisEngineDescription desc = PipelineDescriptorUtils

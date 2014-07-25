@@ -28,6 +28,7 @@ import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
@@ -85,7 +86,7 @@ public class OpenNLPPosTaggerTrainerCLI {
 					"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 					TokenizerAPI.TYPESYSTEM_TOKENIZER,
 					SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
-					"org.opencorpora.morphology-ts");
+					PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 			CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
 					XmiCollectionReader.class, tsd,
 					XmiCollectionReader.PARAM_INPUTDIR, cli.trainingXmiDir);

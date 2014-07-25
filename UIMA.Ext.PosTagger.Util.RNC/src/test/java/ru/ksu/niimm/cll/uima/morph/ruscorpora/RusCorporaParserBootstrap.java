@@ -24,6 +24,7 @@ import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
@@ -67,7 +68,7 @@ public class RusCorporaParserBootstrap {
 							"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 							TokenizerAPI.TYPESYSTEM_TOKENIZER,
 							SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
-							"org.opencorpora.morphology-ts");
+							PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 			//
 			if (!enableDictionaryAligning) {
 				colReaderDesc = CollectionReaderFactory.createDescription(
