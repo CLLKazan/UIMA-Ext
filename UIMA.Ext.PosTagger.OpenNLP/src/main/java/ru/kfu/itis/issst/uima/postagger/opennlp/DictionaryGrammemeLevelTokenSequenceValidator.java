@@ -18,6 +18,7 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.cll.uima.util.BitUtils;
 import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
@@ -30,7 +31,6 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 import ru.kfu.itis.issst.uima.morph.model.MorphConstants;
 import ru.kfu.itis.issst.uima.morph.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.util.BitUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

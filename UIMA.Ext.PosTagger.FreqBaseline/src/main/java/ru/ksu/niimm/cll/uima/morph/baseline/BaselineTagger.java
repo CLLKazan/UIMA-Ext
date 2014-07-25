@@ -13,6 +13,7 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.cll.uima.wfstore.WordformStore;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 

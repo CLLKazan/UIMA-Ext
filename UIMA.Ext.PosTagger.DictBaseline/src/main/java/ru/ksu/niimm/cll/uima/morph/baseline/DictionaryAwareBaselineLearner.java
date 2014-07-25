@@ -27,6 +27,9 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.cll.uima.wfstore.DefaultWordformStoreBuilder;
+import ru.kfu.itis.cll.uima.wfstore.WordformStore;
+import ru.kfu.itis.cll.uima.wfstore.WordformStoreBuilder;
 import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTrimmer;

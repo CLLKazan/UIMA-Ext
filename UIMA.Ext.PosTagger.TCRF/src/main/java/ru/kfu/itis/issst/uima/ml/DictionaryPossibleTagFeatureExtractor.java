@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.ml;
 
+import static ru.kfu.itis.cll.uima.util.BitUtils.contains;
 import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
-import static ru.ksu.niimm.cll.uima.morph.util.BitUtils.contains;
 
 import java.util.BitSet;
 import java.util.List;

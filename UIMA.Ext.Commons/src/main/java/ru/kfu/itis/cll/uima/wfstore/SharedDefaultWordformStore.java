@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.baseline;
+package ru.kfu.itis.cll.uima.wfstore;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

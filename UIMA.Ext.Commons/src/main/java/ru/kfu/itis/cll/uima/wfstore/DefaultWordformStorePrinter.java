@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.baseline;
+package ru.kfu.itis.cll.uima.wfstore;
 
 import static org.apache.commons.io.FileUtils.openInputStream;
 import static org.apache.commons.io.FileUtils.openOutputStream;

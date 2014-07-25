@@ -3,11 +3,11 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
+import static ru.kfu.itis.cll.uima.util.BitUtils.contains;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.morph.dictionary.WordUtils.normalizeToDictionaryForm;
 import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 import static ru.kfu.itis.issst.uima.morph.model.Wordform.getAllGramBits;
-import static ru.ksu.niimm.cll.uima.morph.util.BitUtils.contains;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;

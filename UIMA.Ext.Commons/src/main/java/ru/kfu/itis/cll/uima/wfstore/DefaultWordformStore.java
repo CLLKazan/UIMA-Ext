@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.baseline;
+package ru.kfu.itis.cll.uima.wfstore;
 
 import static org.apache.commons.io.FileUtils.openOutputStream;
 
@@ -22,7 +22,7 @@ import com.google.common.collect.Maps;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-class DefaultWordformStore<TagType> implements WordformStore<TagType>, Serializable {
+public class DefaultWordformStore<TagType> implements WordformStore<TagType>, Serializable {
 
 	private static final long serialVersionUID = 1771570908232250753L;
 

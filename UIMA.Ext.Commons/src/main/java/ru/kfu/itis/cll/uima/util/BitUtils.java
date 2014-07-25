@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.util;
+package ru.kfu.itis.cll.uima.util;
 
 import java.util.BitSet;
 

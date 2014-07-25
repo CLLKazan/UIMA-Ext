@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.baseline;
+package ru.kfu.itis.cll.uima.wfstore;
 
 import java.io.File;
 
@@ -9,7 +9,7 @@ import java.io.File;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-interface WordformStore<TagType> {
+public interface WordformStore<TagType> {
 
 	TagType getTag(String wf);
 

@@ -15,6 +15,9 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.JCasUtil;
 
+import ru.kfu.itis.cll.uima.wfstore.DefaultWordformStoreBuilder;
+import ru.kfu.itis.cll.uima.wfstore.WordformStore;
+import ru.kfu.itis.cll.uima.wfstore.WordformStoreBuilder;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 /**

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.baseline;
+package ru.kfu.itis.cll.uima.wfstore;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import com.google.common.collect.Multiset;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-class DefaultWordformStoreBuilder<TagType> implements WordformStoreBuilder<TagType> {
+public class DefaultWordformStoreBuilder<TagType> implements WordformStoreBuilder<TagType> {
 
 	// state
 	private Map<String, Multiset<TagType>> strKeyMap = Maps.newHashMap();
