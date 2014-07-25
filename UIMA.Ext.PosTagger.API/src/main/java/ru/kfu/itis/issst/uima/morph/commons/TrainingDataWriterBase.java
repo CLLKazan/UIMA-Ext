@@ -26,7 +26,7 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

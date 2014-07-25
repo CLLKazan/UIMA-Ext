@@ -18,7 +18,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

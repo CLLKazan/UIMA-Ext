@@ -21,7 +21,7 @@ import org.uimafit.factory.CollectionReaderFactory;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmingAnnotator;
+import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
 import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;

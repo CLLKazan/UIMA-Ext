@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 

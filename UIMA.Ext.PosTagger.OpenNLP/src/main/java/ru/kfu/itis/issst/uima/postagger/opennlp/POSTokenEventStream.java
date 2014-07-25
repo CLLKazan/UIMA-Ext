@@ -30,7 +30,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 import com.google.common.collect.Lists;
 

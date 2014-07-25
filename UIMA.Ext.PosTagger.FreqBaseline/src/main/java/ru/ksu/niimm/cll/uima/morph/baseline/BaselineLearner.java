@@ -15,7 +15,7 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.OperationalProperties;
 import org.uimafit.util.JCasUtil;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

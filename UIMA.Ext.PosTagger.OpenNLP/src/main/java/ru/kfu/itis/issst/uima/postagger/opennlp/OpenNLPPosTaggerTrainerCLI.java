@@ -28,9 +28,9 @@ import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmingAnnotator;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;

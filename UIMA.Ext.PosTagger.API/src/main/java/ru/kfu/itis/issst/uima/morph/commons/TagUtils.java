@@ -13,7 +13,7 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;

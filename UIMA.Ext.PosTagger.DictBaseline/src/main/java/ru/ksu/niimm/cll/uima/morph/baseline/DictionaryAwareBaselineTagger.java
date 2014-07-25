@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils.addCasWordform;
+import static ru.kfu.itis.issst.uima.postagger.MorphCasUtils.addCasWordform;
 
 import java.util.BitSet;
 import java.util.Set;
@@ -21,9 +21,9 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.AnnotationAdapter;
 import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
+import ru.kfu.itis.issst.uima.postagger.DefaultAnnotationAdapter;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.DefaultAnnotationAdapter;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
+import ru.kfu.itis.issst.uima.postagger.PosTrimmer;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,9 +26,9 @@ import com.google.common.collect.Sets;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class LemmaFeatureExtractor implements SimpleNamedFeatureExtractor {
+public class PosTagFeatureExtractor implements SimpleNamedFeatureExtractor {
 
-	public static final String FEATURE_NAME = "Lemma";
+	public static final String FEATURE_NAME = "PosTag";
 
 	@Override
 	public List<Feature> extract(JCas view, Annotation focusAnnotation)
@@ -39,13 +39,11 @@ public class LemmaFeatureExtractor implements SimpleNamedFeatureExtractor {
 		}
 		Collection<Wordform> wfs = FSCollectionFactory.create(focusWord.getWordforms(),
 				Wordform.class);
-		Set<String> lemmas = Sets.newHashSet();
+		Set<String> tags = Sets.newHashSet();
 		for (Wordform wf : wfs) {
-			if (wf.getLemma() != null) {
-				lemmas.add(wf.getLemma());
-			}
+			tags.add(wf.getPos());
 		}
-		return Lists.newArrayList(Collections2.transform(lemmas, lemma2Feature));
+		return Lists.newArrayList(Collections2.transform(tags, tag2Feature));
 	}
 
 	@Override
@@ -53,10 +51,10 @@ public class LemmaFeatureExtractor implements SimpleNamedFeatureExtractor {
 		return FEATURE_NAME;
 	}
 
-	private static final Function<String, Feature> lemma2Feature = new Function<String, Feature>() {
+	private static final Function<String, Feature> tag2Feature = new Function<String, Feature>() {
 		@Override
-		public Feature apply(String lemma) {
-			return new Feature(FEATURE_NAME, lemma);
+		public Feature apply(String tag) {
+			return new Feature(FEATURE_NAME, tag);
 		}
 	};
 }

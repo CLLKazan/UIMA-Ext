@@ -20,6 +20,7 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleNamedFeatureExtract
 import org.opencorpora.cas.Word;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.ml.PUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;

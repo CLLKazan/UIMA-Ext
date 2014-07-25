@@ -25,7 +25,7 @@ import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.uima.morph.compare.impl.HSQLDBAnnotationDao;
 import ru.kfu.itis.issst.uima.morph.compare.impl.HSQLDBFeatureDao;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 @OperationalProperties(multipleDeploymentAllowed = false)
 public class TableWriter extends JCasAnnotator_ImplBase {

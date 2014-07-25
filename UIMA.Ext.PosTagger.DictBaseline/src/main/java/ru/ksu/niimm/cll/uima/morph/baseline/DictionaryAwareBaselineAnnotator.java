@@ -14,7 +14,7 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 import ru.kfu.itis.issst.uima.morph.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
+import ru.kfu.itis.issst.uima.postagger.PosTrimmer;
 
 import com.google.common.collect.Iterables;
 

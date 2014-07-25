@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils.addCasWordform;
+import static ru.kfu.itis.issst.uima.postagger.MorphCasUtils.addCasWordform;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
