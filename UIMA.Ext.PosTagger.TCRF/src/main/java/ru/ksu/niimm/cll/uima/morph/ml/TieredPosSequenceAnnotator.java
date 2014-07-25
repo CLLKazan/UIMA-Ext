@@ -41,6 +41,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.cleartk.Disposable;
+import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
 import ru.kfu.itis.issst.uima.ml.GrammemeExtractor;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
