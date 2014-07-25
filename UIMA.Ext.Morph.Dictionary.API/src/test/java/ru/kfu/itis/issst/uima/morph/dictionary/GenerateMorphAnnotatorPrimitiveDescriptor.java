@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.opencorpora;
+package ru.kfu.itis.issst.uima.morph.dictionary;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
