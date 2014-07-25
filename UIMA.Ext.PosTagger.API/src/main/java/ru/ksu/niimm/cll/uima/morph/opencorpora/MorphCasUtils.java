@@ -30,8 +30,8 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

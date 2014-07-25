@@ -4,11 +4,11 @@ import scala.collection.JavaConversions._
 import org.apache.uima.jcas.JCas
 import org.uimafit.util.JCasUtil.select
 import org.opencorpora.cas.{ Word, Wordform }
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.{ Wordform => DictWordform }
+import ru.kfu.itis.issst.uima.morph.model.{ Wordform => DictWordform }
 import org.apache.uima.cas.FeatureStructure
 import org.uimafit.descriptor.ExternalResource
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder
-import ru.ksu.niimm.cll.uima.morph.opencorpora.{ WordUtils, MorphologyAnnotator }
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder
+import ru.kfu.itis.issst.uima.morph.dictionary.{ WordUtils, MorphologyAnnotator }
 
 /**
  * Created by fsqcds on 07/05/14.

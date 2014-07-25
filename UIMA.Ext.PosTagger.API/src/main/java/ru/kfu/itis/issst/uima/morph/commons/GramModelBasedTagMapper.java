@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.commons;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
 import java.util.Set;
@@ -19,8 +19,8 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.initializable.Initializable;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;

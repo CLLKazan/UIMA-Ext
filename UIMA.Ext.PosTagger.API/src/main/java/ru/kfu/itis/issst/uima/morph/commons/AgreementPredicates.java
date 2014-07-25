@@ -4,9 +4,9 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicateConjunction.and;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
 import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicate.Builder;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 
 import com.google.common.collect.ImmutableMap;
 

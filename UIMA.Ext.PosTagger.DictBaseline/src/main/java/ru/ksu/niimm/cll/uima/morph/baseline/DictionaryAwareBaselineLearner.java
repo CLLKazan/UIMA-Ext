@@ -27,9 +27,9 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
 
 import com.google.common.base.Joiner;
 

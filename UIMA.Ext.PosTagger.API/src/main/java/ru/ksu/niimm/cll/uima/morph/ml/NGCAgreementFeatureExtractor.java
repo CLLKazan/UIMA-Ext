@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
 import java.util.List;
@@ -22,7 +22,7 @@ import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicate;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

@@ -1,6 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.eval;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.POST;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.POST;
 
 import java.util.BitSet;
 import java.util.Collections;
@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.kfu.itis.cll.uima.eval.event.TypedPrintingEvaluationListener;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;

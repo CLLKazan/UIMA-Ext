@@ -23,11 +23,11 @@ import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.InitialTokenizer;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.OpencorporaMorphDictionaryAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpan;
 import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpanAnnotator;
 

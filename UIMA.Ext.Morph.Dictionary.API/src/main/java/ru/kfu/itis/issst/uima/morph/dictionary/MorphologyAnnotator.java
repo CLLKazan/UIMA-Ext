@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora;
+package ru.kfu.itis.issst.uima.morph.dictionary;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
@@ -26,9 +26,9 @@ import org.uimafit.component.CasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

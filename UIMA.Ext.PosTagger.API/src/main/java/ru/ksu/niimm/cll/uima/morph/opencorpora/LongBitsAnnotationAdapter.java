@@ -14,8 +14,9 @@ import org.opencorpora.cas.Word;
 import com.google.common.collect.Lists;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.dictionary.AnnotationAdapterBase;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 /**
  * Save gram tag bits into Wordform.posBits and (optionally) their string

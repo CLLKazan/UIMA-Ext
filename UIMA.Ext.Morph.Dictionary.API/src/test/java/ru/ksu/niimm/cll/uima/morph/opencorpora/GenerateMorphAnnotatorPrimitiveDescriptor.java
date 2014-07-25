@@ -12,6 +12,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.xml.sax.SAXException;
 
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 

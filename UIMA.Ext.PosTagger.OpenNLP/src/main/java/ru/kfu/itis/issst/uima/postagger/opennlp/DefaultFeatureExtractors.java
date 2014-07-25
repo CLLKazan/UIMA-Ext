@@ -16,7 +16,7 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;

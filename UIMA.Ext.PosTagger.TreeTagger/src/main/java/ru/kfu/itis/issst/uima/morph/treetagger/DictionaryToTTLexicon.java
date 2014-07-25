@@ -19,12 +19,12 @@ import java.util.TreeSet;
 
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LexemePostProcessorBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.XmlDictionaryParser;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.YoLemmaPostProcessor;
 

@@ -12,6 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.uimafit.component.initialize.ConfigurationParameterInitializer;
 import org.uimafit.descriptor.ConfigurationParameter;
 
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+
 /**
  * @author Rinat Gareev
  * 

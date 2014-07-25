@@ -13,7 +13,7 @@ import org.uimafit.descriptor.ExternalResource;
 import com.google.common.collect.ImmutableSet;
 
 import opennlp.tools.postag.TagDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

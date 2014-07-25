@@ -31,12 +31,12 @@ import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
 import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.beust.jcommander.JCommander;
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora.model;
+package ru.kfu.itis.issst.uima.morph.model;
 
 import java.io.Serializable;
 import java.util.BitSet;
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 
 /**
  * TODO rename to Lexeme

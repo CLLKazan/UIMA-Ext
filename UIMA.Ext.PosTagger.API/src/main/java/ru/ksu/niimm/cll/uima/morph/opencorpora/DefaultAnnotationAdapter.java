@@ -12,8 +12,9 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.opencorpora.cas.Word;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.dictionary.AnnotationAdapterBase;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

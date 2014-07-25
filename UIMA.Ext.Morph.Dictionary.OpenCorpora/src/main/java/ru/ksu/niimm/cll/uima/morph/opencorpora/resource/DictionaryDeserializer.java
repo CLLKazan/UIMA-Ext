@@ -15,6 +15,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 

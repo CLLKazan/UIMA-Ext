@@ -17,8 +17,8 @@ import org.uimafit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

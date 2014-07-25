@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 import static ru.ksu.niimm.cll.uima.morph.util.BitUtils.contains;
 
 import java.util.BitSet;
@@ -20,11 +20,11 @@ import org.cleartk.classifier.feature.extractor.simple.SimpleNamedFeatureExtract
 import org.opencorpora.cas.Word;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Grammeme;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;

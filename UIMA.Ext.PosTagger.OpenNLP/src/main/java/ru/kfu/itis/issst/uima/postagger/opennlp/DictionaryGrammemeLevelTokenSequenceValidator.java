@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.allGramBitsFunction;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.model.Wordform.allGramBitsFunction;
 
 import java.util.BitSet;
 import java.util.List;
@@ -24,12 +24,12 @@ import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicate;
 import ru.kfu.itis.issst.uima.morph.commons.TwoTagPredicateConjunction;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.model.MorphConstants;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.util.BitUtils;
 
 import com.google.common.collect.ImmutableList;

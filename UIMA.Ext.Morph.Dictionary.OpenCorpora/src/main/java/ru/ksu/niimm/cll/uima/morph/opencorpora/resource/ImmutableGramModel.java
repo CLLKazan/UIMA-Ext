@@ -23,7 +23,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.model.Grammeme;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -19,7 +19,7 @@ import org.opencorpora.cas.Wordform;
 import org.uimafit.util.FSCollectionFactory;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

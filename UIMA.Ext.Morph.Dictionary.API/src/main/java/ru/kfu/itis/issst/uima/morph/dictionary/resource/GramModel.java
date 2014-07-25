@@ -1,13 +1,13 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
+package ru.kfu.itis.issst.uima.morph.dictionary.resource;
 
 import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
+import ru.kfu.itis.issst.uima.morph.model.Grammeme;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

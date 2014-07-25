@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora.model;
+package ru.kfu.itis.issst.uima.morph.model;
 
 import java.io.Serializable;
 

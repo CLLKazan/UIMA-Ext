@@ -11,7 +11,7 @@ import opennlp.model.AbstractModel;
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.BaseModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

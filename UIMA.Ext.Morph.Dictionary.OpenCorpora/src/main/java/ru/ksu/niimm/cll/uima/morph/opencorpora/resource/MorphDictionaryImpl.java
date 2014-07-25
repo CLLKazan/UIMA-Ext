@@ -14,9 +14,11 @@ import org.apache.commons.lang3.event.EventListenerSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.LemmaLinkType;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.LemmaLinkType;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

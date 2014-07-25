@@ -1,9 +1,9 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora;
+package ru.kfu.itis.issst.uima.morph.dictionary;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

@@ -25,7 +25,7 @@ import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

@@ -4,7 +4,7 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.punctuationTagMap;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
 
 import java.util.BitSet;
 import java.util.Set;
@@ -12,8 +12,8 @@ import java.util.Set;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;

@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 

@@ -6,7 +6,7 @@ package ru.kfu.itis.issst.uima.morph.commons;
 import java.util.List;
 import java.util.Set;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;

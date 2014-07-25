@@ -27,12 +27,12 @@ import org.apache.uima.util.InvalidXMLException;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.morph.model.MorphConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
 import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;

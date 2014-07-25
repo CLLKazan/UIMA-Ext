@@ -19,11 +19,11 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryImpl;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryListenerBase;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.XmlDictionaryParser;

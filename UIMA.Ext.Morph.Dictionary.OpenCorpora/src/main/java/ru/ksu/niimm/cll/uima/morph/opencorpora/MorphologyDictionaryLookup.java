@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.getAllGramBits;
+import static ru.kfu.itis.issst.uima.morph.model.Wordform.getAllGramBits;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -15,10 +15,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 import ru.kfu.itis.issst.util.cli.FileValueValidator;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DictionaryDeserializer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;

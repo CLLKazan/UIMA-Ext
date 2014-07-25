@@ -5,9 +5,9 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.ksu.niimm.cll.uima.morph.ml.DefaultFeatureExtractors.currentTokenExtractors;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -42,11 +42,11 @@ import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.cleartk.Disposable;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.model.Grammeme;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.MorphCasUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;

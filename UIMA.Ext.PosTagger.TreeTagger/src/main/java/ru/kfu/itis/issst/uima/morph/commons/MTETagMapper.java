@@ -4,7 +4,7 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static com.google.common.collect.Tables.unmodifiableRowSortedTable;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
 
 import java.util.HashSet;
 import java.util.Map;

@@ -3,9 +3,9 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
+import static ru.kfu.itis.issst.uima.morph.dictionary.WordUtils.normalizeToDictionaryForm;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
 import static ru.ksu.niimm.cll.uima.morph.ruscorpora.RNCMorphConstants.*;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils.normalizeToDictionaryForm;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -20,17 +20,17 @@ import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Grammeme;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma.Builder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Grammeme;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.model.Lemma.Builder;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DictionaryExtensionBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelPostProcessor;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ImmutableGramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LemmaPostProcessor;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.LexemePostProcessorBase;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryImpl;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.YoLemmaPostProcessor;
 

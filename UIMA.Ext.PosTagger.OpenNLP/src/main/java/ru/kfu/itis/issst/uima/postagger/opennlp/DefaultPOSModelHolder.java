@@ -16,8 +16,8 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.ExternalResourceFactory;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

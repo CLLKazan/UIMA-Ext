@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.opencorpora.model;
+package ru.kfu.itis.issst.uima.morph.model;
 
 import java.io.Serializable;
 import java.util.BitSet;
@@ -9,8 +9,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

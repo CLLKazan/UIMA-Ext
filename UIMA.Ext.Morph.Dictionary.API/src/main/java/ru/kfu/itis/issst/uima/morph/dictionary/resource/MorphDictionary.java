@@ -1,15 +1,15 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
+package ru.kfu.itis.issst.uima.morph.dictionary.resource;
 
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.LemmaLinkType;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.LemmaLinkType;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

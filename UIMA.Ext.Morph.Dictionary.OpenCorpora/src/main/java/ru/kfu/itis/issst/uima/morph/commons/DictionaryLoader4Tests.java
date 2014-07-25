@@ -4,9 +4,9 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.kfu.itis.issst.uima.morph.commons.TestUtils.getSerializedDictionaryFile;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DictionaryDeserializer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

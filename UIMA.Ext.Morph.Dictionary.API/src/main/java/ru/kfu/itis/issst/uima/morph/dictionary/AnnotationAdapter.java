@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora;
+package ru.kfu.itis.issst.uima.morph.dictionary;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -9,8 +9,8 @@ import java.util.Collection;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 /**
  * @author Rinat Gareev

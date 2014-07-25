@@ -5,8 +5,9 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.LinkedHashMultimap;

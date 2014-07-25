@@ -4,10 +4,10 @@
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils.normalizeToDictionaryForm;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.allGramBitsFunction;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.WordUtils.normalizeToDictionaryForm;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
+import static ru.kfu.itis.issst.uima.morph.model.Wordform.allGramBitsFunction;
 import static ru.ksu.niimm.cll.uima.morph.ruscorpora.RNCMorphConstants.*;
 import static ru.ksu.niimm.cll.uima.morph.util.BitUtils.contains;
 
@@ -38,11 +38,11 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.PosTrimmer;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

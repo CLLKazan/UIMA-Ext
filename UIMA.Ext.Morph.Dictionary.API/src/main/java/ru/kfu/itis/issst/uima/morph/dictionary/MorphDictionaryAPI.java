@@ -6,8 +6,8 @@ package ru.kfu.itis.issst.uima.morph.dictionary;
 import org.apache.uima.resource.ExternalResourceDescription;
 
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

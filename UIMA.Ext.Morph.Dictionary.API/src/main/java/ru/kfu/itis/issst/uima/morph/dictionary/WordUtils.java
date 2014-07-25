@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ru.ksu.niimm.cll.uima.morph.opencorpora;
+package ru.kfu.itis.issst.uima.morph.dictionary;
 
 import java.lang.Character.UnicodeBlock;
 import java.util.regex.Pattern;

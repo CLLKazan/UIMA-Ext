@@ -3,9 +3,9 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.WordUtils.normalizeToDictionaryForm;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform.allGramBitsFunction;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.WordUtils.normalizeToDictionaryForm;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.model.Wordform.allGramBitsFunction;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,10 +37,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

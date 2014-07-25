@@ -6,7 +6,7 @@ package ru.kfu.itis.issst.uima.morph.commons;
 import static org.junit.Assert.assertEquals;
 import static ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper.parseTag;
 import static ru.kfu.itis.issst.uima.morph.commons.GramModelLoader4Tests.gm;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 
 import java.util.BitSet;
 

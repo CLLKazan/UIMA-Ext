@@ -13,15 +13,15 @@ import org.apache.uima.resource.ExternalResourceDescription;
 
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPI;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserializer.GetDictionaryResult;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ConfigurableSerializedDictionaryResource;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.DummyWordformPredictor;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelDeserializer;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelResource;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

@@ -4,7 +4,7 @@
 package ru.kfu.itis.issst.uima.morph.commons;
 
 import static ru.kfu.itis.issst.uima.morph.commons.TestUtils.getSerializedDictionaryFile;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.GramModelDeserializer;
 
 /**

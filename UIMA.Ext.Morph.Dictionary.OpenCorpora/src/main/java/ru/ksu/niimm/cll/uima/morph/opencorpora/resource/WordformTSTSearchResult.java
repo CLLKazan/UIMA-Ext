@@ -2,7 +2,8 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 
 import com.google.common.collect.Iterators;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 import java.util.Iterator;
 

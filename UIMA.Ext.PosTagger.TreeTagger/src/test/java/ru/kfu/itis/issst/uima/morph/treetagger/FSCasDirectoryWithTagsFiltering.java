@@ -18,14 +18,13 @@ import org.uimafit.util.FSCollectionFactory;
 import com.google.common.collect.ImmutableSet;
 
 import ru.kfu.itis.cll.uima.eval.cas.FSCasDirectory;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static ru.kfu.itis.cll.uima.cas.FSUtils.toList;
 import static ru.kfu.itis.cll.uima.cas.FSUtils.toSet;
 import static ru.kfu.itis.cll.uima.cas.FSUtils.toStringArray;
-import static ru.ksu.niimm.cll.uima.morph.opencorpora.model.MorphConstants.*;
+import static ru.kfu.itis.issst.uima.morph.model.MorphConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

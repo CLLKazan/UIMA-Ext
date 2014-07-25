@@ -5,8 +5,9 @@ package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
 import com.google.common.collect.Multimap;
 
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Lemma;
-import ru.ksu.niimm.cll.uima.morph.opencorpora.model.Wordform;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.model.Lemma;
+import ru.kfu.itis.issst.uima.morph.model.Wordform;
 
 /**
  * For test purposes ONLY!
