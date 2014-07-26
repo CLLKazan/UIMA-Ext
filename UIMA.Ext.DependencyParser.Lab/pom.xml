@@ -85,6 +85,22 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
+		<!-- IMPLEMENTATIONS -->
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-postagger-tcrf</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+		<!-- -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

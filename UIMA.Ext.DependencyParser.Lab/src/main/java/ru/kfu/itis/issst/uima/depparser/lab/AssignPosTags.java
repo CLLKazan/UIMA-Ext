@@ -3,12 +3,16 @@
  */
 package ru.kfu.itis.issst.uima.depparser.lab;
 
+import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.createOverrideParameterDeclaration;
+
 import java.io.File;
 import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
+import org.apache.uima.resource.metadata.ConfigurationParameter;
 import org.apache.uima.resource.metadata.MetaDataObject;
+import org.uimafit.factory.ConfigurationParameterFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
@@ -46,13 +50,6 @@ public class AssignPosTags {
 
 	@Parameter(names = { "-i", "--input-file" }, required = true)
 	private File inputFile;
-	/* TODO
-	 * Make this and other launchers independent of specific PoS-tagger implementation.
-	 * Pass a path (or FQN) of PoS-tagger AE as a parameter.
-	 * Use UIMAFit ResoruceCreationSpecifierFactory to produce descripr object
-	 */
-	@Parameter(names = "--tcrf-tagger-model-dir", required = true)
-	private File tcrfTaggerModelBaseDir;
 	@Parameter(names = { "-o", "--output-file" }, required = true)
 	private File outputFile;
 
@@ -75,6 +72,13 @@ public class AssignPosTags {
 		//
 		AnalysisEngineDescription pipeDesc =
 				PipelineDescriptorUtils.createAggregateDescription(aeDescs, aeNames);
+		// set reuseExistingWords = true in pos-tagger
+		ConfigurationParameter rewParam =
+				PosTaggerAPI.createReuseExistingWordAnnotationParameterDeclaration();
+		createOverrideParameterDeclaration(rewParam, pipeDesc,
+				"pos-tagger", PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS);
+		ConfigurationParameterFactory.setParameter(pipeDesc, rewParam.getName(), true);
+		//
 		cpeBuilder.addAnalysisEngine(pipeDesc);
 		//
 		CollectionProcessingEngine cpe = cpeBuilder.createCpe();
