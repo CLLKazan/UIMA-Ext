@@ -7,6 +7,7 @@ import static org.apache.commons.io.FileUtils.openOutputStream;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
+import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import org.uimafit.util.ReflectionUtil;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
@@ -158,7 +160,7 @@ public class TieredPosSequenceAnnotatorFactory {
 			// 
 			List<Object> finalParams = Lists.newArrayList(
 					CleartkSequenceAnnotator.PARAM_IS_TRAINING, false,
-					PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
+					PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
 					reuseExistingWordAnnotations,
 					TieredPosSequenceAnnotator.PARAM_POS_TIERS, posTiers,
 					TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
@@ -219,12 +221,32 @@ public class TieredPosSequenceAnnotatorFactory {
 			throws ResourceInitializationException, IOException, SAXException {
 		List<AnalysisEngineDescription> aeDescriptions = Lists.newArrayList();
 		List<String> aeNames = Lists.newArrayList();
+		//
+		List<String> taggerDelegateNames = Lists.newArrayList();
 		addTaggerDescriptions(modelBaseDir, reuseExistingWordAnnotations, morphDictDesc,
-				aeDescriptions, aeNames);
+				aeDescriptions, taggerDelegateNames);
+		aeNames.addAll(taggerDelegateNames);
+		// add tag-assembler
 		aeDescriptions.add(TagAssembler.createDescription(gramModelDesc));
 		aeNames.add("tag-assembler");
+		// create result aggregate descriptor
 		AnalysisEngineDescription aggrDesc = AnalysisEngineFactory.createAggregateDescription(
 				aeDescriptions, aeNames, null, null, null, null);
+		// add parameter overrides
+		{
+			// map of a delegate name to one of its parameter
+			Map<String, String> taggerDelegateREWParamsMap = Maps.newLinkedHashMap();
+			for (String tdName : taggerDelegateNames) {
+				taggerDelegateREWParamsMap.put(tdName, PARAM_REUSE_EXISTING_WORD_ANNOTATIONS);
+			}
+			org.apache.uima.resource.metadata.ConfigurationParameter rewOverrideDecl =
+					ConfigurationParameterFactory.createPrimitiveParameter(
+							PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
+							Boolean.class, null, false);
+			PipelineDescriptorUtils.createOverrideParameterDeclaration(rewOverrideDecl, aggrDesc,
+					taggerDelegateREWParamsMap);
+		}
+		// write
 		final String descriptorFileName = POS_TAGGER_DESCRIPTOR_NAME + ".xml";
 		File descriptorFile = new File(modelBaseDir, descriptorFileName);
 		OutputStream out = openOutputStream(descriptorFile);

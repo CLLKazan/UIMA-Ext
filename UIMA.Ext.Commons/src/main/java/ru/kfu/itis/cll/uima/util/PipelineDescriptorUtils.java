@@ -8,6 +8,7 @@ import static org.uimafit.factory.ResourceCreationSpecifierFactory.createResourc
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -107,28 +108,29 @@ public class PipelineDescriptorUtils {
 	 *            isMandatory set
 	 * @param aggrDesc
 	 *            pipeline descriptor
-	 * @param delegateKey
-	 *            name (called 'key' in 'delegateAnalysisEngine' XML element) of
-	 *            the delegate which parameter will be referenced by the result
-	 *            override
-	 * @param delegateParamName
-	 *            name of the parameter as declared in the descriptor of the
-	 *            delegate
+	 * @param delegateParameterNames
+	 *            map which keys are delegate names (called 'key' in
+	 *            'delegateAnalysisEngine' XML element). For each delegate in
+	 *            this map its parameter (a value of this map) will be
+	 *            referenced by the result override
 	 */
 	public static void createOverrideParameterDeclaration(
 			ConfigurationParameter resultParam, AnalysisEngineDescription aggrDesc,
-			String delegateKey, String delegateParamName) {
+			Map<String, String> delegateParameterNames) {
 		AnalysisEngineMetaData aggrMeta = aggrDesc.getAnalysisEngineMetaData();
 		if (aggrDesc.isPrimitive()) {
 			throw new IllegalArgumentException(String.format(
 					"The provided AE descriptor (name=%s) is primitive",
 					aggrMeta.getName()));
 		}
-		// do not resolve imports, just check existence of the delegate.
-		if (!aggrDesc.getDelegateAnalysisEngineSpecifiersWithImports().containsKey(delegateKey)) {
-			throw new IllegalArgumentException(String.format(
-					"There is no delegate with key '%s' in the description named '%s'",
-					delegateKey, aggrMeta.getName()));
+		// check that each specified delegate is actually declared
+		for (String delegateKey : delegateParameterNames.keySet()) {
+			// do not resolve imports, just check existence of the delegate.
+			if (!aggrDesc.getDelegateAnalysisEngineSpecifiersWithImports().containsKey(delegateKey)) {
+				throw new IllegalArgumentException(String.format(
+						"There is no delegate with key '%s' in the description named '%s'",
+						delegateKey, aggrMeta.getName()));
+			}
 		}
 		ConfigurationParameterDeclarations cfgParamDecls = aggrMeta
 				.getConfigurationParameterDeclarations();
@@ -136,8 +138,23 @@ public class PipelineDescriptorUtils {
 			throw new IllegalArgumentException(String.format(
 					"Parameter with name = '%s' exists already"));
 		}
-		resultParam.addOverride(delegateKey + "/" + delegateParamName);
+		for (Map.Entry<String, String> delegateAndItsParam : delegateParameterNames.entrySet()) {
+			String delegateKey = delegateAndItsParam.getKey();
+			String delegateParamName = delegateAndItsParam.getValue();
+			resultParam.addOverride(delegateKey + "/" + delegateParamName);
+		}
 		cfgParamDecls.addConfigurationParameter(resultParam);
+	}
+
+	/**
+	 * Simplified signature for
+	 * {@link #createOverrideParameterDeclaration(ConfigurationParameter, AnalysisEngineDescription, Map)}
+	 */
+	public static void createOverrideParameterDeclaration(
+			ConfigurationParameter resultParam, AnalysisEngineDescription aggrDesc,
+			String delegateKey, String delegateParamName) {
+		createOverrideParameterDeclaration(resultParam, aggrDesc,
+				Collections.singletonMap(delegateKey, delegateParamName));
 	}
 
 	private PipelineDescriptorUtils() {
