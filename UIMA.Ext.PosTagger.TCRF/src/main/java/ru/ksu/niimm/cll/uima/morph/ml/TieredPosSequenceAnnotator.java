@@ -8,6 +8,8 @@ import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExtractors;
 import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS;
+import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -71,7 +73,6 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
 	public static final String PARAM_GEN_DICTIONARY_FEATURES = "generateDictionaryFeatures";
 	public static final String PARAM_GEN_PUNCTUATION_FEATURES = "generatePunctuationFeatures";
-	public static final String PARAM_REUSE_EXISTING_WORD_ANNOTATIONS = "reuseExistingWordAnnotations";
 	// config fields
 	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
@@ -88,7 +89,8 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private boolean generateDictionaryFeatures;
 	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false")
 	private boolean generatePunctuationFeatures;
-	@ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
+			defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
 	private boolean reuseExistingWordAnnotations;
 	// derived
 	private MorphDictionary morphDictionary;

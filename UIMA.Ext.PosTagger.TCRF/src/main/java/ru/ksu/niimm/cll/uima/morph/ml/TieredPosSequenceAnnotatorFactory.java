@@ -158,7 +158,7 @@ public class TieredPosSequenceAnnotatorFactory {
 			// 
 			List<Object> finalParams = Lists.newArrayList(
 					CleartkSequenceAnnotator.PARAM_IS_TRAINING, false,
-					TieredPosSequenceAnnotator.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
+					PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
 					reuseExistingWordAnnotations,
 					TieredPosSequenceAnnotator.PARAM_POS_TIERS, posTiers,
 					TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,

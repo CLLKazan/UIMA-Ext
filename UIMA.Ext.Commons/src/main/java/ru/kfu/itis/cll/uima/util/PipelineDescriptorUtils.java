@@ -16,8 +16,11 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.impl.AnalysisEngineDescription_impl;
+import org.apache.uima.analysis_engine.metadata.AnalysisEngineMetaData;
 import org.apache.uima.analysis_engine.metadata.FixedFlow;
 import org.apache.uima.analysis_engine.metadata.impl.FixedFlow_impl;
+import org.apache.uima.resource.metadata.ConfigurationParameter;
+import org.apache.uima.resource.metadata.ConfigurationParameterDeclarations;
 import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.MetaDataObject;
 import org.uimafit.factory.AnalysisEngineFactory;
@@ -90,6 +93,51 @@ public class PipelineDescriptorUtils {
 		return createAggregateDescription(
 				ImmutableList.copyOf(namedDescriptions.values()),
 				ImmutableList.copyOf(namedDescriptions.keySet()));
+	}
+
+	/**
+	 * <ol>
+	 * <li>Add the specified parameter declaration into the specified aggregate
+	 * descriptor
+	 * <li>Set it to override the specified parameter of the specified delegate
+	 * </ol>
+	 * 
+	 * @param resultParam
+	 *            parameter declaration with name, type, isMultivalued &
+	 *            isMandatory set
+	 * @param aggrDesc
+	 *            pipeline descriptor
+	 * @param delegateKey
+	 *            name (called 'key' in 'delegateAnalysisEngine' XML element) of
+	 *            the delegate which parameter will be referenced by the result
+	 *            override
+	 * @param delegateParamName
+	 *            name of the parameter as declared in the descriptor of the
+	 *            delegate
+	 */
+	public static void createOverrideParameterDeclaration(
+			ConfigurationParameter resultParam, AnalysisEngineDescription aggrDesc,
+			String delegateKey, String delegateParamName) {
+		AnalysisEngineMetaData aggrMeta = aggrDesc.getAnalysisEngineMetaData();
+		if (aggrDesc.isPrimitive()) {
+			throw new IllegalArgumentException(String.format(
+					"The provided AE descriptor (name=%s) is primitive",
+					aggrMeta.getName()));
+		}
+		// do not resolve imports, just check existence of the delegate.
+		if (!aggrDesc.getDelegateAnalysisEngineSpecifiersWithImports().containsKey(delegateKey)) {
+			throw new IllegalArgumentException(String.format(
+					"There is no delegate with key '%s' in the description named '%s'",
+					delegateKey, aggrMeta.getName()));
+		}
+		ConfigurationParameterDeclarations cfgParamDecls = aggrMeta
+				.getConfigurationParameterDeclarations();
+		if (cfgParamDecls.getConfigurationParameter(null, resultParam.getName()) != null) {
+			throw new IllegalArgumentException(String.format(
+					"Parameter with name = '%s' exists already"));
+		}
+		resultParam.addOverride(delegateKey + "/" + delegateParamName);
+		cfgParamDecls.addConfigurationParameter(resultParam);
 	}
 
 	private PipelineDescriptorUtils() {
