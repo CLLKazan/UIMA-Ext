@@ -37,16 +37,13 @@
 		<module>../UIMA.Ext.DependencyParser.Lab</module>
 		<!-- 
 		legacy modules
-		<module>../UIMA.Ext.Morph.Search</module>
 		<module>../UIMA.Ext.PhraseRecognizer</module>
-		<module>../UIMA.Ext.NER</module>
 		<module>../UIMA.Ext.ShalTeF</module>
-		<module>../UIMA.DictionaryPatterns</module>
-		<module>../UIMA.Ext.Tokenizer.TextMarkerSeeder</module>
 		 -->
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.Ext.Corpus.Statistics</module>
+		<module>../UIMA.Ext.Demo.PipelineExample</module>
 	</modules>
 
 	<build>
