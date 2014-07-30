@@ -57,6 +57,9 @@ public abstract class LabLauncherBase {
 	// prepare morph dictionary resource
 	protected ExternalResourceDescription morphDictDesc = getMorphDictionaryAPI()
 			.getResourceDescriptionForCachedInstance();
+	{
+		morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
+	}
 	protected ExternalResourceDescription gramModelDesc = getMorphDictionaryAPI()
 			.getGramModelDescription();
 

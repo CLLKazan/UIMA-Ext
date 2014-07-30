@@ -3,15 +3,13 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static org.apache.commons.io.FileUtils.openOutputStream;
-import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.List;
@@ -21,13 +19,12 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
 import org.cleartk.classifier.CleartkSequenceAnnotator;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
+import org.opencorpora.cas.Word;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ConfigurationParameterFactory;
@@ -36,10 +33,13 @@ import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
 import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriterFactory;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import com.google.common.collect.Lists;
@@ -53,15 +53,31 @@ public class TieredPosSequenceAnnotatorFactory {
 
 	public static final String POS_TAGGER_DESCRIPTOR_NAME = "pos_tagger";
 
-	public static void addTrainingDataWriterDescriptors(
+	/**
+	 * Create a descriptor of training data writer with the specified parameter
+	 * values. The result descriptor expects that there is an external resource
+	 * with name '{@value PosTaggerAPI#MORPH_DICTIONARY_RESOURCE_NAME}' that
+	 * implements {@link MorphDictionaryHolder}.
+	 * <p>
+	 * <strong>Note about side effect:</strong> this method writes the provided
+	 * configuration to a file in the specified directory.
+	 * 
+	 * @param posTiers
+	 * @param annotatorParams
+	 * @param trainingBaseDir
+	 * @return descriptor instance
+	 * @throws ResourceInitializationException
+	 * @throws IOException
+	 */
+	public static AnalysisEngineDescription getTrainingDataWriterDescriptor(
 			List<String> posTiers,
 			Map<String, Object> annotatorParams,
-			File trainingBaseDir,
-			ExternalResourceDescription morphDictDesc,
-			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
+			File trainingBaseDir)
 			throws ResourceInitializationException, IOException {
 		//
 		Properties configProps = new Properties();
+		List<AnalysisEngineDescription> delegateDescs = Lists.newArrayList();
+		List<String> delegateNames = Lists.newArrayList();
 		// create description objects
 		for (int i = 0; i < posTiers.size(); i++) {
 			String posTier = posTiers.get(i);
@@ -90,6 +106,7 @@ public class TieredPosSequenceAnnotatorFactory {
 					finalParams.toArray());
 			ptDesc.getAnalysisEngineMetaData().getOperationalProperties()
 					.setMultipleDeploymentAllowed(false);
+			/*
 			try {
 				bindResource(ptDesc,
 						TieredPosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY,
@@ -97,13 +114,24 @@ public class TieredPosSequenceAnnotatorFactory {
 			} catch (InvalidXMLException e) {
 				throw new IllegalStateException(e);
 			}
+			*/
 			//
-			aeDescriptions.add(ptDesc);
-			aeNames.add(ptDesc.getImplementationName() + "-" + posTier);
+			delegateDescs.add(ptDesc);
+			delegateNames.add(ptDesc.getImplementationName() + "-" + posTier);
+		}
+		AnalysisEngineDescription resultDesc = createAggregateDescription(
+				delegateDescs, delegateNames, null, null, null, null);
+		// bind MorhpDictionaryHolder resource by names to each delegate
+		for (String dName : delegateNames) {
+			bindExternalResource(resultDesc,
+					dName + "/" + TieredPosSequenceAnnotator.RESOURCE_MORPH_DICTIONARY,
+					PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
 		}
 		// write config.props
 		File configPropsFile = new File(trainingBaseDir, CONFIG_PROPS_FILENAME);
 		IoUtils.write(configProps, configPropsFile);
+		//
+		return resultDesc;
 	}
 
 	public static void trainModels(File trDataBaseDir, File modelBaseDir, String[] trainerArgs)
@@ -129,18 +157,41 @@ public class TieredPosSequenceAnnotatorFactory {
 		}
 	}
 
-	public static void addTaggerDescriptions(File modelBaseDir,
-			ExternalResourceDescription morphDictDesc,
-			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
+	/**
+	 * Create a tagger description for the specified model. The result has the
+	 * following configuration parameters:
+	 * <dl>
+	 * <dt> {@value GenericJarClassifierFactory#PARAM_ADDITIONAL_SEARCH_PATHS}
+	 * <dd>By default a tagger tries to initialize itself in assumption that
+	 * modelBaseDir is in UIMA datapath. If this is not the case then it will
+	 * try to use values of this parameter.
+	 * <dt> {@value PosTaggerAPI#PARAM_REUSE_EXISTING_WORD_ANNOTATIONS}
+	 * <dd>Defines whether a tagger should produce {@link Word} annotations or
+	 * reuse existing. The default value of this parameter is specified by the
+	 * argument of this method.
+	 * </dl>
+	 * <p>
+	 * The result descriptor expects that there is an external resource with
+	 * name '{@value PosTaggerAPI#MORPH_DICTIONARY_RESOURCE_NAME}' that
+	 * implements {@link MorphDictionaryHolder}.
+	 * 
+	 * @param modelBaseDir
+	 *            a base model directory that contains model directories for
+	 *            each tier
+	 * @param reuseExistingWordAnnotations
+	 * @return descriptor instance
+	 * @throws ResourceInitializationException
+	 * @throws SAXException
+	 */
+	public static AnalysisEngineDescription createTaggerDescription(
+			File modelBaseDir,
+			boolean reuseExistingWordAnnotations)
 			throws ResourceInitializationException, IOException {
-		addTaggerDescriptions(modelBaseDir, false, morphDictDesc, aeDescriptions, aeNames);
-	}
-
-	public static void addTaggerDescriptions(File modelBaseDir,
-			boolean reuseExistingWordAnnotations,
-			ExternalResourceDescription morphDictDesc,
-			List<AnalysisEngineDescription> aeDescriptions, List<String> aeNames)
-			throws ResourceInitializationException, IOException {
+		List<AnalysisEngineDescription> aeDescriptions = Lists.newArrayList();
+		// list of all annotator names
+		List<String> aeNames = Lists.newArrayList();
+		// list of tagger annotator names only
+		List<String> taggerNames = Lists.newArrayList();
 		// prepare TypeSystemDescriptor consisting of produced types
 		TypeSystemDescription tsDesc = PosTaggerAPI.getTypeSystemDescription();
 		//
@@ -165,9 +216,7 @@ public class TieredPosSequenceAnnotatorFactory {
 					TieredPosSequenceAnnotator.PARAM_POS_TIERS, posTiers,
 					TieredPosSequenceAnnotator.PARAM_CURRENT_TIER, i,
 					TieredPosSequenceAnnotator.PARAM_CLASSIFIER_FACTORY_CLASS_NAME,
-					JarSequenceClassifierFactory.class.getName(),
-					JarSequenceClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
-					jarRelativePath);
+					JarSequenceClassifierFactory.class.getName());
 			for (String paramName : annotatorParams.keySet()) {
 				finalParams.add(paramName);
 				finalParams.add(annotatorParams.get(paramName));
@@ -176,6 +225,15 @@ public class TieredPosSequenceAnnotatorFactory {
 			AnalysisEngineDescription ptDesc = createPrimitiveDescription(
 					TieredPosSequenceAnnotator.class, tsDesc,
 					finalParams.toArray());
+			// set jarRelativePath and add optional additionalSearchPaths parameter without value to allow overrides
+			ConfigurationParameterFactory.addConfigurationParameters(ptDesc,
+					JarSequenceClassifierFactory.class);
+			ptDesc.getAnalysisEngineMetaData()
+					.getConfigurationParameterSettings()
+					.setParameterValue(
+							JarSequenceClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
+							jarRelativePath);
+			/*
 			try {
 				bindResource(ptDesc,
 						TieredPosSequenceAnnotator.RESOURCE_KEY_MORPH_DICTIONARY,
@@ -183,79 +241,62 @@ public class TieredPosSequenceAnnotatorFactory {
 			} catch (InvalidXMLException e) {
 				throw new IllegalStateException(e);
 			}
+			*/
 			aeDescriptions.add(ptDesc);
-			aeNames.add(ptDesc.getImplementationName() + "-" + posTier);
+			String taggerDelegateName = ptDesc.getImplementationName() + "-" + posTier;
+			aeNames.add(taggerDelegateName);
+			taggerNames.add(taggerDelegateName);
 		}
-	}
-
-	public static File createAggregateDescription(
-			File modelBaseDir, // TODO can we get rid of this ERD ?
-			ExternalResourceDescription morphDictDesc,
-			ExternalResourceDescription gramModelDesc)
-			throws ResourceInitializationException, IOException, SAXException {
-		return createAggregateDescription(modelBaseDir, morphDictDesc, gramModelDesc, false);
-	}
-
-	/**
-	 * <p>
-	 * REQ0: the result descriptor will be in modelBaseDir.
-	 * </p>
-	 * <p>
-	 * REQ1: the result descriptor must works after moving whole modelBaseDir to
-	 * other place or system given that it is in UIMA datapath. <br>
-	 * TODO this means that morphDictDesc must also meet this requirement.
-	 * </p>
-	 * 
-	 * @param modelBaseDir
-	 * @param morphDictDesc
-	 * @param reuseExistingWordAnnotations
-	 * @return path to XML descriptor
-	 * @throws ResourceInitializationException
-	 * @throws IOException
-	 * @throws SAXException
-	 */
-	public static File createAggregateDescription(File modelBaseDir,
-			// TODO can we get rid of this ERD ?
-			ExternalResourceDescription morphDictDesc, ExternalResourceDescription gramModelDesc,
-			boolean reuseExistingWordAnnotations)
-			throws ResourceInitializationException, IOException, SAXException {
-		List<AnalysisEngineDescription> aeDescriptions = Lists.newArrayList();
-		List<String> aeNames = Lists.newArrayList();
-		//
-		List<String> taggerDelegateNames = Lists.newArrayList();
-		addTaggerDescriptions(modelBaseDir, reuseExistingWordAnnotations, morphDictDesc,
-				aeDescriptions, taggerDelegateNames);
-		aeNames.addAll(taggerDelegateNames);
 		// add tag-assembler
-		aeDescriptions.add(TagAssembler.createDescription(gramModelDesc));
+		aeDescriptions.add(TagAssembler.createDescription());
 		aeNames.add("tag-assembler");
 		// create result aggregate descriptor
 		AnalysisEngineDescription aggrDesc = AnalysisEngineFactory.createAggregateDescription(
 				aeDescriptions, aeNames, null, null, null, null);
 		// add parameter overrides
 		{
-			// map of a delegate name to one of its parameter
+			// maps of a delegate name to one of its parameter
 			Map<String, String> taggerDelegateREWParamsMap = Maps.newLinkedHashMap();
-			for (String tdName : taggerDelegateNames) {
+			Map<String, String> taggerDelegateASPParamsMap = Maps.newLinkedHashMap();
+			for (String tdName : taggerNames) {
 				taggerDelegateREWParamsMap.put(tdName, PARAM_REUSE_EXISTING_WORD_ANNOTATIONS);
+				taggerDelegateASPParamsMap.put(tdName,
+						JarSequenceClassifierFactory.PARAM_ADDITIONAL_SEARCH_PATHS);
 			}
-			org.apache.uima.resource.metadata.ConfigurationParameter rewOverrideDecl =
-					ConfigurationParameterFactory.createPrimitiveParameter(
-							PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
-							Boolean.class, null, false);
-			PipelineDescriptorUtils.createOverrideParameterDeclaration(rewOverrideDecl, aggrDesc,
+			PipelineDescriptorUtils.createOverrideParameterDeclaration(
+					PosTaggerAPI.createReuseExistingWordAnnotationParameterDeclaration(),
+					aggrDesc,
 					taggerDelegateREWParamsMap);
+			try {
+				PipelineDescriptorUtils.createOverrideParameterDeclaration(
+						ConfigurationParameterFactory.createPrimitiveParameter(
+								ReflectionUtil.getField(
+										JarSequenceClassifierFactory.class,
+										"additionalSearchPaths")),
+						aggrDesc,
+						taggerDelegateASPParamsMap);
+			} catch (NoSuchFieldException e) {
+				// must never happen
+				throw new RuntimeException(e);
+			}
 		}
-		// write
-		final String descriptorFileName = POS_TAGGER_DESCRIPTOR_NAME + ".xml";
-		File descriptorFile = new File(modelBaseDir, descriptorFileName);
-		OutputStream out = openOutputStream(descriptorFile);
-		try {
-			aggrDesc.toXML(out);
-		} finally {
-			closeQuietly(out);
+		// bind MorphDictionaryHolder resource to tagger delegates
+		for (String tdName : taggerNames) {
+			bindExternalResource(aggrDesc,
+					tdName + "/" + TieredPosSequenceAnnotator.RESOURCE_MORPH_DICTIONARY,
+					PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
 		}
-		return descriptorFile;
+		// bind GramModelHolder resource to tagAssembler
+		bindExternalResource(aggrDesc,
+				"tag-assembler/" + GramModelBasedTagMapper.RESOURCE_GRAM_MODEL,
+				PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
+		//
+		return aggrDesc;
+	}
+
+	public static AnalysisEngineDescription createTaggerDescription(File modelBaseDir)
+			throws ResourceInitializationException, IOException {
+		return createTaggerDescription(modelBaseDir, false);
 	}
 
 	private static File getTierDir(File baseDir, String posTier) {

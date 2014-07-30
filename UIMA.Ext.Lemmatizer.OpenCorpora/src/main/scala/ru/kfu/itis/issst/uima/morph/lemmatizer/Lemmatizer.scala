@@ -14,7 +14,7 @@ import ru.kfu.itis.issst.uima.morph.dictionary.{ WordUtils, MorphologyAnnotator 
  * Created by fsqcds on 07/05/14.
  */
 class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
-  @ExternalResource(key = MorphologyAnnotator.RESOURCE_KEY_DICTIONARY)
+  @ExternalResource(key = MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, mandatory = true)
   private var dictHolder: MorphDictionaryHolder = null
 
   def jaccardCoef(first: Set[String], second: Set[String]) = {

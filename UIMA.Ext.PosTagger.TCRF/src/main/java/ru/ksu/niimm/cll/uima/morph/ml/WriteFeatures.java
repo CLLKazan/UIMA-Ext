@@ -5,8 +5,10 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +31,6 @@ import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -86,19 +87,24 @@ public class WriteFeatures {
 		ExternalResourceDescription morphDictDesc = MorphDictionaryAPIFactory
 				.getMorphDictionaryAPI()
 				.getResourceDescriptionForCachedInstance();
-		// setup a pipeline extracting features
-		List<AnalysisEngineDescription> taggerDescs = Lists.newArrayList();
-		List<String> taggerNames = Lists.newArrayList();
+		// setup training data writer
 		Map<String, Object> taggerParams = Maps.newHashMap();
 		taggerParams.put(TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE,
 				leftContextSize);
 		taggerParams.put(TieredPosSequenceAnnotator.PARAM_RIGHT_CONTEXT_SIZE,
 				rightContextSize);
-		TieredPosSequenceAnnotatorFactory.addTrainingDataWriterDescriptors(
-				posTiers, taggerParams,
-				outputBaseDir, morphDictDesc, taggerDescs, taggerNames);
+		AnalysisEngineDescription trainDataWriterDesc = TieredPosSequenceAnnotatorFactory
+				.getTrainingDataWriterDescriptor(
+						posTiers, taggerParams, outputBaseDir);
+		// setup a pipeline extracting features
 		AnalysisEngineDescription pipelineDesc = createAggregateDescription(
-				taggerDescs, taggerNames, null, null, null, null);
+				Arrays.asList(trainDataWriterDesc),
+				Arrays.asList("training-data-writer"),
+				null, null, null, null);
+		// add required MorphDictionaryHolder resource with the specified name
+		morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
+		getResourceManagerConfiguration(pipelineDesc).addExternalResource(morphDictDesc);
+		//
 		cpeBuilder.addAnalysisEngine(pipelineDesc);
 		//
 		CollectionProcessingEngine cpe = cpeBuilder.createCpe();

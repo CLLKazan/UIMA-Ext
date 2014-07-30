@@ -14,10 +14,8 @@ import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator
 
 object DescriptionGenerator {
-  def getDescription() = {
-    val extDictDesc = MorphDictionaryAPIFactory.getMorphDictionaryAPI.getResourceDescriptionForCachedInstance
-    AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer], MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, extDictDesc)
-  }
+  def getDescription() =
+    AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer])
 
   def getDescriptionWithDep() = {
     val aeDescriptions = scala.collection.mutable.Map.empty[String, MetaDataObject]
@@ -29,6 +27,7 @@ object DescriptionGenerator {
     aeDescriptions("pos-tagger") = posTaggerDescImport
     //
     aeDescriptions("lemmatizer") = getDescription()
+    // XXX bind MorphDictionary!
 
     import scala.collection.JavaConversions._
     PipelineDescriptorUtils.createAggregateDescription(aeDescriptions)

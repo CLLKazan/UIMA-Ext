@@ -20,10 +20,13 @@ import org.apache.uima.analysis_engine.impl.AnalysisEngineDescription_impl;
 import org.apache.uima.analysis_engine.metadata.AnalysisEngineMetaData;
 import org.apache.uima.analysis_engine.metadata.FixedFlow;
 import org.apache.uima.analysis_engine.metadata.impl.FixedFlow_impl;
+import org.apache.uima.resource.ResourceCreationSpecifier;
 import org.apache.uima.resource.metadata.ConfigurationParameter;
 import org.apache.uima.resource.metadata.ConfigurationParameterDeclarations;
 import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.MetaDataObject;
+import org.apache.uima.resource.metadata.ResourceManagerConfiguration;
+import org.apache.uima.resource.metadata.impl.ResourceManagerConfiguration_impl;
 import org.uimafit.factory.AnalysisEngineFactory;
 
 import com.google.common.collect.ImmutableList;
@@ -155,6 +158,16 @@ public class PipelineDescriptorUtils {
 			String delegateKey, String delegateParamName) {
 		createOverrideParameterDeclaration(resultParam, aggrDesc,
 				Collections.singletonMap(delegateKey, delegateParamName));
+	}
+
+	public static ResourceManagerConfiguration getResourceManagerConfiguration(
+			ResourceCreationSpecifier aDesc) {
+		ResourceManagerConfiguration resMgrCfg = aDesc.getResourceManagerConfiguration();
+		if (resMgrCfg == null) {
+			resMgrCfg = new ResourceManagerConfiguration_impl();
+			aDesc.setResourceManagerConfiguration(resMgrCfg);
+		}
+		return resMgrCfg;
 	}
 
 	private PipelineDescriptorUtils() {

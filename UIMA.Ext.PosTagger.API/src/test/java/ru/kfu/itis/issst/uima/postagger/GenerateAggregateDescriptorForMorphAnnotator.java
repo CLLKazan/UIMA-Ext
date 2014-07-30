@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger;
 
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import org.apache.uima.resource.metadata.MetaDataObject;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
@@ -47,15 +49,19 @@ public class GenerateAggregateDescriptorForMorphAnnotator {
 		Map<String, MetaDataObject> aeDescriptions = Maps.newLinkedHashMap();
 		aeDescriptions.put("tokenizer", TokenizerAPI.getAEImport());
 		//
-		aeDescriptions.put("sentenceSplitter", SentenceSplitterAPI.getAEImport());
+		aeDescriptions.put("sentence-splitter", SentenceSplitterAPI.getAEImport());
 		//
-		aeDescriptions.put("morphAnalyzer", MorphologyAnnotator.createDescription(
-				DefaultAnnotationAdapter.class, PosTaggerAPI.getTypeSystemDescription(),
-				morphDictDesc));
+		aeDescriptions.put("morph-analyzer", MorphologyAnnotator.createDescription(
+				DefaultAnnotationAdapter.class, PosTaggerAPI.getTypeSystemDescription()));
 		//
-		aeDescriptions.put("tag-assembler", TagAssembler.createDescription(morphDictDesc));
+		aeDescriptions.put("tag-assembler", TagAssembler.createDescription());
 		AnalysisEngineDescription desc = PipelineDescriptorUtils
 				.createAggregateDescription(aeDescriptions);
+		// bind the dictionary resource
+		bindExternalResource(desc,
+				"morph-analyzer/" + MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, morphDictDesc);
+		bindExternalResource(desc,
+				"tag-assembler/" + GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, morphDictDesc);
 
 		FileOutputStream out = FileUtils.openOutputStream(new File(outputPath));
 		try {

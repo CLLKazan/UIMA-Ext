@@ -15,6 +15,11 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
  */
 public interface MorphDictionaryAPI {
 
+	/**
+	 * 
+	 * @return new instance of resource description. So it is allowed to change
+	 *         name of the description.
+	 */
 	public ExternalResourceDescription getResourceDescriptionForCachedInstance();
 
 	public ExternalResourceDescription getResourceDescriptionWithPredictorEnabled();

@@ -4,17 +4,12 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
+import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +22,6 @@ import org.uimafit.factory.ConfigurationParameterFactory;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
-import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
 import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
 import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
@@ -90,8 +84,6 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 					throws ResourceInitializationException, IOException {
 				File trainingBaseDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR,
 						AccessMode.READWRITE);
-				List<AnalysisEngineDescription> posTaggerDescs = Lists.newArrayList();
-				List<String> posTaggerNames = Lists.newArrayList();
 				Map<String, Object> taggerParams = Maps.newHashMap();
 				taggerParams.put(TieredPosSequenceAnnotator.PARAM_LEFT_CONTEXT_SIZE,
 						leftContextSize);
@@ -99,11 +91,15 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 						rightContextSize);
 				taggerParams.put(TieredPosSequenceAnnotator.PARAM_GEN_DICTIONARY_FEATURES,
 						generateDictionaryFeatures);
-				TieredPosSequenceAnnotatorFactory.addTrainingDataWriterDescriptors(
-						posTiers, taggerParams,
-						trainingBaseDir, morphDictDesc, posTaggerDescs, posTaggerNames);
-				return createAggregateDescription(posTaggerDescs, posTaggerNames,
-						null, null, null, null);
+				AnalysisEngineDescription trDataWriterDesc = TieredPosSequenceAnnotatorFactory
+						.getTrainingDataWriterDescriptor(posTiers, taggerParams, trainingBaseDir);
+				// prepare aggregate with required resources
+				AnalysisEngineDescription aggrDesc = createAggregateDescription(
+						Arrays.asList(trDataWriterDesc),
+						Arrays.asList("trainin-data-writer"), null, null, null, null);
+				// name of the dictionary resource is already set in LabLauncherBase
+				getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
+				return aggrDesc;
 			}
 		};
 		// -----------------------------------------------------------------
@@ -247,31 +243,31 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			primitiveDescs.add(goldRemoverDesc);
 			primitiveNames.add("goldRemover");
 			//
-			final int posTaggerBegin = primitiveDescs.size();
-			TieredPosSequenceAnnotatorFactory.addTaggerDescriptions(
-					modelBaseDir, morphDictDesc, primitiveDescs, primitiveNames);
-			primitiveDescs.add(TagAssembler.createDescription(this.morphDictDesc));
-			primitiveNames.add("tag-assembler");
+			AnalysisEngineDescription taggerDesc = TieredPosSequenceAnnotatorFactory
+					.createTaggerDescription(modelBaseDir);
+			primitiveDescs.add(taggerDesc);
+			primitiveNames.add("pos-tagger");
 			// We should specify additional paths to resolve relative paths of model jars.  
 			// There are several ways to do this. E.g., we can change global UIMA data-path.
 			// But the better solution is to provide the parameter for JarClassifierFactory.
-			final String addSearchPathParam = GenericJarClassifierFactory.PARAM_ADDITIONAL_SEARCH_PATHS;
-			for (int i = posTaggerBegin; i < primitiveDescs.size(); i++) {
-				AnalysisEngineDescription ptDesc = primitiveDescs.get(i);
-				ConfigurationParameterFactory.addConfigurationParameter(ptDesc, addSearchPathParam,
-						new String[] { modelBaseDir.getPath() });
-				// TODO:LOW
-				// disable multiple deployment to avoid heavy memory consumption and related consequences 
-				ptDesc.getAnalysisEngineMetaData().getOperationalProperties()
-						.setMultipleDeploymentAllowed(false);
-			}
+			ConfigurationParameterFactory.setParameter(taggerDesc,
+					GenericJarClassifierFactory.PARAM_ADDITIONAL_SEARCH_PATHS,
+					new String[] { modelBaseDir.getPath() });
+			// TODO:LOW
+			// disable multiple deployment to avoid heavy memory consumption and related consequences 
+			taggerDesc.getAnalysisEngineMetaData().getOperationalProperties()
+					.setMultipleDeploymentAllowed(false);
 			//
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
 			primitiveDescs.add(xmiWriterDesc);
 			primitiveNames.add("xmiWriter");
 			//
-			return createAggregateDescription(primitiveDescs, primitiveNames,
+			AnalysisEngineDescription aggrDesc = createAggregateDescription(primitiveDescs,
+					primitiveNames,
 					null, null, null, null);
+			// add MorphDictionaryHolder resource with the required name
+			getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
+			return aggrDesc;
 		}
 	}
 

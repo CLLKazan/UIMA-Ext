@@ -4,6 +4,7 @@
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
@@ -27,6 +28,7 @@ import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
@@ -91,9 +93,12 @@ public class OpenNLPPosTaggerTrainerCLI {
 					XmiCollectionReader.class, tsd,
 					XmiCollectionReader.PARAM_INPUTDIR, cli.trainingXmiDir);
 			AnalysisEngineDescription posTrimmerDesc = PosTrimmingAnnotator.createDescription(
-					cli.gramCategories.toArray(new String[0]), morphDictDesc);
-			AnalysisEngineDescription tagAssemblerDesc = TagAssembler
-					.createDescription(morphDictDesc);
+					cli.gramCategories.toArray(new String[0]));
+			bindExternalResource(posTrimmerDesc,
+					PosTrimmingAnnotator.RESOURCE_GRAM_MODEL, morphDictDesc);
+			AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription();
+			bindExternalResource(tagAssemblerDesc,
+					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, morphDictDesc);
 			AnalysisEngineDescription aeDesc = createAggregateDescription(
 					posTrimmerDesc, tagAssemblerDesc);
 			Iterator<Sentence> sentIter = AnnotationIteratorOverCollection.createIterator(

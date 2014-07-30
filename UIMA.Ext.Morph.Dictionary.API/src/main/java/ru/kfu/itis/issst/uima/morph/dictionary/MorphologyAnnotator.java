@@ -18,7 +18,6 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.component.CasAnnotator_ImplBase;
@@ -36,24 +35,25 @@ import ru.kfu.itis.issst.uima.morph.model.Wordform;
 public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 
 	/**
+	 * Create description with default parameter values. The result declares
+	 * mandatory dependency on an external resource with
+	 * {@link MorphDictionaryHolder} API on resource key
+	 * {@value #RESOURCE_KEY_DICTIONARY}
+	 * 
 	 * @param annotationAdapterClass
 	 * @param tsDesc
 	 *            a type-system description that declares types produced by the
 	 *            specified {@link AnnotationAdapter}
-	 * @param morphDictDesc
-	 *            description of {@link MorphDictionaryHolder}
-	 * @return
+	 * @return description instance
 	 * @throws ResourceInitializationException
 	 */
 	public static AnalysisEngineDescription createDescription(
 			Class<? extends AnnotationAdapter> annotationAdapterClass,
-			TypeSystemDescription tsDesc,
-			ExternalResourceDescription morphDictDesc)
+			TypeSystemDescription tsDesc)
 			throws ResourceInitializationException {
 		return createPrimitiveDescription(MorphologyAnnotator.class,
 				tsDesc,
-				PARAM_ANNOTATION_ADAPTER_CLASS, annotationAdapterClass.getName(),
-				RESOURCE_KEY_DICTIONARY, morphDictDesc);
+				PARAM_ANNOTATION_ADAPTER_CLASS, annotationAdapterClass.getName());
 	}
 
 	public static final String PARAM_TOKEN_TYPE = "TokenType";

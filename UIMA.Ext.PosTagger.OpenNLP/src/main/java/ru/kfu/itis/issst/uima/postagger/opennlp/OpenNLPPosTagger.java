@@ -3,8 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.postProcessExternalTag;
@@ -23,7 +21,6 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
@@ -53,48 +50,29 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	public static final String DEFAULT_SEQUENCE_VALIDATOR_CLASS =
 			"ru.kfu.itis.issst.uima.postagger.opennlp.PunctuationTokenSequenceValidator";
 
+	/**
+	 * Create a resource description with the specified parameter values. The
+	 * results declares the mandatory dependency on a resource with
+	 * {@link OpenNLPModelHolder} API and resource key
+	 * {@value #RESOURCE_POS_MODEL}.
+	 * 
+	 * @param sequenceValidatorClass
+	 *            class name of a sequence validator. If null then default one (
+	 *            {@value #DEFAULT_SEQUENCE_VALIDATOR_CLASS}) will be used.
+	 * @param beamSize
+	 *            beam size. If null them the default value will be used.
+	 * @return description instance
+	 * @throws ResourceInitializationException
+	 */
 	public static AnalysisEngineDescription createDescription(
-			ExternalResourceDescription modelDesc,
 			String sequenceValidatorClass,
 			Integer beamSize)
 			throws ResourceInitializationException {
 		// prepare TypeSystemDescriptor consisting of produced types
 		return AnalysisEngineFactory.createPrimitiveDescription(OpenNLPPosTagger.class,
 				PosTaggerAPI.getTypeSystemDescription(),
-				RESOURCE_POS_MODEL, modelDesc,
 				PARAM_BEAM_SIZE, beamSize,
 				PARAM_SEQUENCE_VALIDATOR_CLASS, sequenceValidatorClass);
-	}
-
-	/**
-	 * Create description for this tagger with the specified model, sequence
-	 * validator implementation, beam size and optional injection of morph
-	 * dictionary.
-	 * 
-	 */
-	public static AnalysisEngineDescription createDescription(String modelUrl,
-			String sequenceValidatorClass, Integer beamSize,
-			ExternalResourceDescription morphDictDesc)
-			throws ResourceInitializationException {
-		ExternalResourceDescription modelDesc = createExternalResourceDescription(
-				DefaultPOSModelHolder.class, modelUrl);
-		if (morphDictDesc != null) {
-			bindExternalResource(modelDesc,
-					DefaultPOSModelHolder.RESOURCE_MORPH_DICT, morphDictDesc);
-		}
-		return createDescription(modelDesc, sequenceValidatorClass, beamSize);
-	}
-
-	/**
-	 * Create description for this tagger with the specified model, optional
-	 * injection of morph dictionary, the default value of beam size and the
-	 * default implementation of sequence validator.
-	 * 
-	 */
-	public static AnalysisEngineDescription createDescription(String modelUrl,
-			ExternalResourceDescription morphDictDesc)
-			throws ResourceInitializationException {
-		return createDescription(modelUrl, null, null, morphDictDesc);
 	}
 
 	@ExternalResource(key = RESOURCE_POS_MODEL, mandatory = true)

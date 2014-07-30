@@ -10,7 +10,6 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
@@ -21,6 +20,7 @@ import org.uimafit.util.FSCollectionFactory;
 import org.uimafit.util.JCasUtil;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -28,12 +28,23 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
  */
 public class TagAssembler extends JCasAnnotator_ImplBase {
 
-	public static AnalysisEngineDescription createDescription(
-			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
+	/**
+	 * Create description of this annotator with default parameter values, i.e.:
+	 * <ul>
+	 * <li> {@link GramModelBasedTagMapper} is used, that requires to bind
+	 * {@link GramModelHolder} to resource key
+	 * {@value GramModelBasedTagMapper#RESOURCE_GRAM_MODEL}
+	 * </ul>
+	 * 
+	 * @return a description instance
+	 * @throws ResourceInitializationException
+	 */
+	public static AnalysisEngineDescription createDescription()
+			throws ResourceInitializationException {
 		AnalysisEngineDescription desc = createPrimitiveDescription(
 				TagAssembler.class, // it does not produce any additional annotations => no need in TS 
 				PARAM_TAG_MAPPER_CLASS, GramModelBasedTagMapper.class.getName());
-		GramModelBasedTagMapper.declareDependencyAndBind(desc, gramModelDesc);
+		GramModelBasedTagMapper.declareResourceDependencies(desc);
 		return desc;
 	}
 

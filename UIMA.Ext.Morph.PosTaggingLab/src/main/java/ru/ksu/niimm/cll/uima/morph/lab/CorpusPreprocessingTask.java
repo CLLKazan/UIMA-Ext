@@ -5,6 +5,7 @@ package ru.ksu.niimm.cll.uima.morph.lab;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import org.uimafit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -68,7 +70,9 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 				PosTrimmingAnnotator.PARAM_TARGET_POS_CATEGORIES, posCategories,
 				PosTrimmingAnnotator.RESOURCE_GRAM_MODEL, gramModelDesc);
 		//
-		AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription(gramModelDesc);
+		AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription();
+		bindExternalResource(tagAssemblerDesc,
+				GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
 		//
 		AnalysisEngineDescription xmiWriterDesc = XmiWriter.createDescription(
 				taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READWRITE),

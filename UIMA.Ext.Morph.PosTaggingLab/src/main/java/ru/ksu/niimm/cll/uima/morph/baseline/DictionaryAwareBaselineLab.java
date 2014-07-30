@@ -5,15 +5,10 @@ package ru.ksu.niimm.cll.uima.morph.baseline;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
 import static org.uimafit.factory.ExternalResourceFactory.bindResource;
 import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +22,7 @@ import org.apache.uima.util.InvalidXMLException;
 
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.cll.uima.wfstore.SharedDefaultWordformStore;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.kfu.itis.issst.uima.morph.model.MorphConstants;
 import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
@@ -210,8 +206,9 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 			} catch (InvalidXMLException e) {
 				throw new ResourceInitializationException(e);
 			}
-			AnalysisEngineDescription tagAssemblerDesc = TagAssembler
-					.createDescription(morphDictDesc);
+			AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription();
+			bindExternalResource(tagAssemblerDesc,
+					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, morphDictDesc);
 			return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, tagAssemblerDesc,
 					xmiWriterDesc);
 		}

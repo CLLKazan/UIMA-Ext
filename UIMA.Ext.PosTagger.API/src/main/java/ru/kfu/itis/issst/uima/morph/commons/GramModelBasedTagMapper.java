@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
 import org.apache.uima.util.InvalidXMLException;
@@ -21,6 +20,7 @@ import org.uimafit.factory.initializable.Initializable;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -32,18 +32,30 @@ import com.google.common.collect.Sets;
  */
 public class GramModelBasedTagMapper implements TagMapper, Initializable {
 
-	public static void declareDependencyAndBind(ResourceSpecifier clientResourceDesc,
-			ExternalResourceDescription gramModelDesc) throws ResourceInitializationException {
+	/**
+	 * Add dependency on an external resource with {@link MorphDictionaryHolder}
+	 * API
+	 * 
+	 * @param clientResourceDesc
+	 *            description of a resource (e.g., annotator) that initialize
+	 *            this tag mapper.
+	 * @throws ResourceInitializationException
+	 */
+	public static void declareResourceDependencies(ResourceSpecifier clientResourceDesc)
+			throws ResourceInitializationException {
 		try {
 			ExternalResourceFactory.createDependency(clientResourceDesc,
 					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL,
 					GramModelHolder.class);
-			ExternalResourceFactory.bindResource(clientResourceDesc,
-					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
 		} catch (InvalidXMLException e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
+
+	/*
+	ExternalResourceFactory.bindResource(clientResourceDesc,
+			GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
+			*/
 
 	public static final String CLASS_NAME = GramModelBasedTagMapper.class.getName();
 	public static final String RESOURCE_GRAM_MODEL = "gramModel";

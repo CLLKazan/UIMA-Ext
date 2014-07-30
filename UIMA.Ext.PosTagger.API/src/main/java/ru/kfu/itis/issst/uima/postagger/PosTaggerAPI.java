@@ -29,6 +29,10 @@ public class PosTaggerAPI {
 	// parameter names and default values (provided only if a parameter is not mandatory)
 	public static final String PARAM_REUSE_EXISTING_WORD_ANNOTATIONS = "reuseExistingWordAnnotations";
 	public static final String DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS = "false";
+	/**
+	 * a resource name to declare MorphDictionaryHolder implementation
+	 */
+	public static final String MORPH_DICTIONARY_RESOURCE_NAME = "MorphDictionary";
 
 	public static TypeSystemDescription getTypeSystemDescription() {
 		return TypeSystemDescriptionFactory.createTypeSystemDescription(TYPESYSTEM_POSTAGGER);

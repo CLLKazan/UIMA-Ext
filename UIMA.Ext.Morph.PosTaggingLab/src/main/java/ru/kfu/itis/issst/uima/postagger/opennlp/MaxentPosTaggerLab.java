@@ -5,6 +5,8 @@ package ru.kfu.itis.issst.uima.postagger.opennlp;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
+import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
 import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 import static ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask.getTrainingListFile;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
@@ -233,12 +235,19 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 			}
 			//
 			AnalysisEngineDescription taggerDesc = OpenNLPPosTagger.createDescription(
-					modelUrl.toString(),
 					beamSearchValidate
 							? DictionaryGrammemeLevelTokenSequenceValidator.class.getName()
 							: null,
-					beamSize,
-					generateDictionaryFeatures ? morphDictDesc : null);
+					beamSize);
+			ExternalResourceDescription modelDesc = createExternalResourceDescription(
+					DefaultPOSModelHolder.class, modelUrl);
+			if (generateDictionaryFeatures) {
+				// bind the dictionary resource to the model resource
+				bindExternalResource(modelDesc,
+						DefaultPOSModelHolder.RESOURCE_MORPH_DICT, morphDictDesc);
+			}
+			// bind the model to the tagger
+			bindExternalResource(taggerDesc, OpenNLPPosTagger.RESOURCE_POS_MODEL, modelDesc);
 			if (beamSearchValidate) {
 				try {
 					ExternalResourceFactory.createDependency(taggerDesc,

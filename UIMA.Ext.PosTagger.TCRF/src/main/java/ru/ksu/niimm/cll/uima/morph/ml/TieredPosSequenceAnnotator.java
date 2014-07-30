@@ -66,7 +66,7 @@ import com.google.common.collect.Sets;
  */
 public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String> {
 
-	public static final String RESOURCE_KEY_MORPH_DICTIONARY = "MorphDictionary";
+	public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
 	public static final String PARAM_POS_TIERS = "posTiers";
 	public static final String PARAM_CURRENT_TIER = "currentTier";
 	public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
@@ -74,7 +74,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	public static final String PARAM_GEN_DICTIONARY_FEATURES = "generateDictionaryFeatures";
 	public static final String PARAM_GEN_PUNCTUATION_FEATURES = "generatePunctuationFeatures";
 	// config fields
-	@ExternalResource(key = RESOURCE_KEY_MORPH_DICTIONARY, mandatory = true)
+	@ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
 	private MorphDictionaryHolder morphDictHolder;
 	@ConfigurationParameter(name = PARAM_POS_TIERS, mandatory = true)
 	private List<String> pPosTiers;
