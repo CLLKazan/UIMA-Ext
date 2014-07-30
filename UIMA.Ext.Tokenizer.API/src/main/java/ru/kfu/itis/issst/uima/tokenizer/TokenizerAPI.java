@@ -13,9 +13,16 @@ import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
+import ru.kfu.cll.uima.tokenizer.fstype.TokenBase;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 
 /**
+ * A class that provides constants and methods to use a tokenizer.
+ * <p>
+ * Any tokenizer implementation requires CAS with document text set. Tokenizer
+ * enriches an input CAS with token annotations (the root of their hierarchy is
+ * {@link TokenBase}).
+ * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */

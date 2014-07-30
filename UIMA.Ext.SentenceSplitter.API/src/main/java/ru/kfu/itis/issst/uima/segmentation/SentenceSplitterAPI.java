@@ -13,9 +13,18 @@ import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 
+import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 /**
+ * A class that provides constants and methods to use a sentence-splitter.
+ * <p>
+ * By default an implementation of sentence splitter requires an input CAS with
+ * token annotations. See {@link TokenizerAPI}.
+ * <p>
+ * Sentence splitter enriches a CAS with {@link Sentence} annotations.
+ * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
