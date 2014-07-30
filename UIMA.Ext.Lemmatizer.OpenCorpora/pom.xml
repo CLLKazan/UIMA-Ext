@@ -152,8 +152,4 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-
-	<properties>
-		<scala.version>2.11.0</scala.version>
-	</properties>
 </project>

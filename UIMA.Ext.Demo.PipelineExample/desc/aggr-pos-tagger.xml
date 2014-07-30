@@ -15,6 +15,10 @@
 			<!-- from PosTaggerAPI -->
 			<import name="ru.kfu.itis.issst.uima.postagger.postagger-ae" />
 		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="lemmatizer">
+			<!-- from LemmatizerAPI -->
+			<import name="ru.kfu.itis.issst.uima.morph.lemmatizer.lemmatizer-ae" />
+		</delegateAnalysisEngine>
 	</delegateAnalysisEngineSpecifiers>
 	<analysisEngineMetaData>
 		<name>PoS-tagger Pipeline</name>
@@ -26,6 +30,7 @@
 				<node>tokenizer</node>
 				<node>sentence-splitter</node>
 				<node>pos-tagger</node>
+				<node>lemmatizer</node>
 			</fixedFlow>
 		</flowConstraints>
 		<operationalProperties>
@@ -34,5 +39,17 @@
 			<outputsNewCASes>false</outputsNewCASes>
 		</operationalProperties>
 	</analysisEngineMetaData>
-	<resourceManagerConfiguration />
+	<resourceManagerConfiguration>
+		<externalResources>
+			<externalResource>
+				<!-- from PosTaggerAPI and LemmatizerAPI -->
+				<name>MorphDictionary</name>
+				<description/>
+				<fileResourceSpecifier>
+					<fileUrl>file:dict.opcorpora.ser</fileUrl>
+				</fileResourceSpecifier>
+				<implementationName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource</implementationName>
+			</externalResource>
+		</externalResources>
+	</resourceManagerConfiguration>
 </analysisEngineDescription>

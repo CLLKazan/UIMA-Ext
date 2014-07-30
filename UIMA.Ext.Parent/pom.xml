@@ -413,7 +413,7 @@
 
 	<properties>
 		<uima.version>2.4.2</uima.version>
-		<scala.version>2.9.2</scala.version>
+		<scala.version>2.11.0</scala.version>
 		<spring.version>3.2.1.RELEASE</spring.version>
 	</properties>
 
