@@ -99,7 +99,9 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 						Arrays.asList("trainin-data-writer"), null, null, null, null);
 				// name of the dictionary resource is already set in LabLauncherBase
 				getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
-				return aggrDesc;
+				// wrap it into another aggregate to avoid wrapping of delegates into separate
+				// CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
+				return createAggregateDescription(aggrDesc);
 			}
 		};
 		// -----------------------------------------------------------------
@@ -267,7 +269,9 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 					null, null, null, null);
 			// add MorphDictionaryHolder resource with the required name
 			getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
-			return aggrDesc;
+			// wrap it into another aggregate to avoid wrapping of delegates into separate
+			// CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
+			return createAggregateDescription(aggrDesc);
 		}
 	}
 
