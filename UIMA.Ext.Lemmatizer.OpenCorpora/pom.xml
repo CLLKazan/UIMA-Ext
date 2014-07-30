@@ -50,8 +50,7 @@
 					<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
 					<junitxml>.</junitxml>
 					<filereports>WDF TestSuite.txt</filereports>
-					<argLine>-Xmx2048m -Djava.library.path=${java.library.path}
-						-Duima.datapath=${uima.datapath}</argLine>
+					<argLine>-Xmx2048m -Djava.library.path=${java.library.path} -Duima.datapath=${uima.datapath}</argLine>
 				</configuration>
 				<executions>
 					<execution>
