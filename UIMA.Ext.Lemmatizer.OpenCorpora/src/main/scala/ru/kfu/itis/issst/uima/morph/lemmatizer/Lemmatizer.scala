@@ -8,13 +8,15 @@ import ru.kfu.itis.issst.uima.morph.model.{ Wordform => DictWordform }
 import org.apache.uima.cas.FeatureStructure
 import org.uimafit.descriptor.ExternalResource
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder
-import ru.kfu.itis.issst.uima.morph.dictionary.{ WordUtils, MorphologyAnnotator }
+import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils
+import org.uimafit.factory.AnalysisEngineFactory
 
 /**
  * Created by fsqcds on 07/05/14.
  */
 class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
-  @ExternalResource(key = MorphologyAnnotator.RESOURCE_KEY_DICTIONARY, mandatory = true)
+  // TODO how to assign a scala val to a Java annotation attribute?
+  @ExternalResource(key = "morphDictionary", mandatory = true)
   private var dictHolder: MorphDictionaryHolder = null
 
   def jaccardCoef(first: Set[String], second: Set[String]) = {
@@ -52,4 +54,10 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
       })
     })
   }
+}
+
+object Lemmatizer {
+  val ResourceKeyDictionary = "morphDictionary"
+  def createDescription() = AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer],
+    LemmatizerAPI.getTypeSystemDescription)
 }

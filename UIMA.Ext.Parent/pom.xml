@@ -31,15 +31,12 @@
 		<module>../UIMA.Ext.PosTagger.TCRF</module>
 		<module>../UIMA.Ext.PosTagger.Util.RNC</module>
 		<module>../UIMA.Ext.Morph.PosTaggingLab</module>
+		<module>../UIMA.Ext.Lemmatizer.API</module>
 		<module>../UIMA.Ext.Lemmatizer.OpenCorpora</module>
 		<module>../UIMA.Ext.DependencyParser</module>
 		<module>../UIMA.Ext.DependencyParser.MST</module>
 		<module>../UIMA.Ext.DependencyParser.Lab</module>
-		<!-- 
-		legacy modules
-		<module>../UIMA.Ext.PhraseRecognizer</module>
-		<module>../UIMA.Ext.ShalTeF</module>
-		 -->
+		<!-- legacy modules <module>../UIMA.Ext.PhraseRecognizer</module> <module>../UIMA.Ext.ShalTeF</module> -->
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.Ext.Corpus.Statistics</module>
@@ -234,6 +231,16 @@
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-postagger-tcrf</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-lemmatizer-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-lemmatizer-opencorpora</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
