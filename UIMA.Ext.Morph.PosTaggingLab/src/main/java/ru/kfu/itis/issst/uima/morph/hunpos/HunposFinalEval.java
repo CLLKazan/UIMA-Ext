@@ -1,5 +1,6 @@
 package ru.kfu.itis.issst.uima.morph.hunpos;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 public class HunposFinalEval extends FinalEvalLauncherBase {
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", HunposLab.DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(HunposLab.DEFAULT_WRK_DIR).getAbsolutePath());
 		HunposFinalEval lab = new HunposFinalEval();
 		new JCommander(lab, args);
 		lab.run();

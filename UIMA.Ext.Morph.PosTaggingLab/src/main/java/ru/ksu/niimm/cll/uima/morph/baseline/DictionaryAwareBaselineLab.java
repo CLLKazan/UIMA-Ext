@@ -64,7 +64,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 		 * - PoS-categories
 		 */
 		// read configuration from command line arguments
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		DictionaryAwareBaselineLab lab = new DictionaryAwareBaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();

@@ -4,6 +4,9 @@
 package ru.kfu.itis.issst.uima.morph.stanford;
 
 import static ru.kfu.itis.issst.uima.morph.stanford.StanfordPosTaggerLab.DEFAULT_WRK_DIR;
+
+import java.io.File;
+
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.ksu.niimm.cll.uima.morph.lab.FinalEvalLauncherBase;
 
@@ -18,7 +21,7 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 public class StanfordPosTaggerFinalEval extends FinalEvalLauncherBase {
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		StanfordPosTaggerFinalEval lab = new StanfordPosTaggerFinalEval();
 		new JCommander(lab, args);
 		lab.run();

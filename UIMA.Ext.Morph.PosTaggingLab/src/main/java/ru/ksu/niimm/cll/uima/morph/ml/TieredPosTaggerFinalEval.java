@@ -3,6 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import java.io.File;
+
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.ksu.niimm.cll.uima.morph.lab.FinalEvalLauncherBase;
 
@@ -17,7 +19,8 @@ import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 public class TieredPosTaggerFinalEval extends FinalEvalLauncherBase {
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", TieredPosTaggerLab.DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME",
+				new File(TieredPosTaggerLab.DEFAULT_WRK_DIR).getAbsolutePath());
 		TieredPosTaggerFinalEval launcher = new TieredPosTaggerFinalEval();
 		new JCommander(launcher, args);
 		launcher.run();

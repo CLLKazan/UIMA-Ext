@@ -63,7 +63,7 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 	static final String DEFAULT_WRK_DIR = "wrk/stanford-pos-lab";
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		StanfordPosTaggerLab lab = new StanfordPosTaggerLab();
 		new JCommander(lab, args);
 		lab.run();

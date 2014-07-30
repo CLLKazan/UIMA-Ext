@@ -60,7 +60,7 @@ public class HunposLab extends LabLauncherBase {
 	static final String DEFAULT_WRK_DIR = "wrk/hunpos-lab";
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		HunposLab lab = new HunposLab();
 		new JCommander(lab).parse(args);
 		lab.run();

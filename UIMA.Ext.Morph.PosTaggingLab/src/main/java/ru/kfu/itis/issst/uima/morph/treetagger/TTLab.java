@@ -69,7 +69,7 @@ public class TTLab extends LabLauncherBase {
 	static final String DEFAULT_WRK_DIR = "wrk/tt-lab";
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		TTLab lab = new TTLab();
 		new JCommander(lab).parse(args);
 		lab.run();

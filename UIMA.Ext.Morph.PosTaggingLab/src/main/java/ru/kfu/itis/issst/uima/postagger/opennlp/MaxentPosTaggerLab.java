@@ -64,7 +64,7 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 	static final String DEFAULT_WRK_DIR = "wrk/opennlp-maxent-pos-lab";
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		MaxentPosTaggerLab lab = new MaxentPosTaggerLab();
 		new JCommander(lab, args);
 		lab.run();

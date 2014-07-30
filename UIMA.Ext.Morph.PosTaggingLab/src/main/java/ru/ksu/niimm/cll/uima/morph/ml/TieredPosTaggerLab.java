@@ -56,7 +56,7 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 	static final String DEFAULT_WRK_DIR = "wrk/tiered-pos-tagger";
 
 	public static void main(String[] args) throws IOException {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		TieredPosTaggerLab lab = new TieredPosTaggerLab();
 		new JCommander(lab).parse(args);
 		lab.run();

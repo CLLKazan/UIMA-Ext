@@ -3,6 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,7 +21,8 @@ import ru.ksu.niimm.cll.uima.morph.lab.FinalEvalLauncherBase;
 public class MaxentPosTaggerFinalEval extends FinalEvalLauncherBase {
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", MaxentPosTaggerLab.DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME",
+				new File(MaxentPosTaggerLab.DEFAULT_WRK_DIR).getAbsolutePath());
 		MaxentPosTaggerFinalEval lab = new MaxentPosTaggerFinalEval();
 		new JCommander(lab, args);
 		lab.run();

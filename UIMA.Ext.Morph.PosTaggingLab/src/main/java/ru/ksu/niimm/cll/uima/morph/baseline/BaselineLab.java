@@ -57,7 +57,7 @@ public class BaselineLab extends LabLauncherBase {
 	private static final String SUFFIX_MODEL_FILE_NAME = "suffix.ser";
 
 	public static void main(String[] args) throws IOException {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		BaselineLab lab = new BaselineLab();
 		new JCommander(lab).parse(args);
 		lab.run();

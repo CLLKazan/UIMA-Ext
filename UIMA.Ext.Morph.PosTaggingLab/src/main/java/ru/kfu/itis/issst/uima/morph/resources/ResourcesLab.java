@@ -59,7 +59,7 @@ public class ResourcesLab extends LabLauncherBase {
 	static final String DEFAULT_WRK_DIR = "wrk/resources";
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("DKPRO_HOME", DEFAULT_WRK_DIR);
+		System.setProperty("DKPRO_HOME", new File(DEFAULT_WRK_DIR).getAbsolutePath());
 		ResourcesLab lab = new ResourcesLab();
 		new JCommander(lab, args);
 		lab.run();
