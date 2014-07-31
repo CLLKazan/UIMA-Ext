@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 
 import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.SharedResourceObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uimafit.component.initialize.ConfigurationParameterInitializer;
@@ -22,7 +23,7 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
  * 
  */
 public class ConfigurableSerializedDictionaryResource implements MorphDictionaryHolder,
-		GramModelHolder {
+		GramModelHolder, SharedResourceObject {
 
 	public static final String PARAM_PREDICTOR_CLASS_NAME = "predictorClassName";
 	private static final Logger log = LoggerFactory

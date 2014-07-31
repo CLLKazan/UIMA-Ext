@@ -3,6 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,6 +19,7 @@ import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
@@ -157,14 +160,15 @@ public class POSTaggerFactory extends BaseToolFactory {
 			if (ConfigPropertiesUtils.getStringProperty(props,
 					DefaultFeatureExtractors.PROP_DICTIONARY_VERSION, false) != null) {
 				// load dictionary
-				if (artifactProvider == null) {
-					throw new IllegalStateException("ArtifactProvider is null");
+				CachedResourceTuple<MorphDictionary> dictTuple;
+				try {
+					dictTuple = getMorphDictionaryAPI()
+							.getCachedInstance();
+				} catch (Exception e) {
+					throw new IllegalStateException(e);
 				}
-				dict = artifactProvider.getArtifact(POSModel.MORPH_DICT_ENTRY_NAME);
-				if (dict == null) {
-					throw new IllegalStateException(
-							"ArtifactProvider did not provide expected MorphDictionary");
-				}
+				dict = dictTuple.getResource();
+				dictCacheKey = dictTuple.getCacheKey();
 			}
 
 			return DefaultFeatureExtractors.from(props, dict);

@@ -205,9 +205,6 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 		@Discriminator
 		Boolean beamSearchValidate;
 
-		@Discriminator
-		boolean generateDictionaryFeatures;
-
 		private ExternalResourceDescription morphDictDesc;
 
 		AnalysisTask(TypeSystemDescription inputTS,
@@ -241,11 +238,6 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 					beamSize);
 			ExternalResourceDescription modelDesc = createExternalResourceDescription(
 					DefaultPOSModelHolder.class, modelUrl);
-			if (generateDictionaryFeatures) {
-				// bind the dictionary resource to the model resource
-				bindExternalResource(modelDesc,
-						DefaultPOSModelHolder.RESOURCE_MORPH_DICT, morphDictDesc);
-			}
 			// bind the model to the tagger
 			bindExternalResource(taggerDesc, OpenNLPPosTagger.RESOURCE_POS_MODEL, modelDesc);
 			if (beamSearchValidate) {
@@ -253,7 +245,7 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 					ExternalResourceFactory.createDependency(taggerDesc,
 							DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
 							MorphDictionaryHolder.class);
-					ExternalResourceFactory.bindResource(taggerDesc,
+					ExternalResourceFactory.bindExternalResource(taggerDesc,
 							DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
 							morphDictDesc);
 				} catch (InvalidXMLException e) {

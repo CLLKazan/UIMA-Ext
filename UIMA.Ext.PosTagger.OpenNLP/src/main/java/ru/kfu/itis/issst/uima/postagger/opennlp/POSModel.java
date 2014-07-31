@@ -11,7 +11,6 @@ import opennlp.model.AbstractModel;
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.BaseModel;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -36,12 +35,9 @@ public class POSModel extends BaseModel {
 		checkArtifactMap();
 	}
 
-	public POSModel(InputStream in, MorphDictionary dict) throws IOException,
+	public POSModel(InputStream in) throws IOException,
 			InvalidFormatException {
 		super(COMPONENT_NAME, in);
-		if (dict != null) {
-			artifactMap.put(MORPH_DICT_ENTRY_NAME, dict);
-		}
 	}
 
 	@Override

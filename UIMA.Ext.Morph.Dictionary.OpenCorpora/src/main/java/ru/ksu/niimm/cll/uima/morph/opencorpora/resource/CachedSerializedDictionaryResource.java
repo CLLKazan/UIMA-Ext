@@ -7,6 +7,7 @@ import java.net.URL;
 
 import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.SharedResourceObject;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
@@ -28,7 +29,8 @@ import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedDictionaryDeserial
  * @author Rinat Gareev
  * 
  */
-public class CachedSerializedDictionaryResource implements MorphDictionaryHolder, GramModelHolder {
+public class CachedSerializedDictionaryResource implements MorphDictionaryHolder, GramModelHolder,
+		SharedResourceObject {
 
 	// state fields
 	@SuppressWarnings("unused")
