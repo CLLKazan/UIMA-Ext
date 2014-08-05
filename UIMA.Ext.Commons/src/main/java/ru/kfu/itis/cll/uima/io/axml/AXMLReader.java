@@ -20,11 +20,47 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 
 /**
+ * An experimental tool to convert document text with annotations formatted in
+ * simple XML schema:
+ * <dl>
+ * <dt> {@code <doc>}
+ * <dd>A root element
+ * <dt> {@code <meta>}
+ * <dd>Attributes of this element is currently ignored; useful to give credits
+ * to authors of a source text.
+ * <dt> {@code <aliases>}
+ * <dd>A block to define aliases (i.e., short labels) for annotation type names
+ * that are used in {@code body}.
+ * <dt> {@code <alias key="X_alias" type="FullyQualifiedNameOfX" />}
+ * <dd>Defines a single alias.
+ * <dt> {@code <body>}
+ * <dd>Encloses a document text. Inside this element annotations are defined as:
+ * <p>
+ * {@code text before <X_alias>covered text</X_alias> text after}.
+ * </p>
+ * </dl>
+ * 
+ * It's primary purpose it to facilitate generation of test XMI files.
+ * <p>
+ * See example data in {@code test-data/} sub-folder of this module.
+ * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
 public class AXMLReader {
 
+	/**
+	 * Populate the specified CAS by a text and annotations from the specified
+	 * input assuming that it is formatted as described above.
+	 * 
+	 * @param in
+	 *            input Reader. It is a caller's responsibility to close this
+	 *            reader instance.
+	 * @param cas
+	 *            CAS
+	 * @throws IOException
+	 * @throws SAXException
+	 */
 	public static void read(Reader in, CAS cas) throws IOException, SAXException {
 		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 		AXMLContentHandler contentHandler = new AXMLContentHandler(cas.getTypeSystem());
