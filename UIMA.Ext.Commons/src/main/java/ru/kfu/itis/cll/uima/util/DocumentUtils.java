@@ -28,6 +28,45 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 public class DocumentUtils {
 
 	/**
+	 * Search for a {@link DocumentMetadata} annotation in the given CAS and set
+	 * its 'uri' feature to the specified value.
+	 * 
+	 * @param cas
+	 * @param uri
+	 * @param createDocMeta
+	 *            if true then this method will create a new
+	 *            {@link DocumentMetadata} instance if there is none in the CAS.
+	 */
+	public static void setDocumentUri(CAS cas, String uri, boolean createDocMeta) {
+		TypeSystem ts = cas.getTypeSystem();
+		Type docMetaType = ts.getType(DocumentMetadata.class.getName());
+		if (docMetaType == null) {
+			throw new IllegalStateException(
+					"The typesystem of the given CAS does not contain DocumentMetadata type");
+		}
+		Feature sourceUriFeat;
+		try {
+			sourceUriFeat = featureExist(docMetaType, "sourceUri");
+		} catch (AnalysisEngineProcessException e) {
+			throw new IllegalStateException(e);
+		}
+		AnnotationFS docMetaFS = null;
+		FSIterator<AnnotationFS> dmIter = cas.getAnnotationIndex(docMetaType).iterator();
+		if (dmIter.hasNext()) {
+			docMetaFS = dmIter.next();
+		}
+		if (docMetaFS == null) {
+			if (createDocMeta) {
+				docMetaFS = cas.createAnnotation(docMetaType, 0, 0);
+				cas.addFsToIndexes(docMetaFS);
+			} else {
+				throw new IllegalStateException("The given CAS does not contain a DocumentMetadata");
+			}
+		}
+		docMetaFS.setStringValue(sourceUriFeat, uri);
+	}
+
+	/**
 	 * search for a {@link DocumentMetadata} annotation in given CAS and return
 	 * its 'sourceUri' feature value
 	 * 
