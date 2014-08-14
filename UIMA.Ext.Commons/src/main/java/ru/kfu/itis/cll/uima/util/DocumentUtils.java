@@ -18,6 +18,8 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.metadata.TypeDescription;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
@@ -26,6 +28,23 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
  * 
  */
 public class DocumentUtils {
+
+	/**
+	 * @return a type name of feature structures that represent document
+	 *         meta-data.
+	 */
+	public static String getMetadataTypeName() {
+		return DocumentMetadata.class.getName();
+	}
+
+	/**
+	 * @param tsd
+	 * @return a type description instance for document meta-data FS if any,
+	 *         otherwise - null.
+	 */
+	public static TypeDescription getMetadataTypeDescription(TypeSystemDescription tsd) {
+		return tsd.getType(getMetadataTypeName());
+	}
 
 	/**
 	 * Search for a {@link DocumentMetadata} annotation in the given CAS and set
@@ -39,7 +58,7 @@ public class DocumentUtils {
 	 */
 	public static void setDocumentUri(CAS cas, String uri, boolean createDocMeta) {
 		TypeSystem ts = cas.getTypeSystem();
-		Type docMetaType = ts.getType(DocumentMetadata.class.getName());
+		Type docMetaType = ts.getType(getMetadataTypeName());
 		if (docMetaType == null) {
 			throw new IllegalStateException(
 					"The typesystem of the given CAS does not contain DocumentMetadata type");
@@ -76,7 +95,7 @@ public class DocumentUtils {
 	 */
 	public static String getDocumentUri(CAS cas) {
 		TypeSystem ts = cas.getTypeSystem();
-		Type docMetaType = ts.getType(DocumentMetadata.class.getName());
+		Type docMetaType = ts.getType(getMetadataTypeName());
 		if (docMetaType == null) {
 			return null;
 		}
