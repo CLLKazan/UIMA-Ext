@@ -22,9 +22,8 @@ public class MorphDictionaryImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		FileInputStream fis = FileUtils.openInputStream(new File(Thread
-				.currentThread().getContextClassLoader()
-				.getResource("opencorpora/dict.opcorpora.test.xml").getPath()));
+		FileInputStream fis = FileUtils.openInputStream(
+				new File("test-data/dict.opcorpora.test.xml"));
 		try {
 			dict = XmlDictionaryParser.parse(fis);
 			gm = dict.getGramModel();
