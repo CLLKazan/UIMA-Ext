@@ -9,9 +9,11 @@ import java.util.Set;
 import opennlp.tools.util.BeamSearchContextGenerator;
 
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.encoder.CleartkEncoderException;
 import org.cleartk.classifier.encoder.features.FeatureEncoderChain;
+import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -64,13 +66,24 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 	@Override
 	public String[] getContext(int index, Token[] sequence, String[] priorDecisions,
 			Object[] additionalContext) {
+		if (additionalContext == null || additionalContext.length < 1) {
+			throw sentenceExpected();
+		}
+		if (!(additionalContext[0] instanceof Annotation)) {
+			throw sentenceExpected();
+		}
+		Annotation sent = (Annotation) additionalContext[0];
 		// TODO cache features that does not dependent on prev tags 
 		Token curToken = sequence[index];
 		List<Feature> features = Lists.newLinkedList();
 		try {
 			JCas jCas = curToken.getCAS().getJCas();
 			for (SimpleFeatureExtractor fe : featureExtractors) {
-				features.addAll(fe.extract(jCas, curToken));
+				if (fe instanceof CleartkExtractor) {
+					features.addAll(((CleartkExtractor) fe).extractBetween(jCas, curToken, sent));
+				} else {
+					features.addAll(fe.extract(jCas, curToken));
+				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -92,5 +105,10 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 			contexts.addAll(dictContextGen.extract(curToken, prevTag));
 		}
 		return contexts.toArray(new String[contexts.size()]);
+	}
+
+	private RuntimeException sentenceExpected() {
+		return new IllegalArgumentException(
+				"Sentence annotation is expected to be provided in 'additionalContext' arg");
 	}
 }

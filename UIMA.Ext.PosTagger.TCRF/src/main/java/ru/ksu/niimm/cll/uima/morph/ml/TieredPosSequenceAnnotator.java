@@ -228,7 +228,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 				outputLabel = extractOutputLabel(wf);
 			}
 			sentLabels.add(outputLabel);
-			List<Feature> tokFeatures = extractFeatures(jCas, token);
+			List<Feature> tokFeatures = extractFeatures(jCas, token, sent);
 			sentSeq.add(tokFeatures);
 		}
 		dataWriter.write(Instances.toInstances(sentLabels, sentSeq));
@@ -245,7 +245,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 				Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
 				wfSeq.add(tokWf);
 			}
-			List<Feature> tokFeatures = extractFeatures(jCas, token);
+			List<Feature> tokFeatures = extractFeatures(jCas, token, sent);
 			sentSeq.add(tokFeatures);
 		}
 		List<String> labelSeq = classifier.classify(sentSeq);
@@ -278,14 +278,15 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		}
 	}
 
-	private List<Feature> extractFeatures(JCas jCas, Token token) throws CleartkExtractorException {
+	private List<Feature> extractFeatures(JCas jCas, Token token, Sentence sent)
+			throws CleartkExtractorException {
 		List<Feature> tokFeatures = Lists.newLinkedList();
 		tokFeatures.addAll(tokenFeatureExtractor.extract(jCas, token));
 		tokFeatures.addAll(posExtractor.extract(jCas, token));
 		if (dictFeatureExtractor != null) {
 			tokFeatures.addAll(dictFeatureExtractor.extract(jCas, token));
 		}
-		tokFeatures.addAll(contextFeatureExtractor.extract(jCas, token));
+		tokFeatures.addAll(contextFeatureExtractor.extractWithin(jCas, token, sent));
 		if (generatePunctuationFeatures) {
 			tokFeatures.addAll(adjacentPunctuationFeatureExtractor.extract(jCas, token));
 		}

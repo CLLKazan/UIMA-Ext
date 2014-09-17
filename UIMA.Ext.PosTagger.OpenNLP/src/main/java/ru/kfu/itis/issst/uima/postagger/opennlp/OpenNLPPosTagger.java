@@ -115,7 +115,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 	private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
 		Collection<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
 		Token[] tokenArr = tokens.toArray(new Token[tokens.size()]);
-		Sequence bestOutSeq = beam.bestSequence(tokenArr, null);
+		Sequence bestOutSeq = beam.bestSequence(tokenArr, new Object[] { sent });
 		if (bestOutSeq == null) {
 			getLogger().warn(String.format("Can't infer best sequence for sentence in %s:\n%s",
 					getDocumentUri(jCas), toPrettyString(sent)));

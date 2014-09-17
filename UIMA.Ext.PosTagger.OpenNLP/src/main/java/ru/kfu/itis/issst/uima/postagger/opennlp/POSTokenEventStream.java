@@ -84,20 +84,22 @@ public class POSTokenEventStream<ST extends Annotation> extends AbstractEventStr
 				tags.add(String.valueOf(tag));
 			}
 		}
-		return generateEvents(tokens.toArray(new Token[tokens.size()]),
+		return generateEvents(spanAnno, tokens.toArray(new Token[tokens.size()]),
 				tags.toArray(new String[tags.size()]),
 				contextGen);
 	}
 
-	public static Event[] generateEvents(Token[] sentence, String[] tags,
+	public static Event[] generateEvents(Annotation spanAnno,
+			Token[] spanTokens, String[] tags,
 			BeamSearchContextGenerator<Token> cg) {
-		Event[] events = new Event[sentence.length];
+		Event[] events = new Event[spanTokens.length];
 
-		for (int i = 0; i < sentence.length; i++) {
+		for (int i = 0; i < spanTokens.length; i++) {
 
 			// it is safe to pass the tags as previous tags because
 			// the context generator does not look for non predicted tags
-			String[] context = cg.getContext(i, sentence, tags, null);
+			String[] context = cg.getContext(i, spanTokens, tags,
+					new Object[] { spanAnno });
 
 			events[i] = new Event(tags[i], context);
 		}
