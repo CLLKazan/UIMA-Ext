@@ -1,2 +1,6 @@
-highlighter: pygments
+baseurl: "/UIMA-Ext"
 exclude: ["attic", "UIMA.Ext.*", "commit.txt", "TODO", "Gemfile*"]
+highlighter: pygments
+markdown: kramdown
+kramdown:
+  input: GFM
