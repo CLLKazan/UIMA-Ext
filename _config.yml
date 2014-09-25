@@ -1,0 +1,2 @@
+highlighter: pygments
+exclude: ["attic", "UIMA.Ext.*", "commit.txt", "TODO", "Gemfile*"]
