@@ -7,7 +7,7 @@
 		<format>tar.gz</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
-	
+
 	<fileSets>
 		<fileSet>
 			<directory>src/main/assembly</directory>
@@ -16,6 +16,14 @@
 				<exclude>assembly-with-deps.xml</exclude>
 			</excludes>
 			<filtered>true</filtered>
+		</fileSet>
+		<fileSet>
+			<directory>data</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>rnc-corpus-split.xmi/*</include>
+			</includes>
+			<filtered>false</filtered>
 		</fileSet>
 	</fileSets>
 

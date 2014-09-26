@@ -1,7 +1,7 @@
 # path to corpus directory (with XMI-files)
 srcCorpusDir=
 # The directory that contains descriptions of a corpus partitioning
-corpusSplitInfoDir=
+corpusSplitInfoDir=rnc-corpus-split.xmi
 #
 posCategories=POST,Abbr,Prnt,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
 # training
