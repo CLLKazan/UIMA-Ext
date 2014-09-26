@@ -92,7 +92,9 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-pos-tagger-opennlp</artifactId>
+			<artifactId>uima-ext-postagger-util-rnc</artifactId>
+			<!-- required only to compile dictionary with alignment to RNC -->
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
