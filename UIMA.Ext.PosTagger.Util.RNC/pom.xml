@@ -60,7 +60,8 @@
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-ext-tokenizer-simple</artifactId>
-			<scope>test</scope>
+			<!-- required for RusCorporaCollectionReader -->
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>

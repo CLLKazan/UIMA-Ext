@@ -97,6 +97,12 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-tokenizer-simple</artifactId>
+			<!-- required only for RusCorporaParserBootstrap -->
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
 			<artifactId>de.tudarmstadt.ukp.dkpro.lab.uima.engine.cpe</artifactId>
 			<version>0.9.1</version>
