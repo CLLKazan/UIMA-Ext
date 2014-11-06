@@ -418,7 +418,7 @@
 	</properties>
 
 	<scm>
-		<developerConnection>scm:git:git@github.com:CLLKazan/UIMA-Ext.git</developerConnection>
+		<developerConnection>scm:git:git@bitbucket.org:issst/uima-ext-enterprise-edition.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 </project>
