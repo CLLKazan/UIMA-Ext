@@ -1,3 +1,13 @@
 language: java
 
 before_install: cd UIMA.Ext.Parent
+
+before_script:
+  - cd ..
+  - ci-tools/install_lbfgs.sh
+  - ci-tools/install_crfsuite.sh
+  - ci-tools/install_crfsuite-jni.sh
+  - cd ../UIMA.Ext.Parent
+
+after_success:
+  - mvn deploy --settings ../ci-tools/maven/settings.xml -Dmaven.test.skip=true
