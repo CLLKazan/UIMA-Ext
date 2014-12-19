@@ -39,6 +39,7 @@
 		<module>../UIMA.Ext.CasAccessObject</module>
 		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.Ext.Corpus.Statistics</module>
+		<module>../UIMA.Ext.Corpus.Util</module>
 		<module>../UIMA.Ext.Demo.PipelineExample</module>
 	</modules>
 
@@ -263,6 +264,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-corpus-statistics</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.uima</groupId>
 				<artifactId>uimaj-core</artifactId>
 				<version>${uima.version}</version>
@@ -412,7 +418,7 @@
 
 	<properties>
 		<uima.version>2.4.2</uima.version>
-		<scala.version>2.11.0</scala.version>
+		<scala.version>2.11.4</scala.version>
 		<spring.version>3.2.1.RELEASE</spring.version>
 	</properties>
 

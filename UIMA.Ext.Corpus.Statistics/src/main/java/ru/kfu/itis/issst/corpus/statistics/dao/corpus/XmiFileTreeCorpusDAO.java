@@ -85,13 +85,22 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 			throws SAXException, IOException {
 		if (fileByURIandAnnotatorId.containsKey(new UriAnnotatorPair(docURI,
 				annotatorId))) {
-			FileInputStream xmiFileIn = new FileInputStream(fileByURIandAnnotatorId.get(new UriAnnotatorPair(
-					docURI, annotatorId)));
+			FileInputStream xmiFileIn = new FileInputStream(
+					fileByURIandAnnotatorId.get(new UriAnnotatorPair(
+							docURI, annotatorId)));
 			XmlCasDeserializer.deserialize(xmiFileIn, aCAS);
 			closeQuietly(xmiFileIn);
 		} else {
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(String.format(
+					"There is no document '%s' annotated by '%s'",
+					docURI, annotatorId));
 		}
+	}
+
+	@Override
+	public boolean hasDocument(URI docURI, String annotatorId) {
+		return fileByURIandAnnotatorId.containsKey(
+				new UriAnnotatorPair(docURI, annotatorId));
 	}
 
 	static public TypeSystemDescription getTypeSystem(String corpusPathString)

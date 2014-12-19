@@ -16,4 +16,6 @@ public interface CorpusDAO {
 
 	void getDocumentCas(URI docURI, String annotatorId, CAS aCAS)
 			throws IOException, SAXException;
+
+	boolean hasDocument(URI docURI, String annotatorId);
 }
