@@ -18,4 +18,7 @@ public interface CorpusDAO {
 			throws IOException, SAXException;
 
 	boolean hasDocument(URI docURI, String annotatorId);
+
+	void persist(URI docUri, String annotatorId, CAS cas)
+			throws IOException, SAXException;
 }
