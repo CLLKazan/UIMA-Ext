@@ -55,7 +55,7 @@ public class MorphCasUtils {
 			wf.setGrammems(FSUtils.toStringArray(jCas, wfGrams));
 		}
 	}
-	
+
 	public static void applyGrammems(Set<String> grams, Wordform wf) {
 		if (grams == null || grams.isEmpty()) {
 			return;
@@ -99,6 +99,15 @@ public class MorphCasUtils {
 		return wf;
 	}
 
+	public static Set<String> getGrammemes(Word word) {
+		Wordform wf = getOnlyWordform(word);
+		if (wf == null) {
+			return null;
+		} else {
+			return FSUtils.toSet(wf.getGrammems());
+		}
+	}
+
 	public static Map<Token, Word> getToken2WordIndex(JCas jCas) {
 		Map<Token, Word> result = Maps.newHashMap();
 		for (Word word : JCasUtil.select(jCas, Word.class)) {
@@ -134,11 +143,11 @@ public class MorphCasUtils {
 		}
 		return result;
 	}
-	
+
 	public static BitSet toGramBitSet(GramModel gm, org.opencorpora.cas.Wordform casWf) {
 		return MorphDictionaryUtils.toGramBits(gm, FSUtils.toList(casWf.getGrammems()));
 	}
-	
+
 	public static org.opencorpora.cas.Wordform addCasWordform(JCas jCas, Annotation tokenAnno) {
 		Word word = new Word(jCas);
 		word.setBegin(tokenAnno.getBegin());
