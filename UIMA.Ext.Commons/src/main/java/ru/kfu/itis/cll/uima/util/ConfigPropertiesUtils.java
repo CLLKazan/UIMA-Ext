@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * @see IoUtils
@@ -72,7 +73,7 @@ public class ConfigPropertiesUtils {
 
 	public static String prettyString(Properties props) {
 		StringBuilder sb = new StringBuilder();
-		for (String key : props.stringPropertyNames()) {
+		for (String key : Sets.newTreeSet(props.stringPropertyNames())) {
 			sb.append(key).append("=");
 			sb.append(props.getProperty(key));
 			sb.append("\n");
