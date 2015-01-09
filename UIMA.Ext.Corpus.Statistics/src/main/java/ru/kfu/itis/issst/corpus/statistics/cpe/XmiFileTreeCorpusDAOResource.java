@@ -29,16 +29,30 @@ public class XmiFileTreeCorpusDAOResource implements CorpusDAO,
 		}
 	}
 
+	@Override
 	public Set<URI> getDocuments() throws URISyntaxException {
 		return corpusDAO.getDocuments();
 	}
 
+	@Override
 	public Set<String> getAnnotatorIds(URI docURI) throws IOException {
 		return corpusDAO.getAnnotatorIds(docURI);
 	}
 
+	@Override
 	public void getDocumentCas(URI docURI, String annotatorId, CAS aCAS)
 			throws IOException, SAXException {
 		corpusDAO.getDocumentCas(docURI, annotatorId, aCAS);
 	}
+
+	@Override
+	public boolean hasDocument(URI docURI, String annotatorId) {
+		return corpusDAO.hasDocument(docURI, annotatorId);
+	}
+
+	@Override
+	public void persist(URI docUri, String annotatorId, CAS cas) throws IOException, SAXException {
+		corpusDAO.persist(docUri, annotatorId, cas);
+	}
+
 }
