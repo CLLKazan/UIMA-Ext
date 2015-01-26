@@ -79,6 +79,11 @@
 			<groupId>com.typesafe</groupId>
 			<artifactId>config</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.github.tototoshi</groupId>
+			<artifactId>scala-csv_2.11</artifactId>
+			<version>1.1.2</version>
+		</dependency>
 		<!-- logging impl -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
