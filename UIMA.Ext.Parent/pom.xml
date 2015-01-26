@@ -41,6 +41,7 @@
 		<module>../UIMA.Ext.Brat.Integration</module>
 		<module>../UIMA.Ext.Corpus.Statistics</module>
 		<module>../UIMA.Ext.Corpus.Util</module>
+		<module>../UIMA.Ext.Benchmarking</module>
 		<module>../UIMA.Ext.Demo.PipelineExample</module>
 	</modules>
 
