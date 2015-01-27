@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -37,10 +37,10 @@ import org.uimafit.util.CasUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
 
@@ -57,8 +57,18 @@ public class IobWriter extends CasAnnotator_ImplBase {
 				PARAM_OUTPUT_DIR, outputDir);
 	}
 
+	public static AnalysisEngineDescription createDescription(
+			Iterable<String> encodeTypes, Iterable<String> encodeTypeLabels,
+			File outputDir) throws ResourceInitializationException {
+		return AnalysisEngineFactory.createPrimitiveDescription(IobWriter.class,
+				PARAM_ENCODE_TYPES, newArrayList(encodeTypes),
+				PARAM_ENCODE_TYPE_LABELS, newArrayList(encodeTypeLabels),
+				PARAM_OUTPUT_DIR, outputDir);
+	}
+
 	// parameter names
 	public static final String PARAM_ENCODE_TYPES = "encodeTypes";
+	public static final String PARAM_ENCODE_TYPE_LABELS = "encodeTypeLabels";
 	public static final String PARAM_TOKEN_TYPE = "tokenType";
 	public static final String PARAM_OUTPUT_DIR = "outputDir";
 	//
@@ -69,13 +79,15 @@ public class IobWriter extends CasAnnotator_ImplBase {
 	public static final String OUTPUT_FILE_EXTENSION = ".iob";
 
 	@ConfigurationParameter(name = PARAM_ENCODE_TYPES, mandatory = true)
-	private Set<String> encodeTypeNames;
+	private List<String> encodeTypeNames;
+	@ConfigurationParameter(name = PARAM_ENCODE_TYPE_LABELS)
+	private List<String> encodeTypeLabels;
 	@ConfigurationParameter(name = PARAM_TOKEN_TYPE, defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
 	private String tokenTypeName;
 	@ConfigurationParameter(name = PARAM_OUTPUT_DIR, mandatory = true)
 	private File outputDir;
 	// derived
-	private Set<Type> encodeTypes;
+	private Map<Type, String> encodeTypesMap; // type => label
 	private Type tokenType;
 	// per-CAS state
 	private URI docURI;
@@ -88,6 +100,13 @@ public class IobWriter extends CasAnnotator_ImplBase {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+		if (encodeTypeLabels != null && encodeTypeLabels.isEmpty()) {
+			encodeTypeLabels = null;
+		}
+		if (encodeTypeLabels != null && encodeTypeNames.size() != encodeTypeLabels.size()) {
+			throw new IllegalArgumentException(
+					"encodeTypeLabels must have the same length with encodeTypes");
+		}
 	}
 
 	@Override
@@ -97,13 +116,16 @@ public class IobWriter extends CasAnnotator_ImplBase {
 		tokenType = ts.getType(tokenTypeName);
 		annotationTypeExist(tokenTypeName, tokenType);
 		//
-		encodeTypes = Sets.newHashSet();
-		for (String etn : encodeTypeNames) {
+		encodeTypesMap = Maps.newHashMap();
+		for (int i = 0; i < encodeTypeNames.size(); i++) {
+			String etn = encodeTypeNames.get(i);
 			Type et = ts.getType(etn);
 			annotationTypeExist(etn, et);
-			encodeTypes.add(et);
+			//
+			String etLabel = encodeTypeLabels != null ? encodeTypeLabels.get(i) : getTypeLabel(et);
+			encodeTypesMap.put(et, etLabel);
 		}
-		encodeTypes = ImmutableSet.copyOf(encodeTypes);
+		encodeTypesMap = ImmutableMap.copyOf(encodeTypesMap);
 	}
 
 	@Override
@@ -137,8 +159,8 @@ public class IobWriter extends CasAnnotator_ImplBase {
 		AnnotationIndex<AnnotationFS> tokenIdx = cas.getAnnotationIndex(tokenType);
 		Multimap<AnnotationFS, String> tokLabelsMap = HashMultimap.create(tokenIdx.size(), 1);
 		// phase 1 - initialize map <token => label>
-		for (Type et : encodeTypes) {
-			String typeLabel = getTypeLabel(et);
+		for (Type et : encodeTypesMap.keySet()) {
+			String typeLabel = encodeTypesMap.get(et);
 			for (AnnotationFS encAnno : cas.getAnnotationIndex(et)) {
 				Iterator<AnnotationFS> encAnnoTokens =
 						CasUtil.selectCovered(tokenType, encAnno).iterator();
