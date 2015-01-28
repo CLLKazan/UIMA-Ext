@@ -20,6 +20,9 @@ import org.apache.uima.util.ProcessTraceEvent
 import ru.kfu.itis.cll.uima.util.DocumentUtils
 import com.github.tototoshi.csv.CSVWriter
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder
+import org.apache.uima.resource.metadata.impl.Import_impl
+import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils
+import org.apache.uima.collection.CollectionProcessingEngine
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -30,7 +33,7 @@ class AEBenchmark(args: ArgConfig) extends StrictLogging {
   private val csvWriter = CSVWriter.open(args.outputFile)
   writeHeader()
 
-  def run() {
+  def run(): CollectionProcessingEngine = {
     val cpeBuilder = new CpeBuilder()
     cpeBuilder.setMaxProcessingUnitThreatCount(1)
     cpeBuilder.setReader(args.dataDesc)
@@ -40,6 +43,7 @@ class AEBenchmark(args: ArgConfig) extends StrictLogging {
     cpe.addStatusCallbackListener(recordingStatusCallbackListener)
     // run
     cpe.process()
+    cpe
   }
 
   private val recordingStatusCallbackListener = new StatusCallbackListenerAdapter {
@@ -62,15 +66,23 @@ class AEBenchmark(args: ArgConfig) extends StrictLogging {
       import ProcessTraceEvent._
       for (pte <- trace.getEvents())
         pte.getType() match {
-          case ANALYSIS => write(AnalysisRecord(
-            docURI = DocumentUtils.getDocumentUri(cas),
-            docSize = cas.getDocumentText().length(),
-            analyzerName = pte.getComponentName(),
-            durationMS = pte.getDuration(),
-            casSizeKb = cas.size()))
+          case "Analysis" => processEvent(cas, pte)
+          case ANALYSIS => processEvent(cas, pte)
           case SERVICE => ??? // TODO
-          case _ => // do nothing
+          case t => {
+            logger.debug("ProcessTraceEvent with type {}", t)
+            // do nothing
+          }
         }
+    }
+
+    private def processEvent(cas: CAS, pte: ProcessTraceEvent) {
+      write(AnalysisRecord(
+        docURI = DocumentUtils.getDocumentUri(cas),
+        docSize = cas.getDocumentText().length(),
+        analyzerName = pte.getComponentName(),
+        durationMS = pte.getDuration(),
+        casSizeKb = cas.size()))
     }
   }
 
@@ -94,9 +106,14 @@ object AEBenchmark {
     dataDesc: CollectionReaderDescription = null,
     outputFile: File = null)
 
+  private val RootAEName = "RootAE";
+
   private val cmdParser = new OptionParser[ArgConfig]("Analysis Engine Benchmark") {
-    opt[File]("ae") required () valueName ("<analysis-engine-desc-xml>") validate (validateFileExistence) action {
-      (descFile, cfg) => cfg.copy(aeDesc = parseAEDesc(descFile))
+    opt[File]("ae-path") valueName ("<analysis-engine-desc-xml>") validate (validateFileExistence) action {
+      (descFile, cfg) => cfg.copy(aeDesc = createAEDesc(Right(descFile)))
+    }
+    opt[String]("ae-name") valueName ("<analysis-engine-FQN>") action {
+      (aeName, cfg) => cfg.copy(aeDesc = createAEDesc(Left(aeName)))
     }
     opt[File]("data") required () valueName ("<collection-reader-desc-xml>") validate (validateFileExistence) action {
       (descFile, cfg) => cfg.copy(dataDesc = parseColReaderDesc(descFile))
@@ -113,11 +130,16 @@ object AEBenchmark {
     }
   }
 
-  private def parseAEDesc(f: File) =
-    ResourceCreationSpecifierFactory.createResourceCreationSpecifier(f.getPath(), null).
-      asInstanceOf[AnalysisEngineDescription]
+  private[benchmarking] def createAEDesc(importValue: Either[String, File]) = {
+    val `import` = new Import_impl()
+    importValue match {
+      case Left(name) => `import`.setName(name)
+      case Right(path) => `import`.setLocation(path.getPath());
+    }
+    PipelineDescriptorUtils.createAggregateDescription(Map(RootAEName -> `import`))
+  }
 
-  private def parseColReaderDesc(f: File) =
+  private[benchmarking] def parseColReaderDesc(f: File) =
     ResourceCreationSpecifierFactory.createResourceCreationSpecifier(f.getPath(), null).
       asInstanceOf[CollectionReaderDescription]
 

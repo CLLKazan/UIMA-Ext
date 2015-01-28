@@ -96,5 +96,10 @@
 			<artifactId>scalatest_2.11</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-tokenizer-simple</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
