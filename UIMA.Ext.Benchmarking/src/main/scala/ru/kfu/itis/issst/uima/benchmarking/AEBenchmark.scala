@@ -23,17 +23,20 @@ import ru.kfu.itis.cll.uima.cpe.CpeBuilder
 import org.apache.uima.resource.metadata.impl.Import_impl
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils
 import org.apache.uima.collection.CollectionProcessingEngine
+import scala.concurrent.{ promise, Await }
+import scala.concurrent.duration.Duration
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
  *
  */
 class AEBenchmark(args: ArgConfig) extends StrictLogging {
+  private val cpeRunPromise = promise[Boolean]
   private val outLock = new AnyRef()
   private val csvWriter = CSVWriter.open(args.outputFile)
   writeHeader()
 
-  def run(): CollectionProcessingEngine = {
+  def run() {
     val cpeBuilder = new CpeBuilder()
     cpeBuilder.setMaxProcessingUnitThreatCount(1)
     cpeBuilder.setReader(args.dataDesc)
@@ -43,7 +46,8 @@ class AEBenchmark(args: ArgConfig) extends StrictLogging {
     cpe.addStatusCallbackListener(recordingStatusCallbackListener)
     // run
     cpe.process()
-    cpe
+    //
+    Await.ready(cpeRunPromise.future, Duration.Inf)
   }
 
   private val recordingStatusCallbackListener = new StatusCallbackListenerAdapter {
@@ -60,20 +64,25 @@ class AEBenchmark(args: ArgConfig) extends StrictLogging {
     override def collectionProcessComplete() {
       csvWriter.close()
       logger.info("Finished.")
+      cpeRunPromise.success(true)
+    }
+
+    override def aborted() {
+      logger.info("Aborted.")
+      cpeRunPromise.success(false)
     }
 
     private def entityProcessComplete(cas: CAS, trace: ProcessTrace) {
       import ProcessTraceEvent._
-      for (pte <- trace.getEvents())
+      for (pte <- trace.getEvents()) {
+        logger.debug("ProcessTraceEvent with type {}", pte.getType())
         pte.getType() match {
           case "Analysis" => processEvent(cas, pte)
           case ANALYSIS => processEvent(cas, pte)
           case SERVICE => ??? // TODO
-          case t => {
-            logger.debug("ProcessTraceEvent with type {}", t)
-            // do nothing
-          }
+          case _ =>
         }
+      }
     }
 
     private def processEvent(cas: CAS, pte: ProcessTraceEvent) {
