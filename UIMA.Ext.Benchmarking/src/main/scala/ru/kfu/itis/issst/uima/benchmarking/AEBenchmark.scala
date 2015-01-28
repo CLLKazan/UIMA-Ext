@@ -73,19 +73,21 @@ class AEBenchmark(args: ArgConfig) extends StrictLogging {
     }
 
     private def entityProcessComplete(cas: CAS, trace: ProcessTrace) {
-      import ProcessTraceEvent._
-      for (pte <- trace.getEvents()) {
-        logger.debug("ProcessTraceEvent with type {}", pte.getType())
-        pte.getType() match {
-          case "Analysis" => processEvent(cas, pte)
-          case ANALYSIS => processEvent(cas, pte)
+      def processEvent(ev: ProcessTraceEvent) {
+        logger.debug("ProcessTraceEvent with type {}", ev.getType())
+        ev.getSubEvents().foreach(processEvent)
+        import ProcessTraceEvent._
+        ev.getType() match {
+          case "Analysis" => writeEvent(cas, ev)
+          case ANALYSIS => writeEvent(cas, ev)
           case SERVICE => ??? // TODO
           case _ =>
         }
       }
+      trace.getEvents().foreach(processEvent)
     }
 
-    private def processEvent(cas: CAS, pte: ProcessTraceEvent) {
+    private def writeEvent(cas: CAS, pte: ProcessTraceEvent) {
       write(AnalysisRecord(
         docURI = DocumentUtils.getDocumentUri(cas),
         docSize = cas.getDocumentText().length(),
@@ -145,7 +147,9 @@ object AEBenchmark {
       case Left(name) => `import`.setName(name)
       case Right(path) => `import`.setLocation(path.getPath());
     }
-    PipelineDescriptorUtils.createAggregateDescription(Map(RootAEName -> `import`))
+    val aeDesc = PipelineDescriptorUtils.createAggregateDescription(Map("rootAE" -> `import`))
+    aeDesc.getMetaData().setName(RootAEName)
+    aeDesc
   }
 
   private[benchmarking] def parseColReaderDesc(f: File) =
