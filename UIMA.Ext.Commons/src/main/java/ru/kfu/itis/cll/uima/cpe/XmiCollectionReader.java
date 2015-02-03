@@ -10,10 +10,13 @@ import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ResourceConfigurationException;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.core.io.Resource;
 import org.uimafit.descriptor.ConfigurationParameter;
+import org.uimafit.factory.CollectionReaderFactory;
 
 import com.google.common.collect.Collections2;
 
@@ -22,6 +25,14 @@ import com.google.common.collect.Collections2;
  * and its subdirectories in the filesystem.
  */
 public class XmiCollectionReader extends XmiCollectionReaderBase {
+
+	public static CollectionReaderDescription createDescription(
+			File inputDir, TypeSystemDescription inputTSD) throws ResourceInitializationException {
+		return CollectionReaderFactory.createDescription(XmiCollectionReader.class,
+				inputTSD,
+				PARAM_INPUTDIR, inputDir);
+	}
+
 	/**
 	 * Name of configuration parameter that must be set to the path of a
 	 * directory containing the XMI files.
