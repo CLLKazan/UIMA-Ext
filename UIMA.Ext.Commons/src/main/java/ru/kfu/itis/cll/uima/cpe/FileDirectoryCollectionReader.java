@@ -107,7 +107,11 @@ public class FileDirectoryCollectionReader extends CasCollectionReader_ImplBase 
 		URI fURI = f.toURI();
 		if (setRelativeURI) {
 			URI dirURI = directory.toURI();
-			return dirURI.relativize(fURI);
+			URI resURI = dirURI.relativize(fURI);
+			if (resURI.getScheme() == null) {
+				resURI = URI.create("file:" + resURI.toString());
+			}
+			return resURI;
 		} else {
 			return fURI;
 		}
