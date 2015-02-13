@@ -6,21 +6,21 @@
         <name/>
         <configurationParameters>
             <configurationParameter>
-                <name>DirectoryPath</name>
+                <name>directoryPath</name>
                 <description/>
                 <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
             </configurationParameter>
             <configurationParameter>
-                <name>FileExtension</name>
+                <name>fileExtension</name>
                 <description/>
                 <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>false</mandatory>
             </configurationParameter>
             <configurationParameter>
-                <name>Encoding</name>
+                <name>encoding</name>
                 <description/>
                 <type>String</type>
                 <multiValued>false</multiValued>
@@ -29,19 +29,19 @@
         </configurationParameters>
         <configurationParameterSettings>
         	<nameValuePair>
-                <name>DirectoryPath</name>
+                <name>directoryPath</name>
                 <value>
                     <string>test-data</string>
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>FileExtension</name>
+                <name>fileExtension</name>
                 <value>
                     <string>txt</string>
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>Encoding</name>
+                <name>encoding</name>
                 <value>
                     <string>utf-8</string>
                 </value>
