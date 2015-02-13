@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uimafit.util.JCasUtil;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -161,6 +162,36 @@ public class MorphCasUtils {
 		//
 		return casWf;
 	}
+
+	/**
+	 * @param word
+	 * @return a lemma of the first wordform in the word
+	 * @throws NullPointerException
+	 *             if word is null
+	 * @throws IllegalArgumentException
+	 *             if there is no wordform in the word
+	 */
+	public static String getFirstLemma(Word word) {
+		if (word == null) {
+			throw new NullPointerException("word");
+		}
+		FSArray wfs = word.getWordforms();
+		if (wfs == null || wfs.size() == 0) {
+			throw new IllegalArgumentException(String.format(
+					"No wordforms in %s", toPrettyString(word)));
+		}
+		return ((Wordform) wfs.get(0)).getLemma();
+	}
+
+	/**
+	 * Wrapper for {@link #getFirstLemma(Word)}.
+	 */
+	public static final Function<Word, String> LEMMA_FUNCTION = new Function<Word, String>() {
+		@Override
+		public String apply(Word w) {
+			return getFirstLemma(w);
+		}
+	};
 
 	private MorphCasUtils() {
 	}
