@@ -1,0 +1,15 @@
+#!/bin/bash
+# setup system variables
+# OpenCorpora (serialized) dictionary
+opencorpora_home=~/data/opencorpora
+#
+pos_tagger_model_dir=~/deploy/tcrf-pos-tagger/model-default
+# UIMA datapath
+uima_datapath="-Duima.datapath=.:${opencorpora_home}:${pos_tagger_model_dir}"
+# crfsuite-jni shared library dir
+crfsuite_jni_dir=/home/rgareev/projects/crfsuite4j/crfsuite-jni/bin
+jni_opts="-Djava.library.path=${crfsuite_jni_dir}"
+# Java Heap Opts
+java_opts='-Xmx2500m'
+# logging
+logback_opts="-Dlogback.configurationFile=logback-default.xml"
