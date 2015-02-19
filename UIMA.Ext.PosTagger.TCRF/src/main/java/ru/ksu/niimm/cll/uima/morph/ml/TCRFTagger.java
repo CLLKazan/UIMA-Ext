@@ -54,11 +54,14 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
  */
 public class TCRFTagger extends JCasAnnotator_ImplBase {
 
+    public static final String RESOURCE_CLASSIFIER_PACK = "classifiers";
     public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
     public static final String PARAM_TIERS = "tiers";
     public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
     public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
     // config fields
+    @ExternalResource(key = RESOURCE_CLASSIFIER_PACK, mandatory = false)
+    private SeqClassifierPack<String> classifierPack;
     @ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
     private MorphDictionaryHolder morphDictHolder;
     @ConfigurationParameter(name = PARAM_TIERS, mandatory = true)
@@ -72,6 +75,7 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
     private boolean reuseExistingWordAnnotations;
     // derived
+    private Boolean training = null;
     private MorphDictionary morphDictionary;
     private GramModel gramModel;
     private GramTiers gramTiers;
@@ -82,6 +86,7 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
         super.initialize(ctx);
+        // TODO determine training mode
         // validate tiers configuration
         gramTiers = parseGramTiers(tierDefs);
         morphDictionary = morphDictHolder.getDictionary();
@@ -122,7 +127,7 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
             SortedSet<Integer> targetSteps = ContiguousSet.create(
                     Range.closedOpen(step, gramTiers.getCount()), DiscreteDomain.integers());
             for (String gramCat : prevStepCats) {
-                // TODO introduce difference between Null and NotApplicable values
+                // TODO:LOW introduce difference between Null and NotApplicable values
                 GrammemeExtractor gramExtractor = new GrammemeExtractor(gramModel, gramCat);
                 CleartkExtractor ctxGramExtractor = new CleartkExtractor(
                         Token.class, gramExtractor, contextsArr);
@@ -173,15 +178,12 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
     }
 
     private boolean isTraining() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return training;
     }
 
     @Override
     public void destroy() {
-        if (classifier instanceof Disposable) {
-            ((Disposable) classifier).dispose();
-        }
+        classifierPack.close();
         super.destroy();
     }
 
@@ -339,8 +341,7 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
     private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
 
     private SequenceClassifier<String> getClassifier(int tier) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return classifierPack.getClassifier(tier);
     }
 
     private SequenceDataWriter<String> getTrainingDataWriter(int tier) {
