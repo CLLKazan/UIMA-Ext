@@ -3,6 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.*;
@@ -27,7 +28,6 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.kfu.itis.issst.cleartk.Disposable;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
 import ru.kfu.itis.issst.uima.ml.GrammemeExtractor;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
@@ -55,22 +55,26 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
 public class TCRFTagger extends JCasAnnotator_ImplBase {
 
     public static final String RESOURCE_CLASSIFIER_PACK = "classifiers";
+    public static final String RESOURCE_DATA_WRITERS_FACTORY = "dataWriters";
     public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
     public static final String PARAM_TIERS = "tiers";
     public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
     public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
+
     // config fields
     @ExternalResource(key = RESOURCE_CLASSIFIER_PACK, mandatory = false)
     private SeqClassifierPack<String> classifierPack;
+    @ExternalResource(key = RESOURCE_DATA_WRITERS_FACTORY, mandatory = false)
+    private SequenceDataWriterPack<String> dataWriterPack;
     @ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
     private MorphDictionaryHolder morphDictHolder;
     @ConfigurationParameter(name = PARAM_TIERS, mandatory = true)
     private List<String> tierDefs;
     // feature extraction parameters
     @ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
-    private int leftContextSize = -1;
+    private Integer leftContextSize;
     @ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
-    private int rightContextSize = -1;
+    private Integer rightContextSize;
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
     private boolean reuseExistingWordAnnotations;
@@ -86,7 +90,16 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
         super.initialize(ctx);
-        // TODO determine training mode
+        // determine training mode
+        if (classifierPack != null) {
+            if (dataWriterPack != null)
+                throw new IllegalStateException("Both classifiers and data writers were set!");
+            training = false;
+        } else if (dataWriterPack != null) {
+            training = true;
+        } else {
+            throw new IllegalStateException("No classifier or data writers were set");
+        }
         // validate tiers configuration
         gramTiers = parseGramTiers(tierDefs);
         morphDictionary = morphDictHolder.getDictionary();
@@ -345,17 +358,16 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
     }
 
     private SequenceDataWriter<String> getTrainingDataWriter(int tier) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return dataWriterPack.getDataWriter(tier);
     }
 
     /**
-     * @param posCats
-     * @return bit mask for all PoS-categories in argument posCats
+     * @param gramCats
+     * @return bit mask for all PoS-categories in argument gramCats
      */
-    private BitSet makeBitMask(Iterable<String> posCats) {
+    private BitSet makeBitMask(Iterable<String> gramCats) {
         BitSet result = new BitSet();
-        for (String posCat : posCats) {
+        for (String posCat : gramCats) {
             BitSet posCatBits = gramModel.getGrammemWithChildrenBits(posCat, true);
             if (posCatBits == null) {
                 throw new IllegalStateException(String.format(
@@ -388,7 +400,7 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         }
     }
 
-    private static GramTiers parseGramTiers(List<String> paramValList) {
+    private GramTiers parseGramTiers(List<String> paramValList) {
         List<Set<String>> tierCatsList = Lists.newArrayList();
         for (String tierDef : paramValList) {
             Set<String> tierCats = ImmutableSet.copyOf(posCatSplitter.split(tierDef));
@@ -398,6 +410,13 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
             tierCatsList.add(tierCats);
         }
         final List<Set<String>> finalTierCatsList = ImmutableList.copyOf(tierCatsList);
+        final List<BitSet> tierMasks = ImmutableList.copyOf(
+                Lists.transform(finalTierCatsList, new Function<Set<String>, BitSet>() {
+                    @Override
+                    public BitSet apply(Set<String> input) {
+                        return makeBitMask(input);
+                    }
+                }));
         return new GramTiers() {
             @Override
             public int getCount() {
@@ -407,6 +426,11 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
             @Override
             public Set<String> getTierCategories(int i) {
                 return finalTierCatsList.get(i);
+            }
+
+            @Override
+            public BitSet getTierMask(int i) {
+                return tierMasks.get(i);
             }
         };
     }
