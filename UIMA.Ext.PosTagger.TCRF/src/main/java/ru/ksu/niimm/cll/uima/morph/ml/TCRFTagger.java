@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.*;
@@ -33,8 +32,6 @@ import ru.kfu.itis.issst.uima.ml.GrammemeExtractor;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 import ru.kfu.itis.issst.uima.morph.model.Grammeme;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
@@ -56,35 +53,26 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
 
     public static final String RESOURCE_CLASSIFIER_PACK = "classifiers";
     public static final String RESOURCE_DATA_WRITERS_FACTORY = "dataWriters";
-    public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
     public static final String PARAM_TIERS = "tiers";
-    public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
-    public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
 
     // config fields
     @ExternalResource(key = RESOURCE_CLASSIFIER_PACK, mandatory = false)
     private SeqClassifierPack<String> classifierPack;
     @ExternalResource(key = RESOURCE_DATA_WRITERS_FACTORY, mandatory = false)
     private SequenceDataWriterPack<String> dataWriterPack;
-    @ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
-    private MorphDictionaryHolder morphDictHolder;
+    private GramModel gramModel;
     @ConfigurationParameter(name = PARAM_TIERS, mandatory = true)
     private List<String> tierDefs;
-    // feature extraction parameters
-    @ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
-    private Integer leftContextSize;
-    @ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
-    private Integer rightContextSize;
+
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
     private boolean reuseExistingWordAnnotations;
-    // derived
+    // derived config fields
     private Boolean training = null;
-    private MorphDictionary morphDictionary;
-    private GramModel gramModel;
     private GramTiers gramTiers;
-    private FeatureExtractionPlan fePlan;
-    //
+    // aggregate
+    private IncrementalFeatureExtractor featureExtractor;
+    // per-CAS state fields
     private Map<Token, Word> token2WordIndex;
 
     @Override
@@ -100,10 +88,10 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         } else {
             throw new IllegalStateException("No classifier or data writers were set");
         }
-        // validate tiers configuration
-        gramTiers = parseGramTiers(tierDefs);
         morphDictionary = morphDictHolder.getDictionary();
         gramModel = morphDictionary.getGramModel();
+        // validate tiers configuration
+        gramTiers = GramTiersFactory.parseGramTiers(gramModel, tierDefs);
         // check grammems
         checkDictGrammems();
         // parse context definitions for feature extractors
@@ -361,23 +349,6 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         return dataWriterPack.getDataWriter(tier);
     }
 
-    /**
-     * @param gramCats
-     * @return bit mask for all PoS-categories in argument gramCats
-     */
-    private BitSet makeBitMask(Iterable<String> gramCats) {
-        BitSet result = new BitSet();
-        for (String posCat : gramCats) {
-            BitSet posCatBits = gramModel.getGrammemWithChildrenBits(posCat, true);
-            if (posCatBits == null) {
-                throw new IllegalStateException(String.format(
-                        "Unknown grammeme (category): %s", posCat));
-            }
-            result.or(posCatBits);
-        }
-        return result;
-    }
-
     private void checkDictGrammems() {
         for (int grId = 0; grId < gramModel.getGrammemMaxNumId(); grId++) {
             Grammeme gr = gramModel.getGrammem(grId);
@@ -389,7 +360,6 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         }
     }
 
-    static final Splitter posCatSplitter = Splitter.on('&').trimResults();
     private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
 
     private void cleanWordforms(JCas jCas) {
@@ -400,105 +370,8 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         }
     }
 
-    private GramTiers parseGramTiers(List<String> paramValList) {
-        List<Set<String>> tierCatsList = Lists.newArrayList();
-        for (String tierDef : paramValList) {
-            Set<String> tierCats = ImmutableSet.copyOf(posCatSplitter.split(tierDef));
-            if (tierCats.isEmpty()) {
-                throw new IllegalStateException(String.format("Illegal posTiers parameter value"));
-            }
-            tierCatsList.add(tierCats);
-        }
-        final List<Set<String>> finalTierCatsList = ImmutableList.copyOf(tierCatsList);
-        final List<BitSet> tierMasks = ImmutableList.copyOf(
-                Lists.transform(finalTierCatsList, new Function<Set<String>, BitSet>() {
-                    @Override
-                    public BitSet apply(Set<String> input) {
-                        return makeBitMask(input);
-                    }
-                }));
-        return new GramTiers() {
-            @Override
-            public int getCount() {
-                return finalTierCatsList.size();
-            }
-
-            @Override
-            public Set<String> getTierCategories(int i) {
-                return finalTierCatsList.get(i);
-            }
-
-            @Override
-            public BitSet getTierMask(int i) {
-                return tierMasks.get(i);
-            }
-        };
-    }
-
     private SortedSet<Integer> closedOpenRange(int first, int last) {
         return ContiguousSet.create(Range.closedOpen(first, last), DiscreteDomain.integers());
     }
 
-    private interface GramTiers {
-        int getCount();
-
-        Set<String> getTierCategories(int i);
-
-        BitSet getTierMask(int i);
-    }
-
-    private interface FeatureExtractionPlan {
-        Set<SimpleFeatureExtractor> getExtractorsToRemoveOn(int step);
-
-        Set<SimpleFeatureExtractor> getNewFeatureExtractors(int step);
-    }
-
-    private class FeatureExtractionPlanBuilder {
-        private SetMultimap<Integer, SimpleFeatureExtractor> extractionAgenda
-                = LinkedHashMultimap.create();
-
-        void addExtractors(Set<Integer> steps, SimpleFeatureExtractor fe) {
-            for (Integer s : steps) {
-                addExtractors(s, fe);
-            }
-        }
-
-        void addExtractors(int step, SimpleFeatureExtractor fe) {
-            extractionAgenda.put(step, fe);
-        }
-
-        public FeatureExtractionPlan build() {
-            final List<Set<SimpleFeatureExtractor>> stepExtractorsList = Lists.newArrayList();
-            final List<Set<SimpleFeatureExtractor>> stepRemovalsList = Lists.newArrayList();
-            //
-            final int maxStep = Collections.max(extractionAgenda.keys());
-            Set<SimpleFeatureExtractor> prevStepFEs = ImmutableSet.of();
-            //
-            for (int step = 0; step < maxStep; step++) {
-                Set<SimpleFeatureExtractor> stepFEs = ImmutableSet.copyOf(extractionAgenda.get(step));
-                stepExtractorsList.add(Sets.difference(stepFEs, prevStepFEs));
-                stepRemovalsList.add(Sets.difference(prevStepFEs, stepFEs));
-                prevStepFEs = stepFEs;
-            }
-            //
-            return new FeatureExtractionPlan() {
-                @Override
-                public Set<SimpleFeatureExtractor> getExtractorsToRemoveOn(int step) {
-                    validateStep(step);
-                    return stepRemovalsList.get(step);
-                }
-
-                @Override
-                public Set<SimpleFeatureExtractor> getNewFeatureExtractors(int step) {
-                    validateStep(step);
-                    return stepExtractorsList.get(step);
-                }
-
-                private void validateStep(int step) {
-                    if (step < 0 || step > maxStep)
-                        throw new IllegalArgumentException("Too big step: " + step);
-                }
-            };
-        }
-    }
 }
