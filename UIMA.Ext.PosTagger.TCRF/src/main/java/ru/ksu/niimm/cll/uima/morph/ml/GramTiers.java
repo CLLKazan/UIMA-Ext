@@ -20,6 +20,8 @@ interface GramTiers {
     Set<String> getTierCategories(int i);
 
     BitSet getTierMask(int i);
+
+    String getTierId(int i);
 }
 
 class GramTiersFactory {
@@ -28,13 +30,16 @@ class GramTiersFactory {
 
     static GramTiers parseGramTiers(final GramModel gramModel, List<String> paramValList) {
         List<Set<String>> tierCatsList = Lists.newArrayList();
+        List<String> tierIds = Lists.newArrayList();
         for (String tierDef : paramValList) {
             Set<String> tierCats = ImmutableSet.copyOf(posCatSplitter.split(tierDef));
+            tierIds.add(tierDef);
             if (tierCats.isEmpty()) {
                 throw new IllegalStateException(String.format("Illegal posTiers parameter value"));
             }
             tierCatsList.add(tierCats);
         }
+        final List<String> finalTierIds = ImmutableList.copyOf(tierIds);
         final List<Set<String>> finalTierCatsList = ImmutableList.copyOf(tierCatsList);
         final List<BitSet> tierMasks = ImmutableList.copyOf(
                 Lists.transform(finalTierCatsList, new Function<Set<String>, BitSet>() {
@@ -57,6 +62,11 @@ class GramTiersFactory {
             @Override
             public BitSet getTierMask(int i) {
                 return tierMasks.get(i);
+            }
+
+            @Override
+            public String getTierId(int i) {
+                return finalTierIds.get(i);
             }
         };
     }

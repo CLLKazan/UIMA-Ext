@@ -5,13 +5,17 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.*;
+import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
@@ -43,24 +47,34 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
 /**
  * @author Rinat Gareev (Kazan Federal University)
  */
-public class TCRFTagger extends JCasAnnotator_ImplBase {
+public class TCRFTrainingDataExtractor extends JCasAnnotator_ImplBase {
 
     public static final String RESOURCE_GRAM_MODEL = "gramModel";
     public static final String RESOURCE_CLASSIFIER_PACK = "classifiers";
+    public static final String RESOURCE_DATA_WRITERS_FACTORY = "dataWriters";
+    public static final String PARAM_TIERS = "tiers";
 
     // config fields
-    @ExternalResource(key = RESOURCE_CLASSIFIER_PACK, mandatory = true)
+    @ExternalResource(key = RESOURCE_CLASSIFIER_PACK, mandatory = false)
     private SeqClassifierPack<String> classifierPack;
+    @ExternalResource(key = RESOURCE_DATA_WRITERS_FACTORY, mandatory = false)
+    private SequenceDataWriterPack<String> dataWriterPack;
     @ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
     private GramModelHolder gramModelHolder;
     private GramModel gramModel;
+    @ConfigurationParameter(name = PARAM_TIERS, mandatory = true)
+    private List<String> tierDefs;
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
     private boolean reuseExistingWordAnnotations;
+    // derived config fields
+    private Boolean training = null;
+    private GramTiers gramTiers;
     // aggregate
     private IncrementalFeatureExtractor featureExtractor;
     private ResourceTicket classifierPackTicket;
+    private ResourceTicket dataWriterPackTicket;
     // per-CAS state fields
     private Map<Token, Word> token2WordIndex;
 
@@ -71,24 +85,41 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         // check grammems
         checkDictGrammems();
         // determine training mode
-        classifierPackTicket = classifierPack.acquire();
+        if (classifierPack != null) {
+            if (dataWriterPack != null)
+                throw new IllegalStateException("Both classifiers and data writers were set!");
+            training = false;
+            classifierPackTicket = classifierPack.acquire();
+        } else if (dataWriterPack != null) {
+            training = true;
+            dataWriterPackTicket = dataWriterPack.acquire();
+        } else {
+            throw new IllegalStateException("No classifier or data writers were set");
+        }
+        if(training) {
+            gramTiers = GramTiersFactory.parseGramTiers(gramModel, tierDefs);
+        } else {
+
+        }
     }
 
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-        if (reuseExistingWordAnnotations) {
-            // clean wordforms to avoid erroneous feature extraction or output assignment
-            cleanWordforms(jCas);
-        } else {
-            // ensure that there are no existing annotations
-            // // otherwise things may go irregularly
-            if (JCasUtil.exists(jCas, Word.class)) {
-                throw new IllegalStateException(String.format(
-                        "CAS '%s' has Word annotations before this annotator",
-                        getDocumentUri(jCas)));
+        if (!isTraining()) {
+            if (reuseExistingWordAnnotations) {
+                // clean wordforms to avoid erroneous feature extraction or output assignment
+                cleanWordforms(jCas);
+            } else {
+                // ensure that there are no existing annotations
+                // // otherwise things may go irregularly
+                if (JCasUtil.exists(jCas, Word.class)) {
+                    throw new IllegalStateException(String.format(
+                            "CAS '%s' has Word annotations before this annotator",
+                            getDocumentUri(jCas)));
+                }
+                // make Word annotations
+                WordAnnotator.makeWords(jCas);
             }
-            // make Word annotations
-            WordAnnotator.makeWords(jCas);
         }
         token2WordIndex = MorphCasUtils.getToken2WordIndex(jCas);
         try {
@@ -100,14 +131,70 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         }
     }
 
+    private boolean isTraining() {
+        return training;
+    }
+
     @Override
     public void destroy() {
         IOUtils.closeQuietly(classifierPackTicket);
+        IOUtils.closeQuietly(dataWriterPackTicket);
         super.destroy();
     }
 
+    @Override
+    public void collectionProcessComplete() throws AnalysisEngineProcessException {
+        if (isTraining()) {
+            IOUtils.closeQuietly(dataWriterPackTicket);
+        }
+        super.collectionProcessComplete();
+
+    }
+
     private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
-        taggingProcess(jCas, sent);
+        if (isTraining()) {
+            trainingProcess(jCas, sent);
+        } else {
+            taggingProcess(jCas, sent);
+        }
+    }
+
+    private void trainingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
+        // extract sentence tokens
+        List<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
+        if (tokens.isEmpty()) return;
+        // extract sentence wordforms
+        List<Wordform> wfSeq = newArrayListWithCapacity(tokens.size());
+        for (Token token : tokens) {
+            Word word = token2WordIndex.get(token);
+            if (word == null) {
+                wfSeq.add(null);
+            } else {
+                Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
+                wfSeq.add(tokWf);
+            }
+        }
+        //
+        List<FeatureSet> featSets = newArrayListWithCapacity(tokens.size());
+        for (Token tok : tokens) {
+            featSets.add(FeatureSets.empty());
+        }
+        //
+        for (int tier = 0; tier < gramTiers.getCount(); tier++) {
+            List<String> outLabels = newArrayListWithCapacity(tokens.size());
+            // prepare feature values and extract output labels
+            for (int tokIdx = 0; tokIdx < tokens.size(); tokIdx++) {
+                Token tok = tokens.get(tokIdx);
+                FeatureSet tokFeatSet = featSets.get(tokIdx);
+                // TODO should know about cur tier?
+                featureExtractor.extractNext(jCas, sent, tok, tokFeatSet);
+                outLabels.add(extractOutputLabel(tier, jCas, tok));
+            }
+            // write as training data
+            List<List<Feature>> featValues = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
+            List<Instance<String>> instances = Instances.toInstances(outLabels, featValues);
+            getTrainingDataWriter(tier).write(instances);
+        }
     }
 
     private void taggingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
@@ -171,11 +258,43 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         }
     }
 
+    private String extractOutputLabel(int tier, JCas jCas, Token token) {
+        // classification label
+        String outputLabel;
+        Word word = token2WordIndex.get(token);
+        if (word == null) {
+            if (token instanceof NUM || token instanceof W) {
+                throw new IllegalStateException(String.format(
+                        "Token %s in %s does not have corresponding Word annotation",
+                        toPrettyString(token), getDocumentUri(jCas)));
+            }
+            outputLabel = PunctuationUtils.OTHER_PUNCTUATION_TAG;
+        } else {
+            Wordform wf = MorphCasUtils.requireOnlyWordform(word);
+            outputLabel = extractOutputLabel(tier, wf);
+        }
+        return outputLabel;
+    }
+
+    private String extractOutputLabel(int tier, Wordform wf) {
+        BitSet wfBits = toGramBits(gramModel, FSUtils.toList(wf.getGrammems()));
+        wfBits.and(gramTiers.getTierMask(tier));
+        if (wfBits.isEmpty()) {
+            return null;
+        }
+        return targetGramJoiner.join(gramModel.toGramSet(wfBits));
+    }
+
     private static final String targetGramDelim = "&";
+    private static final Joiner targetGramJoiner = Joiner.on(targetGramDelim);
     private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
 
     private SequenceClassifier<String> getClassifier(int tier) {
         return classifierPack.getClassifier(tier);
+    }
+
+    private SequenceDataWriter<String> getTrainingDataWriter(int tier) {
+        return dataWriterPack.getDataWriter(tier);
     }
 
     private void checkDictGrammems() {

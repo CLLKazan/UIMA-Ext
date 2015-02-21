@@ -1,17 +1,23 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import org.cleartk.classifier.SequenceClassifier;
+import ru.kfu.itis.cll.uima.util.ResourceTicket;
 
 import java.io.Closeable;
 
 /**
- * @author Rinat Gareev
+ * Note! Do not forget to {@link #acquire()} a ticket before starting to use this resource
+ * and {@link ru.kfu.itis.cll.uima.util.ResourceTicket#close()} it after.
+ *
  * @param <OUT> a classifier output type
+ * @author Rinat Gareev
  */
-public interface SeqClassifierPack<OUT> extends Closeable {
+public interface SeqClassifierPack<OUT> {
 
     SequenceClassifier<OUT> getClassifier(int index);
 
-    @Override
-    void close();
+    /**
+     * Notify this pack about a new client.
+     */
+    ResourceTicket acquire();
 }

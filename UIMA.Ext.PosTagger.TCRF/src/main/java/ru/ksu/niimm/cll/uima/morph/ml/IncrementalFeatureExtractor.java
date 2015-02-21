@@ -11,6 +11,6 @@ import java.util.List;
  */
 public interface IncrementalFeatureExtractor {
 
-    List<Feature> extractNext(JCas view, Annotation contextSpan, Annotation focusAnnotation);
+    void extractNext(JCas view, Annotation contextSpan, Annotation focusAnnotation, FeatureSet featSet);
 
 }
