@@ -7,7 +7,6 @@ import com.google.common.base.Splitter;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.CleartkProcessingException;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 
-import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
@@ -95,22 +93,10 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
         // extract sentence tokens
         List<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
         if (tokens.isEmpty()) return;
-        // extract sentence wordforms
-        // wfSeq contains Wordform for a word, and Token for a punctuation
-        List<FeatureStructure> wfSeq = newArrayListWithCapacity(tokens.size());
-        for (Token token : tokens) {
-            Word word = token2WordIndex.get(token);
-            if (word == null) {
-                wfSeq.add(token);
-            } else {
-                Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
-                wfSeq.add(tokWf);
-            }
-        }
         // invoke the classifier
-        List<String> labelSeq = classifier.classify(jCas, sent, wfSeq);
+        List<String> labelSeq = classifier.classify(jCas, sent, tokens);
         //
-        if (labelSeq.size() != wfSeq.size()) {
+        if (labelSeq.size() != tokens.size()) {
             throw new IllegalStateException();
         }
         if (!(labelSeq instanceof RandomAccess)) {
@@ -118,12 +104,13 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
         }
         for (int i = 0; i < labelSeq.size(); i++) {
             String label = labelSeq.get(i);
-            if (label == null || label.isEmpty() || label.equalsIgnoreCase("null")) {
+            if (PUtils.isNullLabel(label)) {
                 // do nothing, it means there is no a new PoS-tag for this wordform
                 continue;
             }
-            FeatureStructure _wf = wfSeq.get(i);
-            if (_wf instanceof Token) {
+            Token token = tokens.get(i);
+            Word word = token2WordIndex.get(token);
+            if (word == null) {
                 if (!label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
                     getLogger().warn(String.format(
                             "Classifier predicted the gram value for a non-word token: %s",
@@ -133,7 +120,7 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
             } else if (label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
                 getLogger().warn("Classifier predicted the punctuation tag for a word token");
             } else {
-                Wordform wf = (Wordform) _wf;
+                Wordform wf = MorphCasUtils.requireOnlyWordform(word);
                 wf.setPos(label);
                 Iterable<String> newGrams = targetGramSplitter.split(label);
                 MorphCasUtils.addGrammemes(jCas, wf, newGrams);

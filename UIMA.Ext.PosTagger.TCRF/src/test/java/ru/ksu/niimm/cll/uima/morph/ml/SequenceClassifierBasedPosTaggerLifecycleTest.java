@@ -10,6 +10,7 @@ import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
+import org.cleartk.classifier.CleartkProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -56,7 +57,8 @@ public class SequenceClassifierBasedPosTaggerLifecycleTest {
     public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String>, SharedResourceObject {
 
         @Override
-        public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq) {
+        public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
+                throws CleartkProcessingException {
             return delegate.classify(jCas, spanAnno, seq);
         }
 

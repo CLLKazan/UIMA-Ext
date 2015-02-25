@@ -24,8 +24,7 @@ public class FeatureSets {
      * @return a new instance of FeatureSet.
      */
     public static FeatureSet empty() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return new MultimapBasedFeatureSet();
     }
 
     private FeatureSets() {
