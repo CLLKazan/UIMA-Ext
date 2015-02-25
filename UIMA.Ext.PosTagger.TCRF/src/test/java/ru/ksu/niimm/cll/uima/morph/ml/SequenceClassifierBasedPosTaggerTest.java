@@ -1,6 +1,5 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +39,6 @@ import org.uimafit.util.JCasUtil;
 import org.xml.sax.SAXException;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.kfu.itis.cll.uima.util.ResourceTicket;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
@@ -49,7 +47,6 @@ import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -57,7 +54,7 @@ import java.util.List;
  */
 public class SequenceClassifierBasedPosTaggerTest {
     @Mock
-    private SequenceClassifierResource<String> classifierMock;
+    private SequenceClassifier<String> classifierMock;
     private AnalysisEngine ae;
 
     @Before
@@ -111,18 +108,17 @@ public class SequenceClassifierBasedPosTaggerTest {
         assertEquals(of("A", "Named"), FSUtils.toList(words.get(1).getWordforms(0).getGrammems()));
     }
 
-    static SequenceClassifierResource<String> delegate;
+    static SequenceClassifier<String> delegate;
 
-    public static class StaticSequenceClassifierWrapper implements SequenceClassifierResource<String>, SharedResourceObject {
-
-        @Override
-        public ResourceTicket acquire() {
-            return delegate.acquire();
-        }
+    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String>, SharedResourceObject {
 
         @Override
         public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq) {
             return delegate.classify(jCas, spanAnno, seq);
+        }
+
+        @Override
+        public void close() throws IOException {
         }
 
         @Override

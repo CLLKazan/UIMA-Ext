@@ -4,7 +4,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Splitter;
-import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -22,7 +21,6 @@ import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.kfu.itis.cll.uima.util.ResourceTicket;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
@@ -53,21 +51,18 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
 
     // config fields
     @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
-    private SequenceClassifierResource<String> classifier;
+    private SequenceClassifier<String> classifier;
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
     private boolean reuseExistingWordAnnotations;
-    // aggregate
-    private ResourceTicket classifierPackTicket;
+
     // per-CAS state fields
     private Map<Token, Word> token2WordIndex;
 
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
         super.initialize(ctx);
-        // determine training mode
-        classifierPackTicket = classifier.acquire();
     }
 
     @Override
@@ -94,12 +89,6 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
         } finally {
             token2WordIndex.clear();
         }
-    }
-
-    @Override
-    public void destroy() {
-        IOUtils.closeQuietly(classifierPackTicket);
-        super.destroy();
     }
 
     private void process(JCas jCas, Sentence sent) throws CleartkProcessingException {

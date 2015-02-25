@@ -12,17 +12,12 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ExternalResourceFactory;
-import ru.kfu.itis.cll.uima.util.ResourceTicket;
 
+import java.io.IOException;
 import java.util.List;
-
-import static org.mockito.Mockito.*;
 
 /**
  * @author Rinat Gareev
@@ -30,7 +25,7 @@ import static org.mockito.Mockito.*;
 public class SequenceClassifierBasedPosTaggerLifecycleTest {
 
     @Mock
-    private SequenceClassifierResource<String> classifierMock;
+    private SequenceClassifier<String> classifierMock;
 
     @Before
     public void before() {
@@ -47,28 +42,27 @@ public class SequenceClassifierBasedPosTaggerLifecycleTest {
         ExternalResourceFactory.bindExternalResource(
                 taggerDesc, SeqClassifierBasedPosTagger.RESOURCE_CLASSIFIER, classifierDesc);
         // stub
-        ResourceTicket ticketMock = mock(ResourceTicket.class);
-        when(classifierMock.acquire()).thenReturn(ticketMock);
+
         // invoke
         AnalysisEngine ae = UIMAFramework.produceAnalysisEngine(taggerDesc);
         ae.destroy();
         // verify
-        verify(ticketMock).close();
+
     }
 
 
-    static SequenceClassifierResource<String> delegate;
+    static SequenceClassifier<String> delegate;
 
-    public static class StaticSequenceClassifierWrapper implements SequenceClassifierResource<String>, SharedResourceObject {
-
-        @Override
-        public ResourceTicket acquire() {
-            return delegate.acquire();
-        }
+    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String>, SharedResourceObject {
 
         @Override
         public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq) {
             return delegate.classify(jCas, spanAnno, seq);
+        }
+
+        @Override
+        public void close() throws IOException {
+
         }
 
         @Override
