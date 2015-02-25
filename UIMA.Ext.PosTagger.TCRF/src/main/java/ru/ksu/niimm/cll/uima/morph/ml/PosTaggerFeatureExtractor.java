@@ -3,12 +3,14 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import com.google.common.collect.*;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.uimafit.component.initialize.ExternalResourceInitializer;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
@@ -16,6 +18,8 @@ import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
 import ru.kfu.itis.issst.uima.ml.GrammemeExtractor;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
@@ -29,22 +33,28 @@ import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExt
 /**
  * @author Rinat Gareev
  */
-class PosTaggerFeatureExtractor implements IncrementalFeatureExtractor, Initializable{
+class PosTaggerFeatureExtractor implements IncrementalFeatureExtractor, Initializable {
     // constants
     public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
+    public static final String RESOURCE_GRAM_MODEL = "gramModel";
     public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
     public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
 
     // aggregate
     @ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
     private MorphDictionaryHolder morphDictHolder;
+    @ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
+    private GramModelHolder gramModelHolder;
     @ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
     private Integer leftContextSize;
     @ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
     private Integer rightContextSize;
+    // TODO
+    private GramTiers gramTiers;
 
     private FeatureExtractionPlan fePlan;
     private MorphDictionary morphDictionary;
+    private GramModel gramModel;
 
     PosTaggerFeatureExtractor() {
 
@@ -52,6 +62,9 @@ class PosTaggerFeatureExtractor implements IncrementalFeatureExtractor, Initiali
 
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
+        ExternalResourceInitializer.initialize(context, this);
+        morphDictionary = morphDictHolder.getDictionary();
+        gramModel = gramModelHolder.getGramModel();
         // parse context definitions for feature extractors
         // TODO:LOW here should be a single feature extraction config like in the Stanford tagger
         if (leftContextSize < 0 || rightContextSize < 0) {
@@ -106,6 +119,12 @@ class PosTaggerFeatureExtractor implements IncrementalFeatureExtractor, Initiali
             planBuilder.addExtractors(step, dictFeatureExtractor);
         }
         fePlan = planBuilder.build();
+    }
+
+    @Override
+    public void extractNext(JCas view, Annotation contextSpan, Annotation focusAnnotation, FeatureSet featSet) {
+        // TODO
+        throw new UnsupportedOperationException();
     }
 
     private void extractFeatures(int tier, FeatureSet feats, JCas jCas, Sentence sent, Token token)

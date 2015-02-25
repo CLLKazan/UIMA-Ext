@@ -14,6 +14,7 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.cleartk.classifier.SequenceClassifier;
 import org.cleartk.classifier.*;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.opencorpora.cas.Word;
@@ -258,6 +259,11 @@ public class TCRFTrainingDataExtractor extends JCasAnnotator_ImplBase {
         }
     }
 
+    private void extractFeatures(int tier, FeatureSet tokFeatSet, JCas jCas, Sentence sent, Token tok) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
     private String extractOutputLabel(int tier, JCas jCas, Token token) {
         // classification label
         String outputLabel;
@@ -290,7 +296,7 @@ public class TCRFTrainingDataExtractor extends JCasAnnotator_ImplBase {
     private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
 
     private SequenceClassifier<String> getClassifier(int tier) {
-        return classifierPack.getClassifier(tier);
+        throw new UnsupportedOperationException();
     }
 
     private SequenceDataWriter<String> getTrainingDataWriter(int tier) {

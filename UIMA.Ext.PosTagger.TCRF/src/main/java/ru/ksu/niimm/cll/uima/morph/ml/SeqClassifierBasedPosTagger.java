@@ -6,6 +6,7 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import com.google.common.base.Splitter;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
@@ -16,6 +17,7 @@ import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
+import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -24,6 +26,7 @@ import ru.kfu.itis.cll.uima.util.ResourceTicket;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +42,12 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
  * @author Rinat Gareev (Kazan Federal University)
  */
 public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
+
+    public static AnalysisEngineDescription createDescription() throws ResourceInitializationException {
+        return AnalysisEngineFactory.createPrimitiveDescription(
+                SeqClassifierBasedPosTagger.class,
+                PosTaggerAPI.getTypeSystemDescription());
+    }
 
     public static final String RESOURCE_CLASSIFIER = "classifier";
 
