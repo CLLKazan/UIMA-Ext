@@ -127,21 +127,7 @@ class PosTaggerFeatureExtractor implements IncrementalFeatureExtractor, Initiali
         throw new UnsupportedOperationException();
     }
 
-    private void extractFeatures(int tier, FeatureSet feats, JCas jCas, Sentence sent, Token token)
-            throws CleartkExtractorException {
-        // delete feature values that have been extracted for prev tiers but not required for the current
-        feats.removeFeaturesBySource(fePlan.getExtractorsToRemoveOn(tier));
-        // extract new feature values
-        for (SimpleFeatureExtractor fe : fePlan.getNewFeatureExtractors(tier)) {
-            List<Feature> newVals;
-            if (fe instanceof CleartkExtractor) {
-                newVals = ((CleartkExtractor) fe).extractWithin(jCas, token, sent);
-            } else {
-                newVals = fe.extract(jCas, token);
-            }
-            feats.add(newVals, fe);
-        }
-    }
+
 
     private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
 
