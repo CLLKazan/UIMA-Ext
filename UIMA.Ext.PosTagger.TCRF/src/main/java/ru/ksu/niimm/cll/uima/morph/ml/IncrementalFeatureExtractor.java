@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author Rinat Gareev
  */
-public interface IncrementalFeatureExtractor {
+interface IncrementalFeatureExtractor {
 
     void extractNext(JCas view, Annotation contextSpan, Annotation focusAnnotation, FeatureSet featSet);
 

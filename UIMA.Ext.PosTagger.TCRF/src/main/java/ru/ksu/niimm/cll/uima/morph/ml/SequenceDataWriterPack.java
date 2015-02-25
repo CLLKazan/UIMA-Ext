@@ -12,7 +12,7 @@ import java.io.IOException;
  * @param <OUT> a classifier output type
  * @author Rinat Gareev
  */
-public interface SequenceDataWriterPack<OUT> {
+interface SequenceDataWriterPack<OUT> {
 
     SequenceDataWriter<OUT> getDataWriter(int index);
 

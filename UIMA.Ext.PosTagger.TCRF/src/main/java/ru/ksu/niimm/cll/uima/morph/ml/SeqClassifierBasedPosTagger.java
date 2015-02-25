@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.*;
@@ -43,14 +44,14 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
 /**
  * @author Rinat Gareev (Kazan Federal University)
  */
-public class TCRFTagger extends JCasAnnotator_ImplBase {
+public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
 
     public static final String RESOURCE_GRAM_MODEL = "gramModel";
-    public static final String RESOURCE_CLASSIFIER_PACK = "classifiers";
+    public static final String RESOURCE_CLASSIFIER = "classifier";
 
     // config fields
-    @ExternalResource(key = RESOURCE_CLASSIFIER_PACK, mandatory = true)
-    private SeqClassifierPack<String> classifierPack;
+    @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
+    private SequenceClassifierResource<String> classifier;
     @ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
     private GramModelHolder gramModelHolder;
     private GramModel gramModel;
@@ -59,7 +60,6 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
     private boolean reuseExistingWordAnnotations;
     // aggregate
-    private IncrementalFeatureExtractor featureExtractor;
     private ResourceTicket classifierPackTicket;
     // per-CAS state fields
     private Map<Token, Word> token2WordIndex;
@@ -71,7 +71,7 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         // check grammems
         checkDictGrammems();
         // determine training mode
-        classifierPackTicket = classifierPack.acquire();
+        classifierPackTicket = classifier.acquire();
     }
 
     @Override
@@ -106,77 +106,59 @@ public class TCRFTagger extends JCasAnnotator_ImplBase {
         super.destroy();
     }
 
-    private void process(JCas jCas, Sentence sent) throws AnalysisEngineProcessException {
-        taggingProcess(jCas, sent);
-    }
-
-    private void taggingProcess(JCas jCas, Sentence sent) throws CleartkProcessingException {
+    private void process(JCas jCas, Sentence sent) throws CleartkProcessingException {
         // extract sentence tokens
         List<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
         if (tokens.isEmpty()) return;
         // extract sentence wordforms
-        List<Wordform> wfSeq = newArrayListWithCapacity(tokens.size());
+        // wfSeq contains Wordform for a word, and Token for a punctuation
+        List<FeatureStructure> wfSeq = newArrayListWithCapacity(tokens.size());
         for (Token token : tokens) {
             Word word = token2WordIndex.get(token);
             if (word == null) {
-                wfSeq.add(null);
+                wfSeq.add(token);
             } else {
                 Wordform tokWf = MorphCasUtils.requireOnlyWordform(word);
                 wfSeq.add(tokWf);
             }
         }
-        // create a feature set for each token
-        List<FeatureSet> featSets = newArrayListWithCapacity(tokens.size());
-        for (Token tok : tokens) {
-            featSets.add(FeatureSets.empty());
-        }
+        // invoke the classifier
+        List<String> labelSeq = classifier.classify(jCas, sent, wfSeq);
         //
-        for (int tier = 0; tier < gramTiers.getCount(); tier++) {
-            // prepare feature values
-            for (int tokIdx = 0; tokIdx < tokens.size(); tokIdx++) {
-                Token tok = tokens.get(tokIdx);
-                FeatureSet tokFeatSet = featSets.get(tokIdx);
-                extractFeatures(tier, tokFeatSet, jCas, sent, tok);
+        if (labelSeq.size() != wfSeq.size()) {
+            throw new IllegalStateException();
+        }
+        if (!(labelSeq instanceof RandomAccess)) {
+            labelSeq = new ArrayList<String>(labelSeq);
+        }
+        for (int i = 0; i < labelSeq.size(); i++) {
+            String label = labelSeq.get(i);
+            if (label == null || label.isEmpty() || label.equalsIgnoreCase("null")) {
+                // do nothing, it means there is no a new PoS-tag for this wordform
+                continue;
             }
-            // invoke a classifier of the current tier
-            List<List<Feature>> featValues = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
-            List<String> labelSeq = getClassifier(tier).classify(featValues);
-            if (labelSeq.size() != wfSeq.size()) {
-                throw new IllegalStateException();
-            }
-            if (!(labelSeq instanceof RandomAccess)) {
-                labelSeq = new ArrayList<String>(labelSeq);
-            }
-            for (int i = 0; i < labelSeq.size(); i++) {
-                String label = labelSeq.get(i);
-                if (label == null || label.isEmpty() || label.equalsIgnoreCase("null")) {
-                    // do nothing, it means there is no a new PoS-tag for this wordform
-                    continue;
+            FeatureStructure _wf = wfSeq.get(i);
+            if (_wf instanceof Token) {
+                if (!label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
+                    getLogger().warn(String.format(
+                            "Classifier predicted the gram value for a non-word token: %s",
+                            label));
                 }
-                Wordform wf = wfSeq.get(i);
-                if (wf == null) {
-                    if (!label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
-                        getLogger().warn(String.format(
-                                "Classifier predicted the gram value for a non-word token: %s",
-                                label));
-                    }
-                    // else - punctuation tag for punctuation token - OK
-                } else if (label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
-                    getLogger().warn("Classifier predicted the punctuation tag for a word token");
-                } else {
-                    Iterable<String> newGrams = targetGramSplitter.split(label);
-                    MorphCasUtils.addGrammemes(jCas, wf, newGrams);
-                }
+                // else - punctuation tag for punctuation token - OK
+            } else if (label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
+                getLogger().warn("Classifier predicted the punctuation tag for a word token");
+            } else {
+                Wordform wf = (Wordform) _wf;
+                wf.setPos(label);
+                Iterable<String> newGrams = targetGramSplitter.split(label);
+                MorphCasUtils.addGrammemes(jCas, wf, newGrams);
             }
         }
+
     }
 
     private static final String targetGramDelim = "&";
     private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
-
-    private SequenceClassifier<String> getClassifier(int tier) {
-        return classifierPack.getClassifier(tier);
-    }
 
     private void checkDictGrammems() {
         for (int grId = 0; grId < gramModel.getGrammemMaxNumId(); grId++) {

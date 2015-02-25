@@ -12,7 +12,7 @@ import java.io.Closeable;
  * @param <OUT> a classifier output type
  * @author Rinat Gareev
  */
-public interface SeqClassifierPack<OUT> {
+interface SeqClassifierPack<OUT> {
 
     SequenceClassifier<OUT> getClassifier(int index);
 
