@@ -3,16 +3,14 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.*;
+import org.cleartk.classifier.CleartkProcessingException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
@@ -20,24 +18,20 @@ import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.util.ResourceTicket;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
-import ru.kfu.itis.issst.uima.morph.model.Grammeme;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.RandomAccess;
 
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
-import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
@@ -46,15 +40,11 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
  */
 public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
 
-    public static final String RESOURCE_GRAM_MODEL = "gramModel";
     public static final String RESOURCE_CLASSIFIER = "classifier";
 
     // config fields
     @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
     private SequenceClassifierResource<String> classifier;
-    @ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
-    private GramModelHolder gramModelHolder;
-    private GramModel gramModel;
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
@@ -67,9 +57,6 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
         super.initialize(ctx);
-        gramModel = gramModelHolder.getGramModel();
-        // check grammems
-        checkDictGrammems();
         // determine training mode
         classifierPackTicket = classifier.acquire();
     }
@@ -159,17 +146,6 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
 
     private static final String targetGramDelim = "&";
     private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
-
-    private void checkDictGrammems() {
-        for (int grId = 0; grId < gramModel.getGrammemMaxNumId(); grId++) {
-            Grammeme gr = gramModel.getGrammem(grId);
-            if (gr != null && gr.getId().contains(targetGramDelim)) {
-                throw new IllegalStateException(String.format(
-                        "Grammeme %s contains character that is used as delimiter in this class",
-                        gr.getId()));
-            }
-        }
-    }
 
     private void cleanWordforms(JCas jCas) {
         for (Word w : JCasUtil.select(jCas, Word.class)) {
