@@ -26,4 +26,10 @@ public interface FeatureSet {
      * @param aSources
      */
     void removeFeaturesBySource(Set<SimpleFeatureExtractor> aSources);
+
+    /**
+     * Remove feature values that has been extracted by the specified feature extractor.
+     * @param aSource
+     */
+    void removeFeaturesBySource(SimpleFeatureExtractor aSource);
 }

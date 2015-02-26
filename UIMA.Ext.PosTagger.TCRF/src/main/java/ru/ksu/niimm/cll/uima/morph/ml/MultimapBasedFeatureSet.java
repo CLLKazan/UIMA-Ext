@@ -45,6 +45,7 @@ class MultimapBasedFeatureSet implements FeatureSet {
         }
     }
 
+    @Override
     public void removeFeaturesBySource(SimpleFeatureExtractor aSource) {
         mm.removeAll(aSource);
     }

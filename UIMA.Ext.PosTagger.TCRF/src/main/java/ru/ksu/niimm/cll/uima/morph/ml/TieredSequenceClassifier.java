@@ -8,6 +8,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.CleartkProcessingException;
 import org.cleartk.classifier.Feature;
+import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 
 import java.io.Closeable;
@@ -95,12 +96,15 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
     }
 
     protected abstract void onBeforeTier(FeatureSet tokFeatSet, int tier,
-                                         JCas jCas, Annotation spanAnno, Token tok);
+                                         JCas jCas, Annotation spanAnno, Token tok)
+            throws CleartkExtractorException;
 
     protected abstract void onAfterTier(FeatureSet tokFeatSet, String tierOutLabel, int tier,
-                                        JCas jCas, Annotation spanAnno, Token tok);
+                                        JCas jCas, Annotation spanAnno, Token tok)
+            throws CleartkExtractorException;
 
-    protected abstract FeatureSet extractCommonFeatures(JCas jCas, Annotation spanAnno, Token tok);
+    protected abstract FeatureSet extractCommonFeatures(JCas jCas, Annotation spanAnno, Token tok)
+            throws CleartkExtractorException;
 
     private org.cleartk.classifier.SequenceClassifier<String> getClassifier(int tier) {
         return classifiers.get(tier);
