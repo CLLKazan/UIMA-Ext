@@ -1,11 +1,16 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
@@ -16,6 +21,7 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
@@ -53,6 +59,7 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
         ExternalResourceInitializer.initialize(ctx, this);
+        morphDictionary = morphDictHolder.getDictionary();
         // parse context definitions for feature extractors
         // TODO:LOW here should be a single feature extraction config like in the Stanford tagger
         if (leftContextSize < 0 || rightContextSize < 0) {
@@ -100,17 +107,37 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
         }
     }
 
+    // TODO define in a single place (probably, a kind of 'Output Label Generator' in a training data writer)
+    // Note that this is different from the tier joiner, even though currently they use the same separator char
+    private static final Splitter GRAM_SPLITTER = Splitter.on('&');
+
     @Override
     protected void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
                                JCas jCas, Annotation spanAnno, List<Token> tokens) {
-        // remove tier-specific features
+        // parse tier output labels into feature values
+        List<Iterable<String>> parsedTierOutLabels = Lists.newArrayListWithExpectedSize(tierOutLabels.size());
+        for (String tol : tierOutLabels) {
+            if (Strings.isNullOrEmpty(tol)) parsedTierOutLabels.add(ImmutableSet.<String>of());
+            else parsedTierOutLabels.add(GRAM_SPLITTER.split(tol));
+        }
+        //
         SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
-        for (int i = 0; i < featSets.size(); i++) {
-            FeatureSet tokFeatSet = featSets.get(i);
-            Token tok = tokens.get(i);
+        for (int tokPos = 0; tokPos < featSets.size(); tokPos++) {
+            // remove tier-specific features
+            FeatureSet tokFeatSet = featSets.get(tokPos);
             tokFeatSet.removeFeaturesBySource(dfe);
             // extract feature from a new data - the new label of this tier
-            // TODO
+            List<Feature> gramFeatures = Lists.newArrayListWithExpectedSize(leftContextSize + rightContextSize + 1);
+            int left = Math.max(0, tokPos - leftContextSize);
+            int right = Math.min(tokens.size() - 1, tokPos + rightContextSize);
+            for (int contextTokPos = left; contextTokPos <= right; contextTokPos++) {
+                // a context token relative position
+                final int contextTokRelPos = tokPos - contextTokPos;
+                for (String gram : parsedTierOutLabels.get(contextTokPos)) {
+                    gramFeatures.add(new Feature("Gram_at_" + contextTokRelPos, gram));
+                }
+            }
+            tokFeatSet.add(gramFeatures, mockGramExtractor);
         }
     }
 
@@ -128,4 +155,12 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
     }
 
     private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
+
+    private final SimpleFeatureExtractor mockGramExtractor = new SimpleFeatureExtractor() {
+        @Override
+        public List<Feature> extract(JCas view, Annotation focusAnnotation) throws CleartkExtractorException {
+            // should never be called
+            throw new UnsupportedOperationException();
+        }
+    };
 }
