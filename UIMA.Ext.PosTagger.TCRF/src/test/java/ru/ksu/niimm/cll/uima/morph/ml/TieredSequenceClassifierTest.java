@@ -1,7 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -19,7 +18,6 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -72,12 +70,13 @@ public class TieredSequenceClassifierTest {
         }
 
         @Override
-        protected void addTierSpecificFeatures(FeatureSet tokFeatSet, int tier, JCas jCas, Annotation spanAnno, Token tok) {
+        protected void onBeforeTier(FeatureSet tokFeatSet, int tier, JCas jCas, Annotation spanAnno, Token tok) {
             tokFeatSet.add(of(new Feature("tier" + tier)), getTierSpecificFeatureExtractor(tier));
         }
 
         @Override
-        protected void deleteTierSpecificFeatures(FeatureSet tokFeatSet, int tier) {
+        protected void onAfterTier(FeatureSet tokFeatSet, String tierOutLabel, int tier,
+                                   JCas jCas, Annotation spanAnno, Token tok) {
             tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
         }
 
@@ -89,7 +88,7 @@ public class TieredSequenceClassifierTest {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
 
         }
     }

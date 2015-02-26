@@ -48,11 +48,7 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
             for (int tokIdx = 0; tokIdx < seq.size(); tokIdx++) {
                 Token tok = (Token) seq.get(tokIdx);
                 FeatureSet tokFeatSet = featSets.get(tokIdx);
-                if (tier > 0) {
-                    int prevTier = tier - 1;
-                    deleteTierSpecificFeatures(tokFeatSet, prevTier);
-                }
-                addTierSpecificFeatures(tokFeatSet, tier, jCas, spanAnno, tok);
+                onBeforeTier(tokFeatSet, tier, jCas, spanAnno, tok);
             }
             // invoke a classifier of the current tier
             List<List<Feature>> featValues = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
@@ -72,6 +68,15 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
                     rb.append(tierLabel);
                 }
             }
+            // if not the last tier
+            if (tier != classifiers.size() - 1) {
+                for (int tokIdx = 0; tokIdx < seq.size(); tokIdx++) {
+                    Token tok = (Token) seq.get(tokIdx);
+                    FeatureSet tokFeatSet = featSets.get(tokIdx);
+                    String tierLabel = labelSeq.get(tokIdx);
+                    onAfterTier(tokFeatSet, tierLabel, tier, jCas, spanAnno, tok);
+                }
+            }
         }
         return new ArrayList<String>(Lists.transform(resultLabels, new Function<StringBuilder, String>() {
             @Override
@@ -83,16 +88,17 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
 
     @Override
     public void close() {
-        for(org.cleartk.classifier.SequenceClassifier<String> cl : classifiers)
-            if(cl instanceof Closeable) {
+        for (org.cleartk.classifier.SequenceClassifier<String> cl : classifiers)
+            if (cl instanceof Closeable) {
                 IOUtils.closeQuietly((Closeable) cl);
             }
     }
 
-    protected abstract void addTierSpecificFeatures(FeatureSet tokFeatSet, int tier,
-                                                    JCas jCas, Annotation spanAnno, Token tok);
+    protected abstract void onBeforeTier(FeatureSet tokFeatSet, int tier,
+                                         JCas jCas, Annotation spanAnno, Token tok);
 
-    protected abstract void deleteTierSpecificFeatures(FeatureSet tokFeatSet, int tier);
+    protected abstract void onAfterTier(FeatureSet tokFeatSet, String tierOutLabel, int tier,
+                                        JCas jCas, Annotation spanAnno, Token tok);
 
     protected abstract FeatureSet extractCommonFeatures(JCas jCas, Annotation spanAnno, Token tok);
 
