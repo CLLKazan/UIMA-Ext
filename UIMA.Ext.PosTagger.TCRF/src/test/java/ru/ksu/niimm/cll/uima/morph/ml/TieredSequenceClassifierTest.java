@@ -70,26 +70,34 @@ public class TieredSequenceClassifierTest {
         }
 
         @Override
-        protected void onBeforeTier(FeatureSet tokFeatSet, int tier, JCas jCas, Annotation spanAnno, Token tok) {
-            tokFeatSet.add(of(new Feature("tier" + tier)), getTierSpecificFeatureExtractor(tier));
+        protected void onBeforeTier(List<FeatureSet> featSets, int tier,
+                                    JCas jCas, Annotation spanAnno, List<Token> tokens) {
+            for (FeatureSet tokFeatSet : featSets) {
+                tokFeatSet.add(of(new Feature("tier" + tier)), getTierSpecificFeatureExtractor(tier));
+            }
         }
 
         @Override
-        protected void onAfterTier(FeatureSet tokFeatSet, String tierOutLabel, int tier,
-                                   JCas jCas, Annotation spanAnno, Token tok) {
-            tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
+        protected void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
+                                   JCas jCas, Annotation spanAnno, List<Token> tokens) {
+            for (FeatureSet tokFeatSet : featSets) {
+                tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
+            }
         }
 
         @Override
-        protected FeatureSet extractCommonFeatures(JCas jCas, Annotation spanAnno, Token tok) {
-            FeatureSet result = FeatureSets.empty();
-            result.add(of(new Feature("common-feature")), commonFeatExtractor);
-            return result;
+        protected List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens) {
+            List<FeatureSet> resultList = Lists.newArrayList();
+            for (Token tok : tokens) {
+                FeatureSet fs = FeatureSets.empty();
+                fs.add(of(new Feature("common-feature")), commonFeatExtractor);
+                resultList.add(fs);
+            }
+            return resultList;
         }
 
         @Override
         public void close() {
-
         }
     }
 

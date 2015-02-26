@@ -89,30 +89,42 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
     }
 
     @Override
-    protected void onBeforeTier(FeatureSet tokFeatSet, int tier,
-                                JCas jCas, Annotation spanAnno, Token tok)
+    protected void onBeforeTier(List<FeatureSet> featSets, int tier,
+                                JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
         SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
-        tokFeatSet.add(dfe.extract(jCas, tok), dfe);
+        for (int i = 0; i < featSets.size(); i++) {
+            Token tok = tokens.get(i);
+            FeatureSet tokFeatSet = featSets.get(i);
+            tokFeatSet.add(dfe.extract(jCas, tok), dfe);
+        }
     }
 
     @Override
-    protected void onAfterTier(FeatureSet tokFeatSet, String tierOutLabel, int tier,
-                               JCas jCas, Annotation spanAnno, Token tok) {
+    protected void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
+                               JCas jCas, Annotation spanAnno, List<Token> tokens) {
         // remove tier-specific features
         SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
-        tokFeatSet.removeFeaturesBySource(dfe);
-        // extract feature from a new data - the new label of this tier
-
+        for (int i = 0; i < featSets.size(); i++) {
+            FeatureSet tokFeatSet = featSets.get(i);
+            Token tok = tokens.get(i);
+            tokFeatSet.removeFeaturesBySource(dfe);
+            // extract feature from a new data - the new label of this tier
+            // TODO
+        }
     }
 
     @Override
-    protected FeatureSet extractCommonFeatures(JCas jCas, Annotation spanAnno, Token tok)
+    protected List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
-        FeatureSet result = FeatureSets.empty();
-        result.add(tokenCFE.extract(jCas, tok), tokenCFE);
-        result.add(contextCFE.extractWithin(jCas, tok, spanAnno), contextCFE);
-        return result;
+        List<FeatureSet> resultList = Lists.newArrayListWithExpectedSize(tokens.size());
+        for (Token tok : tokens) {
+            FeatureSet fs = FeatureSets.empty();
+            fs.add(tokenCFE.extract(jCas, tok), tokenCFE);
+            fs.add(contextCFE.extractWithin(jCas, tok, spanAnno), contextCFE);
+            resultList.add(fs);
+        }
+        return resultList;
     }
 
     private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];

@@ -36,21 +36,16 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
     @Override
     public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
             throws CleartkProcessingException {
+        @SuppressWarnings("unchecked") List<Token> tokens = (List<Token>) seq;
         // create a feature set for each token
-        List<FeatureSet> featSets = newArrayListWithCapacity(seq.size());
-        List<StringBuilder> resultLabels = newArrayListWithCapacity(seq.size());
-        for (FeatureStructure _tok : seq) {
-            Token tok = (Token) _tok;
-            featSets.add(extractCommonFeatures(jCas, spanAnno, tok));
+        List<FeatureSet> featSets = extractCommonFeatures(jCas, spanAnno, tokens);
+        List<StringBuilder> resultLabels = newArrayListWithCapacity(tokens.size());
+        for (Token tok : tokens) {
             resultLabels.add(new StringBuilder(DEFAULT_TAG_BUILDER_CAPACITY));
         }
         //
         for (int tier = 0; tier < classifiers.size(); tier++) {
-            for (int tokIdx = 0; tokIdx < seq.size(); tokIdx++) {
-                Token tok = (Token) seq.get(tokIdx);
-                FeatureSet tokFeatSet = featSets.get(tokIdx);
-                onBeforeTier(tokFeatSet, tier, jCas, spanAnno, tok);
-            }
+            onBeforeTier(featSets, tier, jCas, spanAnno, tokens);
             // invoke a classifier of the current tier
             List<List<Feature>> featValues = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
             List<String> labelSeq = getClassifier(tier).classify(featValues);
@@ -71,12 +66,7 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
             }
             // if not the last tier
             if (tier != classifiers.size() - 1) {
-                for (int tokIdx = 0; tokIdx < seq.size(); tokIdx++) {
-                    Token tok = (Token) seq.get(tokIdx);
-                    FeatureSet tokFeatSet = featSets.get(tokIdx);
-                    String tierLabel = labelSeq.get(tokIdx);
-                    onAfterTier(tokFeatSet, tierLabel, tier, jCas, spanAnno, tok);
-                }
+                onAfterTier(featSets, labelSeq, tier, jCas, spanAnno, tokens);
             }
         }
         return new ArrayList<String>(Lists.transform(resultLabels, new Function<StringBuilder, String>() {
@@ -95,15 +85,15 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
             }
     }
 
-    protected abstract void onBeforeTier(FeatureSet tokFeatSet, int tier,
-                                         JCas jCas, Annotation spanAnno, Token tok)
+    protected abstract void onBeforeTier(List<FeatureSet> featSets, int tier,
+                                         JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException;
 
-    protected abstract void onAfterTier(FeatureSet tokFeatSet, String tierOutLabel, int tier,
-                                        JCas jCas, Annotation spanAnno, Token tok)
+    protected abstract void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
+                                        JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException;
 
-    protected abstract FeatureSet extractCommonFeatures(JCas jCas, Annotation spanAnno, Token tok)
+    protected abstract List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException;
 
     private org.cleartk.classifier.SequenceClassifier<String> getClassifier(int tier) {
