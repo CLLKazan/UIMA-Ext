@@ -8,7 +8,6 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.CleartkProcessingException;
 import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 
 import java.io.Closeable;
@@ -24,7 +23,7 @@ import static java.lang.String.format;
  * Subclasses have to:
  * <ul>
  * <li>initialize underlying classifiers for each tier,</li>
- * <li>implement a feature extraction.</li>
+ * <li>initialize a feature extractor.</li>
  * </ul>
  *
  * @author Rinat Gareev
@@ -32,20 +31,21 @@ import static java.lang.String.format;
 public abstract class TieredSequenceClassifier implements SequenceClassifier<String> {
 
     protected List<org.cleartk.classifier.SequenceClassifier<String>> classifiers;
+    protected TieredFeatureExtractor featureExtractor;
 
     @Override
     public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
             throws CleartkProcessingException {
         @SuppressWarnings("unchecked") List<Token> tokens = (List<Token>) seq;
         // create a feature set for each token
-        List<FeatureSet> featSets = extractCommonFeatures(jCas, spanAnno, tokens);
+        List<FeatureSet> featSets = featureExtractor.extractCommonFeatures(jCas, spanAnno, tokens);
         List<StringBuilder> resultLabels = newArrayListWithCapacity(tokens.size());
         for (Token tok : tokens) {
             resultLabels.add(new StringBuilder(DEFAULT_TAG_BUILDER_CAPACITY));
         }
         //
         for (int tier = 0; tier < classifiers.size(); tier++) {
-            onBeforeTier(featSets, tier, jCas, spanAnno, tokens);
+            featureExtractor.onBeforeTier(featSets, tier, jCas, spanAnno, tokens);
             // invoke a classifier of the current tier
             List<List<Feature>> featValues = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
             List<String> labelSeq = getClassifier(tier).classify(featValues);
@@ -66,7 +66,7 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
             }
             // if not the last tier
             if (tier != classifiers.size() - 1) {
-                onAfterTier(featSets, labelSeq, tier, jCas, spanAnno, tokens);
+                featureExtractor.onAfterTier(featSets, labelSeq, tier, jCas, spanAnno, tokens);
             }
         }
         return new ArrayList<String>(Lists.transform(resultLabels, new Function<StringBuilder, String>() {
@@ -84,17 +84,6 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
                 IOUtils.closeQuietly((Closeable) cl);
             }
     }
-
-    protected abstract void onBeforeTier(List<FeatureSet> featSets, int tier,
-                                         JCas jCas, Annotation spanAnno, List<Token> tokens)
-            throws CleartkExtractorException;
-
-    protected abstract void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
-                                        JCas jCas, Annotation spanAnno, List<Token> tokens)
-            throws CleartkExtractorException;
-
-    protected abstract List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
-            throws CleartkExtractorException;
 
     private org.cleartk.classifier.SequenceClassifier<String> getClassifier(int tier) {
         return classifiers.get(tier);

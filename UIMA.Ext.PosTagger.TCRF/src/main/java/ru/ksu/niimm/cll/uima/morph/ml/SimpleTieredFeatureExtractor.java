@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
@@ -21,7 +20,6 @@ import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
@@ -34,7 +32,7 @@ import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExt
 /**
  * @author Rinat Gareev
  */
-public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier implements Initializable {
+public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Initializable {
 
     // constants
     public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
@@ -96,7 +94,7 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
     }
 
     @Override
-    protected void onBeforeTier(List<FeatureSet> featSets, int tier,
+    public void onBeforeTier(List<FeatureSet> featSets, int tier,
                                 JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
         SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
@@ -112,7 +110,7 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
     private static final Splitter GRAM_SPLITTER = Splitter.on('&');
 
     @Override
-    protected void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
+    public void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
                                JCas jCas, Annotation spanAnno, List<Token> tokens) {
         // parse tier output labels into feature values
         List<Iterable<String>> parsedTierOutLabels = Lists.newArrayListWithExpectedSize(tierOutLabels.size());
@@ -142,7 +140,7 @@ public class SimpleTieredSequenceClassifier extends TieredSequenceClassifier imp
     }
 
     @Override
-    protected List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
+    public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
         List<FeatureSet> resultList = Lists.newArrayListWithExpectedSize(tokens.size());
         for (Token tok : tokens) {
