@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.issst.cleartk.crfsuite;
 
+import java.io.Closeable;
 import java.io.File;
 import java.util.List;
 
@@ -22,16 +23,16 @@ import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTagger;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- * 
+ *
  */
 public class CRFSuiteStringOutcomeClassifier extends
 		SequenceClassifier_ImplBase<List<NameNumber>, String, String>
-		implements Disposable {
+		implements Disposable, Closeable {
 
 	// config fields
 	@SuppressWarnings("unused")
 	private File modelFile;
-	// derived 
+	// derived
 	private CrfSuiteTagger tagger;
 
 	public CRFSuiteStringOutcomeClassifier(File modelFile,
@@ -84,7 +85,12 @@ public class CRFSuiteStringOutcomeClassifier extends
 		}
 	}
 
-	private static final Function<NameNumber, Attribute> nameNumber2attributeFunc = new Function<NameNumber, Attribute>() {
+    @Override
+    public void close() {
+        dispose();
+    }
+
+    private static final Function<NameNumber, Attribute> nameNumber2attributeFunc = new Function<NameNumber, Attribute>() {
 		@Override
 		public Attribute apply(NameNumber arg) {
 			return new Attribute(arg.name);

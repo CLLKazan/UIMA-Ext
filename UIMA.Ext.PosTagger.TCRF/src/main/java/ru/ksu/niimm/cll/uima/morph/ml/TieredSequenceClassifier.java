@@ -2,6 +2,7 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -9,6 +10,7 @@ import org.cleartk.classifier.CleartkProcessingException;
 import org.cleartk.classifier.Feature;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -77,6 +79,14 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
                 return input.toString();
             }
         }));
+    }
+
+    @Override
+    public void close() {
+        for(org.cleartk.classifier.SequenceClassifier<String> cl : classifiers)
+            if(cl instanceof Closeable) {
+                IOUtils.closeQuietly((Closeable) cl);
+            }
     }
 
     protected abstract void addTierSpecificFeatures(FeatureSet tokFeatSet, int tier,
