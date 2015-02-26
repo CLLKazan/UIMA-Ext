@@ -15,7 +15,6 @@ import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.uimafit.component.initialize.ExternalResourceInitializer;
-import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.initializable.Initializable;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -24,10 +23,12 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExtractors;
+import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.*;
 
 /**
  * @author Rinat Gareev
@@ -36,29 +37,52 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Ini
 
     // constants
     public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
-    public static final String PARAM_LEFT_CONTEXT_SIZE = "leftContextSize";
-    public static final String PARAM_RIGHT_CONTEXT_SIZE = "rightContextSize";
+    public static final String CFG_LEFT_CONTEXT_SIZE = "leftContextSize";
+    public static final String CFG_RIGHT_CONTEXT_SIZE = "rightContextSize";
+    public static final String CFG_GRAM_TIERS = "gramTiers";
+
+    // factory
+    public static SimpleTieredFeatureExtractor from(Properties props) {
+        SimpleTieredFeatureExtractor obj = new SimpleTieredFeatureExtractor();
+        obj.leftContextSize = getIntProperty(props, CFG_LEFT_CONTEXT_SIZE);
+        obj.rightContextSize = getIntProperty(props, CFG_RIGHT_CONTEXT_SIZE);
+        obj.gramTiersDef = getStringProperty(props, CFG_GRAM_TIERS);
+        return obj;
+    }
 
     @ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
     private MorphDictionaryHolder morphDictHolder;
-    @ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
     private Integer leftContextSize;
-    @ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
     private Integer rightContextSize;
-    // TODO
+    private String gramTiersDef;
     private GramTiers gramTiers;
-    private MorphDictionary morphDictionary;
     // aggregate fields
     // CFE ~ a Common Feature Extractor
+    private MorphDictionary morphDictionary;
     private SimpleFeatureExtractor tokenCFE;
     private CleartkExtractor contextCFE;
     private List<SimpleFeatureExtractor> dictFeatureExtractors;
+
+    private SimpleTieredFeatureExtractor() {
+    }
 
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
         ExternalResourceInitializer.initialize(ctx, this);
         morphDictionary = morphDictHolder.getDictionary();
-        // parse context definitions for feature extractors
+        initialize();
+    }
+
+    /**
+     * an UIMA-independent initialization method (e.g., for tests)
+     */
+    void initialize(MorphDictionary morphDictionary) {
+        this.morphDictionary = morphDictionary;
+        initialize();
+    }
+
+    private void initialize() {
+        gramTiers = GramTiersFactory.parseGramTiers(morphDictionary.getGramModel(), gramTiersDef);
         // TODO:LOW here should be a single feature extraction config like in the Stanford tagger
         if (leftContextSize < 0 || rightContextSize < 0) {
             throw new IllegalStateException("context size < 0");
@@ -95,7 +119,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Ini
 
     @Override
     public void onBeforeTier(List<FeatureSet> featSets, int tier,
-                                JCas jCas, Annotation spanAnno, List<Token> tokens)
+                             JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
         SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
         for (int i = 0; i < featSets.size(); i++) {
@@ -111,7 +135,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Ini
 
     @Override
     public void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
-                               JCas jCas, Annotation spanAnno, List<Token> tokens) {
+                            JCas jCas, Annotation spanAnno, List<Token> tokens) {
         // parse tier output labels into feature values
         List<Iterable<String>> parsedTierOutLabels = Lists.newArrayListWithExpectedSize(tierOutLabels.size());
         for (String tol : tierOutLabels) {
