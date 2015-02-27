@@ -19,26 +19,16 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.cleartk.classifier.CleartkProcessingException;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.mockito.Mockito.*;
-import static com.google.common.collect.ImmutableList.*;
-import static ru.kfu.itis.issst.uima.test.AnnotationMatcher.coverText;
-import static org.junit.Assert.*;
-
 import org.opencorpora.cas.Word;
-import org.opencorpora.cas.Wordform;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.util.JCasUtil;
 import org.xml.sax.SAXException;
-import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
@@ -49,6 +39,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+
+import static com.google.common.collect.ImmutableList.of;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverText;
+import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverTextList;
 
 /**
  * @author Rinat Gareev
@@ -91,12 +87,12 @@ public class SequenceClassifierBasedPosTaggerTest {
         // stub
         when(classifierMock.classify(any(JCas.class),
                 argThat(coverText("Хутор Графский находится в Курском районе Ставропольского края.", Annotation.class)),
-                argThat(wordformsWithTokens("Хутор", "Графский", "находится", "в", "Курском", "районе",
+                argThat(coverTextList("Хутор", "Графский", "находится", "в", "Курском", "районе",
                         "Ставропольского", "края", "."))
         )).thenReturn(of("N", "A&Named", "V", "PREP", "A&Named", "N", "A&Named", "N", "."));
         when(classifierMock.classify(any(JCas.class),
                 argThat(coverText("Расстояние до краевого центра: 255 км.", Annotation.class)),
-                argThat(wordformsWithTokens("Расстояние", "до", "краевого", "центра", ":", "255", "км", "."))
+                argThat(coverTextList("Расстояние", "до", "краевого", "центра", ":", "255", "км", "."))
         )).thenReturn(of("N", "PREP", "A", "N", ":", "NUM", "N", "."));
         // invoke
         ae.process(cas);
@@ -126,29 +122,5 @@ public class SequenceClassifierBasedPosTaggerTest {
         @Override
         public void load(DataResource data) throws ResourceInitializationException {
         }
-    }
-
-    public static Matcher<List<FeatureStructure>> wordformsWithTokens(final String... expectedTxts) {
-        return new ArgumentMatcher<List<FeatureStructure>>() {
-            @Override
-            public boolean matches(Object arg) {
-                if (arg == null) return false;
-                List<FeatureStructure> list = (List<FeatureStructure>) arg;
-                if (list.size() != expectedTxts.length)
-                    return false;
-                for (int i = 0; i < expectedTxts.length; i++) {
-                    String txt = expectedTxts[i];
-                    String actual;
-                    if (list.get(i) instanceof Token) {
-                        actual = ((Token) list.get(i)).getCoveredText();
-                    } else {
-                        actual = ((Wordform) list.get(i)).getWord().getCoveredText();
-                    }
-                    if (!txt.equals(actual))
-                        return false;
-                }
-                return true;
-            }
-        };
     }
 }

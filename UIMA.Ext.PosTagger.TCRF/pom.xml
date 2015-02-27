@@ -90,6 +90,11 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ru.ksu.niimm.cll.uima</groupId>
+            <artifactId>uima-ext-morph-dictionary-opencorpora</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

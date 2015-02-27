@@ -6,15 +6,7 @@ import org.mockito.ArgumentMatcher;
 /**
  * @author Rinat Gareev
  */
-public class AnnotationMatcher<T> extends ArgumentMatcher<T> {
-
-    public static AnnotationMatcher<AnnotationFS> coverText(String expectedTxt) {
-        return new AnnotationMatcher<AnnotationFS>(expectedTxt);
-    }
-
-    public static <T> AnnotationMatcher<T> coverText(String expectedTxt, Class<T> annoClass) {
-        return new AnnotationMatcher<T>(expectedTxt);
-    }
+class AnnotationMatcher<T> extends ArgumentMatcher<T> {
 
     private String expectedTxt;
 
