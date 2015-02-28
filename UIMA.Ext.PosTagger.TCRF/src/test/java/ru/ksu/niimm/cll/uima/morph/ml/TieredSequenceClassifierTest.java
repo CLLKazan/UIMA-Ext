@@ -28,21 +28,13 @@ import static com.google.common.collect.ImmutableList.of;
  * @author Rinat Gareev
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TieredSequenceClassifierTest {
+public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase {
     @Mock
     private org.cleartk.classifier.SequenceClassifier<String> classifier1;
     @Mock
     private org.cleartk.classifier.SequenceClassifier<String> classifier2;
     @Mock
     private org.cleartk.classifier.SequenceClassifier<String> classifier3;
-    @Mock
-    private SimpleFeatureExtractor commonFeatExtractor;
-    @Mock
-    private SimpleFeatureExtractor fe1;
-    @Mock
-    private SimpleFeatureExtractor fe2;
-    @Mock
-    private SimpleFeatureExtractor fe3;
 
     @Test
     public void testCorrectFeatureFlow() throws CleartkProcessingException {
@@ -67,68 +59,8 @@ public class TieredSequenceClassifierTest {
     private class TestTieredSequenceClassifier extends TieredSequenceClassifier {
         TestTieredSequenceClassifier() {
             this.classifiers = of(classifier1, classifier2, classifier3);
-            this.featureExtractor = new TieredFeatureExtractor() {
-                @Override
-                public void onBeforeTier(List<FeatureSet> featSets, int tier,
-                                         JCas jCas, Annotation spanAnno, List<Token> tokens) {
-                    for (FeatureSet tokFeatSet : featSets) {
-                        tokFeatSet.add(of(new Feature("tier" + tier)), getTierSpecificFeatureExtractor(tier));
-                    }
-                }
-                @Override
-                public void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
-                                        JCas jCas, Annotation spanAnno, List<Token> tokens) {
-                    for (FeatureSet tokFeatSet : featSets) {
-                        tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
-                    }
-                }
-                @Override
-                public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens) {
-                    List<FeatureSet> resultList = Lists.newArrayList();
-                    for (Token tok : tokens) {
-                        FeatureSet fs = FeatureSets.empty();
-                        fs.add(of(new Feature("common-feature")), commonFeatExtractor);
-                        resultList.add(fs);
-                    }
-                    return resultList;
-                }
-            };
-        }
-
-        @Override
-        public void close() {
+            this.featureExtractor = new TestTieredFeatureExtractor();
         }
     }
 
-    private static ArgumentMatcher<List<List<Feature>>> unorderedFeatures(final List<Set<String>> expectedValues) {
-        return new ArgumentMatcher<List<List<Feature>>>() {
-            @Override
-            public boolean matches(Object argument) {
-                List<List<Feature>> actual = (List<List<Feature>>) argument;
-                List<Set<String>> actualAsSets = new ArrayList<Set<String>>(Lists.transform(actual, new Function<List<Feature>, Set<String>>() {
-                    @Override
-                    public Set<String> apply(List<Feature> input) {
-                        Set<String> result = Sets.newHashSet();
-                        for (Feature f : input) {
-                            result.add((String) f.getValue());
-                        }
-                        return result;
-                    }
-                }));
-                return actualAsSets.equals(expectedValues);
-            }
-        };
-    }
-
-    private SimpleFeatureExtractor getTierSpecificFeatureExtractor(int tier) {
-        switch (tier) {
-            case 0:
-                return fe1;
-            case 1:
-                return fe2;
-            case 2:
-                return fe3;
-        }
-        throw new IllegalStateException();
-    }
 }

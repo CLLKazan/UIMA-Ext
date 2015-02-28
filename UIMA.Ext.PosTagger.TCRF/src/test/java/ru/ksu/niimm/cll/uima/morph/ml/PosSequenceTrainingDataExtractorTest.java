@@ -33,6 +33,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.*;
 import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverTextList;
+import static ru.ksu.niimm.cll.uima.morph.ml.PTestUtils.list;
 
 /**
  * @author Rinat Gareev
@@ -129,21 +130,5 @@ public class PosSequenceTrainingDataExtractorTest {
                         arrayContaining("_P_", "_P_", "_P_")
                 ))
         );
-    }
-
-    // TODO move to TEST utils module
-    private static <T> ArgumentMatcher<List<T>> list(final Matcher<? super T>... subMatchers) {
-        return new ArgumentMatcher<List<T>>() {
-            @Override
-            public boolean matches(Object arg) {
-                @SuppressWarnings("unchecked") List<T> list = (List<T>) arg;
-                if (list.size() != subMatchers.length) return false;
-                for (int i = 0; i < list.size(); i++) {
-                    if (!subMatchers[i].matches(list.get(i)))
-                        return false;
-                }
-                return true;
-            }
-        };
     }
 }
