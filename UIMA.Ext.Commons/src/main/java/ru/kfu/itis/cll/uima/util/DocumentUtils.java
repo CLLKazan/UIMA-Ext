@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.cll.uima.util;
 
@@ -25,9 +25,11 @@ import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
 /**
  * @author Rinat Gareev
- * 
+ *
  */
 public class DocumentUtils {
+
+    public static final String TYPESYSTEM_COMMONS = "ru.kfu.itis.cll.uima.commons.Commons-TypeSystem";
 
 	/**
 	 * @return a type name of feature structures that represent document
@@ -49,7 +51,7 @@ public class DocumentUtils {
 	/**
 	 * Search for a {@link DocumentMetadata} annotation in the given CAS and set
 	 * its 'uri' feature to the specified value.
-	 * 
+	 *
 	 * @param cas
 	 * @param uri
 	 * @param createDocMeta
@@ -88,7 +90,7 @@ public class DocumentUtils {
 	/**
 	 * search for a {@link DocumentMetadata} annotation in given CAS and return
 	 * its 'sourceUri' feature value
-	 * 
+	 *
 	 * @param cas
 	 * @return sourceUri value or null if there is no a DocumentMetadata
 	 *         annotation

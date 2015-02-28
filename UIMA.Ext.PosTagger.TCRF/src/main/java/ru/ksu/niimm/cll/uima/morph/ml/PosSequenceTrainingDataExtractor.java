@@ -37,7 +37,7 @@ import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
 
 /**
- * @author Rinat Gareev (Kazan Federal University)
+ * @author Rinat Gareev
  */
 public class PosSequenceTrainingDataExtractor extends JCasAnnotator_ImplBase {
 

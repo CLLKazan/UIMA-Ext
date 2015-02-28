@@ -5,35 +5,30 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.CleartkExtractor;
 import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
 import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
-import org.uimafit.component.initialize.ExternalResourceInitializer;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.initializable.Initializable;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.getIntProperty;
+import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.getStringProperty;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExtractors;
-import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.*;
 
 /**
  * @author Rinat Gareev
  */
-public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Initializable {
+public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
 
     // constants
     public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
@@ -50,8 +45,6 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Ini
         return obj;
     }
 
-    @ExternalResource(key = RESOURCE_MORPH_DICTIONARY, mandatory = true)
-    private MorphDictionaryHolder morphDictHolder;
     private Integer leftContextSize;
     private Integer rightContextSize;
     private String gramTiersDef;
@@ -66,17 +59,10 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Ini
     private SimpleTieredFeatureExtractor() {
     }
 
-    @Override
-    public void initialize(UimaContext ctx) throws ResourceInitializationException {
-        ExternalResourceInitializer.initialize(ctx, this);
-        morphDictionary = morphDictHolder.getDictionary();
-        initialize();
-    }
-
     /**
      * an UIMA-independent initialization method (e.g., for tests)
      */
-    void initialize(MorphDictionary morphDictionary) {
+    public void initialize(MorphDictionary morphDictionary) {
         this.morphDictionary = morphDictionary;
         initialize();
     }
@@ -174,6 +160,10 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor, Ini
             resultList.add(fs);
         }
         return resultList;
+    }
+
+    public GramTiers getGramTiers() {
+        return gramTiers;
     }
 
     private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
