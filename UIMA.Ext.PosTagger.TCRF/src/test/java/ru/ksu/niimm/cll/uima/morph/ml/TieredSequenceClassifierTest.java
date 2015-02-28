@@ -41,13 +41,13 @@ public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase 
         TieredSequenceClassifier cl = new TestTieredSequenceClassifier();
         // mock
         when(classifier1.classify(argThat(
-                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature", "tier0"))))))
+                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier0-0"))))))
                 .thenReturn(of("First"));
         when(classifier2.classify(argThat(
-                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature", "tier1"))))))
+                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier1-0"))))))
                 .thenReturn(of("Second"));
         when(classifier3.classify(argThat(
-                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature", "tier2"))))))
+                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier2-0"))))))
                 .thenReturn(of("Third"));
         // invoke
         List<String> out = cl.classify(mock(JCas.class), mock(Annotation.class), of(mock(Token.class)));

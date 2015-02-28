@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
+import static java.lang.String.format;
 
 /**
  * @author Rinat Gareev
@@ -35,7 +36,7 @@ public class TieredSequenceHandlerTestBase {
         return new ArgumentMatcher<List<List<Feature>>>() {
             @Override
             public boolean matches(Object argument) {
-                List<List<Feature>> actual = (List<List<Feature>>) argument;
+                @SuppressWarnings("unchecked") List<List<Feature>> actual = (List<List<Feature>>) argument;
                 List<Set<String>> actualAsSets = new ArrayList<Set<String>>(Lists.transform(actual, new Function<List<Feature>, Set<String>>() {
                     @Override
                     public Set<String> apply(List<Feature> input) {
@@ -67,8 +68,10 @@ public class TieredSequenceHandlerTestBase {
         @Override
         public void onBeforeTier(List<FeatureSet> featSets, int tier,
                                  JCas jCas, Annotation spanAnno, List<Token> tokens) {
-            for (FeatureSet tokFeatSet : featSets) {
-                tokFeatSet.add(of(new Feature("tier" + tier)), getTierSpecificFeatureExtractor(tier));
+            for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
+                FeatureSet tokFeatSet = featSets.get(tokPos);
+                tokFeatSet.add(of(new Feature(format("tier%s-%s", tier, tokPos))),
+                        getTierSpecificFeatureExtractor(tier));
             }
         }
 
@@ -83,9 +86,9 @@ public class TieredSequenceHandlerTestBase {
         @Override
         public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens) {
             List<FeatureSet> resultList = Lists.newArrayList();
-            for (Token tok : tokens) {
+            for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
                 FeatureSet fs = FeatureSets.empty();
-                fs.add(of(new Feature("common-feature")), commonFeatExtractor);
+                fs.add(of(new Feature("common-feature-" + tokPos)), commonFeatExtractor);
                 resultList.add(fs);
             }
             return resultList;
