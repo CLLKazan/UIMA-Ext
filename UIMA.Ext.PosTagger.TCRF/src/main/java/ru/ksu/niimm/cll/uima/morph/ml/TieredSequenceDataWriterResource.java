@@ -27,6 +27,12 @@ public class TieredSequenceDataWriterResource extends TieredSequenceDataWriter i
                 outputBaseDir);
     }
 
+    /**
+     * Key for a pipeline builder to bind a morph dictionary in a ResourceManager instance.
+     */
+    public static final String MORPH_DICT_LOOKUP_KEY =
+            "morph/dicts/" + SimpleTieredFeatureExtractor.RESOURCE_MORPH_DICTIONARY;
+
     public static final String FILENAME_FEATURE_EXTRACTION_CONFIG = "fec.properties";
 
     private File outputBaseDir;
@@ -84,7 +90,7 @@ public class TieredSequenceDataWriterResource extends TieredSequenceDataWriter i
     }
 
     private MorphDictionary getMorphDictionary() throws ResourceAccessException {
-        String dictQualifiedKey = "/morph/dicts/" + SimpleTieredFeatureExtractor.RESOURCE_MORPH_DICTIONARY;
+        String dictQualifiedKey = "/" + MORPH_DICT_LOOKUP_KEY;
         MorphDictionary morphDict = (MorphDictionary) resourceManager.getResource(
                 // TODO elaborate naming in this global space
                 dictQualifiedKey);

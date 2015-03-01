@@ -6,15 +6,13 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.uimafit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
@@ -28,13 +26,10 @@ import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
 import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
 import static ru.ksu.niimm.cll.uima.morph.ml.GramTiersFactory.tierSplitter;
@@ -90,19 +85,23 @@ public class WriteFeatures2 {
         ExternalResourceDescription morphDictDesc = MorphDictionaryAPIFactory
                 .getMorphDictionaryAPI()
                 .getResourceDescriptionForCachedInstance();
-        // TODO bind morphDict to /morph/dicts/***
+        // setup underlying data writer resource
+        ExternalResourceDescription udwDesc = TieredSequenceDataWriterResource.createDescription(outputBaseDir);
         // setup training data writer
-        AnalysisEngineFactory.createPrimitiveDescription(PosSequenceTrainingDataExtractor.class,
+        AnalysisEngineDescription dataWriterDesc = AnalysisEngineFactory.createPrimitiveDescription(
+                PosSequenceTrainingDataExtractor.class,
                 PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList,
-                PosSequenceTrainingDataExtractor.RESOURCE_GRAM_MODEL, morphDictDesc,
-                PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, dataWriterDesc);
-        // setup a pipeline extracting features
-
-        // add required MorphDictionaryHolder resource with the specified name
+                PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, udwDesc);
+        // add other shared resources
         morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
-        getResourceManagerConfiguration(pipelineDesc).addExternalResource(morphDictDesc);
+        getResourceManagerConfiguration(dataWriterDesc).addExternalResource(morphDictDesc);
+        // bind them
+        ExternalResourceFactory.bindExternalResource(dataWriterDesc,
+                PosSequenceTrainingDataExtractor.RESOURCE_GRAM_MODEL, morphDictDesc.getName());
+        ExternalResourceFactory.bindExternalResource(dataWriterDesc,
+                TieredSequenceDataWriterResource.MORPH_DICT_LOOKUP_KEY, morphDictDesc.getName());
         //
-        cpeBuilder.addAnalysisEngine(pipelineDesc);
+        cpeBuilder.addAnalysisEngine(dataWriterDesc);
         //
         CollectionProcessingEngine cpe = cpeBuilder.createCpe();
         cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(cpe, 50));

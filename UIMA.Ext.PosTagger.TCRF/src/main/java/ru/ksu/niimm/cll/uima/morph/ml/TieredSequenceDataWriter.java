@@ -38,8 +38,11 @@ public abstract class TieredSequenceDataWriter implements SequenceDataWriter<Str
             //
             List<List<Feature>> seqFeatures = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
             List<String> tierLabels = Lists.transform(seqCompositeLabels, getTierLabel(tier));
-            // TODO ensure synchronization of a write method below!
-            dataWriters.get(tier).write(Instances.toInstances(tierLabels, seqFeatures));
+            org.cleartk.classifier.SequenceDataWriter<String> tierDW = dataWriters.get(tier);
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
+            synchronized (tierDW) {
+                tierDW.write(Instances.toInstances(tierLabels, seqFeatures));
+            }
             // if not the last tier
             if (tier != dataWriters.size() - 1) {
                 featureExtractor.onAfterTier(featSets, tierLabels, tier, jCas, spanAnno, tokens);
