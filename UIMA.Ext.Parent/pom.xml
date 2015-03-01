@@ -467,6 +467,18 @@
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
+        <profile>
+            <id>with-logging-impl</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
 	</profiles>
 
 	<properties>
