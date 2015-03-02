@@ -58,13 +58,13 @@ public class WriteFeatures2 {
     // output
     @Parameter(names = "--output-dir", required = true)
     private File outputBaseDir;
-    @Parameter(names = {"--fec", "--feature-extraction-config"})
-    private File featureExtractionCfg;
 
     private WriteFeatures2() {
     }
 
     public void run() throws Exception {
+        File featureExtractionCfg = new File(outputBaseDir,
+                TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG);
         Properties feCfg = IoUtils.readProperties(featureExtractionCfg);
         String tiersDef = ConfigPropertiesUtils.getStringProperty(feCfg, SimpleTieredFeatureExtractor.CFG_GRAM_TIERS);
         List<String> tierDefsList = newArrayList(tierSplitter.split(tiersDef));
@@ -90,18 +90,21 @@ public class WriteFeatures2 {
         // setup training data writer
         AnalysisEngineDescription dataWriterDesc = AnalysisEngineFactory.createPrimitiveDescription(
                 PosSequenceTrainingDataExtractor.class,
-                PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList,
-                PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, udwDesc);
-        // add other shared resources
+                PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList);
+        // add other shared resources (ORDERing is important!)
         morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
         getResourceManagerConfiguration(dataWriterDesc).addExternalResource(morphDictDesc);
+        getResourceManagerConfiguration(dataWriterDesc).addExternalResource(udwDesc);
         // bind them
         ExternalResourceFactory.bindExternalResource(dataWriterDesc,
                 PosSequenceTrainingDataExtractor.RESOURCE_GRAM_MODEL, morphDictDesc.getName());
         ExternalResourceFactory.bindExternalResource(dataWriterDesc,
-                TieredSequenceDataWriterResource.MORPH_DICT_LOOKUP_KEY, morphDictDesc.getName());
+                PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, udwDesc.getName());
         //
         cpeBuilder.addAnalysisEngine(dataWriterDesc);
+        // tune
+        cpeBuilder.setMaxProcessingUnitThreatCount(
+                Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
         //
         CollectionProcessingEngine cpe = cpeBuilder.createCpe();
         cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(cpe, 50));

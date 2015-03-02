@@ -1,48 +1,63 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.collect.Lists;
-import org.apache.uima.resource.*;
+import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.ResourceSpecifier;
+import org.cleartk.classifier.CleartkProcessingException;
+import org.uimafit.component.Resource_ImplBase;
+import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.cll.uima.util.CacheKey;
+import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriter;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import static java.lang.String.format;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 /**
  * @author Rinat Gareev
  */
-public class TieredSequenceDataWriterResource extends TieredSequenceDataWriter implements SharedResourceObject {
+public class TieredSequenceDataWriterResource extends Resource_ImplBase implements SequenceDataWriter<String[]> {
 
     public static ExternalResourceDescription createDescription(File outputBaseDir) {
-        return ExternalResourceFactory.createExternalResourceDescription(
-                TieredSequenceDataWriterResource.class,
-                outputBaseDir);
+        return ExternalResourceFactory.createExternalResourceDescription(TieredSequenceDataWriterResource.class,
+                PARAM_OUTPUT_BASE_DIR, outputBaseDir.getPath());
     }
 
-    /**
-     * Key for a pipeline builder to bind a morph dictionary in a ResourceManager instance.
-     */
-    public static final String MORPH_DICT_LOOKUP_KEY =
-            "morph/dicts/" + SimpleTieredFeatureExtractor.RESOURCE_MORPH_DICTIONARY;
+    public static final String PARAM_OUTPUT_BASE_DIR = "outputBaseDir";
 
     public static final String FILENAME_FEATURE_EXTRACTION_CONFIG = "fec.properties";
 
+    @ConfigurationParameter(name = PARAM_OUTPUT_BASE_DIR, mandatory = true)
     private File outputBaseDir;
     private Properties featureExtractionCfg;
-    private ResourceManager resourceManager;
+    // aggregate
+    private TieredFeatureExtractor featureExtractor;
+    private List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters;
+    // delegate
+    @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
+    private CacheKey morphDictCacheKey;
+    private MorphDictionary morphDictionary;
+    private TieredSequenceDataWriter delegate;
 
     @Override
-    public void load(DataResource aData) throws ResourceInitializationException {
-        URI baseDirUri = aData.getUri();
-        outputBaseDir = new File(baseDirUri);
+    public boolean initialize(ResourceSpecifier aSpecifier, Map<String, Object> aAdditionalParams)
+            throws ResourceInitializationException {
+        if (!super.initialize(aSpecifier, aAdditionalParams))
+            return false;
         if (outputBaseDir.exists() && !outputBaseDir.isDirectory()) {
             throw new IllegalStateException(format("%s exists but it is not a directory", outputBaseDir));
         }
@@ -52,22 +67,25 @@ public class TieredSequenceDataWriterResource extends TieredSequenceDataWriter i
         } catch (IOException e) {
             throw new ResourceInitializationException(e);
         }
-        resourceManager = aData.getResourceManager();
         initialize();
+        return true;
     }
 
     private void initialize() throws ResourceInitializationException {
         initFeatureExtractor();
         initUnderlyingDataWriters();
+        delegate = new TieredSequenceDataWriter() {
+            {
+                this.dataWriters = TieredSequenceDataWriterResource.this.dataWriters;
+                this.featureExtractor = TieredSequenceDataWriterResource.this.featureExtractor;
+            }
+        };
     }
 
     private void initFeatureExtractor() throws ResourceInitializationException {
+        initMorphDictionary();
         SimpleTieredFeatureExtractor fe = SimpleTieredFeatureExtractor.from(featureExtractionCfg);
-        try {
-            fe.initialize(getMorphDictionary());
-        } catch (ResourceAccessException e) {
-            throw new ResourceInitializationException(e);
-        }
+        fe.initialize(morphDictionary);
         this.featureExtractor = fe;
     }
 
@@ -89,18 +107,28 @@ public class TieredSequenceDataWriterResource extends TieredSequenceDataWriter i
         this.dataWriters = dataWriters;
     }
 
-    private MorphDictionary getMorphDictionary() throws ResourceAccessException {
-        String dictQualifiedKey = "/" + MORPH_DICT_LOOKUP_KEY;
-        MorphDictionary morphDict = (MorphDictionary) resourceManager.getResource(
-                // TODO elaborate naming in this global space
-                dictQualifiedKey);
-        if (morphDict == null) {
-            throw new IllegalStateException("MorphDictionary is not registerd under key " + dictQualifiedKey);
+    private void initMorphDictionary() throws ResourceInitializationException {
+        CachedResourceTuple<MorphDictionary> t;
+        try {
+            t = getMorphDictionaryAPI().getCachedInstance();
+        } catch (Exception e) {
+            throw new ResourceInitializationException(e);
         }
-        return morphDict;
+        morphDictCacheKey = t.getCacheKey();
+        morphDictionary = t.getResource();
     }
 
     private GramTiers getGramTiers() {
         return ((SimpleTieredFeatureExtractor) featureExtractor).getGramTiers();
+    }
+
+    @Override
+    public void write(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq, List<String[]> seqLabels) throws CleartkProcessingException {
+        delegate.write(jCas, spanAnno, seq, seqLabels);
+    }
+
+    @Override
+    public void close() throws IOException {
+        delegate.close();
     }
 }
