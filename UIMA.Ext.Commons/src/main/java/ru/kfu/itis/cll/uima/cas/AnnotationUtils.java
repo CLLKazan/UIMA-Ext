@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.cll.uima.cas;
 
@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.ConstraintFactory;
 import org.apache.uima.cas.FSIntConstraint;
@@ -32,7 +33,7 @@ import com.google.common.base.Function;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- * 
+ *
  */
 public class AnnotationUtils {
 
@@ -46,13 +47,38 @@ public class AnnotationUtils {
 				.toString();
 	}
 
+    /**
+     * @param anno           an annotation
+     * @param contextCharNum number of characters
+     * @return contextCharNum characters before the given annotation
+     */
+    public static String textBefore(AnnotationFS anno, int contextCharNum) {
+        Preconditions.checkArgument(contextCharNum >= 0);
+        int begin = Math.max(0, anno.getBegin() - contextCharNum);
+        int end = anno.getBegin();
+        return anno.getCAS().getDocumentText().substring(begin, end);
+    }
+
+    /**
+     * @param anno           an annotation
+     * @param contextCharNum number of characters
+     * @return contextCharNum characters after the given annotation
+     */
+    public static String textAfter(AnnotationFS anno, int contextCharNum) {
+        Preconditions.checkArgument(contextCharNum >= 0);
+        String txt = anno.getCAS().getDocumentText();
+        int begin = anno.getEnd();
+        int end = Math.min(txt.length(), begin + contextCharNum);
+        return txt.substring(begin, end);
+    }
+
 	public static int length(Annotation anno) {
 		return anno.getEnd() - anno.getBegin();
 	}
 
 	/**
 	 * TODO what if first.begin == first.end || second.begin == second.end ?
-	 * 
+	 *
 	 * @param first
 	 * @param second
 	 * @return does given annotation overlap or not. See
@@ -65,7 +91,7 @@ public class AnnotationUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param first
 	 * @param second
 	 * @return overlap length or 0 if given annotation do not overlap. See
@@ -93,7 +119,7 @@ public class AnnotationUtils {
 	 * overlapping constraint is: (tb&lt;rb && te&gt;rb) || (tb&ge;rb &&
 	 * tb&lt;re)
 	 * </p>
-	 * 
+	 *
 	 * @param cas
 	 * @param iter
 	 *            source iterator

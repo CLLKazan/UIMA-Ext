@@ -89,9 +89,9 @@ public class SequenceClassifierBasedPosTaggerTest {
                 argThat(coverText("Хутор Графский находится в Курском районе Ставропольского края.", Annotation.class)),
                 argThat(coverTextList("Хутор", "Графский", "находится", "в", "Курском", "районе",
                         "Ставропольского", "края", "."))
-        )).thenReturn(of(a("N", null), a("A", "Named"), a("V", null), a("PREP", "_P_"),
+        )).thenReturn(of(a("N", null), a("A", "Named"), a(null, "V"), a("PREP", "_P_"),
                 // FIXME
-                a("A", "Named"), a("N", ""), a("A", "Named"), a("N", null), a("_P_", "_1Pdgfhfld_")));
+                a("A", "Named"), a("N", ""), a("A", "Named"), a("", "N"), a("_P_", "_1Pdgfhfld_")));
         when(classifierMock.classify(any(JCas.class),
                 argThat(coverText("Расстояние до краевого центра: 255 км.", Annotation.class)),
                 argThat(coverTextList("Расстояние", "до", "краевого", "центра", ":", "255", "км", "."))

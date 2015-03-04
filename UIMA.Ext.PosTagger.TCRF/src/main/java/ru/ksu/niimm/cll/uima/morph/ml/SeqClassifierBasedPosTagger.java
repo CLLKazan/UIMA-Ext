@@ -30,6 +30,9 @@ import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
+import static java.lang.String.format;
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.textAfter;
+import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.textBefore;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.OTHER_PUNCTUATION_TAG;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS;
@@ -82,7 +85,7 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
             // ensure that there are no existing annotations
             // // otherwise things may go irregularly
             if (JCasUtil.exists(jCas, Word.class)) {
-                throw new IllegalStateException(String.format(
+                throw new IllegalStateException(format(
                         "CAS '%s' has Word annotations before this annotator",
                         getDocumentUri(jCas)));
             }
@@ -118,15 +121,16 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
             Word word = token2WordIndex.get(token);
             if (word == null) {
                 // TODO there is the assumption that the first tier is PoS
-                if (!tieredLabel.get(0).equals(OTHER_PUNCTUATION_TAG)) {
-                    getLogger().warn(String.format(
-                            // TODO:LOW print a fixed context of this token
-                            "Classifier predicted the gram value for a non-word token: %s",
-                            tieredLabel));
+                if (!Objects.equals(tieredLabel.get(0), OTHER_PUNCTUATION_TAG)) {
+                    getLogger().warn(format(
+                            "Classifier predicted a gram value for a non-word token: %s[%s/%s]%s",
+                            textBefore(token, 20), token.getCoveredText(), tieredLabel, textAfter(token, 20)));
                 }
                 // else - punctuation tag for punctuation token - OK
-            } else if (tieredLabel.get(0).equals(OTHER_PUNCTUATION_TAG)) {
-                getLogger().warn("Classifier predicted the punctuation tag for a word token");
+            } else if (Objects.equals(OTHER_PUNCTUATION_TAG, tieredLabel.get(0))) {
+                getLogger().warn(format(
+                        "Classifier predicted a punctuation tag for a word token: %s[%s/%s]%s",
+                        textBefore(token, 20), token.getCoveredText(), tieredLabel, textAfter(token, 20)));
             } else {
                 List<String> gramList = toGramList(tieredLabel);
                 if (!gramList.isEmpty()) {
