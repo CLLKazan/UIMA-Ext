@@ -8,6 +8,7 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.CleartkProcessingException;
 import org.opencorpora.cas.Word;
@@ -43,6 +44,15 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
         return AnalysisEngineFactory.createPrimitiveDescription(
                 SeqClassifierBasedPosTagger.class,
                 PosTaggerAPI.getTypeSystemDescription());
+    }
+
+    public static AnalysisEngineDescription createDescription(
+            ExternalResourceDescription classifierResourceDesc)
+            throws ResourceInitializationException {
+        return AnalysisEngineFactory.createPrimitiveDescription(
+                SeqClassifierBasedPosTagger.class,
+                PosTaggerAPI.getTypeSystemDescription(),
+                RESOURCE_CLASSIFIER, classifierResourceDesc);
     }
 
     public static final String RESOURCE_CLASSIFIER = "classifier";

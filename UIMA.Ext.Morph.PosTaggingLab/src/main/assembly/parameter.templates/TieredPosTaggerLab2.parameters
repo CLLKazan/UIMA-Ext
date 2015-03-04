@@ -18,6 +18,4 @@ leftContextSize=1;2;3
 #
 rightContextSize=1;2
 #
-generateDictionaryFeatures=true
-#
-optMaxIterations=150
+optMaxIterations

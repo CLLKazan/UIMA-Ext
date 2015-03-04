@@ -28,7 +28,8 @@ class GramTiersFactory {
 
     private static final Splitter posCatSplitter = Splitter.on('&').trimResults();
     // split tier definitions in a single line definition string
-    public static final Splitter tierSplitter = Splitter.on('|').trimResults();
+    public static final char tierSplitterChar = '|';
+    public static final Splitter tierSplitter = Splitter.on(tierSplitterChar).trimResults();
 
     static GramTiers parseGramTiers(final GramModel gramModel, String defString) {
         List<String> tierDefs = Lists.newArrayList(tierSplitter.split(defString));

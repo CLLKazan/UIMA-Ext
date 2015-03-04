@@ -4,9 +4,9 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.beust.jcommander.JCommander;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
@@ -17,24 +17,22 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.ConfigurationParameterFactory;
+import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
 import ru.ksu.niimm.cll.uima.morph.lab.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
+import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -59,7 +57,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
         // -----------------------------------------------------------------
         UimaTask featureExtractionTask = new FeatureExtractionTaskBase("FeatureExtraction", inputTS) {
             @Discriminator
-            List<String> posTiers;
+            List<String> gramTiers;
             @Discriminator
             int leftContextSize;
             @Discriminator
@@ -70,10 +68,20 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
                     throws ResourceInitializationException, IOException {
                 File trainingBaseDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR,
                         AccessMode.READWRITE);
+                // write a feature extraction config there
+                File feCfgFile = new File(trainingBaseDir, FILENAME_FEATURE_EXTRACTION_CONFIG);
+                Properties feCfg = new Properties();
+                feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_GRAM_TIERS,
+                        Joiner.on(GramTiersFactory.tierSplitterChar).join(gramTiers));
+                feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_LEFT_CONTEXT_SIZE,
+                        String.valueOf(leftContextSize));
+                feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_RIGHT_CONTEXT_SIZE,
+                        String.valueOf(rightContextSize));
+                IoUtils.writeProperties(feCfg, feCfgFile);
                 // wrap it into another aggregate to avoid wrapping of delegates into separate
                 // CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
                 return createAggregateDescription(WriteFeatures2.createExtractorDescription(
-                        posTiers, morphDictDesc, trainingBaseDir
+                        gramTiers, morphDictDesc, trainingBaseDir
                 ));
             }
         };
@@ -119,7 +127,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             }
         };
         // -----------------------------------------------------------------
-        UimaTask analysisTask = new AnalysisTask(inputTS, morphDictDesc, PartitionType.DEV);
+        UimaTask analysisTask = new AnalysisTask(inputTS, PartitionType.DEV);
         // -----------------------------------------------------------------
         Task evaluationTask = new EvaluationTask(PartitionType.DEV);
         // -----------------------------------------------------------------
@@ -137,15 +145,11 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
                 getFileDimension(DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR),
                 // posCategories discriminator is used in the preprocessing task
                 getStringSetDimension(DISCRIMINATOR_POS_CATEGORIES),
-                getStringListDimension(DISCRIMINATOR_POS_TIERS),
+                getStringListDimension(DISCRIMINATOR_GRAM_TIERS),
                 Dimension.create(DISCRIMINATOR_FOLD, 0),
-                // Dimension.create("featureMinFreq", 1, 4, 9, 19),
                 getIntDimension("featureMinFreq"),
-                // Dimension.create("c2", 1, 10),
                 getIntDimension("c2"),
-                // Dimension.create("featurePossibleTransitions", false, true),
                 getBoolDimension("featurePossibleTransitions"),
-                // Dimension.create("featurePossibleStates", false, true));
                 getBoolDimension("featurePossibleStates"),
                 getIntDimension("optMaxIterations"),
                 getIntDimension("leftContextSize"),
@@ -154,7 +158,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             @SuppressWarnings("unchecked")
             @Override
             public boolean isValid(Map<String, Object> cfg) {
-                List<String> posTiers = (List<String>) cfg.get(DISCRIMINATOR_POS_TIERS);
+                List<String> posTiers = (List<String>) cfg.get(DISCRIMINATOR_GRAM_TIERS);
                 Set<String> expectedPosCats = getAllCategories(posTiers);
                 Set<String> actualPosCats = (Set<String>) cfg.get(DISCRIMINATOR_POS_CATEGORIES);
                 return expectedPosCats.equals(actualPosCats);
@@ -195,14 +199,9 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
 
     static class AnalysisTask extends AnalysisTaskBase {
 
-        private ExternalResourceDescription morphDictDesc;
-
-        AnalysisTask(TypeSystemDescription inputTS,
-                     ExternalResourceDescription morphDictDesc,
-                     PartitionType targetPartition) {
+        AnalysisTask(TypeSystemDescription inputTS, PartitionType targetPartition) {
             super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
                     inputTS, targetPartition);
-            this.morphDictDesc = morphDictDesc;
         }
 
         @Override
@@ -218,20 +217,11 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             primitiveDescs.add(goldRemoverDesc);
             primitiveNames.add("goldRemover");
             //
-            AnalysisEngineDescription taggerDesc = TieredPosSequenceAnnotatorFactory
-                    .createTaggerDescription(modelBaseDir);
+            AnalysisEngineDescription taggerDesc = SeqClassifierBasedPosTagger.createDescription(
+                    TieredSequenceClassifierResource.createDescription(modelBaseDir)
+            );
             primitiveDescs.add(taggerDesc);
             primitiveNames.add("pos-tagger");
-            // We should specify additional paths to resolve relative paths of model jars.
-            // There are several ways to do this. E.g., we can change global UIMA data-path.
-            // But the better solution is to provide the parameter for JarClassifierFactory.
-            ConfigurationParameterFactory.setParameter(taggerDesc,
-                    GenericJarClassifierFactory.PARAM_ADDITIONAL_SEARCH_PATHS,
-                    new String[]{modelBaseDir.getPath()});
-            // TODO:LOW
-            // disable multiple deployment to avoid heavy memory consumption and related consequences
-            taggerDesc.getAnalysisEngineMetaData().getOperationalProperties()
-                    .setMultipleDeploymentAllowed(false);
             //
             AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
             primitiveDescs.add(xmiWriterDesc);
@@ -240,13 +230,11 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             AnalysisEngineDescription aggrDesc = createAggregateDescription(primitiveDescs,
                     primitiveNames,
                     null, null, null, null);
-            // add MorphDictionaryHolder resource with the required name
-            getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
             // wrap it into another aggregate to avoid wrapping of delegates into separate
             // CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
             return createAggregateDescription(aggrDesc);
         }
     }
 
-    private static final String DISCRIMINATOR_POS_TIERS = "posTiers";
+    private static final String DISCRIMINATOR_GRAM_TIERS = "gramTiers";
 }
