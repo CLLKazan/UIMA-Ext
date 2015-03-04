@@ -31,7 +31,7 @@ import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FI
 /**
  * @author Rinat Gareev
  */
-public class TieredSequenceClassifierResource extends Resource_ImplBase implements SequenceClassifier<String> {
+public class TieredSequenceClassifierResource extends Resource_ImplBase implements SequenceClassifier<String[]> {
 
     /**
      * the base path used by engine descriptor that implements UIMA-Ext PoS-tagger API
@@ -133,7 +133,7 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
     }
 
     @Override
-    public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
+    public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
             throws CleartkProcessingException {
         return delegate.classify(jCas, spanAnno, seq);
     }
