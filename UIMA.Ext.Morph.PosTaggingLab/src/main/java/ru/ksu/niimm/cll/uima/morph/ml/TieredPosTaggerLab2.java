@@ -17,10 +17,14 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.uimafit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.ksu.niimm.cll.uima.morph.lab.*;
 
 import java.io.File;
@@ -127,7 +131,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             }
         };
         // -----------------------------------------------------------------
-        UimaTask analysisTask = new AnalysisTask(inputTS, PartitionType.DEV);
+        UimaTask analysisTask = new AnalysisTask(gramModelDesc, inputTS, PartitionType.DEV);
         // -----------------------------------------------------------------
         Task evaluationTask = new EvaluationTask(PartitionType.DEV);
         // -----------------------------------------------------------------
@@ -199,9 +203,14 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
 
     static class AnalysisTask extends AnalysisTaskBase {
 
-        AnalysisTask(TypeSystemDescription inputTS, PartitionType targetPartition) {
+        private ExternalResourceDescription gramModelDesc;
+
+        AnalysisTask(ExternalResourceDescription gramModelDesc,
+                     TypeSystemDescription inputTS,
+                     PartitionType targetPartition) {
             super(PartitionType.DEV.equals(targetPartition) ? "Analysis" : "AnalysisFinal",
                     inputTS, targetPartition);
+            this.gramModelDesc = gramModelDesc;
         }
 
         @Override
@@ -222,6 +231,12 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             );
             primitiveDescs.add(taggerDesc);
             primitiveNames.add("pos-tagger");
+            //
+            AnalysisEngineDescription tagAssembler = TagAssembler.createDescription();
+            ExternalResourceFactory.bindExternalResource(tagAssembler,
+                    GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
+            primitiveDescs.add(tagAssembler);
+            primitiveNames.add("tag-assembler");
             //
             AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
             primitiveDescs.add(xmiWriterDesc);

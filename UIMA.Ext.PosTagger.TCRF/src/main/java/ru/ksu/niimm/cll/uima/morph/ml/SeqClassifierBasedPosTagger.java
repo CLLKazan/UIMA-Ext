@@ -3,7 +3,6 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import org.apache.uima.UimaContext;
@@ -135,8 +134,10 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
                 List<String> gramList = toGramList(tieredLabel);
                 if (!gramList.isEmpty()) {
                     Wordform wf = MorphCasUtils.requireOnlyWordform(word);
+                    /* this is done in TagAssembler
                     String tag = targetGramJoiner.join(gramList);
                     wf.setPos(tag);
+                    */
                     MorphCasUtils.addGrammemes(jCas, wf, gramList);
                 }
             }
@@ -157,7 +158,6 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
 
     private static final String targetGramDelim = "&";
     private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim).omitEmptyStrings();
-    private static final Joiner targetGramJoiner = Joiner.on(targetGramDelim).skipNulls();
 
     private void cleanWordforms(JCas jCas) {
         for (Word w : JCasUtil.select(jCas, Word.class)) {
