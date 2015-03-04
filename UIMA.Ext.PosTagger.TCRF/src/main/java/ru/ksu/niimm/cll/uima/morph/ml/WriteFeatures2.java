@@ -10,6 +10,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ExternalResourceFactory;
@@ -85,23 +86,10 @@ public class WriteFeatures2 {
         ExternalResourceDescription morphDictDesc = MorphDictionaryAPIFactory
                 .getMorphDictionaryAPI()
                 .getResourceDescriptionForCachedInstance();
-        // setup underlying data writer resource
-        ExternalResourceDescription udwDesc = TieredSequenceDataWriterResource.createDescription(outputBaseDir);
-        // setup training data writer
-        AnalysisEngineDescription dataWriterDesc = AnalysisEngineFactory.createPrimitiveDescription(
-                PosSequenceTrainingDataExtractor.class,
-                PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList);
-        // add other shared resources (ORDERing is important!)
-        morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
-        getResourceManagerConfiguration(dataWriterDesc).addExternalResource(morphDictDesc);
-        getResourceManagerConfiguration(dataWriterDesc).addExternalResource(udwDesc);
-        // bind them
-        ExternalResourceFactory.bindExternalResource(dataWriterDesc,
-                PosSequenceTrainingDataExtractor.RESOURCE_GRAM_MODEL, morphDictDesc.getName());
-        ExternalResourceFactory.bindExternalResource(dataWriterDesc,
-                PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, udwDesc.getName());
+        AnalysisEngineDescription tdExtractorDesc =
+                createExtractorDescription(tierDefsList, morphDictDesc, outputBaseDir);
         //
-        cpeBuilder.addAnalysisEngine(dataWriterDesc);
+        cpeBuilder.addAnalysisEngine(tdExtractorDesc);
         // tune
         cpeBuilder.setMaxProcessingUnitThreatCount(
                 Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
@@ -109,6 +97,29 @@ public class WriteFeatures2 {
         CollectionProcessingEngine cpe = cpeBuilder.createCpe();
         cpe.addStatusCallbackListener(new ReportingStatusCallbackListener(cpe, 50));
         cpe.process();
+    }
+
+    public static AnalysisEngineDescription createExtractorDescription(
+            List<String> tierDefsList,
+            ExternalResourceDescription morphDictDesc,
+            File outputBaseDir)
+            throws ResourceInitializationException {
+        // setup underlying data writer resource
+        ExternalResourceDescription udwDesc = TieredSequenceDataWriterResource.createDescription(outputBaseDir);
+        // setup training data writer
+        AnalysisEngineDescription resultDesc = AnalysisEngineFactory.createPrimitiveDescription(
+                PosSequenceTrainingDataExtractor.class,
+                PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList);
+        // add other shared resources (ORDERing is important!)
+        morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
+        getResourceManagerConfiguration(resultDesc).addExternalResource(morphDictDesc);
+        getResourceManagerConfiguration(resultDesc).addExternalResource(udwDesc);
+        // bind them
+        ExternalResourceFactory.bindExternalResource(resultDesc,
+                PosSequenceTrainingDataExtractor.RESOURCE_GRAM_MODEL, morphDictDesc.getName());
+        ExternalResourceFactory.bindExternalResource(resultDesc,
+                PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, udwDesc.getName());
+        return resultDesc;
     }
 
     static {
