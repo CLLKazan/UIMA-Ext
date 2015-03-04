@@ -13,18 +13,18 @@ import org.uimafit.component.Resource_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.util.CacheKey;
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
-import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static java.lang.String.format;
 import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG;
 
@@ -33,16 +33,30 @@ import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FI
  */
 public class TieredSequenceClassifierResource extends Resource_ImplBase implements SequenceClassifier<String> {
 
+    /**
+     * the base path used by engine descriptor that implements UIMA-Ext PoS-tagger API
+     */
+    public static final String RU_MODEL_BASE_PATH = "ru-pos-tagger";
+
     public static ExternalResourceDescription createDescription(File modelBaseDir) {
         return ExternalResourceFactory.createExternalResourceDescription(
                 TieredSequenceClassifierResource.class,
                 PARAM_MODEL_BASE_DIR, modelBaseDir.getPath());
     }
 
+    public static ExternalResourceDescription createDescription(String modelBasePath) {
+        return ExternalResourceFactory.createExternalResourceDescription(
+                TieredSequenceClassifierResource.class,
+                PARAM_MODEL_BASE_PATH, modelBasePath);
+    }
+
+    public static final String PARAM_MODEL_BASE_PATH = "modelBasePath";
     public static final String PARAM_MODEL_BASE_DIR = "modelBaseDir";
     // config
-    @ConfigurationParameter(name = PARAM_MODEL_BASE_DIR, mandatory = true)
+    @ConfigurationParameter(name = PARAM_MODEL_BASE_DIR, mandatory = false)
     private File modelBaseDir;
+    @ConfigurationParameter(name = PARAM_MODEL_BASE_PATH, mandatory = false)
+    private String modelBasePath;
     // aggregate
     private CachedResourceTuple<MorphDictionary> morphDictTuple;
     private List<org.cleartk.classifier.SequenceClassifier<String>> classifiers;
@@ -54,6 +68,26 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
             throws ResourceInitializationException {
         if (!super.initialize(aSpecifier, aAdditionalParams))
             return false;
+        if (modelBaseDir == null) {
+            if (modelBasePath == null) {
+                throw new IllegalStateException("Both modelBasePath & modelBaseDir are not specified");
+            }
+            try {
+                URL modelBaseURL = getResourceManager().resolveRelativePath(modelBasePath);
+                if (modelBaseURL == null)
+                    throw new IllegalStateException(format(
+                            "Can't resolve path %s using an UIMA relative path resolver", modelBasePath));
+                modelBaseDir = new File(modelBaseURL.toURI());
+            } catch (Exception e) {
+                throw new ResourceInitializationException(e);
+            }
+
+        }
+        if (!modelBaseDir.isDirectory()) {
+            throw new IllegalStateException(format(
+                    "%s is not a directory", modelBaseDir
+            ));
+        }
         try {
             initialize();
         } catch (Exception e) {
