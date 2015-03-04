@@ -3,7 +3,9 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -22,16 +24,14 @@ import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
-import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.RandomAccess;
+import java.util.*;
 
+import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+import static ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils.OTHER_PUNCTUATION_TAG;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
@@ -59,7 +59,7 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
 
     // config fields
     @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
-    private SequenceClassifier<String> classifier;
+    private SequenceClassifier<String[]> classifier;
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
@@ -104,43 +104,56 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
         List<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
         if (tokens.isEmpty()) return;
         // invoke the classifier
-        List<String> labelSeq = classifier.classify(jCas, sent, tokens);
+        List<String[]> labelSeq = classifier.classify(jCas, sent, tokens);
         //
         if (labelSeq.size() != tokens.size()) {
             throw new IllegalStateException();
         }
         if (!(labelSeq instanceof RandomAccess)) {
-            labelSeq = new ArrayList<String>(labelSeq);
+            labelSeq = new ArrayList<String[]>(labelSeq);
         }
         for (int i = 0; i < labelSeq.size(); i++) {
-            String label = labelSeq.get(i);
-            if (PUtils.isNullLabel(label)) {
-                // do nothing, it means there is no a new PoS-tag for this wordform
-                continue;
-            }
+            List<String> tieredLabel = Arrays.asList(labelSeq.get(i));
             Token token = tokens.get(i);
             Word word = token2WordIndex.get(token);
             if (word == null) {
-                if (!label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
+                // TODO there is the assumption that the first tier is PoS
+                if (!tieredLabel.get(0).equals(OTHER_PUNCTUATION_TAG)) {
                     getLogger().warn(String.format(
+                            // TODO:LOW print a fixed context of this token
                             "Classifier predicted the gram value for a non-word token: %s",
-                            label));
+                            tieredLabel));
                 }
                 // else - punctuation tag for punctuation token - OK
-            } else if (label.equals(PunctuationUtils.OTHER_PUNCTUATION_TAG)) {
+            } else if (tieredLabel.get(0).equals(OTHER_PUNCTUATION_TAG)) {
                 getLogger().warn("Classifier predicted the punctuation tag for a word token");
             } else {
-                Wordform wf = MorphCasUtils.requireOnlyWordform(word);
-                wf.setPos(label);
-                Iterable<String> newGrams = targetGramSplitter.split(label);
-                MorphCasUtils.addGrammemes(jCas, wf, newGrams);
+                List<String> gramList = toGramList(tieredLabel);
+                if (!gramList.isEmpty()) {
+                    Wordform wf = MorphCasUtils.requireOnlyWordform(word);
+                    String tag = targetGramJoiner.join(gramList);
+                    wf.setPos(tag);
+                    MorphCasUtils.addGrammemes(jCas, wf, gramList);
+                }
             }
         }
 
     }
 
+    private static List<String> toGramList(List<String> tieredLabel) {
+        List<String> grams = newArrayListWithExpectedSize(tieredLabel.size());
+        for (String l : tieredLabel)
+            if (!Strings.isNullOrEmpty(l))
+                for (String g : targetGramSplitter.split(l))
+                    if (!OTHER_PUNCTUATION_TAG.equals(g)) {
+                        grams.add(g);
+                    }
+        return grams;
+    }
+
     private static final String targetGramDelim = "&";
-    private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim);
+    private static final Splitter targetGramSplitter = Splitter.on(targetGramDelim).omitEmptyStrings();
+    private static final Joiner targetGramJoiner = Joiner.on(targetGramDelim).skipNulls();
 
     private void cleanWordforms(JCas jCas) {
         for (Word w : JCasUtil.select(jCas, Word.class)) {

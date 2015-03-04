@@ -51,7 +51,7 @@ import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverTextList;
  */
 public class SequenceClassifierBasedPosTaggerTest {
     @Mock
-    private SequenceClassifier<String> classifierMock;
+    private SequenceClassifier<String[]> classifierMock;
     private AnalysisEngine ae;
 
     @Before
@@ -89,11 +89,14 @@ public class SequenceClassifierBasedPosTaggerTest {
                 argThat(coverText("Хутор Графский находится в Курском районе Ставропольского края.", Annotation.class)),
                 argThat(coverTextList("Хутор", "Графский", "находится", "в", "Курском", "районе",
                         "Ставропольского", "края", "."))
-        )).thenReturn(of("N", "A&Named", "V", "PREP", "A&Named", "N", "A&Named", "N", "."));
+        )).thenReturn(of(a("N", null), a("A", "Named"), a("V", null), a("PREP", "_P_"),
+                // FIXME
+                a("A", "Named"), a("N", ""), a("A", "Named"), a("N", null), a("_P_", "_1Pdgfhfld_")));
         when(classifierMock.classify(any(JCas.class),
                 argThat(coverText("Расстояние до краевого центра: 255 км.", Annotation.class)),
                 argThat(coverTextList("Расстояние", "до", "краевого", "центра", ":", "255", "км", "."))
-        )).thenReturn(of("N", "PREP", "A", "N", ":", "NUM", "N", "."));
+        )).thenReturn(of(a("N", null), a("PREP", ""), a("A", null), a("N", null), a("_P_", null),
+                a("NUM", ""), a("N", null), a("_P_", "_P_")));
         // invoke
         ae.process(cas);
         // verify
@@ -105,12 +108,16 @@ public class SequenceClassifierBasedPosTaggerTest {
         assertEquals(of("A", "Named"), FSUtils.toList(words.get(1).getWordforms(0).getGrammems()));
     }
 
-    static SequenceClassifier<String> delegate;
+    public static String[] a(String... elems) {
+        return elems;
+    }
 
-    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String>, SharedResourceObject {
+    static SequenceClassifier<String[]> delegate;
+
+    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String[]>, SharedResourceObject {
 
         @Override
-        public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
+        public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
                 throws CleartkProcessingException {
             return delegate.classify(jCas, spanAnno, seq);
         }
