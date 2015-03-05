@@ -1,5 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -122,6 +123,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
     @Override
     public void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
                             JCas jCas, Annotation spanAnno, List<Token> tokens) {
+        Preconditions.checkArgument(featSets.size() == tierOutLabels.size());
         // parse tier output labels into feature values
         List<Iterable<String>> parsedTierOutLabels = Lists.newArrayListWithExpectedSize(tierOutLabels.size());
         for (String tol : tierOutLabels) {
