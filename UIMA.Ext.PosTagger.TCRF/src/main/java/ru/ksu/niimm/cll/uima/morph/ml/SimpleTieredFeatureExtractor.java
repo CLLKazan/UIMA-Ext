@@ -1,11 +1,11 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.Feature;
@@ -15,12 +15,15 @@ import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
+import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
+import static com.google.common.collect.Lists.transform;
 import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.getIntProperty;
 import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.getStringProperty;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.contextTokenExtractors;
@@ -29,10 +32,9 @@ import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExt
 /**
  * @author Rinat Gareev
  */
-public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
+public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<String> {
 
     // constants
-    public static final String RESOURCE_MORPH_DICTIONARY = "morphDictionary";
     public static final String CFG_LEFT_CONTEXT_SIZE = "leftContextSize";
     public static final String CFG_RIGHT_CONTEXT_SIZE = "rightContextSize";
     public static final String CFG_GRAM_TIERS = "gramTiers";
@@ -55,7 +57,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
     private MorphDictionary morphDictionary;
     private SimpleFeatureExtractor tokenCFE;
     private CleartkExtractor contextCFE;
-    private List<SimpleFeatureExtractor> dictFeatureExtractors;
+    private List<DictionaryPossibleTagFeatureExtractor> dictFeatureExtractors;
 
     private SimpleTieredFeatureExtractor() {
     }
@@ -94,25 +96,30 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
         dictFeatureExtractors = Lists.newArrayList();
         for (int tier = 0; tier < gramTiers.getCount(); tier++) {
             Set<String> curTierCats = gramTiers.getTierCategories(tier);
-            Set<String> prevTierCats = Sets.newHashSet();
-            for (int prevStep = 0; prevStep < tier; prevStep++) {
-                prevTierCats.addAll(gramTiers.getTierCategories(prevStep));
-            }
-            SimpleFeatureExtractor dfe = new DictionaryPossibleTagFeatureExtractor(
-                    curTierCats, prevTierCats, morphDictionary);
+            DictionaryPossibleTagFeatureExtractor dfe = new DictionaryPossibleTagFeatureExtractor(
+                    curTierCats, null, morphDictionary);
             dictFeatureExtractors.add(dfe);
         }
     }
 
     @Override
-    public void onBeforeTier(List<FeatureSet> featSets, int tier,
+    public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                              JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
-        SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
+        Preconditions.checkArgument(featSets.size() == labels.size());
+        Preconditions.checkArgument(featSets.size() == tokens.size());
+        //
+        DictionaryPossibleTagFeatureExtractor dfe = dictFeatureExtractors.get(tier);
         for (int i = 0; i < featSets.size(); i++) {
             Token tok = tokens.get(i);
+            List<String> tokLabel = labels.get(i);
             FeatureSet tokFeatSet = featSets.get(i);
-            tokFeatSet.add(dfe.extract(jCas, tok), dfe);
+            // TODO:LOW depends on logic somewhere before (in a containing annotator)
+            if (WordAnnotator.canCarryWord(tok)) {
+                List<Set<String>> tokGramsTiered = parseLabelIntoGrams(tokLabel);
+                Set<String> tokGrams = merge(tokGramsTiered);
+                tokFeatSet.add(dfe.extract(tok.getCoveredText(), tokGrams), dfe);
+            }
         }
     }
 
@@ -120,30 +127,63 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
     // Note that this is different from the tier joiner, even though currently they use the same separator char
     private static final Splitter GRAM_SPLITTER = Splitter.on('&');
 
-    @Override
-    public void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
-                            JCas jCas, Annotation spanAnno, List<Token> tokens) {
-        Preconditions.checkArgument(featSets.size() == tierOutLabels.size());
-        // parse tier output labels into feature values
-        List<Iterable<String>> parsedTierOutLabels = Lists.newArrayListWithExpectedSize(tierOutLabels.size());
-        for (String tol : tierOutLabels) {
-            if (Strings.isNullOrEmpty(tol)) parsedTierOutLabels.add(ImmutableSet.<String>of());
-            else parsedTierOutLabels.add(GRAM_SPLITTER.split(tol));
+    /**
+     * @param labels list of labels for each token where each label is composite (tiered)
+     * @return list of grammemes decomposition for each token
+     */
+    private List<List<Set<String>>> parseLabelsIntoGrams(List<List<String>> labels) {
+        List<List<Set<String>>> result = newArrayListWithExpectedSize(labels.size());
+        for (List<String> tokLabel : labels) {
+            result.add(parseLabelIntoGrams(tokLabel));
         }
+        return result;
+    }
+
+    private List<Set<String>> parseLabelIntoGrams(List<String> label) {
+        List<Set<String>> result = newArrayListWithExpectedSize(label.size());
+        for (String tierLabel : label)
+            if (Strings.isNullOrEmpty(tierLabel)) result.add(ImmutableSet.<String>of());
+            else result.add(ImmutableSet.copyOf(GRAM_SPLITTER.split(tierLabel)));
+        return result;
+    }
+
+    private static <T> Set<T> merge(Iterable<? extends Set<T>> sets) {
+        ImmutableSet.Builder<T> builder = ImmutableSet.builder();
+        for (Set<T> set : sets) {
+            builder.addAll(set);
+        }
+        return builder.build();
+    }
+
+    @Override
+    public void onAfterTier(List<FeatureSet> featSets, List<List<String>> labels, final int tier,
+                            JCas jCas, Annotation spanAnno, List<Token> tokens) {
+        Preconditions.checkArgument(featSets.size() == labels.size());
+        Preconditions.checkArgument(featSets.size() == tokens.size());
+        // parse tier output labels into feature values
+        List<List<Set<String>>> parsedLabels = parseLabelsIntoGrams(labels);
+        List<Set<String>> curTierParsedLabels = transform(parsedLabels, new Function<List<Set<String>>, Set<String>>() {
+            @Override
+            public Set<String> apply(List<Set<String>> input) {
+                return input.get(tier);
+            }
+        });
         //
         SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
         for (int tokPos = 0; tokPos < featSets.size(); tokPos++) {
             // remove tier-specific features
             FeatureSet tokFeatSet = featSets.get(tokPos);
             tokFeatSet.removeFeaturesBySource(dfe);
+            //
+
             // extract feature from a new data - the new label of this tier
-            List<Feature> gramFeatures = Lists.newArrayListWithExpectedSize(leftContextSize + rightContextSize + 1);
+            List<Feature> gramFeatures = newArrayListWithExpectedSize(leftContextSize + rightContextSize + 1);
             int left = Math.max(0, tokPos - leftContextSize);
             int right = Math.min(tokens.size() - 1, tokPos + rightContextSize);
             for (int contextTokPos = left; contextTokPos <= right; contextTokPos++) {
                 // a context token relative position
                 final int contextTokRelPos = tokPos - contextTokPos;
-                for (String gram : parsedTierOutLabels.get(contextTokPos)) {
+                for (String gram : curTierParsedLabels.get(contextTokPos)) {
                     gramFeatures.add(new Feature("Gram_at_" + contextTokRelPos, gram));
                 }
             }
@@ -154,7 +194,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor {
     @Override
     public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
             throws CleartkExtractorException {
-        List<FeatureSet> resultList = Lists.newArrayListWithExpectedSize(tokens.size());
+        List<FeatureSet> resultList = newArrayListWithExpectedSize(tokens.size());
         for (Token tok : tokens) {
             FeatureSet fs = FeatureSets.empty();
             fs.add(tokenCFE.extract(jCas, tok), tokenCFE);

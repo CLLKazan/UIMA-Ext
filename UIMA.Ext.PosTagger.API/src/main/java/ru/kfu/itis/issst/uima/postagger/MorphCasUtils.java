@@ -215,6 +215,14 @@ public class MorphCasUtils {
         }
     };
 
+    public static final Function<Word, Set<String>> GRAMMEMES_FUNCTION = new Function<Word, Set<String>>() {
+        @Override
+        public Set<String> apply(Word w) {
+            // TODO:LOW align with the previous two functions
+            return getGrammemes(w);
+        }
+    };
+
     private MorphCasUtils() {
     }
 

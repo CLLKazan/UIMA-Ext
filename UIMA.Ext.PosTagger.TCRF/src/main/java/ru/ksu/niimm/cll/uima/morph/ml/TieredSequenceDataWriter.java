@@ -1,7 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
@@ -15,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 
 /**
  * @author Rinat Gareev
@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public abstract class TieredSequenceDataWriter implements SequenceDataWriter<String[]> {
 
     protected List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters;
-    protected TieredFeatureExtractor featureExtractor;
+    protected TieredFeatureExtractor<String> featureExtractor;
 
     @Override
     public void write(JCas jCas, Annotation spanAnno,
@@ -33,8 +33,13 @@ public abstract class TieredSequenceDataWriter implements SequenceDataWriter<Str
         @SuppressWarnings("unchecked") List<Token> tokens = (List<Token>) seq;
         //
         List<FeatureSet> featSets = featureExtractor.extractCommonFeatures(jCas, spanAnno, tokens);
+        // accumulate tier labels
+        List<List<String>> labelBuilders = newArrayListWithExpectedSize(tokens.size());
+        for (Token ignored : tokens) {
+            labelBuilders.add(Lists.<String>newArrayListWithExpectedSize(dataWriters.size()));
+        }
         for (int tier = 0; tier < dataWriters.size(); tier++) {
-            featureExtractor.onBeforeTier(featSets, tier, jCas, spanAnno, tokens);
+            featureExtractor.onBeforeTier(featSets, labelBuilders, tier, jCas, spanAnno, tokens);
             //
             List<List<Feature>> seqFeatures = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
             List<String> tierLabels = Lists.transform(seqCompositeLabels, getTierLabel(tier));
@@ -45,7 +50,13 @@ public abstract class TieredSequenceDataWriter implements SequenceDataWriter<Str
             }
             // if not the last tier
             if (tier != dataWriters.size() - 1) {
-                featureExtractor.onAfterTier(featSets, tierLabels, tier, jCas, spanAnno, tokens);
+                // add cur tier labels for each token
+                for (int token = 0; token < seqCompositeLabels.size(); token++) {
+                    List<String> tokLabelBuilder = labelBuilders.get(token);
+                    String[] tokCompositeLabel = seqCompositeLabels.get(token);
+                    tokLabelBuilder.add(tokCompositeLabel[tier]);
+                }
+                featureExtractor.onAfterTier(featSets, labelBuilders, tier, jCas, spanAnno, tokens);
             }
         }
     }

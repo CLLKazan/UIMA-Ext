@@ -1,6 +1,7 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -39,6 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.junit.Assert.assertEquals;
@@ -101,15 +103,20 @@ public class SequenceClassifierBasedPosTaggerTest {
         ae.process(cas);
         // verify
         List<Word> words = ImmutableList.copyOf(JCasUtil.select(cas.getJCas(), Word.class));
-        List<String> actualTags = Lists.transform(words, MorphCasUtils.POS_TAG_FUNCTION);
+        List<Set<String>> actualTags = Lists.transform(words, MorphCasUtils.GRAMMEMES_FUNCTION);
         assertEquals(
-                of("N", "A&Named", "V", "PREP", "A&Named", "N", "A&Named", "N", "N", "PREP", "A", "N", "NUM", "N"),
+                of(set("N"), set("A", "Named"), set("V"), set("PREP"), set("A", "Named"), set("N"),
+                        set("A", "Named"), set("N"), set("N"), set("PREP"), set("A"), set("N"), set("NUM"), set("N")),
                 actualTags);
         assertEquals(of("A", "Named"), FSUtils.toList(words.get(1).getWordforms(0).getGrammems()));
     }
 
     public static String[] a(String... elems) {
         return elems;
+    }
+
+    public static Set<String> set(String... elems) {
+        return ImmutableSet.copyOf(elems);
     }
 
     static SequenceClassifier<String[]> delegate;

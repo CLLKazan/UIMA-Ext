@@ -1,5 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.cas.FeatureStructure;
@@ -10,10 +11,12 @@ import org.cleartk.classifier.Feature;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.google.common.collect.Lists.transform;
 import static java.lang.String.format;
 
 /**
@@ -29,7 +32,7 @@ import static java.lang.String.format;
 public abstract class TieredSequenceClassifier implements SequenceClassifier<String[]> {
 
     protected List<org.cleartk.classifier.SequenceClassifier<String>> classifiers;
-    protected TieredFeatureExtractor featureExtractor;
+    protected TieredFeatureExtractor<String> featureExtractor;
 
     @Override
     public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
@@ -38,13 +41,13 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
         final int tierNum = classifiers.size();
         // create a feature set for each token
         List<FeatureSet> featSets = featureExtractor.extractCommonFeatures(jCas, spanAnno, tokens);
-        List<String[]> resultLabels = newArrayListWithCapacity(tokens.size());
+        List<List<String>> resultLabels = newArrayListWithCapacity(tokens.size());
         for (Token ignored : tokens) {
-            resultLabels.add(new String[tierNum]);
+            resultLabels.add(Lists.<String>newArrayListWithExpectedSize(tierNum));
         }
         //
         for (int tier = 0; tier < tierNum; tier++) {
-            featureExtractor.onBeforeTier(featSets, tier, jCas, spanAnno, tokens);
+            featureExtractor.onBeforeTier(featSets, resultLabels, tier, jCas, spanAnno, tokens);
             // invoke a classifier of the current tier
             List<List<Feature>> featValues = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
             List<String> labelSeq = getClassifier(tier).classify(featValues);
@@ -52,18 +55,23 @@ public abstract class TieredSequenceClassifier implements SequenceClassifier<Str
                 throw new IllegalStateException(format(
                         "Expected outcomes: %s, actual: %s", resultLabels.size(), labelSeq.size()));
             Iterator<String> labelSeqIter = labelSeq.iterator();
-            Iterator<String[]> resultIter = resultLabels.iterator();
+            Iterator<List<String>> resultIter = resultLabels.iterator();
             while (labelSeqIter.hasNext()) {
                 String tierLabel = labelSeqIter.next();
-                String[] resultLabel = resultIter.next();
-                resultLabel[tier] = PUtils.isNullLabel(tierLabel) ? null : tierLabel;
+                List<String> resultLabel = resultIter.next();
+                resultLabel.add(PUtils.isNullLabel(tierLabel) ? null : tierLabel);
             }
             // if not the last tier
             if (tier != tierNum - 1) {
-                featureExtractor.onAfterTier(featSets, labelSeq, tier, jCas, spanAnno, tokens);
+                featureExtractor.onAfterTier(featSets, resultLabels, tier, jCas, spanAnno, tokens);
             }
         }
-        return resultLabels;
+        return new ArrayList<String[]>(transform(resultLabels, new Function<List<String>, String[]>() {
+            @Override
+            public String[] apply(List<String> list) {
+                return list.toArray(new String[list.size()]);
+            }
+        }));
     }
 
     @Override

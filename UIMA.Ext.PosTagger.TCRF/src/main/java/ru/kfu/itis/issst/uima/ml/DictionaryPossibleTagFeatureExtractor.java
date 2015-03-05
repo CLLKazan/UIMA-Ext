@@ -1,16 +1,15 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.issst.uima.ml;
 
+import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
+import static com.google.common.collect.Sets.newHashSetWithExpectedSize;
 import static ru.kfu.itis.cll.uima.util.BitUtils.contains;
 import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
+import static ru.kfu.itis.issst.uima.morph.model.Wordform.allGramBitsFunction;
 
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -35,7 +34,7 @@ import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev
- * 
+ *
  */
 public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeatureExtractor {
 
@@ -112,13 +111,13 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 			return ImmutableList.of(new Feature(FEATURE_NAME, "Unknown"));
 		}
 		List<BitSet> dictWfBitSets = Lists.transform(dictWfs,
-				Wordform.allGramBitsFunction(morphDict));
+				allGramBitsFunction(morphDict));
 		//
 		org.opencorpora.cas.Wordform focusWf = focusWord.getWordforms(0);
 		BitSet focusWfBits = toGramBits(gramModel, FSUtils.toList(focusWf.getGrammems()));
 		focusWfBits.and(availableCategoriesMask);
-		// 
-		Set<BitSet> tokenPossibleTags = Sets.newHashSetWithExpectedSize(dictWfBitSets.size());
+		//
+		Set<BitSet> tokenPossibleTags = newHashSetWithExpectedSize(dictWfBitSets.size());
 		for (BitSet dictWfBits : dictWfBitSets) {
 			if (!contains(dictWfBits, focusWfBits)) {
 				continue;
@@ -127,7 +126,7 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 			tokenPossibleBits.and(targetCategoriesMask);
 			tokenPossibleTags.add(tokenPossibleBits);
 		}
-		List<Feature> resultList = Lists.newArrayListWithExpectedSize(tokenPossibleTags.size());
+		List<Feature> resultList = newArrayListWithExpectedSize(tokenPossibleTags.size());
 		for (BitSet tokenPossibleBits : tokenPossibleTags) {
 			String featValue;
 			if (tokenPossibleBits.isEmpty()) {
@@ -139,6 +138,43 @@ public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeature
 		}
 		return resultList;
 	}
+
+    public List<Feature> extract(String form, Collection<String> availableTokenGrams)
+            throws CleartkExtractorException {
+        if (!WordUtils.isRussianWord(form)) {
+            return ImmutableList.of(new Feature(FEATURE_NAME, "NotRussian"));
+        }
+        form = WordUtils.normalizeToDictionaryForm(form);
+        List<Wordform> dictWfs = morphDict.getEntries(form);
+        if (dictWfs == null || dictWfs.isEmpty()) {
+            return ImmutableList.of(new Feature(FEATURE_NAME, "Unknown"));
+        }
+        List<BitSet> dictWfBitSets = Lists.transform(dictWfs, allGramBitsFunction(morphDict));
+        //
+        BitSet focusWfBits = toGramBits(gramModel, availableTokenGrams);
+        //
+        Set<BitSet> tokenPossibleTags = newHashSetWithExpectedSize(dictWfBitSets.size());
+        for (BitSet dictWfBits : dictWfBitSets) {
+            if (!contains(dictWfBits, focusWfBits)) {
+                // this dictionary entry is not compatible with token current grams
+                continue;
+            }
+            BitSet tokenPossibleBits = (BitSet) dictWfBits.clone();
+            tokenPossibleBits.and(targetCategoriesMask);
+            tokenPossibleTags.add(tokenPossibleBits);
+        }
+        List<Feature> resultList = newArrayListWithExpectedSize(tokenPossibleTags.size());
+        for (BitSet tokenPossibleBits : tokenPossibleTags) {
+            String featValue;
+            if (tokenPossibleBits.isEmpty()) {
+                featValue = "NULL";
+            } else {
+                featValue = gramJoiner.join(gramModel.toGramSet(tokenPossibleBits));
+            }
+            resultList.add(new Feature(baseFeatureName, featValue));
+        }
+        return resultList;
+    }
 
 	private static final Joiner gramJoiner = Joiner.on('_');
 

@@ -64,9 +64,9 @@ public class TieredSequenceHandlerTestBase {
         throw new IllegalStateException();
     }
 
-    protected class TestTieredFeatureExtractor implements TieredFeatureExtractor {
+    protected class TestTieredFeatureExtractor implements TieredFeatureExtractor<String> {
         @Override
-        public void onBeforeTier(List<FeatureSet> featSets, int tier,
+        public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                                  JCas jCas, Annotation spanAnno, List<Token> tokens) {
             for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
                 FeatureSet tokFeatSet = featSets.get(tokPos);
@@ -76,7 +76,7 @@ public class TieredSequenceHandlerTestBase {
         }
 
         @Override
-        public void onAfterTier(List<FeatureSet> featSets, List<String> tierOutLabels, int tier,
+        public void onAfterTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                                 JCas jCas, Annotation spanAnno, List<Token> tokens) {
             for (FeatureSet tokFeatSet : featSets) {
                 tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
