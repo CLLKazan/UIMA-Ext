@@ -14,6 +14,9 @@ import static java.lang.String.format;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 
 /**
+ * A PoS-tagger annotator where annotator copies share one instance of {@link ru.ksu.niimm.cll.uima.morph.ml.SequenceClassifier}
+ * (as UIMA external resource).
+ *
  * @author Rinat Gareev (Kazan Federal University)
  */
 public class SeqClassifierResourceBasedPosTagger extends SeqClassifierBasedPosTaggerBase {

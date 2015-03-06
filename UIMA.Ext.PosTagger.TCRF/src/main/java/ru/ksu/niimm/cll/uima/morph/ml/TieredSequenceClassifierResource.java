@@ -13,6 +13,8 @@ import org.uimafit.factory.ExternalResourceFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -61,20 +63,14 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
                 throw new IllegalStateException("Both modelBasePath & modelBaseDir are not specified");
             }
             try {
-                URL modelBaseURL = getResourceManager().resolveRelativePath(modelBasePath);
-                if (modelBaseURL == null)
-                    throw new IllegalStateException(format(
-                            "Can't resolve path %s using an UIMA relative path resolver", modelBasePath));
-                modelBaseDir = new File(modelBaseURL.toURI());
+                modelBaseDir = TieredSequenceClassifiers.resolveModelBaseDir(modelBasePath, getResourceManager());
             } catch (Exception e) {
                 throw new ResourceInitializationException(e);
             }
-
         }
         if (!modelBaseDir.isDirectory()) {
             throw new IllegalStateException(format(
-                    "%s is not a directory", modelBaseDir
-            ));
+                    "%s is not a directory", modelBaseDir));
         }
         delegate = TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
         return true;
