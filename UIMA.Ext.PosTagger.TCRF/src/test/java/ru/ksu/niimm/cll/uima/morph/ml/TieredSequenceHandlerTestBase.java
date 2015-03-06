@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
@@ -25,13 +25,13 @@ import static java.lang.String.format;
  */
 public class TieredSequenceHandlerTestBase {
     @Mock
-    protected SimpleFeatureExtractor commonFeatExtractor;
+    protected FeatureExtractor1 commonFeatExtractor;
     @Mock
-    private SimpleFeatureExtractor fe1;
+    private FeatureExtractor1 fe1;
     @Mock
-    private SimpleFeatureExtractor fe2;
+    private FeatureExtractor1 fe2;
     @Mock
-    private SimpleFeatureExtractor fe3;
+    private FeatureExtractor1 fe3;
 
     protected static ArgumentMatcher<List<List<Feature>>> unorderedFeatures(final List<Set<String>> expectedValues) {
         return new ArgumentMatcher<List<List<Feature>>>() {
@@ -53,7 +53,7 @@ public class TieredSequenceHandlerTestBase {
         };
     }
 
-    protected SimpleFeatureExtractor getTierSpecificFeatureExtractor(int tier) {
+    protected FeatureExtractor1 getTierSpecificFeatureExtractor(int tier) {
         switch (tier) {
             case 0:
                 return fe1;

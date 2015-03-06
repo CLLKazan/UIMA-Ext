@@ -9,12 +9,12 @@ import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
-import org.cleartk.classifier.CleartkProcessingException;
+import org.cleartk.ml.CleartkProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 
 import java.io.IOException;

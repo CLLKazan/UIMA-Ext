@@ -6,8 +6,8 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
@@ -21,7 +21,7 @@ import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 public class SeqClassifierResourceBasedPosTagger extends SeqClassifierBasedPosTaggerBase {
 
     public static AnalysisEngineDescription createDescription() throws ResourceInitializationException {
-        return AnalysisEngineFactory.createPrimitiveDescription(
+        return AnalysisEngineFactory.createEngineDescription(
                 SeqClassifierResourceBasedPosTagger.class,
                 PosTaggerAPI.getTypeSystemDescription());
     }
@@ -29,7 +29,7 @@ public class SeqClassifierResourceBasedPosTagger extends SeqClassifierBasedPosTa
     public static AnalysisEngineDescription createDescription(
             ExternalResourceDescription classifierResourceDesc)
             throws ResourceInitializationException {
-        return AnalysisEngineFactory.createPrimitiveDescription(
+        return AnalysisEngineFactory.createEngineDescription(
                 SeqClassifierResourceBasedPosTagger.class,
                 PosTaggerAPI.getTypeSystemDescription(),
                 RESOURCE_CLASSIFIER, classifierResourceDesc);

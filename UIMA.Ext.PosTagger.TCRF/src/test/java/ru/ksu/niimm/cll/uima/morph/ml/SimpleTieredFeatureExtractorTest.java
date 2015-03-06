@@ -6,12 +6,12 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.uimafit.util.JCasUtil.select;
-import static org.uimafit.util.JCasUtil.selectCovered;
+import static org.apache.uima.fit.util.JCasUtil.select;
+import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 
 /**
  * @author Rinat Gareev

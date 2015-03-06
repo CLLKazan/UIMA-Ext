@@ -3,7 +3,7 @@ package ru.kfu.itis.issst.uima.ml;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.CleartkProcessingException;
+import org.cleartk.ml.CleartkProcessingException;
 
 import java.io.Closeable;
 import java.util.List;

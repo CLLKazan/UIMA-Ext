@@ -17,7 +17,7 @@ import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.xml.sax.SAXException;
 
 import com.beust.jcommander.JCommander;

@@ -5,8 +5,7 @@ package ru.kfu.itis.issst.uima.morph.hunpos;
 
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
 import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static ru.kfu.itis.issst.uima.morph.hunpos.DefaultHunposExecutableResolver.trainerResolver;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
@@ -78,10 +77,10 @@ public class HunposLab extends LabLauncherBase {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File trainDataDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR, READWRITE);
-				AnalysisEngineDescription hunposTrainDataWriterDesc = createPrimitiveDescription(
+				AnalysisEngineDescription hunposTrainDataWriterDesc = createEngineDescription(
 						HunposTrainingDataWriter.class,
 						HunposTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
-				return createAggregateDescription(hunposTrainDataWriterDesc);
+				return createEngineDescription(hunposTrainDataWriterDesc);
 			}
 		};
 		//
@@ -205,12 +204,12 @@ public class HunposLab extends LabLauncherBase {
 			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
 			//
 			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-			AnalysisEngineDescription hunposAnnotatorDesc = createPrimitiveDescription(
+			AnalysisEngineDescription hunposAnnotatorDesc = createEngineDescription(
 					HunposAnnotator.class,
 					HunposAnnotator.PARAM_HUNPOS_MODEL_NAME, modelFile.getPath(),
 					HunposAnnotator.PARAM_LEXICON_FILE, lexiconFile);
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-			return createAggregateDescription(
+			return createEngineDescription(
 					goldRemoverDesc, hunposAnnotatorDesc, xmiWriterDesc);
 		}
 	}

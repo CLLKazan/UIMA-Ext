@@ -3,27 +3,16 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import opennlp.tools.util.TrainingParameters;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
-
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
@@ -35,8 +24,16 @@ import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindExternalResource;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -89,18 +86,18 @@ public class OpenNLPPosTaggerTrainerCLI {
 					TokenizerAPI.TYPESYSTEM_TOKENIZER,
 					SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 					PosTaggerAPI.TYPESYSTEM_POSTAGGER);
-			CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
+			CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createReaderDescription(
 					XmiCollectionReader.class, tsd,
 					XmiCollectionReader.PARAM_INPUTDIR, cli.trainingXmiDir);
 			AnalysisEngineDescription posTrimmerDesc = PosTrimmingAnnotator.createDescription(
-					cli.gramCategories.toArray(new String[0]));
+                    cli.gramCategories.toArray(new String[cli.gramCategories.size()]));
 			bindExternalResource(posTrimmerDesc,
 					PosTrimmingAnnotator.RESOURCE_GRAM_MODEL, morphDictDesc);
 			AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription();
 			bindExternalResource(tagAssemblerDesc,
 					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, morphDictDesc);
-			AnalysisEngineDescription aeDesc = createAggregateDescription(
-					posTrimmerDesc, tagAssemblerDesc);
+			AnalysisEngineDescription aeDesc = createEngineDescription(
+                    posTrimmerDesc, tagAssemblerDesc);
 			Iterator<Sentence> sentIter = AnnotationIteratorOverCollection.createIterator(
 					Sentence.class, colReaderDesc, aeDesc);
 			SpanStreamOverCollection<Sentence> sentStream = new SpanStreamOverCollection<Sentence>(

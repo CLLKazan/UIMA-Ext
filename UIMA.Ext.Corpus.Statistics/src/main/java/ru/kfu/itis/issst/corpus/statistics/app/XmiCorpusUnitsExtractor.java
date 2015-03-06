@@ -12,12 +12,12 @@ import org.apache.uima.collection.metadata.CpeDescriptorException;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.CpeBuilder;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.xml.sax.SAXException;
 
+import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.issst.corpus.statistics.cpe.CorpusDAOCollectionReader;
 import ru.kfu.itis.issst.corpus.statistics.cpe.UnitAnnotator;
 import ru.kfu.itis.issst.corpus.statistics.cpe.UnitClassifier;
@@ -58,31 +58,31 @@ public class XmiCorpusUnitsExtractor {
 		daoDesc = ExternalResourceFactory.createExternalResourceDescription(
 				XmiFileTreeCorpusDAOResource.class, extractorParams.corpus);
 		tsd = XmiFileTreeCorpusDAO.getTypeSystem(extractorParams.corpus);
-		reader = CollectionReaderFactory.createDescription(
+		reader = CollectionReaderFactory.createReaderDescription(
 				CorpusDAOCollectionReader.class, tsd,
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);
 		cpeBuilder.setReader(reader);
 
 		tokenizerSentenceSplitter = AnalysisEngineFactory
-				.createAggregateDescription(Unitizer
+				.createEngineDescription(Unitizer
 						.createTokenizerSentenceSplitterAED());
 
-		unitAnnotator = AnalysisEngineFactory.createPrimitiveDescription(
+		unitAnnotator = AnalysisEngineFactory.createEngineDescription(
 				UnitAnnotator.class, UnitAnnotator.PARAM_UNIT_TYPE_NAMES,
 				extractorParams.units);
-		unitClassifier = AnalysisEngineFactory.createPrimitiveDescription(
+		unitClassifier = AnalysisEngineFactory.createEngineDescription(
 				UnitClassifier.class, UnitClassifier.PARAM_CLASS_TYPE_NAMES,
 				extractorParams.classes);
 
-		unitsDAOWriter = AnalysisEngineFactory.createPrimitiveDescription(
+		unitsDAOWriter = AnalysisEngineFactory.createEngineDescription(
 				UnitsDAOWriter.class, UnitsDAOWriter.UNITS_TSV_PATH,
 				extractorParams.output);
-		aggregate = AnalysisEngineFactory.createAggregateDescription(
+		aggregate = AnalysisEngineFactory.createEngineDescription(
 				tokenizerSentenceSplitter, unitAnnotator, unitClassifier,
 				unitsDAOWriter);
-		cpeBuilder.setAnalysisEngine(aggregate);
+		cpeBuilder.addAnalysisEngine(aggregate);
 
-		cpe = cpeBuilder.createCpe(null);
+		cpe = cpeBuilder.createCpe();
 	}
 
 	public void process() throws ResourceInitializationException {

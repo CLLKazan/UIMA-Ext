@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.opencorpora.cas.Word;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 

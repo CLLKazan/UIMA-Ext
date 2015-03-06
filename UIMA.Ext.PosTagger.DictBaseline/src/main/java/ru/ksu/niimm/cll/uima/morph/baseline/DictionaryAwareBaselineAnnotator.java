@@ -7,8 +7,8 @@ import java.util.Set;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ExternalResource;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ExternalResource;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;

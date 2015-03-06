@@ -8,11 +8,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
@@ -57,7 +57,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
     // aggregate fields
     // CFE ~ a Common Feature Extractor
     private MorphDictionary morphDictionary;
-    private SimpleFeatureExtractor tokenCFE;
+    private FeatureExtractor1 tokenCFE;
     private CleartkExtractor contextCFE;
     private List<DictionaryPossibleTagFeatureExtractor> dictFeatureExtractors;
 
@@ -90,9 +90,9 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
         }
         CleartkExtractor.Context[] contextsArr = contexts.toArray(new CleartkExtractor.Context[contexts.size()]);
         // instantiate feature extractors
-        tokenCFE = new CombinedExtractor(currentTokenExtractors().toArray(FE_ARRAY));
+        tokenCFE = new CombinedExtractor1(currentTokenExtractors());
         contextCFE = new CleartkExtractor(Token.class,
-                new CombinedExtractor(contextTokenExtractors().toArray(FE_ARRAY)),
+                new CombinedExtractor1(contextTokenExtractors()),
                 contextsArr);
         //
         dictFeatureExtractors = Lists.newArrayList();
@@ -171,7 +171,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
             }
         });
         //
-        SimpleFeatureExtractor dfe = dictFeatureExtractors.get(tier);
+        FeatureExtractor1 dfe = dictFeatureExtractors.get(tier);
         for (int tokPos = 0; tokPos < featSets.size(); tokPos++) {
             // remove tier-specific features
             FeatureSet tokFeatSet = featSets.get(tokPos);
@@ -210,9 +210,9 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
         return gramTiers;
     }
 
-    private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
+    private static final FeatureExtractor1[] FE_ARRAY = new FeatureExtractor1[0];
 
-    private final SimpleFeatureExtractor mockGramExtractor = new SimpleFeatureExtractor() {
+    private final FeatureExtractor1 mockGramExtractor = new FeatureExtractor1() {
         @Override
         public List<Feature> extract(JCas view, Annotation focusAnnotation) throws CleartkExtractorException {
             // should never be called

@@ -1,30 +1,32 @@
 package ru.kfu.itis.issst.corpus.statistics.cpe;
 
 import static org.junit.Assert.assertEquals;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.IOException;
 import java.util.Set;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.JCasIterable;
+import org.apache.uima.fit.util.CasUtil;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
@@ -44,10 +46,10 @@ public class UnitClassifierTest {
 			"ru.kfu.itis.issst.evex.Weapon");
 	ExternalResourceDescription daoDesc;
 	TypeSystemDescription tsd;
-	CollectionReader reader;
-	AnalysisEngine tokenizerSentenceSplitter;
-	AnalysisEngine unitAnnotator;
-	AnalysisEngine unitClassifier;
+	CollectionReaderDescription reader;
+	AnalysisEngineDescription tokenizerSentenceSplitter;
+	AnalysisEngineDescription unitAnnotator;
+	AnalysisEngineDescription unitClassifier;
 
 	@Before
 	public void setUp() throws Exception {
@@ -60,17 +62,15 @@ public class UnitClassifierTest {
 								.createTypeSystemDescription(),
 						TokenizerAPI.getTypeSystemDescription(),
 						SentenceSplitterAPI.getTypeSystemDescription()));
-		reader = CollectionReaderFactory.createCollectionReader(
+		reader = CollectionReaderFactory.createReaderDescription(
 				CorpusDAOCollectionReader.class, tsd,
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);
 		CAS aCAS = CasCreationUtils.createCas(tsd, null, null, null);
-		reader.typeSystemInit(aCAS.getTypeSystem());
-		tokenizerSentenceSplitter = AnalysisEngineFactory
-				.createAggregate(Unitizer.createTokenizerSentenceSplitterAED());
-		unitAnnotator = AnalysisEngineFactory.createPrimitive(
+		tokenizerSentenceSplitter = Unitizer.createTokenizerSentenceSplitterAED();
+		unitAnnotator = AnalysisEngineFactory.createEngineDescription(
 				UnitAnnotator.class, UnitAnnotator.PARAM_UNIT_TYPE_NAMES,
 				unitTypes);
-		unitClassifier = AnalysisEngineFactory.createPrimitive(
+		unitClassifier = AnalysisEngineFactory.createEngineDescription(
 				UnitClassifier.class, UnitClassifier.PARAM_CLASS_TYPE_NAMES,
 				classTypes);
 	}

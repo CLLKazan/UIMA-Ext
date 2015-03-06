@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.lab;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 
 import java.io.File;
@@ -14,7 +14,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
@@ -53,14 +53,14 @@ public abstract class AnalysisTaskBase extends UimaTaskBase {
 			throws ResourceInitializationException, IOException {
 		File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READONLY);
 		File targetFileList = getTargetFileList();
-		return CollectionReaderFactory.createDescription(XmiFileListReader.class, inputTS,
+		return CollectionReaderFactory.createReaderDescription(XmiFileListReader.class, inputTS,
 				XmiFileListReader.PARAM_BASE_DIR, corpusDir.getPath(),
 				XmiFileListReader.PARAM_LIST_FILE, targetFileList.getPath());
 	}
 
 	protected AnalysisEngineDescription createGoldRemoverDesc()
 			throws ResourceInitializationException {
-		return createPrimitiveDescription(
+		return createEngineDescription(
 				AnnotationRemover.class, inputTS,
 				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 				Arrays.asList("org.opencorpora.cas"));

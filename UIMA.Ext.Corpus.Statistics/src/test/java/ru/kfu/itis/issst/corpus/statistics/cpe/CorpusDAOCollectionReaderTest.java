@@ -20,9 +20,9 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
@@ -42,7 +42,7 @@ public class CorpusDAOCollectionReaderTest {
 	public void setUp() throws Exception {
 		daoDesc = ExternalResourceFactory.createExternalResourceDescription(
 				XmiFileTreeCorpusDAOResource.class, corpusPathString);
-		reader = CollectionReaderFactory.createCollectionReader(
+		reader = CollectionReaderFactory.createReader(
 				CorpusDAOCollectionReader.class,
 				XmiFileTreeCorpusDAO.getTypeSystem(corpusPathString),
 				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);

@@ -10,8 +10,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.uimafit.component.initialize.ConfigurationParameterInitializer;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;

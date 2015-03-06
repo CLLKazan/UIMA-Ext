@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,7 +21,7 @@ public class GenerateMorphTaggerDesc {
 	public static void main(String[] args) throws Exception {
 		String outPath = "src/main/resources/" +
 				"ru/kfu/itis/issst/uima/morph/treetagger/MorphTagger.xml";
-		AnalysisEngineDescription desc = createPrimitiveDescription(MorphTagger.class,
+		AnalysisEngineDescription desc = createEngineDescription(MorphTagger.class,
 				PosTaggerAPI.getTypeSystemDescription());
 		File outFile = new File(outPath);
 		{

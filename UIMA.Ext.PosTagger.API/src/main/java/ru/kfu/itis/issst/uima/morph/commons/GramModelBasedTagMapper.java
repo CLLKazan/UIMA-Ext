@@ -12,11 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
-import org.apache.uima.util.InvalidXMLException;
-import org.uimafit.component.initialize.ExternalResourceInitializer;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.initializable.Initializable;
+import org.apache.uima.fit.component.initialize.ExternalResourceInitializer;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.initializable.Initializable;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
@@ -43,21 +42,16 @@ public class GramModelBasedTagMapper implements TagMapper, Initializable {
 	 */
 	public static void declareResourceDependencies(ResourceSpecifier clientResourceDesc)
 			throws ResourceInitializationException {
-		try {
-			ExternalResourceFactory.createDependency(clientResourceDesc,
-					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL,
-					GramModelHolder.class);
-		} catch (InvalidXMLException e) {
-			throw new ResourceInitializationException(e);
-		}
-	}
+        ExternalResourceFactory.createDependency(clientResourceDesc,
+                GramModelBasedTagMapper.RESOURCE_GRAM_MODEL,
+                GramModelHolder.class);
+    }
 
 	/*
 	ExternalResourceFactory.bindResource(clientResourceDesc,
 			GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc);
 			*/
 
-	public static final String CLASS_NAME = GramModelBasedTagMapper.class.getName();
 	public static final String RESOURCE_GRAM_MODEL = "gramModel";
 	// config fields
 	@ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
@@ -76,7 +70,7 @@ public class GramModelBasedTagMapper implements TagMapper, Initializable {
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
-		ExternalResourceInitializer.initialize(ctx, this);
+		ExternalResourceInitializer.initialize(this, ctx);
 		gramModel = gramModelHolder.getGramModel();
 	}
 

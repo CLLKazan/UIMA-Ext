@@ -12,8 +12,8 @@ import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
 import static ru.ksu.niimm.cll.uima.morph.ml.GramTiersFactory.tierSplitter;
 
@@ -107,7 +107,7 @@ public class WriteFeatures2 {
         // setup underlying data writer resource
         ExternalResourceDescription udwDesc = TieredSequenceDataWriterResource.createDescription(outputBaseDir);
         // setup training data writer
-        AnalysisEngineDescription resultDesc = AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineDescription resultDesc = AnalysisEngineFactory.createEngineDescription(
                 PosSequenceTrainingDataExtractor.class,
                 PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList);
         // add other shared resources (ORDERing is important!)

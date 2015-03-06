@@ -3,9 +3,10 @@
  */
 package ru.kfu.itis.cll.uima.cpe;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.CollectionReaderFactory.createDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cpe.JdbcCollectionReader.PARAM_BATCH_SIZE;
 import static ru.kfu.itis.cll.uima.cpe.JdbcCollectionReader.PARAM_COUNT_QUERY;
 import static ru.kfu.itis.cll.uima.cpe.JdbcCollectionReader.PARAM_DATABASE_URL;
@@ -34,7 +35,7 @@ import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.cll.uima.annotator.AnnotationLogger;
 
@@ -85,20 +86,20 @@ public class JdbcCollectionReaderTest {
 	public void test() throws UIMAException, IOException {
 		TypeSystemDescription tsDesc = createTypeSystemDescription("ru.kfu.itis.cll.uima.commons.Commons-TypeSystem");
 		CollectionReaderDescription readerDesc =
-				createDescription(JdbcCollectionReader.class, tsDesc,
-						PARAM_DATABASE_URL,
-						"jdbc:hsqldb:mem:jdbc-collection-reader-test;ifexists=true",
-						PARAM_USERNAME, "SA",
-						PARAM_PASSWORD, "",
-						PARAM_DRIVER_CLASS, "org.hsqldb.jdbc.JDBCDriver",
-						PARAM_QUERY, "SELECT url, txt FROM doc ORDER BY id OFFSET ? LIMIT ?",
-						PARAM_OFFSET_PARAM_INDEX, 1,
-						PARAM_LIMIT_PARAM_INDEX, 2,
-						PARAM_DOCUMENT_URL_COLUMN, "url",
-						PARAM_TEXT_COLUMN, "txt",
-						PARAM_BATCH_SIZE, 2,
-						PARAM_COUNT_QUERY, "SELECT count(*) FROM doc");
-		AnalysisEngineDescription aeDesc = createPrimitiveDescription(AnnotationLogger.class);
+				createReaderDescription(JdbcCollectionReader.class, tsDesc,
+                        PARAM_DATABASE_URL,
+                        "jdbc:hsqldb:mem:jdbc-collection-reader-test;ifexists=true",
+                        PARAM_USERNAME, "SA",
+                        PARAM_PASSWORD, "",
+                        PARAM_DRIVER_CLASS, "org.hsqldb.jdbc.JDBCDriver",
+                        PARAM_QUERY, "SELECT url, txt FROM doc ORDER BY id OFFSET ? LIMIT ?",
+                        PARAM_OFFSET_PARAM_INDEX, 1,
+                        PARAM_LIMIT_PARAM_INDEX, 2,
+                        PARAM_DOCUMENT_URL_COLUMN, "url",
+                        PARAM_TEXT_COLUMN, "txt",
+                        PARAM_BATCH_SIZE, 2,
+                        PARAM_COUNT_QUERY, "SELECT count(*) FROM doc");
+		AnalysisEngineDescription aeDesc = createEngineDescription(AnnotationLogger.class);
 		SimplePipeline.runPipeline(readerDesc, aeDesc);
 	}
 

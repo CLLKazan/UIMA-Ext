@@ -8,7 +8,7 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
 import ru.ksu.niimm.cll.uima.morph.opencorpora.resource.ImmutableGramModel;
 
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceDescription;
 
 /**
  * @author Rinat Gareev

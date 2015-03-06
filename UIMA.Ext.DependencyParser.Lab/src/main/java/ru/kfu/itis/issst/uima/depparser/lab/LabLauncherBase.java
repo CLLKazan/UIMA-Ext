@@ -1,6 +1,6 @@
 package ru.kfu.itis.issst.uima.depparser.lab;
 
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 import java.io.IOException;

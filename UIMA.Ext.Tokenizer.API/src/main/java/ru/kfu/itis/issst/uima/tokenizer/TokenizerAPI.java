@@ -10,8 +10,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.resource.metadata.impl.Import_impl;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.cll.uima.tokenizer.fstype.TokenBase;
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
@@ -65,7 +65,7 @@ public class TokenizerAPI {
 	 * @throws IOException
 	 */
 	public static AnalysisEngineDescription getAEDescription() throws UIMAException, IOException {
-		return AnalysisEngineFactory.createAnalysisEngineDescription(AE_TOKENIZER);
+		return AnalysisEngineFactory.createEngineDescription(AE_TOKENIZER);
 	}
 
 	/**

@@ -6,10 +6,10 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.uimafit.component.Resource_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.cleartk.ml.CleartkProcessingException;
+import org.apache.uima.fit.component.Resource_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CacheKey;
@@ -48,7 +48,7 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
     private Properties featureExtractionCfg;
     // aggregate
     private TieredFeatureExtractor<Token, String> featureExtractor;
-    private List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters;
+    private List<org.cleartk.ml.SequenceDataWriter<String>> dataWriters;
     // delegate
     @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
     private CacheKey morphDictCacheKey;
@@ -93,7 +93,7 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
 
     private void initUnderlyingDataWriters() throws ResourceInitializationException {
         GramTiers gramTiers = getGramTiers();
-        List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters = Lists.newArrayList();
+        List<org.cleartk.ml.SequenceDataWriter<String>> dataWriters = Lists.newArrayList();
         for (int tier = 0; tier < gramTiers.getCount(); tier++) {
             String tierId = gramTiers.getTierId(tier);
             // TODO avoid binding to the specific implementation

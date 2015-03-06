@@ -8,7 +8,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription
 import org.apache.uima.collection.CollectionReaderDescription
 import scopt.OptionParser
 import java.io.File
-import org.uimafit.factory.ResourceCreationSpecifierFactory
+import org.apache.uima.fit.factory.ResourceCreationSpecifierFactory
 import com.typesafe.config.ConfigFactory
 import ru.kfu.itis.cll.uima.cpe.StatusCallbackListenerAdapter
 import org.apache.uima.cas.CAS

@@ -20,7 +20,7 @@ import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;

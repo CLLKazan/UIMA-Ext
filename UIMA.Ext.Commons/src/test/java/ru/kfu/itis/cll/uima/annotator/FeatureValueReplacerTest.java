@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.cll.uima.annotator;
 
-import static junit.framework.Assert.assertEquals;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.junit.Assert.assertEquals;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_ANNO_TYPE;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_FEATURE_PATH;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_PATTERN;
@@ -16,7 +16,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
@@ -36,7 +36,7 @@ public class FeatureValueReplacerTest {
 
 	@Test
 	public void test() throws UIMAException {
-		AnalysisEngine ae = AnalysisEngineFactory.createPrimitive(FeatureValueReplacer.class, tsd,
+		AnalysisEngine ae = AnalysisEngineFactory.createEngine(FeatureValueReplacer.class, tsd,
 				PARAM_ANNO_TYPE, DocumentMetadata.class.getName(),
 				PARAM_FEATURE_PATH, "sourceUri",
 				PARAM_PATTERN, "file:.+/([^/]+)$",

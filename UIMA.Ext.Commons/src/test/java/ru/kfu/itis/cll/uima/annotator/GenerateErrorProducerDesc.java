@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.cll.uima.annotator;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,7 +23,7 @@ public class GenerateErrorProducerDesc {
 
 	public static void main(String[] args) throws ResourceInitializationException, SAXException,
 			IOException {
-		AnalysisEngineDescription desc = createPrimitiveDescription(ErrorProducer.class);
+		AnalysisEngineDescription desc = createEngineDescription(ErrorProducer.class);
 		FileOutputStream out = FileUtils.openOutputStream(new File(
 				"src/main/resources/ru/kfu/itis/cll/uima/annotator/ErrorProducer.xml"));
 		try {

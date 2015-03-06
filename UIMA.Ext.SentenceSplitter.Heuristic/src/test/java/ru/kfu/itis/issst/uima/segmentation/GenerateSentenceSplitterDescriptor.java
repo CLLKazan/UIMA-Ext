@@ -1,6 +1,6 @@
 package ru.kfu.itis.issst.uima.segmentation;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +22,7 @@ public class GenerateSentenceSplitterDescriptor {
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		String outputPath = "src/main/resources/ru/kfu/itis/issst/uima/segmentation/sentence-splitter-ae.xml";
 		TypeSystemDescription tsDesc = SentenceSplitterAPI.getTypeSystemDescription();
-		AnalysisEngineDescription desc = createPrimitiveDescription(SentenceSplitter.class, tsDesc);
+		AnalysisEngineDescription desc = createEngineDescription(SentenceSplitter.class, tsDesc);
 		FileOutputStream out = FileUtils.openOutputStream(new File(outputPath));
 		try {
 			desc.toXML(out);

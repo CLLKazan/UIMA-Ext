@@ -5,7 +5,7 @@ package ru.kfu.itis.cll.uima.annotator;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
-import org.uimafit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
 
 /**
  * An annotator that checks whether a document text contains '%ERROR%' substring

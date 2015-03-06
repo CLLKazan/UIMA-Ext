@@ -23,9 +23,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.Logger;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.jar.JarStreams;
-import org.cleartk.classifier.jar.SequenceClassifierBuilder_ImplBase;
+import org.cleartk.ml.encoder.features.NameNumber;
+import org.cleartk.ml.jar.JarStreams;
+import org.cleartk.ml.jar.SequenceClassifierBuilder_ImplBase;
 
 import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTraining;
 

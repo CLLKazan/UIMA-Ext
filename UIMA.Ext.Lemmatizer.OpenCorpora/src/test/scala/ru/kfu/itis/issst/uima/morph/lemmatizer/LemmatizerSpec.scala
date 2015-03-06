@@ -2,11 +2,11 @@ package ru.kfu.itis.issst.uima.morph.lemmatizer
 
 import scala.collection.JavaConversions._
 import org.scalatest._
-import org.uimafit.factory.AnalysisEngineFactory
-import org.uimafit.pipeline.SimplePipeline
-import org.uimafit.util.JCasUtil.select
+import org.apache.uima.fit.factory.AnalysisEngineFactory
+import org.apache.uima.fit.pipeline.SimplePipeline
+import org.apache.uima.fit.util.JCasUtil.select
 import org.apache.uima.util.CasCreationUtils
-import org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription
+import org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceDescription
 import java.io.File
 import org.opencorpora.cas.{ Wordform, Word }
 import org.apache.uima.cas.FeatureStructure
@@ -16,7 +16,7 @@ import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI
-import org.uimafit.factory.ExternalResourceFactory
+import org.apache.uima.fit.factory.ExternalResourceFactory
 
 /**
  * Created by fsqcds on 07/05/14.

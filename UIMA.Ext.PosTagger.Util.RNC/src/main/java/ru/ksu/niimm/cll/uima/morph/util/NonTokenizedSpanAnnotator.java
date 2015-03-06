@@ -8,7 +8,7 @@ import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 
 import ru.kfu.cll.uima.tokenizer.fstype.TokenBase;
 import ru.ksu.niimm.cll.uima.morph.util.NonTokenizedSpan;

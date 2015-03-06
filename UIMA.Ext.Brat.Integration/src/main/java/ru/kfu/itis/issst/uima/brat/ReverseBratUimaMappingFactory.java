@@ -24,11 +24,11 @@ import org.nlplab.brat.configuration.BratRelationType;
 import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.EventRole;
 import org.nlplab.brat.configuration.HasRoles;
-import org.uimafit.component.initialize.ConfigurationParameterInitializer;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ResourceCreationSpecifierFactory;
-import org.uimafit.factory.initializable.Initializable;
+import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ResourceCreationSpecifierFactory;
+import org.apache.uima.fit.factory.initializable.Initializable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -43,9 +43,9 @@ public class ReverseBratUimaMappingFactory extends BratUimaMappingFactoryBase im
 	public static final String PARAM_U2B_DESC_PATH = "Uima2BratDescriptorPath";
 	public static final String PARAM_U2B_DESC_NAME = "Uima2BratDescriptorName";
 
-	@ConfigurationParameter(name = PARAM_U2B_DESC_PATH)
+	@ConfigurationParameter(name = PARAM_U2B_DESC_PATH, mandatory = false)
 	private String u2bDescPath;
-	@ConfigurationParameter(name = PARAM_U2B_DESC_NAME)
+	@ConfigurationParameter(name = PARAM_U2B_DESC_NAME, mandatory = false)
 	private String u2bDescName;
 
 	@Override
@@ -75,7 +75,7 @@ public class ReverseBratUimaMappingFactory extends BratUimaMappingFactoryBase im
 	private UimaBratMapping createU2BMapping() throws UIMAException, IOException {
 		AnalysisEngineDescription u2bDesc;
 		if (u2bDescName != null) {
-			u2bDesc = AnalysisEngineFactory.createAnalysisEngineDescription(u2bDescName);
+			u2bDesc = AnalysisEngineFactory.createEngineDescription(u2bDescName);
 		} else {
 			u2bDesc = (AnalysisEngineDescription) ResourceCreationSpecifierFactory
 					.createResourceCreationSpecifier(u2bDescPath, null);

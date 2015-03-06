@@ -30,10 +30,10 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.util.CasUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -52,7 +52,7 @@ public class IobWriter extends CasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription(Iterable<String> encodeTypes,
 			File outputDir) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(IobWriter.class,
+		return AnalysisEngineFactory.createEngineDescription(IobWriter.class,
 				PARAM_ENCODE_TYPES, newArrayList(encodeTypes),
 				PARAM_OUTPUT_DIR, outputDir);
 	}
@@ -60,7 +60,7 @@ public class IobWriter extends CasAnnotator_ImplBase {
 	public static AnalysisEngineDescription createDescription(
 			Iterable<String> encodeTypes, Iterable<String> encodeTypeLabels,
 			File outputDir) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(IobWriter.class,
+		return AnalysisEngineFactory.createEngineDescription(IobWriter.class,
 				PARAM_ENCODE_TYPES, newArrayList(encodeTypes),
 				PARAM_ENCODE_TYPE_LABELS, newArrayList(encodeTypeLabels),
 				PARAM_OUTPUT_DIR, outputDir);

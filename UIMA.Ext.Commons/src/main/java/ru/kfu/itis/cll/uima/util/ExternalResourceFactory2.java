@@ -3,19 +3,19 @@
  */
 package ru.kfu.itis.cll.uima.util;
 
-import static org.uimafit.factory.ConfigurationParameterFactory.canParameterBeSet;
-import static org.uimafit.factory.ExternalResourceFactory.PARAM_RESOURCE_NAME;
-import static org.uimafit.factory.ExternalResourceFactory.PREFIX_SEPARATOR;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceBinding;
+import static org.apache.uima.fit.factory.ConfigurationParameterFactory.canParameterBeSet;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.PARAM_RESOURCE_NAME;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.PREFIX_SEPARATOR;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceBinding;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.ExternalResourceBinding;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.util.ExtendedExternalResourceDescription_impl;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.internal.ExtendedExternalResourceDescription_impl;
 
 /**
  * Work-around for ?bugs? in UIMAfit {@link ExternalResourceFactory}

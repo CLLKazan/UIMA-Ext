@@ -6,10 +6,10 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.uimafit.component.Resource_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.cleartk.ml.CleartkProcessingException;
+import org.apache.uima.fit.component.Resource_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 
 import java.io.File;

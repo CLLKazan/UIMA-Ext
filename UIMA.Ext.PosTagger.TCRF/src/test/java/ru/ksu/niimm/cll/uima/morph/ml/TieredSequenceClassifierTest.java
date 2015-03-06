@@ -3,7 +3,7 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.CleartkProcessingException;
+import org.cleartk.ml.CleartkProcessingException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -24,11 +24,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase {
     @Mock
-    private org.cleartk.classifier.SequenceClassifier<String> classifier1;
+    private org.cleartk.ml.SequenceClassifier<String> classifier1;
     @Mock
-    private org.cleartk.classifier.SequenceClassifier<String> classifier2;
+    private org.cleartk.ml.SequenceClassifier<String> classifier2;
     @Mock
-    private org.cleartk.classifier.SequenceClassifier<String> classifier3;
+    private org.cleartk.ml.SequenceClassifier<String> classifier3;
 
     @Test
     public void testCorrectFeatureFlow() throws CleartkProcessingException {

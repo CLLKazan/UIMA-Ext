@@ -6,8 +6,8 @@ package ru.kfu.itis.cll.uima.annotator;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.util.ExtendedLogger;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.internal.ExtendedLogger;
 
 /**
  * This annotator will print to UIMA logger CAS text and each annotations.

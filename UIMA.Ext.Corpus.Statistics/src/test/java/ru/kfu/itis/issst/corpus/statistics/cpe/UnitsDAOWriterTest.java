@@ -1,20 +1,16 @@
 package ru.kfu.itis.issst.corpus.statistics.cpe;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.junit.Assert.assertEquals;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.collection.CollectionReader;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
@@ -22,17 +18,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
-
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.XmiFileTreeCorpusDAO;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
-import com.google.common.collect.Sets;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Set;
+
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.junit.Assert.assertEquals;
 
 public class UnitsDAOWriterTest {
 	String corpusPathString = Thread.currentThread().getContextClassLoader()
@@ -66,24 +63,24 @@ public class UnitsDAOWriterTest {
 								.createTypeSystemDescription(),
 						TokenizerAPI.getTypeSystemDescription(),
 						SentenceSplitterAPI.getTypeSystemDescription()));
-		reader = CollectionReaderFactory.createCollectionReader(
-				CorpusDAOCollectionReader.class, tsd,
-				CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);
+		reader = CollectionReaderFactory.createReader(
+                CorpusDAOCollectionReader.class, tsd,
+                CorpusDAOCollectionReader.CORPUS_DAO_KEY, daoDesc);
 		CAS aCAS = CasCreationUtils.createCas(tsd, null, null, null);
 		reader.typeSystemInit(aCAS.getTypeSystem());
 		tokenizerSentenceSplitter = AnalysisEngineFactory
-				.createAggregate(Unitizer.createTokenizerSentenceSplitterAED());
-		unitAnnotator = AnalysisEngineFactory.createPrimitive(
-				UnitAnnotator.class, UnitAnnotator.PARAM_UNIT_TYPE_NAMES,
-				unitTypes);
-		unitClassifier = AnalysisEngineFactory.createPrimitive(
-				UnitClassifier.class, UnitClassifier.PARAM_CLASS_TYPE_NAMES,
-				classTypes);
+				.createEngine(Unitizer.createTokenizerSentenceSplitterAED());
+		unitAnnotator = AnalysisEngineFactory.createEngine(
+                UnitAnnotator.class, UnitAnnotator.PARAM_UNIT_TYPE_NAMES,
+                unitTypes);
+		unitClassifier = AnalysisEngineFactory.createEngine(
+                UnitClassifier.class, UnitClassifier.PARAM_CLASS_TYPE_NAMES,
+                classTypes);
 
 		unitsTSV = tempFolder.newFile();
-		unitsDAOWriter = AnalysisEngineFactory.createPrimitive(
-				UnitsDAOWriter.class, UnitsDAOWriter.UNITS_TSV_PATH,
-				unitsTSV.getPath());
+		unitsDAOWriter = AnalysisEngineFactory.createEngine(
+                UnitsDAOWriter.class, UnitsDAOWriter.UNITS_TSV_PATH,
+                unitsTSV.getPath());
 	}
 
 	@Test

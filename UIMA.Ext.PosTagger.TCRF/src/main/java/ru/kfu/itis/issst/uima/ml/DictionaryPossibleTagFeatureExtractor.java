@@ -13,13 +13,12 @@ import java.util.*;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleNamedFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.NamedFeatureExtractor1;
 import org.opencorpora.cas.Word;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.kfu.itis.issst.uima.ml.PUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
@@ -36,7 +35,7 @@ import com.google.common.collect.Sets;
  * @author Rinat Gareev
  *
  */
-public class DictionaryPossibleTagFeatureExtractor implements SimpleNamedFeatureExtractor {
+public class DictionaryPossibleTagFeatureExtractor implements NamedFeatureExtractor1 {
 
 	/**
 	 * this name will only be used by CleartkExtractor if target is

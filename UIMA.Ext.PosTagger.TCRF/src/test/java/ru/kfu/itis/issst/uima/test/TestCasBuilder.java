@@ -1,10 +1,9 @@
 package ru.kfu.itis.issst.uima.test;
 
-import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.factory.AnnotationFactory;
+import org.apache.uima.fit.factory.AnnotationFactory;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.PM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -77,11 +76,7 @@ public class TestCasBuilder {
 
     private Token token(JCas jCas, int begin, int end, Class<? extends Token> tokClass) {
         Token result;
-        try {
-            result = AnnotationFactory.createAnnotation(jCas, begin, end, tokClass);
-        } catch (UIMAException e) {
-            throw new IllegalStateException(e);
-        }
+        result = AnnotationFactory.createAnnotation(jCas, begin, end, tokClass);
         if (sentenceFirstToken == null)
             sentenceFirstToken = result;
         return result;

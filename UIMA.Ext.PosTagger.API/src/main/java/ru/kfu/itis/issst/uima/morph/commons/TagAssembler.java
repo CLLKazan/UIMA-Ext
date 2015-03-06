@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.commons;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -13,11 +13,11 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.initializable.InitializableFactory;
-import org.uimafit.util.FSCollectionFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.initializable.InitializableFactory;
+import org.apache.uima.fit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
@@ -41,7 +41,7 @@ public class TagAssembler extends JCasAnnotator_ImplBase {
 	 */
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
-		AnalysisEngineDescription desc = createPrimitiveDescription(
+		AnalysisEngineDescription desc = createEngineDescription(
 				TagAssembler.class, // it does not produce any additional annotations => no need in TS 
 				PARAM_TAG_MAPPER_CLASS, GramModelBasedTagMapper.class.getName());
 		GramModelBasedTagMapper.declareResourceDependencies(desc);

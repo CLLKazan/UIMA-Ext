@@ -6,11 +6,11 @@ package ru.kfu.itis.issst.cleartk.crfsuite;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.encoder.CleartkEncoderException;
-import org.cleartk.classifier.encoder.FeatureEncoderUtil;
-import org.cleartk.classifier.encoder.features.FeaturesEncoder_ImplBase;
-import org.cleartk.classifier.encoder.features.NameNumber;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.encoder.CleartkEncoderException;
+import org.cleartk.ml.encoder.FeatureEncoderUtil;
+import org.cleartk.ml.encoder.features.FeaturesEncoder_ImplBase;
+import org.cleartk.ml.encoder.features.NameNumber;
 
 /**
  * This is re-implementation of

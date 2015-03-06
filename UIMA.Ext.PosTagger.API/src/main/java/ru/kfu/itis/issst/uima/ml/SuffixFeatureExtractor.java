@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
  * @author Rinat Gareev
  * 
  */
-public class SuffixFeatureExtractor implements SimpleFeatureExtractor {
+public class SuffixFeatureExtractor implements FeatureExtractor1 {
 
 	private int maxSuffixLength;
 

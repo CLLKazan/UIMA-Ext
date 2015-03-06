@@ -47,10 +47,10 @@ import org.nlplab.brat.configuration.BratType;
 import org.nlplab.brat.configuration.BratTypesConfiguration;
 import org.nlplab.brat.configuration.EventRole;
 import org.nlplab.brat.configuration.EventRole.Cardinality;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.OperationalProperties;
+import org.apache.uima.fit.util.CasUtil;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedHashMultimap;

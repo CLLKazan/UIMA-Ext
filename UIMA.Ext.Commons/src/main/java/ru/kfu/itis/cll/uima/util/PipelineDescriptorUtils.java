@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.cll.uima.util;
 
-import static org.uimafit.factory.ResourceCreationSpecifierFactory.createResourceCreationSpecifier;
+import static org.apache.uima.fit.factory.ResourceCreationSpecifierFactory.createResourceCreationSpecifier;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,7 +27,7 @@ import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.MetaDataObject;
 import org.apache.uima.resource.metadata.ResourceManagerConfiguration;
 import org.apache.uima.resource.metadata.impl.ResourceManagerConfiguration_impl;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 import com.google.common.collect.ImmutableList;
 

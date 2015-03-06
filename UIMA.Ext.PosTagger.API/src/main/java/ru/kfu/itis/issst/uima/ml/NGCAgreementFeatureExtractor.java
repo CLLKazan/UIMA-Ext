@@ -11,12 +11,12 @@ import java.util.Map;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.itis.issst.uima.morph.commons.AgreementPredicates;
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
@@ -33,7 +33,7 @@ import com.google.common.collect.Lists;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class NGCAgreementFeatureExtractor implements SimpleFeatureExtractor {
+public class NGCAgreementFeatureExtractor implements FeatureExtractor1 {
 
 	private GramModel gramModel;
 	private TagMapper tagMapper;

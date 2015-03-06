@@ -1,8 +1,8 @@
 package ru.kfu.itis.issst.uima.depparser.mst;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
 import static ru.kfu.itis.issst.uima.morph.commons.TagUtils.tagFunction;
 
@@ -20,10 +20,10 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.opencorpora.cas.Word;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.OperationalProperties;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.io.IoUtils;
@@ -40,7 +40,7 @@ public class MSTWriter extends JCasAnnotator_ImplBase {
 		TypeSystemDescription tsDesc = createTypeSystemDescription(
 				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
-		return createPrimitiveDescription(MSTWriter.class, tsDesc,
+		return createEngineDescription(MSTWriter.class, tsDesc,
 				PARAM_OUTPUT_FILE, outputFile.getPath());
 	}
 

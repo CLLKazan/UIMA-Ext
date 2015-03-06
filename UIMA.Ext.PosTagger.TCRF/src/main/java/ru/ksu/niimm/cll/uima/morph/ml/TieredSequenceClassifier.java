@@ -6,8 +6,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.Feature;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
 import ru.kfu.itis.issst.uima.ml.FeatureSets;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
@@ -33,7 +33,7 @@ import static java.lang.String.format;
  */
 public abstract class TieredSequenceClassifier<I extends AnnotationFS> implements SequenceClassifier<I, String[]> {
 
-    protected List<org.cleartk.classifier.SequenceClassifier<String>> classifiers;
+    protected List<org.cleartk.ml.SequenceClassifier<String>> classifiers;
     protected TieredFeatureExtractor<I, String> featureExtractor;
 
     @Override
@@ -77,13 +77,13 @@ public abstract class TieredSequenceClassifier<I extends AnnotationFS> implement
 
     @Override
     public void close() {
-        for (org.cleartk.classifier.SequenceClassifier<String> cl : classifiers)
+        for (org.cleartk.ml.SequenceClassifier<String> cl : classifiers)
             if (cl instanceof Closeable) {
                 IOUtils.closeQuietly((Closeable) cl);
             }
     }
 
-    private org.cleartk.classifier.SequenceClassifier<String> getClassifier(int tier) {
+    private org.cleartk.ml.SequenceClassifier<String> getClassifier(int tier) {
         return classifiers.get(tier);
     }
 }

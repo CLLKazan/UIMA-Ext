@@ -13,9 +13,9 @@ import opennlp.tools.util.SequenceValidator;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.initialize.ExternalResourceInitializer;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.initializable.Initializable;
+import org.apache.uima.fit.component.initialize.ExternalResourceInitializer;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.factory.initializable.Initializable;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.BitUtils;
@@ -57,7 +57,7 @@ public class DictionaryGrammemeLevelTokenSequenceValidator
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
-		ExternalResourceInitializer.initialize(ctx, this);
+		ExternalResourceInitializer.initialize(this, ctx);
 		morphDictionary = morphDictionaryHolder.getDictionary();
 		gramModel = morphDictionary.getGramModel();
 		// TODO this is application-specific tunings. Refactor them out

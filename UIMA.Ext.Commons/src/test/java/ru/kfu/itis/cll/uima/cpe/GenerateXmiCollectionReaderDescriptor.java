@@ -3,7 +3,8 @@
  */
 package ru.kfu.itis.cll.uima.cpe;
 
-import static org.uimafit.factory.CollectionReaderFactory.createDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,8 +21,8 @@ public class GenerateXmiCollectionReaderDescriptor {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		String outputPath = "src/main/resources/ru/kfu/itis/cll/uima/cpe/XmiCollectionReader.xml";
-		CollectionReaderDescription crDesc = createDescription(
-				XmiCollectionReader.class);
+		CollectionReaderDescription crDesc = createReaderDescription(
+                XmiCollectionReader.class);
 
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
