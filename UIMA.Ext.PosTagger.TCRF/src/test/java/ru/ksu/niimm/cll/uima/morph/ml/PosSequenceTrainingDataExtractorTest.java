@@ -13,22 +13,20 @@ import org.apache.uima.resource.ResourceManager;
 import org.apache.uima.resource.metadata.ResourceManagerConfiguration;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.resource.metadata.impl.ResourceManagerConfiguration_impl;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.test.AnnotationMatchers;
 import ru.kfu.itis.issst.uima.test.TestCasBuilder;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
-
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.*;
@@ -46,7 +44,7 @@ public class PosSequenceTrainingDataExtractorTest {
             PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 
     @Mock
-    private SequenceDataWriter<String[]> dataWriterMock;
+    private SequenceDataWriter<Token, String[]> dataWriterMock;
     private AnalysisEngine ae;
 
     @Before
@@ -72,7 +70,7 @@ public class PosSequenceTrainingDataExtractorTest {
                 PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, "mockedDataWriter");
         resMgr.initializeExternalResources(resMgrCfg, "/", Maps.<String, Object>newHashMap());
         @SuppressWarnings("unchecked")
-        MockedSequenceDataWriter<String[]> dw = (MockedSequenceDataWriter<String[]>) resMgr.getResource(
+        MockedSequenceDataWriter<Token, String[]> dw = (MockedSequenceDataWriter<Token, String[]>) resMgr.getResource(
                 "/" + PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER);
         dw.setMock(dataWriterMock);
         //
@@ -105,7 +103,7 @@ public class PosSequenceTrainingDataExtractorTest {
         // verify
         verify(dataWriterMock).write(eq(cas),
                 argThat(AnnotationMatchers.<Annotation>fromTo("Жилино", "области .")),
-                argThat(coverTextList("Жилино", "—", "село", "в", "Шуменской", "области", ".")),
+                argThat(coverTextList(Token.class, "Жилино", "—", "село", "в", "Шуменской", "области", ".")),
                 argThat(list(
                         arrayContaining("N", "sing&nomn", null),
                         arrayContaining("_P_", "_P_", "_P_"),
@@ -118,7 +116,7 @@ public class PosSequenceTrainingDataExtractorTest {
         );
         verify(dataWriterMock).write(eq(cas),
                 argThat(AnnotationMatchers.<Annotation>fromTo("Отправился", "Кадмом .")),
-                argThat(coverTextList("Отправился", "на", "поиски", "Европы", "вместе", "с", "Кадмом", ".")),
+                argThat(coverTextList(Token.class, "Отправился", "на", "поиски", "Европы", "вместе", "с", "Кадмом", ".")),
                 argThat(list(
                         arrayContaining("V", null, null),
                         arrayContaining("PREP", null, null),

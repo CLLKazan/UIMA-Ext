@@ -20,6 +20,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
@@ -48,7 +49,7 @@ public class PosSequenceTrainingDataExtractor extends JCasAnnotator_ImplBase {
     // config fields
     @ExternalResource(key = RESOURCE_DATA_WRITER, mandatory = true)
     // String[] array means that for each token we have several (ordered) labels - one for each tier
-    private SequenceDataWriter<String[]> dataWriter;
+    private SequenceDataWriter<Token, String[]> dataWriter;
     @ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
     private GramModelHolder gramModelHolder;
     private GramModel gramModel;

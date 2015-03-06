@@ -15,6 +15,8 @@ import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
+import ru.kfu.itis.issst.uima.ml.FeatureSet;
+import ru.kfu.itis.issst.uima.ml.FeatureSets;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
@@ -32,7 +34,7 @@ import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExt
 /**
  * @author Rinat Gareev
  */
-public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<String> {
+public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Token, String> {
 
     // constants
     public static final String CFG_LEFT_CONTEXT_SIZE = "leftContextSize";
@@ -104,7 +106,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Stri
 
     @Override
     public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
-                             JCas jCas, Annotation spanAnno, List<Token> tokens)
+                             JCas jCas, Annotation spanAnno, List<? extends Token> tokens)
             throws CleartkExtractorException {
         Preconditions.checkArgument(featSets.size() == labels.size());
         Preconditions.checkArgument(featSets.size() == tokens.size());
@@ -157,7 +159,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Stri
 
     @Override
     public void onAfterTier(List<FeatureSet> featSets, List<List<String>> labels, final int tier,
-                            JCas jCas, Annotation spanAnno, List<Token> tokens) {
+                            JCas jCas, Annotation spanAnno, List<? extends Token> tokens) {
         Preconditions.checkArgument(featSets.size() == labels.size());
         Preconditions.checkArgument(featSets.size() == tokens.size());
         // parse tier output labels into feature values
@@ -192,7 +194,7 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Stri
     }
 
     @Override
-    public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens)
+    public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<? extends Token> tokens)
             throws CleartkExtractorException {
         List<FeatureSet> resultList = newArrayListWithExpectedSize(tokens.size());
         for (Token tok : tokens) {

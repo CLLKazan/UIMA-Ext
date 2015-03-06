@@ -2,13 +2,15 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.CleartkProcessingException;
 import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.Instances;
-import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.ml.FeatureSet;
+import ru.kfu.itis.issst.uima.ml.FeatureSets;
+import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,23 +21,23 @@ import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 /**
  * @author Rinat Gareev
  */
-public abstract class TieredSequenceDataWriter implements SequenceDataWriter<String[]> {
+public abstract class TieredSequenceDataWriter<I extends AnnotationFS> implements SequenceDataWriter<I, String[]> {
 
     protected List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters;
-    protected TieredFeatureExtractor<String> featureExtractor;
+    protected TieredFeatureExtractor<I, String> featureExtractor;
 
     @Override
     public void write(JCas jCas, Annotation spanAnno,
-                      List<? extends FeatureStructure> seq, List<String[]> seqCompositeLabels)
+                      List<? extends I> seq, List<String[]> seqCompositeLabels)
             throws CleartkProcessingException {
         //
         checkArgument(seqCompositeLabels.size() == seq.size());
-        @SuppressWarnings("unchecked") List<Token> tokens = (List<Token>) seq;
+        @SuppressWarnings("unchecked") List<I> tokens = (List<I>) seq;
         //
         List<FeatureSet> featSets = featureExtractor.extractCommonFeatures(jCas, spanAnno, tokens);
         // accumulate tier labels
         List<List<String>> labelBuilders = newArrayListWithExpectedSize(tokens.size());
-        for (Token ignored : tokens) {
+        for (I ignored : tokens) {
             labelBuilders.add(Lists.<String>newArrayListWithExpectedSize(dataWriters.size()));
         }
         for (int tier = 0; tier < dataWriters.size(); tier++) {

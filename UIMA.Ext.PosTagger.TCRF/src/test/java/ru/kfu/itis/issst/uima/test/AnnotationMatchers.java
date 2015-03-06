@@ -24,19 +24,20 @@ public class AnnotationMatchers {
         return new FromToAnnoMatcher<A>(prefix, suffix);
     }
 
-    public static ArgumentMatcher<List<AnnotationFS>> coverTextList(final String... expectedTxts) {
-        return new ArgumentMatcher<List<AnnotationFS>>() {
+    public static <A extends AnnotationFS> ArgumentMatcher<List<A>> coverTextList(
+            Class<A> annoClass, final String... expectedTxts) {
+        return new ArgumentMatcher<List<A>>() {
             @Override
             public boolean matches(Object arg) {
                 if (arg == null) return false;
-                List<AnnotationFS> list = (List<AnnotationFS>) arg;
+                @SuppressWarnings("unchecked") List<A> list = (List<A>) arg;
                 if (list.size() != expectedTxts.length)
                     return false;
                 for (int i = 0; i < expectedTxts.length; i++) {
                     String txt = expectedTxts[i];
                     String actual;
                     if (list.get(i) instanceof Token) {
-                        actual = ((Token) list.get(i)).getCoveredText();
+                        actual = list.get(i).getCoveredText();
                     } else {
                         actual = ((Wordform) list.get(i)).getWord().getCoveredText();
                     }

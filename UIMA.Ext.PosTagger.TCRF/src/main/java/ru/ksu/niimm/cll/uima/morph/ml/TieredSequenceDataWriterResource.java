@@ -1,7 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.collect.Lists;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
@@ -11,10 +10,12 @@ import org.cleartk.classifier.CleartkProcessingException;
 import org.uimafit.component.Resource_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.ExternalResourceFactory;
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CacheKey;
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriter;
+import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.io.File;
@@ -30,7 +31,8 @@ import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.
 /**
  * @author Rinat Gareev
  */
-public class TieredSequenceDataWriterResource extends Resource_ImplBase implements SequenceDataWriter<String[]> {
+public class TieredSequenceDataWriterResource extends Resource_ImplBase
+        implements SequenceDataWriter<Token, String[]> {
 
     public static ExternalResourceDescription createDescription(File outputBaseDir) {
         return ExternalResourceFactory.createExternalResourceDescription(TieredSequenceDataWriterResource.class,
@@ -45,13 +47,13 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase implemen
     private File outputBaseDir;
     private Properties featureExtractionCfg;
     // aggregate
-    private TieredFeatureExtractor featureExtractor;
+    private TieredFeatureExtractor<Token, String> featureExtractor;
     private List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters;
     // delegate
     @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
     private CacheKey morphDictCacheKey;
     private MorphDictionary morphDictionary;
-    private TieredSequenceDataWriter delegate;
+    private TieredSequenceDataWriter<Token> delegate;
 
     @Override
     public boolean initialize(ResourceSpecifier aSpecifier, Map<String, Object> aAdditionalParams)
@@ -74,7 +76,7 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase implemen
     private void initialize() throws ResourceInitializationException {
         initFeatureExtractor();
         initUnderlyingDataWriters();
-        delegate = new TieredSequenceDataWriter() {
+        delegate = new TieredSequenceDataWriter<Token>() {
             {
                 this.dataWriters = TieredSequenceDataWriterResource.this.dataWriters;
                 this.featureExtractor = TieredSequenceDataWriterResource.this.featureExtractor;
@@ -123,7 +125,8 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase implemen
     }
 
     @Override
-    public void write(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq, List<String[]> seqLabels) throws CleartkProcessingException {
+    public void write(JCas jCas, Annotation spanAnno, List<? extends Token> seq, List<String[]> seqLabels)
+            throws CleartkProcessingException {
         delegate.write(jCas, spanAnno, seq, seqLabels);
     }
 

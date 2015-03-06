@@ -10,7 +10,6 @@ import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -30,7 +29,9 @@ import org.uimafit.factory.ExternalResourceFactory;
 import org.uimafit.factory.TypeSystemDescriptionFactory;
 import org.uimafit.util.JCasUtil;
 import org.xml.sax.SAXException;
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
@@ -53,7 +54,7 @@ import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverTextList;
  */
 public class SeqClassifierResourceBasedPosTaggerTest {
     @Mock
-    private SequenceClassifier<String[]> classifierMock;
+    private SequenceClassifier<Token, String[]> classifierMock;
     private AnalysisEngine ae;
 
     @Before
@@ -89,14 +90,14 @@ public class SeqClassifierResourceBasedPosTaggerTest {
         // stub
         when(classifierMock.classify(any(JCas.class),
                 argThat(coverText("Хутор Графский находится в Курском районе Ставропольского края.", Annotation.class)),
-                argThat(coverTextList("Хутор", "Графский", "находится", "в", "Курском", "районе",
-                        "Ставропольского", "края", "."))
+                argThat(coverTextList(Token.class,
+                        "Хутор", "Графский", "находится", "в", "Курском", "районе", "Ставропольского", "края", "."))
         )).thenReturn(of(a("N", null), a("A", "Named"), a(null, "V"), a("PREP", "_P_"),
                 // FIXME
                 a("A", "Named"), a("N", ""), a("A", "Named"), a("", "N"), a("_P_", "_1Pdgfhfld_")));
         when(classifierMock.classify(any(JCas.class),
                 argThat(coverText("Расстояние до краевого центра: 255 км.", Annotation.class)),
-                argThat(coverTextList("Расстояние", "до", "краевого", "центра", ":", "255", "км", "."))
+                argThat(coverTextList(Token.class, "Расстояние", "до", "краевого", "центра", ":", "255", "км", "."))
         )).thenReturn(of(a("N", null), a("PREP", ""), a("A", null), a("N", null), a("_P_", null),
                 a("NUM", ""), a("N", null), a("_P_", "_P_")));
         // invoke
@@ -119,12 +120,12 @@ public class SeqClassifierResourceBasedPosTaggerTest {
         return ImmutableSet.copyOf(elems);
     }
 
-    static SequenceClassifier<String[]> delegate;
+    static SequenceClassifier<Token, String[]> delegate;
 
-    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String[]>, SharedResourceObject {
+    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<Token, String[]>, SharedResourceObject {
 
         @Override
-        public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
+        public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends Token> seq)
                 throws CleartkProcessingException {
             return delegate.classify(jCas, spanAnno, seq);
         }

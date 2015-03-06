@@ -10,7 +10,8 @@ import org.cleartk.classifier.Feature;
 import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.ml.FeatureSet;
+import ru.kfu.itis.issst.uima.ml.FeatureSets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +65,10 @@ public class TieredSequenceHandlerTestBase {
         throw new IllegalStateException();
     }
 
-    protected class TestTieredFeatureExtractor implements TieredFeatureExtractor<String> {
+    protected class TestTieredFeatureExtractor implements TieredFeatureExtractor<Annotation, String> {
         @Override
         public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
-                                 JCas jCas, Annotation spanAnno, List<Token> tokens) {
+                                 JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {
             for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
                 FeatureSet tokFeatSet = featSets.get(tokPos);
                 tokFeatSet.add(of(new Feature(format("tier%s-%s", tier, tokPos))),
@@ -77,14 +78,15 @@ public class TieredSequenceHandlerTestBase {
 
         @Override
         public void onAfterTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
-                                JCas jCas, Annotation spanAnno, List<Token> tokens) {
+                                JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {
             for (FeatureSet tokFeatSet : featSets) {
                 tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
             }
         }
 
         @Override
-        public List<FeatureSet> extractCommonFeatures(JCas jCas, Annotation spanAnno, List<Token> tokens) {
+        public List<FeatureSet> extractCommonFeatures(
+                JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {
             List<FeatureSet> resultList = Lists.newArrayList();
             for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
                 FeatureSet fs = FeatureSets.empty();

@@ -15,6 +15,7 @@ import org.uimafit.factory.TypeSystemDescriptionFactory;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
+import ru.kfu.itis.issst.uima.ml.FeatureSet;
 import ru.kfu.itis.issst.uima.morph.commons.DictionaryLoader4Tests;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;

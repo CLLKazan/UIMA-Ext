@@ -3,7 +3,6 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.DataResource;
@@ -16,6 +15,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uimafit.factory.ExternalResourceFactory;
+import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.List;
 public class SeqClassifierResourceBasedPosTaggerLifecycleTest {
 
     @Mock
-    private SequenceClassifier<String> classifierMock;
+    private SequenceClassifier<Annotation, String> classifierMock;
 
     @Before
     public void before() {
@@ -52,12 +52,12 @@ public class SeqClassifierResourceBasedPosTaggerLifecycleTest {
     }
 
 
-    static SequenceClassifier<String> delegate;
+    static SequenceClassifier<Annotation, String> delegate;
 
-    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<String>, SharedResourceObject {
+    public static class StaticSequenceClassifierWrapper implements SequenceClassifier<Annotation, String>, SharedResourceObject {
 
         @Override
-        public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
+        public List<String> classify(JCas jCas, Annotation spanAnno, List<? extends Annotation> seq)
                 throws CleartkProcessingException {
             return delegate.classify(jCas, spanAnno, seq);
         }

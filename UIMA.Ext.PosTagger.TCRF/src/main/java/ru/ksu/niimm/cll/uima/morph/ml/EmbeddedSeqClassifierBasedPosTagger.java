@@ -6,6 +6,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.AnalysisEngineFactory;
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import java.io.File;
@@ -13,7 +15,7 @@ import java.io.File;
 import static java.lang.String.format;
 
 /**
- * A PoS-tagger annotator where each annotator copy has its own instance of {@link ru.ksu.niimm.cll.uima.morph.ml.SequenceClassifier}.
+ * A PoS-tagger annotator where each annotator copy has its own instance of {@link ru.kfu.itis.issst.uima.ml.SequenceClassifier}.
  *
  * @author Rinat Gareev
  */
@@ -42,7 +44,7 @@ public class EmbeddedSeqClassifierBasedPosTagger extends SeqClassifierBasedPosTa
     @ConfigurationParameter(name = PARAM_MODEL_BASE_PATH, mandatory = false)
     private String modelBasePath;
     // aggregates
-    private SequenceClassifier<String[]> classifier;
+    private SequenceClassifier<Token, String[]> classifier;
 
     @Override
     public void initialize(UimaContext ctx) throws ResourceInitializationException {
@@ -63,11 +65,12 @@ public class EmbeddedSeqClassifierBasedPosTagger extends SeqClassifierBasedPosTa
                     "%s is not a directory", modelBaseDir));
         }
         //
-        classifier = TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
+        //noinspection unchecked
+        classifier = (SequenceClassifier<Token, String[]>) TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
     }
 
     @Override
-    protected SequenceClassifier<String[]> getClassifier() {
+    protected SequenceClassifier<Token, String[]> getClassifier() {
         return classifier;
     }
 

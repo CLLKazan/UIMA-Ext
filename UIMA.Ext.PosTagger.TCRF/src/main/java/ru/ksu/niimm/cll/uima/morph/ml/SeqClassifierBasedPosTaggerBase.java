@@ -13,6 +13,7 @@ import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
+import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
@@ -39,7 +40,7 @@ abstract class SeqClassifierBasedPosTaggerBase extends JCasAnnotator_ImplBase {
     // per-CAS state fields
     private Map<Token, Word> token2WordIndex;
 
-    protected abstract SequenceClassifier<String[]> getClassifier();
+    protected abstract SequenceClassifier<Token, String[]> getClassifier();
 
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {

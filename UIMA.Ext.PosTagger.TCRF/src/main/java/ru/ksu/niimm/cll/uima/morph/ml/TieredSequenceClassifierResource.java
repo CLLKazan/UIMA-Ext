@@ -1,6 +1,6 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
@@ -10,12 +10,10 @@ import org.cleartk.classifier.CleartkProcessingException;
 import org.uimafit.component.Resource_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.ExternalResourceFactory;
+import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +22,8 @@ import static java.lang.String.format;
 /**
  * @author Rinat Gareev
  */
-public class TieredSequenceClassifierResource extends Resource_ImplBase implements SequenceClassifier<String[]> {
+public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Resource_ImplBase
+        implements SequenceClassifier<I, String[]> {
 
     /**
      * the base path used by engine descriptor that implements UIMA-Ext PoS-tagger API
@@ -51,7 +50,7 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
     @ConfigurationParameter(name = PARAM_MODEL_BASE_PATH, mandatory = false)
     private String modelBasePath;
     // aggregate
-    private TieredSequenceClassifier delegate;
+    private TieredSequenceClassifier<I> delegate;
 
     @Override
     public boolean initialize(ResourceSpecifier aSpecifier, Map<String, Object> aAdditionalParams)
@@ -72,12 +71,13 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
             throw new IllegalStateException(format(
                     "%s is not a directory", modelBaseDir));
         }
-        delegate = TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
+        //noinspection unchecked
+        delegate = (TieredSequenceClassifier<I>) TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
         return true;
     }
 
     @Override
-    public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq)
+    public List<String[]> classify(JCas jCas, Annotation spanAnno, List<? extends I> seq)
             throws CleartkProcessingException {
         return delegate.classify(jCas, spanAnno, seq);
     }

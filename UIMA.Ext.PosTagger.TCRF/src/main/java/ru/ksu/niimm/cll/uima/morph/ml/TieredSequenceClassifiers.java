@@ -4,7 +4,6 @@ import com.beust.jcommander.internal.Lists;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceManager;
-import org.cleartk.classifier.*;
 import org.cleartk.classifier.SequenceClassifier;
 import org.cleartk.classifier.jar.JarClassifierBuilder;
 import ru.kfu.itis.cll.uima.io.IoUtils;
@@ -47,7 +46,7 @@ public class TieredSequenceClassifiers {
         return new File(modelBaseURL.toURI());
     }
 
-    public static TieredSequenceClassifier fromModelBaseDir(File modelBaseDir)
+    public static TieredSequenceClassifier<?> fromModelBaseDir(File modelBaseDir)
             throws ResourceInitializationException {
         final CachedResourceTuple<MorphDictionary> morphDictTuple;
         final SimpleTieredFeatureExtractor lFeatureExtractor;

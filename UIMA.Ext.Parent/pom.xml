@@ -20,6 +20,7 @@
 		<module>../UIMA.Ext.Morph.Dictionary.API</module>
 		<module>../UIMA.Ext.Morph.Dictionary.OpenCorpora</module>
 		<module>../UIMA.Ext.Morph.Predict.OpenCorpora</module>
+        <module>../UIMA.Ext.ML.Commons</module>
 		<module>../UIMA.Ext.PosTagger.API</module>
 		<module>../UIMA.Ext.PosTagger.DictBaseline</module>
 		<module>../UIMA.Ext.PosTagger.FreqBaseline</module>
@@ -174,6 +175,11 @@
 				<artifactId>uima-ext-commons</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>ru.ksu.niimm.cll.uima</groupId>
+                <artifactId>uima-ext-ml-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>ru.ksu.niimm.cll.uima</groupId>
                 <artifactId>uima-ext-benchmarking</artifactId>

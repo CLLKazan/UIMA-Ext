@@ -1,6 +1,6 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
-import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.classifier.CleartkProcessingException;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Rinat Gareev
  */
-public interface SequenceDataWriter<OUT> extends Closeable {
+public interface SequenceDataWriter<I extends AnnotationFS, OUT> extends Closeable {
 
     /**
      * Write training data for the given sequence.
@@ -26,6 +26,6 @@ public interface SequenceDataWriter<OUT> extends Closeable {
      * @param seqLabels sequence item classification labels
      * @throws CleartkProcessingException
      */
-    void write(JCas jCas, Annotation spanAnno, List<? extends FeatureStructure> seq, List<OUT> seqLabels)
+    void write(JCas jCas, Annotation spanAnno, List<? extends I> seq, List<OUT> seqLabels)
             throws CleartkProcessingException;
 }

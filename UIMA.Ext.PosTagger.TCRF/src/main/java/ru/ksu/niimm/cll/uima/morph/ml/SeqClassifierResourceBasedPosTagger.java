@@ -8,13 +8,12 @@ import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.uimafit.descriptor.ExternalResource;
 import org.uimafit.factory.AnalysisEngineFactory;
+import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
-import static java.lang.String.format;
-import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
-
 /**
- * A PoS-tagger annotator where annotator copies share one instance of {@link ru.ksu.niimm.cll.uima.morph.ml.SequenceClassifier}
+ * A PoS-tagger annotator where annotator copies share one instance of {@link ru.kfu.itis.issst.uima.ml.SequenceClassifier}
  * (as UIMA external resource).
  *
  * @author Rinat Gareev (Kazan Federal University)
@@ -40,10 +39,10 @@ public class SeqClassifierResourceBasedPosTagger extends SeqClassifierBasedPosTa
 
     // config fields
     @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
-    private SequenceClassifier<String[]> classifier;
+    private SequenceClassifier<Token, String[]> classifier;
 
     @Override
-    protected SequenceClassifier<String[]> getClassifier() {
+    protected SequenceClassifier<Token, String[]> getClassifier() {
         return classifier;
     }
 }
