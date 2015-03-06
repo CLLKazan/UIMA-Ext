@@ -24,12 +24,9 @@ public class GenerateDescriptorForPosTaggerAPI {
         String outPath = "src/main/resources/"
                 + PosTaggerAPI.AE_POSTAGGER.replace('.', '/')
                 + ".xml";
-        // a classifier resource description
-        ExternalResourceDescription clResDesc = TieredSequenceClassifierResource.createDescription(
-                TieredSequenceClassifierResource.RU_MODEL_BASE_PATH);
-        clResDesc.setName("PoS-Sequence-Classifier-RU");
         //
-        AnalysisEngineDescription resultDesc = SeqClassifierResourceBasedPosTagger.createDescription(clResDesc);
+        AnalysisEngineDescription resultDesc = EmbeddedSeqClassifierBasedPosTagger.createDescription(
+                TieredSequenceClassifierResource.RU_MODEL_BASE_PATH);
         resultDesc.getAnalysisEngineMetaData().setName("PoS-tagger-RU");
         // write to an XML file
         FileOutputStream out = FileUtils.openOutputStream(new File(outPath));
