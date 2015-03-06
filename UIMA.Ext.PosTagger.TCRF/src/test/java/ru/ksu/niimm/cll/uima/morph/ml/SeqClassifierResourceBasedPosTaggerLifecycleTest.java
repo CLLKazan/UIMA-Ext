@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Rinat Gareev
  */
-public class SequenceClassifierBasedPosTaggerLifecycleTest {
+public class SeqClassifierResourceBasedPosTaggerLifecycleTest {
 
     @Mock
     private SequenceClassifier<String> classifierMock;
@@ -36,12 +36,12 @@ public class SequenceClassifierBasedPosTaggerLifecycleTest {
 
     @Test
     public void initAndDestroy() throws ResourceInitializationException {
-        AnalysisEngineDescription taggerDesc = SeqClassifierBasedPosTagger.createDescription();
+        AnalysisEngineDescription taggerDesc = SeqClassifierResourceBasedPosTagger.createDescription();
         // bind classifier resource
         ExternalResourceDescription classifierDesc = ExternalResourceFactory.createExternalResourceDescription(
                 StaticSequenceClassifierWrapper.class, "file:pom.xml");
         ExternalResourceFactory.bindExternalResource(
-                taggerDesc, SeqClassifierBasedPosTagger.RESOURCE_CLASSIFIER, classifierDesc);
+                taggerDesc, SeqClassifierResourceBasedPosTagger.RESOURCE_CLASSIFIER, classifierDesc);
         // stub
 
         // invoke

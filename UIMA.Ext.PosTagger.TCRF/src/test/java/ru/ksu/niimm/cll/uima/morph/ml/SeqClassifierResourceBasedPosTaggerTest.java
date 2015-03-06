@@ -51,7 +51,7 @@ import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverTextList;
 /**
  * @author Rinat Gareev
  */
-public class SequenceClassifierBasedPosTaggerTest {
+public class SeqClassifierResourceBasedPosTaggerTest {
     @Mock
     private SequenceClassifier<String[]> classifierMock;
     private AnalysisEngine ae;
@@ -67,13 +67,13 @@ public class SequenceClassifierBasedPosTaggerTest {
                 PosTaggerAPI.TYPESYSTEM_POSTAGGER
         );
         AnalysisEngineDescription taggerDesc = AnalysisEngineFactory.createPrimitiveDescription(
-                SeqClassifierBasedPosTagger.class,
+                SeqClassifierResourceBasedPosTagger.class,
                 tsd);
         // bind classifier resource
         ExternalResourceDescription classifierDesc = ExternalResourceFactory.createExternalResourceDescription(
                 StaticSequenceClassifierWrapper.class, "file:pom.xml");
         ExternalResourceFactory.bindExternalResource(
-                taggerDesc, SeqClassifierBasedPosTagger.RESOURCE_CLASSIFIER, classifierDesc);
+                taggerDesc, SeqClassifierResourceBasedPosTagger.RESOURCE_CLASSIFIER, classifierDesc);
         ae = UIMAFramework.produceAnalysisEngine(taggerDesc);
     }
 

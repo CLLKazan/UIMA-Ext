@@ -1,30 +1,20 @@
-/**
- *
- */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ExternalResourceDescription;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.classifier.CleartkProcessingException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
 import org.uimafit.component.JCasAnnotator_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.AnalysisEngineFactory;
 import org.uimafit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.ml.WordAnnotator;
 import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
-import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import java.util.*;
 
@@ -38,30 +28,9 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.DEFAULT_REUSE_EXISTI
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
 /**
- * @author Rinat Gareev (Kazan Federal University)
+ * @author Rinat Gareev
  */
-public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
-
-    public static AnalysisEngineDescription createDescription() throws ResourceInitializationException {
-        return AnalysisEngineFactory.createPrimitiveDescription(
-                SeqClassifierBasedPosTagger.class,
-                PosTaggerAPI.getTypeSystemDescription());
-    }
-
-    public static AnalysisEngineDescription createDescription(
-            ExternalResourceDescription classifierResourceDesc)
-            throws ResourceInitializationException {
-        return AnalysisEngineFactory.createPrimitiveDescription(
-                SeqClassifierBasedPosTagger.class,
-                PosTaggerAPI.getTypeSystemDescription(),
-                RESOURCE_CLASSIFIER, classifierResourceDesc);
-    }
-
-    public static final String RESOURCE_CLASSIFIER = "classifier";
-
-    // config fields
-    @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
-    private SequenceClassifier<String[]> classifier;
+abstract class SeqClassifierBasedPosTaggerBase extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
             defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
@@ -70,10 +39,7 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
     // per-CAS state fields
     private Map<Token, Word> token2WordIndex;
 
-    @Override
-    public void initialize(UimaContext ctx) throws ResourceInitializationException {
-        super.initialize(ctx);
-    }
+    protected abstract SequenceClassifier<String[]> getClassifier();
 
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -106,7 +72,7 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
         List<Token> tokens = JCasUtil.selectCovered(jCas, Token.class, sent);
         if (tokens.isEmpty()) return;
         // invoke the classifier
-        List<String[]> labelSeq = classifier.classify(jCas, sent, tokens);
+        List<String[]> labelSeq = getClassifier().classify(jCas, sent, tokens);
         //
         if (labelSeq.size() != tokens.size()) {
             throw new IllegalStateException();
@@ -142,7 +108,6 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
                 }
             }
         }
-
     }
 
     private static List<String> toGramList(List<String> tieredLabel) {
@@ -166,5 +131,4 @@ public class SeqClassifierBasedPosTagger extends JCasAnnotator_ImplBase {
             w.setWordforms(FSUtils.toFSArray(jCas, wf));
         }
     }
-
 }

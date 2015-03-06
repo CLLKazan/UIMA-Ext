@@ -29,7 +29,7 @@ public class GenerateDescriptorForPosTaggerAPI {
                 TieredSequenceClassifierResource.RU_MODEL_BASE_PATH);
         clResDesc.setName("PoS-Sequence-Classifier-RU");
         //
-        AnalysisEngineDescription resultDesc = SeqClassifierBasedPosTagger.createDescription(clResDesc);
+        AnalysisEngineDescription resultDesc = SeqClassifierResourceBasedPosTagger.createDescription(clResDesc);
         resultDesc.getAnalysisEngineMetaData().setName("PoS-tagger-RU");
         // write to an XML file
         FileOutputStream out = FileUtils.openOutputStream(new File(outPath));

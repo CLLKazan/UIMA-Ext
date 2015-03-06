@@ -226,7 +226,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             primitiveDescs.add(goldRemoverDesc);
             primitiveNames.add("goldRemover");
             //
-            AnalysisEngineDescription taggerDesc = SeqClassifierBasedPosTagger.createDescription(
+            AnalysisEngineDescription taggerDesc = SeqClassifierResourceBasedPosTagger.createDescription(
                     TieredSequenceClassifierResource.createDescription(modelBaseDir)
             );
             primitiveDescs.add(taggerDesc);

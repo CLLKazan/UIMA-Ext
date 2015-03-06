@@ -1,6 +1,5 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import com.beust.jcommander.internal.Lists;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -8,25 +7,17 @@ import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
 import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
 import org.uimafit.component.Resource_ImplBase;
 import org.uimafit.descriptor.ConfigurationParameter;
 import org.uimafit.factory.ExternalResourceFactory;
-import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
-import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static java.lang.String.format;
-import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
-import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG;
 
 /**
  * @author Rinat Gareev
@@ -58,9 +49,6 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
     @ConfigurationParameter(name = PARAM_MODEL_BASE_PATH, mandatory = false)
     private String modelBasePath;
     // aggregate
-    private CachedResourceTuple<MorphDictionary> morphDictTuple;
-    private List<org.cleartk.classifier.SequenceClassifier<String>> classifiers;
-    private SimpleTieredFeatureExtractor featureExtractor;
     private TieredSequenceClassifier delegate;
 
     @Override
@@ -88,48 +76,8 @@ public class TieredSequenceClassifierResource extends Resource_ImplBase implemen
                     "%s is not a directory", modelBaseDir
             ));
         }
-        try {
-            initialize();
-        } catch (Exception e) {
-            throw new ResourceInitializationException(e);
-        }
+        delegate = TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
         return true;
-    }
-
-    void initialize() throws Exception {
-        initDictionary();
-        initFeatureExtractor();
-        initUnderlyingClassifiers();
-        delegate = new TieredSequenceClassifier() {{
-            this.classifiers = TieredSequenceClassifierResource.this.classifiers;
-            this.featureExtractor = TieredSequenceClassifierResource.this.featureExtractor;
-        }};
-    }
-
-    private void initDictionary() throws Exception {
-        morphDictTuple = getMorphDictionaryAPI().getCachedInstance();
-    }
-
-    private void initFeatureExtractor() throws IOException {
-        File feCfgFile = new File(modelBaseDir, FILENAME_FEATURE_EXTRACTION_CONFIG);
-        Properties featExtractionCfg = IoUtils.readProperties(feCfgFile);
-        // TODO refactor implementation-specific logic
-        featureExtractor = SimpleTieredFeatureExtractor.from(featExtractionCfg);
-        featureExtractor.initialize(morphDictTuple.getResource());
-    }
-
-    private void initUnderlyingClassifiers() throws IOException {
-        classifiers = Lists.newArrayList();
-        GramTiers gramTiers = featureExtractor.getGramTiers();
-        for (int tier = 0; tier < gramTiers.getCount(); tier++) {
-            String tierId = gramTiers.getTierId(tier);
-            File tierModelDir = new File(modelBaseDir, tierId);
-            File tierModelJar = JarClassifierBuilder.getModelJarFile(tierModelDir);
-            JarSequenceClassifierFactory<String> clFactory = new JarSequenceClassifierFactory<String>();
-            clFactory.setClassifierJarPath(tierModelJar.getPath());
-            org.cleartk.classifier.SequenceClassifier<String> cl = clFactory.createClassifier();
-            classifiers.add(cl);
-        }
     }
 
     @Override

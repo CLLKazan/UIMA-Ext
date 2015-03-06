@@ -1,0 +1,46 @@
+/**
+ *
+ */
+package ru.ksu.niimm.cll.uima.morph.ml;
+
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.uimafit.descriptor.ExternalResource;
+import org.uimafit.factory.AnalysisEngineFactory;
+import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
+
+import static java.lang.String.format;
+import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
+
+/**
+ * @author Rinat Gareev (Kazan Federal University)
+ */
+public class SeqClassifierResourceBasedPosTagger extends SeqClassifierBasedPosTaggerBase {
+
+    public static AnalysisEngineDescription createDescription() throws ResourceInitializationException {
+        return AnalysisEngineFactory.createPrimitiveDescription(
+                SeqClassifierResourceBasedPosTagger.class,
+                PosTaggerAPI.getTypeSystemDescription());
+    }
+
+    public static AnalysisEngineDescription createDescription(
+            ExternalResourceDescription classifierResourceDesc)
+            throws ResourceInitializationException {
+        return AnalysisEngineFactory.createPrimitiveDescription(
+                SeqClassifierResourceBasedPosTagger.class,
+                PosTaggerAPI.getTypeSystemDescription(),
+                RESOURCE_CLASSIFIER, classifierResourceDesc);
+    }
+
+    public static final String RESOURCE_CLASSIFIER = "classifier";
+
+    // config fields
+    @ExternalResource(key = RESOURCE_CLASSIFIER, mandatory = true)
+    private SequenceClassifier<String[]> classifier;
+
+    @Override
+    protected SequenceClassifier<String[]> getClassifier() {
+        return classifier;
+    }
+}
