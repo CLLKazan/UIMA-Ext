@@ -92,22 +92,25 @@ public class UIMA2BratAnnotator extends CasAnnotator_ImplBase {
 	// annotator configuration fields
 	@ConfigurationParameter(name = BRAT_OUT, mandatory = true)
 	private File bratDirectory;
-	@ConfigurationParameter(name = ENTITIES_TO_BRAT)
+	@ConfigurationParameter(name = ENTITIES_TO_BRAT, mandatory = false)
 	private String[] entitiesToBratRaw;
 	private List<EntityDefinitionValue> entitiesToBrat;
-	@ConfigurationParameter(name = RELATIONS_TO_BRAT)
+	@ConfigurationParameter(name = RELATIONS_TO_BRAT, mandatory = false)
 	private String[] relationsToBratRaw;
 	private List<StructureDefinitionValue> relationsToBrat;
-	@ConfigurationParameter(name = EVENTS_TO_BRAT)
+	@ConfigurationParameter(name = EVENTS_TO_BRAT, mandatory = false)
 	private String[] eventsToBratRaw;
 	private List<StructureDefinitionValue> eventsToBrat;
-	@ConfigurationParameter(name = BRAT_NOTE_MAPPERS)
+	@ConfigurationParameter(name = BRAT_NOTE_MAPPERS, mandatory = false)
 	private String[] noteMappersDefinitionsRaw;
 	private List<NoteMapperDefinitionValue> noteMappersDefinitions;
-	@ConfigurationParameter(name = DOC_META_TYPE, defaultValue = "ru.kfu.itis.cll.uima.commons.DocumentMetadata")
+	@ConfigurationParameter(name = DOC_META_TYPE,
+            defaultValue = "ru.kfu.itis.cll.uima.commons.DocumentMetadata",
+            mandatory = false)
 	private String docMetaTypeName;
 	private Type docMetaType;
-	@ConfigurationParameter(name = DOC_META_URI_FEATURE, defaultValue = "sourceUri")
+	@ConfigurationParameter(name = DOC_META_URI_FEATURE,
+            defaultValue = "sourceUri", mandatory = false)
 	private String docMetaUriFeatName;
 	private Feature docMetaUriFeature;
 

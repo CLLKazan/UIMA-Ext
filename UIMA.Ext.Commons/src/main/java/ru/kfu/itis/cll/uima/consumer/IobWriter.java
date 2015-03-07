@@ -80,9 +80,10 @@ public class IobWriter extends CasAnnotator_ImplBase {
 
 	@ConfigurationParameter(name = PARAM_ENCODE_TYPES, mandatory = true)
 	private List<String> encodeTypeNames;
-	@ConfigurationParameter(name = PARAM_ENCODE_TYPE_LABELS)
+	@ConfigurationParameter(name = PARAM_ENCODE_TYPE_LABELS, mandatory = false)
 	private List<String> encodeTypeLabels;
-	@ConfigurationParameter(name = PARAM_TOKEN_TYPE, defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
+	@ConfigurationParameter(name = PARAM_TOKEN_TYPE,
+            defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token", mandatory = false)
 	private String tokenTypeName;
 	@ConfigurationParameter(name = PARAM_OUTPUT_DIR, mandatory = true)
 	private File outputDir;

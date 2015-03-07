@@ -62,7 +62,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	public static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
 
 	@ConfigurationParameter(name = PARAM_TOKEN_TYPE,
-			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
+			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token", mandatory = false)
 	private String tokenTypeName;
 	@ConfigurationParameter(name = PARAM_ANNOTATION_ADAPTER_CLASS, mandatory = true,
 			defaultValue = "ru.kfu.itis.issst.uima.postagger.DefaultAnnotationAdapter")

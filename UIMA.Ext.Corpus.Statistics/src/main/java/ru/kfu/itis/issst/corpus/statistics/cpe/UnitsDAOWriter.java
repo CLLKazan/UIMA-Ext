@@ -29,11 +29,17 @@ import ru.kfu.itis.issst.corpus.statistics.dao.units.UnitsDAO;
 public class UnitsDAOWriter extends CasAnnotator_ImplBase {
 
 	public final static String UNITS_TSV_PATH = "UnitsTSVPath";
-	@ConfigurationParameter(name = UNITS_TSV_PATH, defaultValue = "units.tsv", description = "Path to file to write units")
+	@ConfigurationParameter(name = UNITS_TSV_PATH,
+            defaultValue = "units.tsv",
+            mandatory = false,
+            description = "Path to file to write units")
 	private File unitsTSV;
 
 	final static String UNITS_DAO_IMPLEMENTATION_CLASS_NAME = "UnitsDAOImplementationClassName";
-	@ConfigurationParameter(name = UNITS_DAO_IMPLEMENTATION_CLASS_NAME, defaultValue = "ru.kfu.itis.issst.corpus.statistics.dao.units.InMemoryUnitsDAO", description = "Class name of UnitsDAO implementation")
+	@ConfigurationParameter(name = UNITS_DAO_IMPLEMENTATION_CLASS_NAME,
+            defaultValue = "ru.kfu.itis.issst.corpus.statistics.dao.units.InMemoryUnitsDAO",
+            mandatory = false,
+            description = "Class name of UnitsDAO implementation")
 	private String unitsDAOImplementationClassName;
 	private UnitsDAO unitsDAO;
 

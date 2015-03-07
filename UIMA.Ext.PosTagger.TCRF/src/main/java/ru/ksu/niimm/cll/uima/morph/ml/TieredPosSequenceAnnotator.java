@@ -81,16 +81,17 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	@ConfigurationParameter(name = PARAM_CURRENT_TIER, mandatory = true)
 	private int currentTier = -1;
 	// feature extraction parameters
-	@ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
+	@ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2", mandatory = false)
 	private int leftContextSize = -1;
-	@ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
+	@ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2", mandatory = false)
 	private int rightContextSize = -1;
-	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true", mandatory = false)
 	private boolean generateDictionaryFeatures;
-	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false", mandatory = false)
 	private boolean generatePunctuationFeatures;
 	@ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
-			defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
+			defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS,
+            mandatory = false)
 	private boolean reuseExistingWordAnnotations;
 	// derived
 	private MorphDictionary morphDictionary;

@@ -30,7 +30,7 @@ public class LinesCollectionReader extends CasCollectionReader_ImplBase {
 
 	@ConfigurationParameter(name = "inputFile", mandatory = true)
 	private File inputFile;
-	@ConfigurationParameter(name = "inputFileEncoding", defaultValue = DEFAULT_ENCODING)
+	@ConfigurationParameter(name = "inputFileEncoding", defaultValue = DEFAULT_ENCODING, mandatory = false)
 	private String inputFileEncoding = DEFAULT_ENCODING;
 	// state fields
 	private BufferedReader reader;

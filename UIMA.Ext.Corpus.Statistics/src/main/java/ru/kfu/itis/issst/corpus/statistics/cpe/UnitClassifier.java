@@ -19,7 +19,9 @@ public class UnitClassifier extends CasAnnotator_ImplBase {
 	public static final String CLASS_FEAT_NAME = "annotatorClass";
 
 	public static final String PARAM_CLASS_TYPE_NAMES = "classTypeNames";
-	@ConfigurationParameter(name = PARAM_CLASS_TYPE_NAMES, mandatory = true, description = "Set of class type names for classifying units")
+	@ConfigurationParameter(name = PARAM_CLASS_TYPE_NAMES,
+            mandatory = true,
+            description = "Set of class type names for classifying units")
 	private Set<String> classTypeNames;
 
 	private Type unitType;

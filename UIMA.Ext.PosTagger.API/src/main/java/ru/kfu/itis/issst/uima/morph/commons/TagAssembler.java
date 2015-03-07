@@ -52,7 +52,8 @@ public class TagAssembler extends JCasAnnotator_ImplBase {
 
 	// config
 	@ConfigurationParameter(name = PARAM_TAG_MAPPER_CLASS,
-			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper")
+			defaultValue = "ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper",
+            mandatory = false)
 	private String tagMapperClassName;
 	private TagMapper tagMapper;
 

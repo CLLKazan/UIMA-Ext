@@ -30,7 +30,7 @@ public class ConfigurableSerializedDictionaryResource implements MorphDictionary
 			.getLogger(ConfigurableSerializedDictionaryResource.class);
 
 	// config fields
-	@ConfigurationParameter(name = PARAM_PREDICTOR_CLASS_NAME)
+	@ConfigurationParameter(name = PARAM_PREDICTOR_CLASS_NAME, mandatory = false)
 	private String wfPredictorClassName;
 	// state fields
 	private MorphDictionary dict;

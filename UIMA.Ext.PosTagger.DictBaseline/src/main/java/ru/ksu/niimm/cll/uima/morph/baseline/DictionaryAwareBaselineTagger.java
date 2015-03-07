@@ -39,10 +39,10 @@ public class DictionaryAwareBaselineTagger extends DictionaryAwareBaselineAnnota
 	// config fields
 	@ExternalResource(key = RESOURCE_WFSTORE, mandatory = true)
 	private WordformStore<BitSet> wfStore;
-	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false", mandatory = false)
 	private boolean useDebugGrammems;
 	private AnnotationAdapter wordAnnoAdapter;
-	@ConfigurationParameter(name = PARAM_NUM_GRAMMEME)
+	@ConfigurationParameter(name = PARAM_NUM_GRAMMEME, mandatory = false)
 	private String numGrammeme;
 	// derived
 	private BitSet numGramBS;

@@ -37,7 +37,8 @@ import com.google.common.collect.Lists;
 public class QuotationAnnotator extends CasAnnotator_ImplBase {
 
 	@ConfigurationParameter(name = "spanAnnotationType",
-			defaultValue = "ru.kfu.cll.uima.segmentation.fstype.Sentence")
+			defaultValue = "ru.kfu.cll.uima.segmentation.fstype.Sentence",
+            mandatory = false)
 	private String spanAnnotationTypeName;
 	// derived
 	private Type spanAnnotationType;

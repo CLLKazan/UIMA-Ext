@@ -16,7 +16,7 @@ abstract class SuffixExaminingPosAnnotator extends JCasAnnotator_ImplBase {
 	public static final String KEY_SUFFIX_LENGTH = "suffixLength";
 
 	// config fields
-	@ConfigurationParameter(name = PARAM_SUFFIX_LENGTH)
+	@ConfigurationParameter(name = PARAM_SUFFIX_LENGTH, mandatory = false)
 	protected Integer suffixLength = -1;
 
 	protected String getSuffix(String wordStr) {

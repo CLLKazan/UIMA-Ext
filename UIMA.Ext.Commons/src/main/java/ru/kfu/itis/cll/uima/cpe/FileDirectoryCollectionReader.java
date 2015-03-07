@@ -55,11 +55,11 @@ public class FileDirectoryCollectionReader extends CasCollectionReader_ImplBase 
 	// config
 	@ConfigurationParameter(name = PARAM_DIRECTORY_PATH, mandatory = true)
 	private File directory;
-	@ConfigurationParameter(name = PARAM_FILE_EXTENSION, defaultValue = "txt")
+	@ConfigurationParameter(name = PARAM_FILE_EXTENSION, defaultValue = "txt", mandatory = false)
 	private String fileExtension;
-	@ConfigurationParameter(name = PARAM_ENCODING, defaultValue = "utf-8")
+	@ConfigurationParameter(name = PARAM_ENCODING, defaultValue = "utf-8", mandatory = false)
 	private String encoding;
-	@ConfigurationParameter(name = PARAM_SET_RELATIVE_URI, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_SET_RELATIVE_URI, defaultValue = "true", mandatory = false)
 	private boolean setRelativeURI;
 	// derived
 	private ArrayList<File> files;

@@ -27,7 +27,7 @@ public abstract class XmiCollectionReaderBase extends CasCollectionReader_ImplBa
 	 */
 	public static final String PARAM_FAILUNKNOWN = "FailOnUnknownType";
 
-	@ConfigurationParameter(name = PARAM_FAILUNKNOWN, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_FAILUNKNOWN, defaultValue = "true", mandatory = false)
 	private Boolean mFailOnUnknownType = true;
 
 	// state fields

@@ -38,7 +38,7 @@ public class TableWriter extends JCasAnnotator_ImplBase {
 	private String taggingName;
 	@ConfigurationParameter(name = PARAM_DATA_SOURCE_CONFIG_FILE, mandatory = true)
 	private File dataSourceConfigFile;
-	@ConfigurationParameter(name = PARAM_DISABLE_NEW_TEXT, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_DISABLE_NEW_TEXT, defaultValue = "true", mandatory = false)
 	private boolean disableNewText;
 	// state fields
 	private BasicDataSource ds;

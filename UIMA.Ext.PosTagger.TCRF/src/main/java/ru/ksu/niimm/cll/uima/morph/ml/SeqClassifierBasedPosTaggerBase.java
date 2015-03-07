@@ -34,7 +34,8 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
 abstract class SeqClassifierBasedPosTaggerBase extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
-            defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
+            defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS,
+            mandatory = false)
     private boolean reuseExistingWordAnnotations;
 
     // per-CAS state fields

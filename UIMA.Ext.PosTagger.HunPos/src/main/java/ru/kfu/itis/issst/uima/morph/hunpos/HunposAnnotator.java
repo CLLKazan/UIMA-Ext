@@ -37,7 +37,7 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 	// config
 	@ConfigurationParameter(name = PARAM_HUNPOS_MODEL_NAME, mandatory = true)
 	private String hpModelName;
-	@ConfigurationParameter(name = PARAM_LEXICON_FILE)
+	@ConfigurationParameter(name = PARAM_LEXICON_FILE, mandatory = false)
 	private File lexiconFile;
 	// monitors
 	private final Object casMon = new Object();

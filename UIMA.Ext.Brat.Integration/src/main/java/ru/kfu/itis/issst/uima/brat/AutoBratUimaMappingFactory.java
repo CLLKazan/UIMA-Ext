@@ -46,7 +46,7 @@ public class AutoBratUimaMappingFactory extends BratUimaMappingFactoryBase imple
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_SCAN)
+	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_SCAN, mandatory = false)
 	private Set<String> namespacesToScan;
 	//
 	private Type annotationType;

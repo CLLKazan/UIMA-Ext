@@ -31,11 +31,11 @@ public class SuffixExaminingPosTagger extends SuffixExaminingPosAnnotator {
 	public static final String PARAM_IGNORE_EXISTING_WORDS = "ignoreExistingWords";
 	public static final String PARAM_USE_DEBUG_GRAMMEMS = "useDebugGrammems";
 	// config fields
-	@ConfigurationParameter(name = PARAM_IGNORE_EXISTING_WORDS, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_IGNORE_EXISTING_WORDS, defaultValue = "true", mandatory = false)
 	private boolean ignoreExistingWords;
 	@ExternalResource(key = RESOURCE_WFSTORE, mandatory = true)
 	private WordformStore<String> wfStore;
-	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false", mandatory = false)
 	private boolean useDebugGrammems;
 	// state fields
 	private int tokensTagged;
