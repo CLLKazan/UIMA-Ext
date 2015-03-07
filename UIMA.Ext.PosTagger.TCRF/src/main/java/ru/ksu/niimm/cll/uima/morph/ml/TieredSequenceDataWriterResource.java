@@ -14,12 +14,11 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CacheKey;
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
-import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeDataWriter;
+import ru.kfu.itis.issst.cleartk.crfsuite2.CRFSuiteSerializedDataWriter;
 import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +97,10 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
             String tierId = gramTiers.getTierId(tier);
             // TODO avoid binding to the specific implementation
             File tierOutDir = new File(outputBaseDir, tierId);
-            CRFSuiteStringOutcomeDataWriter dw;
+            CRFSuiteSerializedDataWriter dw;
             try {
-                dw = new CRFSuiteStringOutcomeDataWriter(tierOutDir);
-            } catch (FileNotFoundException e) {
+                dw = new CRFSuiteSerializedDataWriter(tierOutDir);
+            } catch (IOException e) {
                 throw new ResourceInitializationException(e);
             }
             dataWriters.add(dw);

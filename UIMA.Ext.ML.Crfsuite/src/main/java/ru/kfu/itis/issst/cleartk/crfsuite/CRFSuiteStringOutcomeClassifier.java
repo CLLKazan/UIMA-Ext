@@ -5,6 +5,7 @@ package ru.kfu.itis.issst.cleartk.crfsuite;
 
 import java.io.Closeable;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.cleartk.ml.CleartkProcessingException;
@@ -18,6 +19,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import ru.kfu.itis.issst.cleartk.Disposable;
+import ru.kfu.itis.issst.cleartk.SerializableNameNumber;
 import ru.kfu.itis.issst.crfsuite4j.Attribute;
 import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTagger;
 
@@ -26,7 +28,7 @@ import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTagger;
  *
  */
 public class CRFSuiteStringOutcomeClassifier extends
-		SequenceClassifier_ImplBase<List<NameNumber>, String, String>
+		SequenceClassifier_ImplBase<ArrayList<SerializableNameNumber>, String, String>
 		implements Disposable, Closeable {
 
 	// config fields
@@ -36,7 +38,7 @@ public class CRFSuiteStringOutcomeClassifier extends
 	private CrfSuiteTagger tagger;
 
 	public CRFSuiteStringOutcomeClassifier(File modelFile,
-			FeaturesEncoder<List<NameNumber>> featuresEncoder,
+			FeaturesEncoder<ArrayList<SerializableNameNumber>> featuresEncoder,
 			OutcomeEncoder<String, String> outcomeEncoder) {
 		super(featuresEncoder, outcomeEncoder);
 		this.modelFile = modelFile;
@@ -47,7 +49,7 @@ public class CRFSuiteStringOutcomeClassifier extends
 	public List<String> classify(List<List<Feature>> srcItemSeq) throws CleartkProcessingException {
 		List<List<Attribute>> itemSeq = Lists.newLinkedList();
 		for (List<Feature> srcItem : srcItemSeq) {
-			List<NameNumber> encodedSrcItem = featuresEncoder.encodeAll(srcItem);
+			List<SerializableNameNumber> encodedSrcItem = featuresEncoder.encodeAll(srcItem);
 			List<Attribute> item = Lists.transform(encodedSrcItem, nameNumber2attributeFunc);
 			itemSeq.add(item);
 		}

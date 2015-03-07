@@ -104,7 +104,7 @@ public class TrainTCRF2 {
             CRFSuiteStringOutcomeClassifierBuilder classifierBuilder =
                     (CRFSuiteStringOutcomeClassifierBuilder) _classifierBuilder;
             // invoke implementation-specific method (i.e., it is not declared in the interface)
-            classifierBuilder.trainClassifier(modelDir, trainingDir, trainerArgs);
+            classifierBuilder.trainClassifierOnSerializedTrainingData(modelDir, trainingDir, trainerArgs);
             classifierBuilder.packageClassifier(modelDir);
         }
     }
