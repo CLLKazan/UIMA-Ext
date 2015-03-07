@@ -102,9 +102,9 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.lab.uima.engine.cpe</artifactId>
-			<version>0.9.1</version>
+            <groupId>de.tudarmstadt.ukp.dkpro.lab</groupId>
+            <artifactId>dkpro-lab-uima-engine-cpe</artifactId>
+            <version>0.11.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.xmlgraphics</groupId>
