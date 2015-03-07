@@ -4,7 +4,6 @@
 package ru.kfu.itis.issst.cleartk.crfsuite;
 
 import org.cleartk.ml.CleartkProcessingException;
-import org.cleartk.ml.encoder.features.NameNumber;
 import org.cleartk.ml.encoder.outcome.StringToStringOutcomeEncoder;
 import org.cleartk.ml.jar.SequenceDataWriter_ImplBase;
 import ru.kfu.itis.issst.cleartk.SerializableNameNumber;
@@ -37,7 +36,7 @@ public class CRFSuiteStringOutcomeDataWriter
 	protected void writeEncoded(ArrayList<SerializableNameNumber> features, String outcome)
 			throws CleartkProcessingException {
 		this.trainingDataWriter.print(outcome);
-		for (NameNumber nameNumber : features) {
+		for (SerializableNameNumber nameNumber : features) {
 			this.trainingDataWriter.print(FEATURE_SEPARATOR);
 			this.trainingDataWriter.print(nameNumber.name);
 		}

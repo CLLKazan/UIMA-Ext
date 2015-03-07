@@ -7,8 +7,14 @@ import java.io.Serializable;
 /**
  * @author Rinat Gareev
  */
-public class SerializableNameNumber extends NameNumber implements Serializable {
+public class SerializableNameNumber implements Serializable {
+
     public SerializableNameNumber(String name, Number number) {
-        super(name, number);
+        this.name = name;
+        this.number = number;
     }
+
+    public String name;
+
+    public Number number;
 }
