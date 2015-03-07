@@ -4,12 +4,12 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.cleartk.classifier.CleartkProcessingException;
+import org.cleartk.ml.CleartkProcessingException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
@@ -34,7 +34,8 @@ import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING
 abstract class SeqClassifierBasedPosTaggerBase extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
-            defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
+            defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS,
+            mandatory = false)
     private boolean reuseExistingWordAnnotations;
 
     // per-CAS state fields

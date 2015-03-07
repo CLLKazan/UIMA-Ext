@@ -12,7 +12,7 @@ import java.io.IOException;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
@@ -48,7 +48,7 @@ public abstract class CorpusSplitReadingTaskBase extends UimaTaskBase {
 			throws ResourceInitializationException, IOException {
 		File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READONLY);
 		File splitListFile = new File(corpusSplitInfoDir, getPartitionFilename(targetSplit, fold));
-		return CollectionReaderFactory.createDescription(XmiFileListReader.class, inputTS,
+		return CollectionReaderFactory.createReaderDescription(XmiFileListReader.class, inputTS,
 				XmiFileListReader.PARAM_BASE_DIR, corpusDir.getPath(),
 				XmiFileListReader.PARAM_LIST_FILE, splitListFile.getPath());
 	}

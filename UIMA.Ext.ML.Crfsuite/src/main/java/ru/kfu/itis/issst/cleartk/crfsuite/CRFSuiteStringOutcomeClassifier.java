@@ -7,12 +7,12 @@ import java.io.Closeable;
 import java.io.File;
 import java.util.List;
 
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.encoder.features.FeaturesEncoder;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.encoder.outcome.OutcomeEncoder;
-import org.cleartk.classifier.jar.SequenceClassifier_ImplBase;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.encoder.features.FeaturesEncoder;
+import org.cleartk.ml.encoder.features.NameNumber;
+import org.cleartk.ml.encoder.outcome.OutcomeEncoder;
+import org.cleartk.ml.jar.SequenceClassifier_ImplBase;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;

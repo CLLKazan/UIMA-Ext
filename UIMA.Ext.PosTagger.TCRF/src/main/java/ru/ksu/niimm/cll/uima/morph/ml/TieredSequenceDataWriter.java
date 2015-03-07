@@ -5,9 +5,9 @@ import com.google.common.collect.Lists;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instances;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instances;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
 import ru.kfu.itis.issst.uima.ml.FeatureSets;
 import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
@@ -23,7 +23,7 @@ import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
  */
 public abstract class TieredSequenceDataWriter<I extends AnnotationFS> implements SequenceDataWriter<I, String[]> {
 
-    protected List<org.cleartk.classifier.SequenceDataWriter<String>> dataWriters;
+    protected List<org.cleartk.ml.SequenceDataWriter<String>> dataWriters;
     protected TieredFeatureExtractor<I, String> featureExtractor;
 
     @Override
@@ -45,7 +45,7 @@ public abstract class TieredSequenceDataWriter<I extends AnnotationFS> implement
             //
             List<List<Feature>> seqFeatures = Lists.transform(featSets, FeatureSets.LIST_FUNCTION);
             List<String> tierLabels = Lists.transform(seqCompositeLabels, getTierLabel(tier));
-            org.cleartk.classifier.SequenceDataWriter<String> tierDW = dataWriters.get(tier);
+            org.cleartk.ml.SequenceDataWriter<String> tierDW = dataWriters.get(tier);
             //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (tierDW) {
                 tierDW.write(Instances.toInstances(tierLabels, seqFeatures));
@@ -65,7 +65,7 @@ public abstract class TieredSequenceDataWriter<I extends AnnotationFS> implement
 
     @Override
     public void close() throws IOException {
-        for (org.cleartk.classifier.SequenceDataWriter<String> dw : dataWriters)
+        for (org.cleartk.ml.SequenceDataWriter<String> dw : dataWriters)
             try {
                 dw.finish();
             } catch (CleartkProcessingException e) {

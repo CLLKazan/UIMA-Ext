@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.consumer.cao;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -20,7 +20,7 @@ import org.xml.sax.SAXException;
 public class GenerateCaoWriterDesc {
 
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
-		AnalysisEngineDescription anDesc = createPrimitiveDescription(CAOWriter.class);
+		AnalysisEngineDescription anDesc = createEngineDescription(CAOWriter.class);
 		FileOutputStream out = new FileOutputStream(
 				"src/main/resources/ru/kfu/itis/issst/uima/consumer/cao/CAOWriter.xml");
 		anDesc.toXML(new BufferedOutputStream(out));

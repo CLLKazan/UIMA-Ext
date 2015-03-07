@@ -18,16 +18,16 @@ import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.cleartk.classifier.CleartkProcessingException;
+import org.cleartk.ml.CleartkProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opencorpora.cas.Word;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.xml.sax.SAXException;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
@@ -67,7 +67,7 @@ public class SeqClassifierResourceBasedPosTaggerTest {
                 SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
                 PosTaggerAPI.TYPESYSTEM_POSTAGGER
         );
-        AnalysisEngineDescription taggerDesc = AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineDescription taggerDesc = AnalysisEngineFactory.createEngineDescription(
                 SeqClassifierResourceBasedPosTagger.class,
                 tsd);
         // bind classifier resource

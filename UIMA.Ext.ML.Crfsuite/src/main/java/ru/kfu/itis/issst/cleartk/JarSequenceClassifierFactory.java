@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.issst.cleartk;
 
-import org.cleartk.classifier.SequenceClassifier;
-import org.cleartk.classifier.SequenceClassifierFactory;
+import org.cleartk.ml.SequenceClassifier;
+import org.cleartk.ml.SequenceClassifierFactory;
 
 /**
  * Re-implementation of ClearTK-ML {@link SequenceJarClassifierFactory} based on

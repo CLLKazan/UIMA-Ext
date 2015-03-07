@@ -3,9 +3,9 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instance;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instance;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
@@ -28,11 +28,11 @@ import static ru.ksu.niimm.cll.uima.morph.ml.PTestUtils.list;
 public class TieredSequenceDataWriterTest extends TieredSequenceHandlerTestBase {
 
     @Mock
-    private org.cleartk.classifier.SequenceDataWriter<String> dataWriter1;
+    private org.cleartk.ml.SequenceDataWriter<String> dataWriter1;
     @Mock
-    private org.cleartk.classifier.SequenceDataWriter<String> dataWriter2;
+    private org.cleartk.ml.SequenceDataWriter<String> dataWriter2;
     @Mock
-    private org.cleartk.classifier.SequenceDataWriter<String> dataWriter3;
+    private org.cleartk.ml.SequenceDataWriter<String> dataWriter3;
 
     @Test
     public void testCorrectWorkflow() throws CleartkProcessingException {

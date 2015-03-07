@@ -3,31 +3,29 @@
  */
 package ru.ksu.niimm.cll.uima.morph.lab;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-
+import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
+import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
+import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
+import de.tudarmstadt.ukp.dkpro.lab.uima.task.impl.UimaTaskBase;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
-
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.kfu.itis.issst.uima.postagger.PosTrimmingAnnotator;
-import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
-import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
-import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
-import de.tudarmstadt.ukp.dkpro.lab.uima.task.impl.UimaTaskBase;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindExternalResource;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -57,18 +55,18 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 	@Override
 	public CollectionReaderDescription getCollectionReaderDescription(TaskContext taskCtx)
 			throws ResourceInitializationException, IOException {
-		return CollectionReaderFactory.createDescription(XmiCollectionReader.class,
-				inputTS,
-				XmiCollectionReader.PARAM_INPUTDIR, srcCorpusDir.getPath());
+		return CollectionReaderFactory.createReaderDescription(XmiCollectionReader.class,
+                inputTS,
+                XmiCollectionReader.PARAM_INPUTDIR, srcCorpusDir.getPath());
 	}
 
 	@Override
 	public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 			throws ResourceInitializationException, IOException {
-		AnalysisEngineDescription posTrimmerDesc = createPrimitiveDescription(
-				PosTrimmingAnnotator.class, inputTS,
-				PosTrimmingAnnotator.PARAM_TARGET_POS_CATEGORIES, posCategories,
-				PosTrimmingAnnotator.RESOURCE_GRAM_MODEL, gramModelDesc);
+		AnalysisEngineDescription posTrimmerDesc = createEngineDescription(
+                PosTrimmingAnnotator.class, inputTS,
+                PosTrimmingAnnotator.PARAM_TARGET_POS_CATEGORIES, posCategories,
+                PosTrimmingAnnotator.RESOURCE_GRAM_MODEL, gramModelDesc);
 		//
 		AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription();
 		bindExternalResource(tagAssemblerDesc,
@@ -79,7 +77,7 @@ public class CorpusPreprocessingTask extends UimaTaskBase {
 				// write to relative path
 				true);
 		//
-		return createAggregateDescription(posTrimmerDesc, tagAssemblerDesc, xmiWriterDesc);
+		return createEngineDescription(posTrimmerDesc, tagAssemblerDesc, xmiWriterDesc);
 	}
 
 }

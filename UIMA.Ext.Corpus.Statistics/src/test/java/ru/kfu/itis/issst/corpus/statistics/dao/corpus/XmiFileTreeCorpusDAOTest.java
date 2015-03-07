@@ -22,7 +22,7 @@ import org.apache.uima.util.CasCreationUtils;
 import org.apache.uima.util.InvalidXMLException;
 import org.junit.Before;
 import org.junit.Test;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.util.CasUtil;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Sets;

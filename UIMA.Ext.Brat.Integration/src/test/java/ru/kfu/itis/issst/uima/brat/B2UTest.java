@@ -7,15 +7,15 @@ import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.XMLInputSource;
 import org.junit.Test;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 
 import static org.junit.Assert.*;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class B2UTest {
 
@@ -30,7 +30,7 @@ public class B2UTest {
 		TypeSystemDescription tsd = TypeSystemDescriptionFactory
 				.createTypeSystemDescription("desc.types.test-TypeSystem");
 
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createReaderDescription(
 				BratCollectionReader.class, tsd,
 				BratCollectionReader.PARAM_BRAT_COLLECTION_DIR, inputBratDir,
 				BratCollectionReader.PARAM_MAPPING_FACTORY_CLASS,
@@ -68,7 +68,7 @@ public class B2UTest {
 		TypeSystemDescription tsd = TypeSystemDescriptionFactory
 				.createTypeSystemDescription("desc.types.brat-news-tutorial-TypeSystem");
 
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createReaderDescription(
 				BratCollectionReader.class, tsd,
 				BratCollectionReader.PARAM_BRAT_COLLECTION_DIR, "data/brat-news-tutorial",
 				BratCollectionReader.PARAM_MAPPING_FACTORY_CLASS,
@@ -77,7 +77,7 @@ public class B2UTest {
 
 		cpeBuilder.setReader(colReaderDesc);
 		// configure AE
-		AnalysisEngineDescription aeDesc = createPrimitiveDescription(XmiWriter.class,
+		AnalysisEngineDescription aeDesc = createEngineDescription(XmiWriter.class,
 				XmiWriter.PARAM_OUTPUTDIR, "target/brat-news-tutorial.xmi");
 		cpeBuilder.addAnalysisEngine(aeDesc);
 

@@ -16,17 +16,17 @@ import org.apache.uima.UIMAFramework;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceManager;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
-import org.uimafit.component.initialize.ConfigurationParameterInitializer;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.initializable.Initializable;
+import org.cleartk.ml.jar.JarClassifierBuilder;
+import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.initializable.Initializable;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
  * This is re-implementation of ClearTK-ML
- * {@link org.cleartk.classifier.jar.GenericJarClassifierFactory} that resolve
+ * {@link org.cleartk.ml.jar.GenericJarClassifierFactory} that resolve
  * 'classifierJarPath' using an UIMA default {@link ResourceManager} with
  * provided 'additionalSearchPaths'.
  * 

@@ -4,8 +4,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
@@ -23,14 +23,14 @@ public class EmbeddedSeqClassifierBasedPosTagger extends SeqClassifierBasedPosTa
 
     public static AnalysisEngineDescription createDescription(File modelBaseDir)
             throws ResourceInitializationException {
-        return AnalysisEngineFactory.createPrimitiveDescription(EmbeddedSeqClassifierBasedPosTagger.class,
+        return AnalysisEngineFactory.createEngineDescription(EmbeddedSeqClassifierBasedPosTagger.class,
                 PosTaggerAPI.getTypeSystemDescription(),
                 PARAM_MODEL_BASE_DIR, modelBaseDir.getPath());
     }
 
     public static AnalysisEngineDescription createDescription(String modelBasePath)
             throws ResourceInitializationException {
-        return AnalysisEngineFactory.createPrimitiveDescription(EmbeddedSeqClassifierBasedPosTagger.class,
+        return AnalysisEngineFactory.createEngineDescription(EmbeddedSeqClassifierBasedPosTagger.class,
                 PosTaggerAPI.getTypeSystemDescription(),
                 PARAM_MODEL_BASE_PATH, modelBasePath);
     }

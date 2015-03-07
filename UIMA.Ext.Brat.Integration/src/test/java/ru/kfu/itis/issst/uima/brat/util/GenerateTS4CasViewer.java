@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.brat.util;
 
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.FileOutputStream;
 import java.util.Arrays;

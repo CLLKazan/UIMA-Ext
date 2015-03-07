@@ -28,11 +28,11 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
-import org.uimafit.component.initialize.ConfigurationParameterInitializer;
-import org.uimafit.component.initialize.ExternalResourceInitializer;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.initializable.Initializable;
+import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
+import org.apache.uima.fit.component.initialize.ExternalResourceInitializer;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.factory.initializable.Initializable;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
@@ -64,7 +64,7 @@ public class DictionaryAligningTagMapper implements RusCorporaTagMapper, Initial
 
 	@Override
 	public void initialize(UimaContext ctx) throws ResourceInitializationException {
-		ExternalResourceInitializer.initialize(ctx, this);
+		ExternalResourceInitializer.initialize(this, ctx);
 		ConfigurationParameterInitializer.initialize(this, ctx);
 		dict = dictHolder.getDictionary();
 		gm = dict.getGramModel();

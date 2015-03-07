@@ -4,8 +4,8 @@ import com.beust.jcommander.internal.Lists;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceManager;
-import org.cleartk.classifier.SequenceClassifier;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
+import org.cleartk.ml.SequenceClassifier;
+import org.cleartk.ml.jar.JarClassifierBuilder;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CacheKey;
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
@@ -91,7 +91,7 @@ public class TieredSequenceClassifiers {
             File tierModelJar = JarClassifierBuilder.getModelJarFile(tierModelDir);
             JarSequenceClassifierFactory<String> clFactory = new JarSequenceClassifierFactory<String>();
             clFactory.setClassifierJarPath(tierModelJar.getPath());
-            org.cleartk.classifier.SequenceClassifier<String> cl = clFactory.createClassifier();
+            org.cleartk.ml.SequenceClassifier<String> cl = clFactory.createClassifier();
             resultList.add(cl);
         }
         return resultList;

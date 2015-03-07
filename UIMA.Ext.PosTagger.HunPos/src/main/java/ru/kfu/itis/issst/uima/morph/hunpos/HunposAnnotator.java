@@ -17,9 +17,9 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
@@ -37,7 +37,7 @@ public class HunposAnnotator extends JCasAnnotator_ImplBase {
 	// config
 	@ConfigurationParameter(name = PARAM_HUNPOS_MODEL_NAME, mandatory = true)
 	private String hpModelName;
-	@ConfigurationParameter(name = PARAM_LEXICON_FILE)
+	@ConfigurationParameter(name = PARAM_LEXICON_FILE, mandatory = false)
 	private File lexiconFile;
 	// monitors
 	private final Object casMon = new Object();

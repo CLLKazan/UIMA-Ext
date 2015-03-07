@@ -20,8 +20,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.Logger;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 import ru.kfu.cll.uima.segmentation.fstype.QSegment;
 import ru.kfu.cll.uima.tokenizer.fstype.PM;
@@ -37,7 +37,8 @@ import com.google.common.collect.Lists;
 public class QuotationAnnotator extends CasAnnotator_ImplBase {
 
 	@ConfigurationParameter(name = "spanAnnotationType",
-			defaultValue = "ru.kfu.cll.uima.segmentation.fstype.Sentence")
+			defaultValue = "ru.kfu.cll.uima.segmentation.fstype.Sentence",
+            mandatory = false)
 	private String spanAnnotationTypeName;
 	// derived
 	private Type spanAnnotationType;

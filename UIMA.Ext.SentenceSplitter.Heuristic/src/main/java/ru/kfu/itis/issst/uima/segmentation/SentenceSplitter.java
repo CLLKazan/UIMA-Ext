@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.segmentation;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 
 import java.util.HashSet;
@@ -23,7 +23,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.CW;
@@ -44,7 +44,7 @@ public class SentenceSplitter extends CasAnnotator_ImplBase {
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
 		TypeSystemDescription tsDesc = SentenceSplitterAPI.getTypeSystemDescription();
-		return createPrimitiveDescription(SentenceSplitter.class, tsDesc);
+		return createEngineDescription(SentenceSplitter.class, tsDesc);
 	}
 
 	private final String[] sentenceEndTokenTypeNames = new String[] {

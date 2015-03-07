@@ -3,7 +3,7 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
 
 import java.util.List;

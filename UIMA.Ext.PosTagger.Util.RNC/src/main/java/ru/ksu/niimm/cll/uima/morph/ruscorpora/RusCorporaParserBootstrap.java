@@ -3,9 +3,9 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ruscorpora;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
-import static org.uimafit.factory.ExternalResourceFactory.createDependency;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindExternalResource;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createDependency;
 import static ru.ksu.niimm.cll.uima.morph.ruscorpora.DictionaryAligningTagMapper2.RESOURCE_KEY_MORPH_DICTIONARY;
 
 import java.io.File;
@@ -14,9 +14,9 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.cll.uima.annotator.AnnotationRemover;
 import ru.kfu.itis.cll.uima.consumer.XmiWriter;
@@ -71,13 +71,13 @@ public class RusCorporaParserBootstrap {
 							PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 			//
 			if (!enableDictionaryAligning) {
-				colReaderDesc = CollectionReaderFactory.createDescription(
+				colReaderDesc = CollectionReaderFactory.createReaderDescription(
 						RusCorporaCollectionReader.class,
 						tsDesc,
 						RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath());
 			} else {
 				File daLogFile = new File(xmiOutputDir, "dict-aligning2.log");
-				colReaderDesc = CollectionReaderFactory.createDescription(
+				colReaderDesc = CollectionReaderFactory.createReaderDescription(
 						RusCorporaCollectionReader.class,
 						tsDesc,
 						RusCorporaCollectionReader.PARAM_INPUT_DIR, ruscorporaTextDir.getPath(),
@@ -104,15 +104,15 @@ public class RusCorporaParserBootstrap {
 		{
 			TypeSystemDescription tsDesc = TypeSystemDescriptionFactory
 					.createTypeSystemDescription("ru.ksu.niimm.cll.uima.morph.util.ts-util");
-			ntsAnnotatorDesc = createPrimitiveDescription(NonTokenizedSpanAnnotator.class, tsDesc);
+			ntsAnnotatorDesc = createEngineDescription(NonTokenizedSpanAnnotator.class, tsDesc);
 		}
 		// TODO can we use tokenizer through TokenizerAPI ?
 		// make InitialTokenizer for NonTokenizedSpans
-		AnalysisEngineDescription tokenizerDesc = createPrimitiveDescription(
+		AnalysisEngineDescription tokenizerDesc = createEngineDescription(
 				InitialTokenizer.class,
 				TokenizerAPI.PARAM_SPAN_TYPE, NonTokenizedSpan.class.getName());
 		// make AnnotationRemovers
-		AnalysisEngineDescription scaffoldRemover = createPrimitiveDescription(
+		AnalysisEngineDescription scaffoldRemover = createEngineDescription(
 				AnnotationRemover.class,
 				AnnotationRemover.PARAM_NAMESPACES_TO_REMOVE,
 				new String[] { "ru.ksu.niimm.cll.uima.morph.util" });

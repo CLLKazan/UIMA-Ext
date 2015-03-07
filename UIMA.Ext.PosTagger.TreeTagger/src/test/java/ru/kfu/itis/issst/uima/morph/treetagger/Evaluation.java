@@ -24,8 +24,8 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.XMLInputSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import com.google.common.collect.Maps;
 
@@ -132,7 +132,7 @@ public class Evaluation {
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem",
 				TokenizerAPI.TYPESYSTEM_TOKENIZER,
 				SentenceSplitterAPI.TYPESYSTEM_SENTENCES);
-		return CollectionReaderFactory.createDescription(XmiCollectionReader.class,
+		return CollectionReaderFactory.createReaderDescription(XmiCollectionReader.class,
 				tsDesc,
 				XmiCollectionReader.PARAM_INPUTDIR, inputXmiDir.getPath());
 	}
@@ -150,14 +150,11 @@ public class Evaluation {
 
 	private void runEvaluation() throws Exception {
 		Properties evalProps = new Properties();
-		Reader evalPropsReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(
-						evalPropertiesFile), "utf-8"));
-		try {
-			evalProps.load(evalPropsReader);
-		} finally {
-			evalPropsReader.close();
-		}
+        try (Reader evalPropsReader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(
+                        evalPropertiesFile), "utf-8"))) {
+            evalProps.load(evalPropsReader);
+        }
 		// replace placeholders in evaluation config properties
 		Map<String, String> phValues = Maps.newHashMap();
 		phValues.put(PLACEHOLDER_OUTPUT_BASE_DIR, outputBase.getPath());

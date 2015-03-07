@@ -1,7 +1,7 @@
 package ru.kfu.itis.issst.uima.ml;
 
 import com.google.common.base.Function;
-import org.cleartk.classifier.Feature;
+import org.cleartk.ml.Feature;
 
 import java.util.List;
 

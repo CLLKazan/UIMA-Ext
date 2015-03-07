@@ -11,9 +11,9 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.wfstore.WordformStore;
@@ -31,11 +31,11 @@ public class SuffixExaminingPosTagger extends SuffixExaminingPosAnnotator {
 	public static final String PARAM_IGNORE_EXISTING_WORDS = "ignoreExistingWords";
 	public static final String PARAM_USE_DEBUG_GRAMMEMS = "useDebugGrammems";
 	// config fields
-	@ConfigurationParameter(name = PARAM_IGNORE_EXISTING_WORDS, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_IGNORE_EXISTING_WORDS, defaultValue = "true", mandatory = false)
 	private boolean ignoreExistingWords;
 	@ExternalResource(key = RESOURCE_WFSTORE, mandatory = true)
 	private WordformStore<String> wfStore;
-	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false", mandatory = false)
 	private boolean useDebugGrammems;
 	// state fields
 	private int tokensTagged;

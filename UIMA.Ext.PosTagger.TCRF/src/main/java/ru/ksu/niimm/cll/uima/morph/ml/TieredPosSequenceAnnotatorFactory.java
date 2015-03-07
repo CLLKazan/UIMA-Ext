@@ -3,9 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindExternalResource;
 import static ru.kfu.itis.issst.uima.postagger.PosTaggerAPI.PARAM_REUSE_EXISTING_WORD_ANNOTATIONS;
 
 import java.io.File;
@@ -21,14 +20,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.cleartk.classifier.CleartkSequenceAnnotator;
-import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
+import org.cleartk.ml.CleartkSequenceAnnotator;
+import org.cleartk.ml.jar.DirectoryDataWriterFactory;
+import org.cleartk.ml.jar.JarClassifierBuilder;
 import org.opencorpora.cas.Word;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ConfigurationParameterFactory;
-import org.uimafit.util.ReflectionUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.fit.internal.ReflectionUtil;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.io.IoUtils;
@@ -101,9 +99,9 @@ public class TieredPosSequenceAnnotatorFactory {
 				configProps.setProperty(annotatorParamKey(paramName), String.valueOf(paramValue));
 			}
 			//
-			AnalysisEngineDescription ptDesc = createPrimitiveDescription(
-					TieredPosSequenceAnnotator.class,
-					finalParams.toArray());
+			AnalysisEngineDescription ptDesc = createEngineDescription(
+                    TieredPosSequenceAnnotator.class,
+                    finalParams.toArray());
 			ptDesc.getAnalysisEngineMetaData().getOperationalProperties()
 					.setMultipleDeploymentAllowed(false);
 			/*
@@ -119,8 +117,8 @@ public class TieredPosSequenceAnnotatorFactory {
 			delegateDescs.add(ptDesc);
 			delegateNames.add(ptDesc.getImplementationName() + "-" + posTier);
 		}
-		AnalysisEngineDescription resultDesc = createAggregateDescription(
-				delegateDescs, delegateNames, null, null, null, null);
+		AnalysisEngineDescription resultDesc = createEngineDescription(
+                delegateDescs, delegateNames, null, null, null);
 		// bind MorhpDictionaryHolder resource by names to each delegate
 		for (String dName : delegateNames) {
 			bindExternalResource(resultDesc,
@@ -222,9 +220,9 @@ public class TieredPosSequenceAnnotatorFactory {
 				finalParams.add(annotatorParams.get(paramName));
 			}
 			//
-			AnalysisEngineDescription ptDesc = createPrimitiveDescription(
-					TieredPosSequenceAnnotator.class, tsDesc,
-					finalParams.toArray());
+			AnalysisEngineDescription ptDesc = createEngineDescription(
+                    TieredPosSequenceAnnotator.class, tsDesc,
+                    finalParams.toArray());
 			// set jarRelativePath and add optional additionalSearchPaths parameter without value to allow overrides
 			ConfigurationParameterFactory.addConfigurationParameters(ptDesc,
 					JarSequenceClassifierFactory.class);
@@ -251,8 +249,8 @@ public class TieredPosSequenceAnnotatorFactory {
 		aeDescriptions.add(TagAssembler.createDescription());
 		aeNames.add("tag-assembler");
 		// create result aggregate descriptor
-		AnalysisEngineDescription aggrDesc = AnalysisEngineFactory.createAggregateDescription(
-				aeDescriptions, aeNames, null, null, null, null);
+		AnalysisEngineDescription aggrDesc = createEngineDescription(
+                aeDescriptions, aeNames, null, null, null);
 		// add parameter overrides
 		{
 			// maps of a delegate name to one of its parameter
@@ -376,7 +374,7 @@ public class TieredPosSequenceAnnotatorFactory {
 	 * @param target
 	 * @return relative path of target against baseDir
 	 */
-	private static final String relativize(File baseDir, File target) {
+	private static String relativize(File baseDir, File target) {
 		// TODO:LOW use File#relativize after migration on Java 7
 		// this solution will work well only when target is in baseDir,
 		// but this is enough in the context of this class

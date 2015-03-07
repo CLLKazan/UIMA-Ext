@@ -17,8 +17,8 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
-import org.uimafit.component.CasCollectionReader_ImplBase;
-import org.uimafit.descriptor.ExternalResource;
+import org.apache.uima.fit.component.CasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ExternalResource;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.corpus.CorpusDAO;

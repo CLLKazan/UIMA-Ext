@@ -18,10 +18,10 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.OperationalProperties;
+import org.apache.uima.fit.util.CasUtil;
 
 import ru.kfu.itis.issst.corpus.statistics.dao.units.UnitsDAO;
 
@@ -29,11 +29,17 @@ import ru.kfu.itis.issst.corpus.statistics.dao.units.UnitsDAO;
 public class UnitsDAOWriter extends CasAnnotator_ImplBase {
 
 	public final static String UNITS_TSV_PATH = "UnitsTSVPath";
-	@ConfigurationParameter(name = UNITS_TSV_PATH, defaultValue = "units.tsv", description = "Path to file to write units")
+	@ConfigurationParameter(name = UNITS_TSV_PATH,
+            defaultValue = "units.tsv",
+            mandatory = false,
+            description = "Path to file to write units")
 	private File unitsTSV;
 
 	final static String UNITS_DAO_IMPLEMENTATION_CLASS_NAME = "UnitsDAOImplementationClassName";
-	@ConfigurationParameter(name = UNITS_DAO_IMPLEMENTATION_CLASS_NAME, defaultValue = "ru.kfu.itis.issst.corpus.statistics.dao.units.InMemoryUnitsDAO", description = "Class name of UnitsDAO implementation")
+	@ConfigurationParameter(name = UNITS_DAO_IMPLEMENTATION_CLASS_NAME,
+            defaultValue = "ru.kfu.itis.issst.corpus.statistics.dao.units.InMemoryUnitsDAO",
+            mandatory = false,
+            description = "Class name of UnitsDAO implementation")
 	private String unitsDAOImplementationClassName;
 	private UnitsDAO unitsDAO;
 

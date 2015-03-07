@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.cleartk;
 
-import org.cleartk.classifier.encoder.features.FeatureEncoderChain;
+import org.cleartk.ml.encoder.features.FeatureEncoderChain;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

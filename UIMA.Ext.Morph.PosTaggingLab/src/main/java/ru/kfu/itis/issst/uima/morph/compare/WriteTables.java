@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.compare;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 
@@ -12,7 +12,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
@@ -59,12 +59,12 @@ public class WriteTables {
 				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 		//
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createReaderDescription(
 				XmiFileListReader.class, inputTS,
 				XmiFileListReader.PARAM_BASE_DIR, xmiDir,
 				XmiFileListReader.PARAM_LIST_FILE, xmiListFile);
 		//
-		AnalysisEngineDescription tableWriterDesc = createPrimitiveDescription(
+		AnalysisEngineDescription tableWriterDesc = createEngineDescription(
 				TableWriter.class,
 				TableWriter.PARAM_DATA_SOURCE_CONFIG_FILE, dsConfigFile.getPath(),
 				TableWriter.PARAM_DISABLE_NEW_TEXT, !createSpans,

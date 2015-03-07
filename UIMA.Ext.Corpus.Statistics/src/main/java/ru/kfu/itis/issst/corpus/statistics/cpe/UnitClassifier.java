@@ -8,9 +8,9 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.CasUtil;
 
 import com.google.common.collect.Sets;
 
@@ -19,7 +19,9 @@ public class UnitClassifier extends CasAnnotator_ImplBase {
 	public static final String CLASS_FEAT_NAME = "annotatorClass";
 
 	public static final String PARAM_CLASS_TYPE_NAMES = "classTypeNames";
-	@ConfigurationParameter(name = PARAM_CLASS_TYPE_NAMES, mandatory = true, description = "Set of class type names for classifying units")
+	@ConfigurationParameter(name = PARAM_CLASS_TYPE_NAMES,
+            mandatory = true,
+            description = "Set of class type names for classifying units")
 	private Set<String> classTypeNames;
 
 	private Type unitType;

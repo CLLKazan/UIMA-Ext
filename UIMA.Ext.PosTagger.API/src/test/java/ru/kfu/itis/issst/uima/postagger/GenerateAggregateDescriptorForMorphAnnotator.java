@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger;
 
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindExternalResource;
 import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 import java.io.File;

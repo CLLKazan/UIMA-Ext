@@ -5,8 +5,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,8 +18,8 @@ import java.util.Set;
  */
 class MultimapBasedFeatureSet implements FeatureSet {
 
-    private ListMultimap<SimpleFeatureExtractor, Feature> mm = Multimaps.newListMultimap(
-            Maps.<SimpleFeatureExtractor, Collection<Feature>>newIdentityHashMap(),
+    private ListMultimap<FeatureExtractor1, Feature> mm = Multimaps.newListMultimap(
+            Maps.<FeatureExtractor1, Collection<Feature>>newIdentityHashMap(),
             new Supplier<List<Feature>>() {
                 @Override
                 public List<Feature> get() {
@@ -29,7 +29,7 @@ class MultimapBasedFeatureSet implements FeatureSet {
     );
 
     @Override
-    public void add(List<Feature> newVals, SimpleFeatureExtractor src) {
+    public void add(List<Feature> newVals, FeatureExtractor1 src) {
         mm.putAll(src, newVals);
     }
 
@@ -39,14 +39,14 @@ class MultimapBasedFeatureSet implements FeatureSet {
     }
 
     @Override
-    public void removeFeaturesBySource(Set<SimpleFeatureExtractor> aSources) {
-        for (SimpleFeatureExtractor src : aSources) {
+    public void removeFeaturesBySource(Set<FeatureExtractor1> aSources) {
+        for (FeatureExtractor1 src : aSources) {
             removeFeaturesBySource(src);
         }
     }
 
     @Override
-    public void removeFeaturesBySource(SimpleFeatureExtractor aSource) {
+    public void removeFeaturesBySource(FeatureExtractor1 aSource) {
         mm.removeAll(aSource);
     }
 

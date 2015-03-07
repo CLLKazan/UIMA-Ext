@@ -20,7 +20,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG;
 
@@ -84,7 +84,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
                 IoUtils.writeProperties(feCfg, feCfgFile);
                 // wrap it into another aggregate to avoid wrapping of delegates into separate
                 // CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
-                return createAggregateDescription(WriteFeatures2.createExtractorDescription(
+                return createEngineDescription(WriteFeatures2.createExtractorDescription(
                         gramTiers, morphDictDesc, trainingBaseDir
                 ));
             }
@@ -241,12 +241,12 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
             primitiveDescs.add(xmiWriterDesc);
             primitiveNames.add("xmiWriter");
             //
-            AnalysisEngineDescription aggrDesc = createAggregateDescription(primitiveDescs,
-                    primitiveNames,
-                    null, null, null, null);
+            AnalysisEngineDescription aggrDesc = createEngineDescription(
+                    primitiveDescs, primitiveNames,
+                    null, null, null);
             // wrap it into another aggregate to avoid wrapping of delegates into separate
             // CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
-            return createAggregateDescription(aggrDesc);
+            return createEngineDescription(aggrDesc);
         }
     }
 

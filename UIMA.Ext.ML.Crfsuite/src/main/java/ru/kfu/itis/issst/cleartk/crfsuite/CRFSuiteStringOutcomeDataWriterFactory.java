@@ -6,9 +6,9 @@ package ru.kfu.itis.issst.cleartk.crfsuite;
 import java.io.IOException;
 import java.util.List;
 
-import org.cleartk.classifier.SequenceDataWriter;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.jar.SequenceDataWriterFactory_ImplBase;
+import org.cleartk.ml.SequenceDataWriter;
+import org.cleartk.ml.encoder.features.NameNumber;
+import org.cleartk.ml.jar.SequenceDataWriterFactory_ImplBase;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

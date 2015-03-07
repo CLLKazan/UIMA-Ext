@@ -3,26 +3,21 @@
  */
 package ru.kfu.itis.cll.uima.cpe;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import com.google.common.collect.AbstractIterator;
+import org.apache.uima.UIMAException;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.component.NoOpAnnotator;
+import org.apache.uima.fit.pipeline.JCasIterable;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.uima.UIMAException;
-import org.apache.uima.UIMAFramework;
-import org.apache.uima.analysis_engine.AnalysisEngine;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.collection.CollectionReaderDescription;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.component.NoOpAnnotator;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.pipeline.JCasIterable;
-import org.uimafit.util.JCasUtil;
-
-import com.google.common.collect.AbstractIterator;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -35,12 +30,10 @@ public class AnnotationIteratorOverCollection<AT extends Annotation> extends Abs
 			Class<A> annotationClass,
 			CollectionReaderDescription colReaderDesc,
 			AnalysisEngineDescription aeDesc) throws UIMAException, IOException {
-		CollectionReader colReader = CollectionReaderFactory.createCollectionReader(colReaderDesc);
 		if (aeDesc == null) {
-			aeDesc = createPrimitiveDescription(NoOpAnnotator.class);
+			aeDesc = createEngineDescription(NoOpAnnotator.class);
 		}
-		AnalysisEngine ae = UIMAFramework.produceAnalysisEngine(aeDesc);
-		return new AnnotationIteratorOverCollection<A>(new JCasIterable(colReader, ae),
+		return new AnnotationIteratorOverCollection<A>(new JCasIterable(colReaderDesc, aeDesc),
 				annotationClass);
 	}
 

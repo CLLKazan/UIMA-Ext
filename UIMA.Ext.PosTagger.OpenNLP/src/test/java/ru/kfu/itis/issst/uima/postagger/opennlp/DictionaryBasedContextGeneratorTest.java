@@ -22,7 +22,7 @@ import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import com.google.common.collect.ImmutableList;
 

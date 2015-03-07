@@ -8,7 +8,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.cleartk.classifier.jar.JarClassifierBuilder;
+import org.cleartk.ml.jar.JarClassifierBuilder;
 import ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder;
 
 import java.io.File;

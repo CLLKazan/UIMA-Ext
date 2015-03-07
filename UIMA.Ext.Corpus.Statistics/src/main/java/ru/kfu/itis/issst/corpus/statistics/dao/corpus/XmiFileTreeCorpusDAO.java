@@ -2,7 +2,7 @@ package ru.kfu.itis.issst.corpus.statistics.dao.corpus;
 
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescriptionFromPath;
 
 import java.io.File;
 import java.io.FileFilter;

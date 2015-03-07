@@ -17,9 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
@@ -50,7 +50,7 @@ public class PosSequenceTrainingDataExtractorTest {
     @Before
     public void init() throws UIMAException {
         MockitoAnnotations.initMocks(this);
-        AnalysisEngineDescription aeDesc = AnalysisEngineFactory.createPrimitiveDescription(
+        AnalysisEngineDescription aeDesc = AnalysisEngineFactory.createEngineDescription(
                 PosSequenceTrainingDataExtractor.class, tsd,
                 PosSequenceTrainingDataExtractor.PARAM_TIERS, ImmutableList.of("POST", "NUMBER&CASE", "ANIM"));
         aeDesc.getAnalysisEngineMetaData().setName("AE");

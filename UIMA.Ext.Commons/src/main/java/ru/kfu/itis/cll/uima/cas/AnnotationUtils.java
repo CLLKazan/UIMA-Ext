@@ -27,7 +27,7 @@ import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.util.CasUtil;
 
 import com.google.common.base.Function;
 

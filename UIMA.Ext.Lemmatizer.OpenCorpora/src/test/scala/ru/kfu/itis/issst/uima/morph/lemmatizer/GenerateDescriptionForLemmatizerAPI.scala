@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.lemmatizer
 
-import org.uimafit.factory.ExternalResourceFactory
+import org.apache.uima.fit.factory.ExternalResourceFactory
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import java.io.File

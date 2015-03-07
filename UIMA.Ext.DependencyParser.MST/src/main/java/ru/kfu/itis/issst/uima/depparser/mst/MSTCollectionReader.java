@@ -17,10 +17,10 @@ import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasCollectionReader_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -40,7 +40,7 @@ public class MSTCollectionReader extends JCasCollectionReader_ImplBase {
 				TokenizerAPI.TYPESYSTEM_TOKENIZER,
 				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
-		return CollectionReaderFactory.createDescription(
+		return CollectionReaderFactory.createReaderDescription(
 				MSTCollectionReader.class, inputTSD,
 				PARAM_INPUT_FILE, inputFile.getPath());
 	}

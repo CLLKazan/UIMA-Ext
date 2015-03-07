@@ -7,11 +7,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.encoder.features.StringEncoder;
-import org.cleartk.classifier.encoder.outcome.StringToStringOutcomeEncoder;
-import org.cleartk.classifier.jar.SequenceDataWriter_ImplBase;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.encoder.features.NameNumber;
+import org.cleartk.ml.encoder.features.StringEncoder;
+import org.cleartk.ml.encoder.outcome.StringToStringOutcomeEncoder;
+import org.cleartk.ml.jar.SequenceDataWriter_ImplBase;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

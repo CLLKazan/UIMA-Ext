@@ -61,8 +61,8 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.7</source>
+						<target>1.7</target>
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
@@ -158,13 +158,11 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.cleartk</groupId>
-				<artifactId>cleartk-release</artifactId>
-				<version>1.4.1</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+            <dependency>
+                <groupId>org.cleartk</groupId>
+                <artifactId>cleartk-ml</artifactId>
+                <version>${cleartk.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-library</artifactId>
@@ -311,9 +309,9 @@
 				<version>${uima.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.uimafit</groupId>
-				<artifactId>uimafit</artifactId>
-				<version>1.4.0</version>
+				<groupId>org.apache.uima</groupId>
+				<artifactId>uimafit-core</artifactId>
+				<version>2.1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -328,7 +326,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>14.0.1</version>
+				<version>17.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -369,29 +367,29 @@
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-				<version>1.7.2</version>
+				<version>1.7.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>jcl-over-slf4j</artifactId>
-				<version>1.7.2</version>
+				<version>1.7.6</version>
 			</dependency>
 			<!-- replaced by logback <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
 				<version>1.7.2</version> <optional>true</optional> </dependency> -->
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
-				<version>1.0.9</version>
+				<version>1.1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.clapper</groupId>
-				<artifactId>grizzled-slf4j_2.9.2</artifactId>
-				<version>0.6.10</version>
+				<artifactId>grizzled-slf4j_2.11</artifactId>
+				<version>1.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.scalatest</groupId>
-				<artifactId>scalatest_2.9.2</artifactId>
-				<version>1.8</version>
+				<artifactId>scalatest_2.11</artifactId>
+				<version>2.1.5</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -421,7 +419,7 @@
 			<dependency>
 				<groupId>com.beust</groupId>
 				<artifactId>jcommander</artifactId>
-				<version>1.32</version>
+				<version>1.35</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.scopt</groupId>
@@ -432,12 +430,6 @@
 				<groupId>com.typesafe.scala-logging</groupId>
 				<artifactId>scala-logging_2.11</artifactId>
 				<version>3.1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.scalatest</groupId>
-				<artifactId>scalatest_2.11</artifactId>
-				<version>2.1.5</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe</groupId>
@@ -488,9 +480,10 @@
 	</profiles>
 
 	<properties>
-		<uima.version>2.4.2</uima.version>
+		<uima.version>2.6.0</uima.version>
 		<scala.version>2.11.4</scala.version>
 		<spring.version>3.2.1.RELEASE</spring.version>
+        <cleartk.version>2.0.0</cleartk.version>
 	</properties>
 
 	<scm>

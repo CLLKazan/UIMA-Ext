@@ -9,12 +9,12 @@ import java.util.Set;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleNamedFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.NamedFeatureExtractor1;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.FSCollectionFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -26,7 +26,7 @@ import com.google.common.collect.Sets;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class PosTagFeatureExtractor implements SimpleNamedFeatureExtractor {
+public class PosTagFeatureExtractor implements NamedFeatureExtractor1 {
 
 	public static final String FEATURE_NAME = "PosTag";
 

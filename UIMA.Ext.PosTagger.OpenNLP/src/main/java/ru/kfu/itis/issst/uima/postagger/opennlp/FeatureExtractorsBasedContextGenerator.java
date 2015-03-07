@@ -10,11 +10,11 @@ import opennlp.tools.util.BeamSearchContextGenerator;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.encoder.CleartkEncoderException;
-import org.cleartk.classifier.encoder.features.FeatureEncoderChain;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.encoder.CleartkEncoderException;
+import org.cleartk.ml.encoder.features.FeatureEncoderChain;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.issst.uima.cleartk.DefaultFeatureToStringEncoderChain;
@@ -31,7 +31,7 @@ import com.google.common.collect.Sets;
 public class FeatureExtractorsBasedContextGenerator implements BeamSearchContextGenerator<Token> {
 
 	private final int prevTagsInHistory;
-	private List<SimpleFeatureExtractor> featureExtractors;
+	private List<FeatureExtractor1> featureExtractors;
 	private FeatureEncoderChain<String> featureEncoders = new DefaultFeatureToStringEncoderChain();
 	private Set<String> targetGramCategories;
 	private MorphDictionary morphDict;
@@ -39,7 +39,7 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 	private DictionaryBasedContextGenerator dictContextGen;
 
 	public FeatureExtractorsBasedContextGenerator(int prevTagsInHistory,
-			List<SimpleFeatureExtractor> featureExtractors,
+			List<FeatureExtractor1> featureExtractors,
 			Iterable<String> targetGramCategories,
 			MorphDictionary morphDict) {
 		this.prevTagsInHistory = prevTagsInHistory;
@@ -78,7 +78,7 @@ public class FeatureExtractorsBasedContextGenerator implements BeamSearchContext
 		List<Feature> features = Lists.newLinkedList();
 		try {
 			JCas jCas = curToken.getCAS().getJCas();
-			for (SimpleFeatureExtractor fe : featureExtractors) {
+			for (FeatureExtractor1 fe : featureExtractors) {
 				if (fe instanceof CleartkExtractor) {
 					features.addAll(((CleartkExtractor) fe).extractBetween(jCas, curToken, sent));
 				} else {

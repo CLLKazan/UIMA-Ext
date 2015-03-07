@@ -9,10 +9,10 @@ import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExt
 import java.util.List;
 import java.util.Properties;
 
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Context;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Context;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
@@ -87,12 +87,12 @@ public class DefaultFeatureExtractors extends FeatureExtractorsBasedContextGener
 		return rightContextSize;
 	}
 
-	public static List<SimpleFeatureExtractor> defaultExtractors(int leftContextSize,
+	public static List<FeatureExtractor1> defaultExtractors(int leftContextSize,
 			int rightContextSize) {
-		List<SimpleFeatureExtractor> feList = Lists.newLinkedList();
+		List<FeatureExtractor1> feList = Lists.newLinkedList();
 		feList.addAll(currentTokenExtractors());
 
-		List<SimpleFeatureExtractor> ctxTokenFeatureExtractors = contextTokenExtractors();
+		List<FeatureExtractor1> ctxTokenFeatureExtractors = contextTokenExtractors();
 
 		if (leftContextSize < 0 || rightContextSize < 0) {
 			throw new IllegalStateException("context size < 0");
@@ -108,8 +108,7 @@ public class DefaultFeatureExtractors extends FeatureExtractorsBasedContextGener
 			contexts.add(new CleartkExtractor.Following(rightContextSize));
 		}
 		feList.add(new CleartkExtractor(Token.class,
-				new CombinedExtractor(ctxTokenFeatureExtractors
-						.toArray(new SimpleFeatureExtractor[0])),
+				new CombinedExtractor1(ctxTokenFeatureExtractors),
 				contexts.toArray(new Context[contexts.size()])));
 		return feList;
 	}

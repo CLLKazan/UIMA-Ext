@@ -1,20 +1,22 @@
 package ru.kfu.itis.issst.uima.morph.lemmatizer
 
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase
+
 import scala.collection.JavaConversions._
 import org.apache.uima.jcas.JCas
-import org.uimafit.util.JCasUtil.select
+import org.apache.uima.fit.util.JCasUtil.select
 import org.opencorpora.cas.{ Word, Wordform }
 import ru.kfu.itis.issst.uima.morph.model.{ Wordform => DictWordform }
 import org.apache.uima.cas.FeatureStructure
-import org.uimafit.descriptor.ExternalResource
+import org.apache.uima.fit.descriptor.ExternalResource
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder
 import ru.kfu.itis.issst.uima.morph.dictionary.WordUtils
-import org.uimafit.factory.AnalysisEngineFactory
+import org.apache.uima.fit.factory.AnalysisEngineFactory
 
 /**
  * Created by fsqcds on 07/05/14.
  */
-class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
+class Lemmatizer extends JCasAnnotator_ImplBase {
   // TODO how to assign a scala val to a Java annotation attribute?
   @ExternalResource(key = "morphDictionary", mandatory = true)
   private var dictHolder: MorphDictionaryHolder = null
@@ -58,6 +60,6 @@ class Lemmatizer extends org.uimafit.component.JCasAnnotator_ImplBase {
 
 object Lemmatizer {
   val ResourceKeyDictionary = "morphDictionary"
-  def createDescription() = AnalysisEngineFactory.createPrimitiveDescription(classOf[Lemmatizer],
+  def createDescription() = AnalysisEngineFactory.createEngineDescription(classOf[Lemmatizer],
     LemmatizerAPI.getTypeSystemDescription)
 }

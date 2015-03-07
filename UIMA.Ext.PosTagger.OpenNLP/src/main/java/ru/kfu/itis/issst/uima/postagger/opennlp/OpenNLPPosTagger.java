@@ -24,12 +24,12 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.factory.AnalysisEngineFactory;
-import org.uimafit.factory.initializable.InitializableFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.initializable.InitializableFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
@@ -69,7 +69,7 @@ public class OpenNLPPosTagger extends JCasAnnotator_ImplBase {
 			Integer beamSize)
 			throws ResourceInitializationException {
 		// prepare TypeSystemDescriptor consisting of produced types
-		return AnalysisEngineFactory.createPrimitiveDescription(OpenNLPPosTagger.class,
+		return AnalysisEngineFactory.createEngineDescription(OpenNLPPosTagger.class,
 				PosTaggerAPI.getTypeSystemDescription(),
 				PARAM_BEAM_SIZE, beamSize,
 				PARAM_SEQUENCE_VALIDATOR_CLASS, sequenceValidatorClass);

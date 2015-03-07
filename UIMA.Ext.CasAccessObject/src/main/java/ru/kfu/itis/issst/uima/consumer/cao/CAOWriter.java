@@ -29,10 +29,10 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.descriptor.OperationalProperties;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.descriptor.OperationalProperties;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -57,14 +57,14 @@ public class CAOWriter extends CasAnnotator_ImplBase {
 	@ConfigurationParameter(name = PARAM_SPAN_TYPE, mandatory = true)
 	private String spanTypeName;
 	@ConfigurationParameter(name = PARAM_DOC_METADATA_TYPE,
-			defaultValue = "ru.kfu.itis.cll.uima.commons.DocumentMetadata")
+			defaultValue = "ru.kfu.itis.cll.uima.commons.DocumentMetadata", mandatory = false)
 	private String docMetaTypeName;
 	@ConfigurationParameter(name = PARAM_DOC_METADATA_URI_FEATURE,
-			defaultValue = "sourceUri")
+			defaultValue = "sourceUri", mandatory = false)
 	private String docMetaUriFeatureName;
-	@ConfigurationParameter(name = PARAM_DOC_METADATA_START_PROCESSING_TIME)
+	@ConfigurationParameter(name = PARAM_DOC_METADATA_START_PROCESSING_TIME, mandatory = false)
 	private String docMetaStartProcessingTimeFeatureName;
-	@ConfigurationParameter(name = PARAM_DOC_METADATA_DOCUMENT_SIZE)
+	@ConfigurationParameter(name = PARAM_DOC_METADATA_DOCUMENT_SIZE, mandatory = false)
 	private String docMetaDocumentSizeFeatureName;
 
 	// derived
