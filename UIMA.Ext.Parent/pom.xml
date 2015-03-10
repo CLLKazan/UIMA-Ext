@@ -308,6 +308,11 @@
 				<artifactId>uimaj-cpe</artifactId>
 				<version>${uima.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>org.apache.uima</groupId>
+                <artifactId>uimaj-tools</artifactId>
+                <version>${uima.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>org.apache.uima</groupId>
 				<artifactId>uimafit-core</artifactId>
