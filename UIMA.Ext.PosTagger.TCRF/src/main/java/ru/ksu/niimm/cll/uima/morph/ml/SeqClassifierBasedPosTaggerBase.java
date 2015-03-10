@@ -80,15 +80,17 @@ abstract class SeqClassifierBasedPosTaggerBase extends JCasAnnotator_ImplBase {
             throw new IllegalStateException();
         }
         if (!(labelSeq instanceof RandomAccess)) {
-            labelSeq = new ArrayList<String[]>(labelSeq);
+            labelSeq = new ArrayList<>(labelSeq);
         }
         for (int i = 0; i < labelSeq.size(); i++) {
             List<String> tieredLabel = Arrays.asList(labelSeq.get(i));
             Token token = tokens.get(i);
             Word word = token2WordIndex.get(token);
             if (word == null) {
-                // TODO there is the assumption that the first tier is PoS
-                if (!Objects.equals(tieredLabel.get(0), OTHER_PUNCTUATION_TAG)) {
+                String tier0Label = tieredLabel.get(0);
+                // tier0Label can be null for NON-LEX
+                if (tier0Label != null && !Objects.equals(tieredLabel.get(0), OTHER_PUNCTUATION_TAG)) {
+                    // TODO there is the assumption that the first tier is PoS
                     getLogger().warn(format(
                             "Classifier predicted a gram value for a non-word token: %s[%s/%s]%s",
                             textBefore(token, 20), token.getCoveredText(), tieredLabel, textAfter(token, 20)));
