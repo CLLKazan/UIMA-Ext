@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -8,10 +8,6 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.CleartkProcessingException;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.Instances;
-import ru.kfu.itis.issst.uima.ml.FeatureSet;
-import ru.kfu.itis.issst.uima.ml.FeatureSets;
-import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
-import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractor;
 
 import java.io.IOException;
 import java.util.List;

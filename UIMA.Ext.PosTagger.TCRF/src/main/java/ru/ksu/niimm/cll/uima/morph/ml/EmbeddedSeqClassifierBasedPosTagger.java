@@ -9,6 +9,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.UimaResourceUtils;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifiers;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import java.io.File;

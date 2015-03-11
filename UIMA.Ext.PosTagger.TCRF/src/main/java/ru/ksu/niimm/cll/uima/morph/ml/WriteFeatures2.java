@@ -20,7 +20,9 @@ import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.cleartk.crfsuite2.CRFSuiteSerializedDataWriterFactory;
 import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceDataWriterResource;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
@@ -102,7 +104,8 @@ public class WriteFeatures2 {
             File outputBaseDir)
             throws ResourceInitializationException {
         // setup underlying data writer resource
-        ExternalResourceDescription udwDesc = TieredSequenceDataWriterResource.createDescription(outputBaseDir);
+        ExternalResourceDescription udwDesc = TieredSequenceDataWriterResource.createDescription(outputBaseDir,
+                CRFSuiteSerializedDataWriterFactory.class);
         // setup training data writer
         AnalysisEngineDescription resultDesc = AnalysisEngineFactory.createEngineDescription(
                 PosSequenceTrainingDataExtractor.class,

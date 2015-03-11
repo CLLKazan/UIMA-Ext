@@ -29,6 +29,10 @@
 			<groupId>org.cleartk</groupId>
 			<artifactId>cleartk-ml</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>ru.ksu.niimm.cll.uima</groupId>
+            <artifactId>uima-ext-ml-commons</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>ru.kfu.itis.issst.crfsuite4j</groupId>
 			<artifactId>crfsuite4j</artifactId>

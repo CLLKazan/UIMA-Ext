@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
@@ -11,8 +11,6 @@ import org.apache.uima.fit.component.Resource_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.util.UimaResourceUtils;
-import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
-import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifier;
 
 import java.io.File;
 import java.io.IOException;

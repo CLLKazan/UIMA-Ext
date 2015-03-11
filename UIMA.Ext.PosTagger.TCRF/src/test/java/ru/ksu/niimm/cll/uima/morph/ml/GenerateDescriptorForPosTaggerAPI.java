@@ -7,8 +7,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
 import org.xml.sax.SAXException;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifierResource;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
 import java.io.File;

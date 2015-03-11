@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -6,16 +6,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import ru.kfu.itis.issst.uima.ml.FeatureSet;
-import ru.kfu.itis.issst.uima.ml.FeatureSets;
-import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -39,7 +38,7 @@ public class TieredSequenceHandlerTestBase {
             @Override
             public boolean matches(Object argument) {
                 @SuppressWarnings("unchecked") List<List<Feature>> actual = (List<List<Feature>>) argument;
-                List<Set<String>> actualAsSets = new ArrayList<Set<String>>(Lists.transform(actual, new Function<List<Feature>, Set<String>>() {
+                List<Set<String>> actualAsSets = new ArrayList<>(Lists.transform(actual, new Function<List<Feature>, Set<String>>() {
                     @Override
                     public Set<String> apply(List<Feature> input) {
                         Set<String> result = Sets.newHashSet();
@@ -67,6 +66,10 @@ public class TieredSequenceHandlerTestBase {
     }
 
     protected class TestTieredFeatureExtractor implements TieredFeatureExtractor<Annotation, String> {
+        @Override
+        public void initialize(Properties cfg) throws ResourceInitializationException {
+        }
+
         @Override
         public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                                  JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {

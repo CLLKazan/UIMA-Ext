@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import com.google.common.collect.Lists;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -7,9 +7,6 @@ import org.cleartk.ml.SequenceClassifier;
 import org.cleartk.ml.jar.JarClassifierBuilder;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
-import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractor;
-import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
-import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifier;
 
 import java.io.File;
 import java.io.IOException;

@@ -2,6 +2,7 @@ package ru.ksu.niimm.cll.uima.morph.ml;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
@@ -11,12 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
-import ru.kfu.itis.issst.uima.morph.commons.DictionaryLoader4Tests;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.test.TestCasBuilder;
@@ -49,12 +49,13 @@ public class SimpleTieredFeatureExtractorTest {
     @Before
     public void initFE() {
         Properties feCfg = new Properties();
-        feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_GRAM_TIERS, "POST|NMbr|CAse");
+        feCfg.setProperty(TieredFeatureExtractors.CFG_FEATURE_EXTRACTOR_CLASSNAME,
+                SimpleTieredFeatureExtractor.class.getName());
+        feCfg.setProperty(TieredFeatureExtractors.CFG_TIERS, "POST|NMbr|CAse");
         feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_LEFT_CONTEXT_SIZE, "2");
         feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_RIGHT_CONTEXT_SIZE, "1");
-        fe = SimpleTieredFeatureExtractor.from(feCfg);
-        DictionaryLoader4Tests.init();
-        fe.initialize(DictionaryLoader4Tests.dict);
+        fe = (SimpleTieredFeatureExtractor) TieredFeatureExtractors.<Token, String>from(feCfg);
+        //DictionaryLoader4Tests.init();
     }
 
     @Before
@@ -124,8 +125,8 @@ public class SimpleTieredFeatureExtractorTest {
         List<List<String>> result = newArrayList();
         for (int tok = 0; tok < tokNum; tok++) {
             List<String> tokElem = newArrayList();
-            for (int tier = 0; tier < sourceArrays.length; tier++) {
-                tokElem.add(sourceArrays[tier][tok]);
+            for (String[] sourceArray : sourceArrays) {
+                tokElem.add(sourceArray[tok]);
             }
             result.add(tokElem);
         }

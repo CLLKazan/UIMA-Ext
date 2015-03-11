@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
@@ -19,7 +19,6 @@ import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.mockito.Mockito.*;
-import static ru.ksu.niimm.cll.uima.morph.ml.PTestUtils.list;
 
 /**
  * @author Rinat Gareev
@@ -43,19 +42,19 @@ public class TieredSequenceDataWriterTest extends TieredSequenceHandlerTestBase 
                 of(new String[]{"out-first-token", null, null}, new String[]{null, "out-second-token", null}));
         // verify
         verify(dataWriter1).write(
-                argThat(list(
+                argThat(PTestUtils.list(
                         // first instance
                         instance("out-first-token", new Feature("common-feature-0"), new Feature("tier0-0")),
                         // second instance
                         instance((String) null, new Feature("common-feature-1"), new Feature("tier0-1")))));
         verify(dataWriter2).write(
-                argThat(list(
+                argThat(PTestUtils.list(
                         // first instance
                         instance((String) null, new Feature("common-feature-0"), new Feature("tier1-0")),
                         // second instance
                         instance("out-second-token", new Feature("common-feature-1"), new Feature("tier1-1")))));
         verify(dataWriter3).write(
-                argThat(list(
+                argThat(PTestUtils.list(
                         // first instance
                         instance((String) null, new Feature("common-feature-0"), new Feature("tier2-0")),
                         // second instance

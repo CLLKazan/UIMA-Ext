@@ -30,6 +30,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <opencorpora.home>${opencorpora.home}</opencorpora.home>
+                                <uima.datapath>${opencorpora.home}</uima.datapath>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>

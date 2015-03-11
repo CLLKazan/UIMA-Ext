@@ -1,7 +1,5 @@
 package ru.kfu.itis.issst.cleartk;
 
-import org.cleartk.ml.encoder.features.NameNumber;
-
 import java.io.Serializable;
 
 /**

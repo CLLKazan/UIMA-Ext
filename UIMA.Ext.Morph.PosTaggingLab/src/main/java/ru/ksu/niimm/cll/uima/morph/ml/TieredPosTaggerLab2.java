@@ -23,6 +23,7 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
 import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
 import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
 import ru.ksu.niimm.cll.uima.morph.lab.*;
@@ -36,7 +37,6 @@ import java.util.Set;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
-import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -73,10 +73,12 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
                 File trainingBaseDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR,
                         AccessMode.READWRITE);
                 // write a feature extraction config there
-                File feCfgFile = new File(trainingBaseDir, FILENAME_FEATURE_EXTRACTION_CONFIG);
+                File feCfgFile = new File(trainingBaseDir, TieredFeatureExtractors.FILENAME_FEATURE_EXTRACTION_CONFIG);
                 Properties feCfg = new Properties();
-                feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_GRAM_TIERS,
-                        Joiner.on(GramTiersFactory.tierSplitterChar).join(gramTiers));
+                feCfg.setProperty(TieredFeatureExtractors.CFG_FEATURE_EXTRACTOR_CLASSNAME,
+                        SimpleTieredFeatureExtractor.class.getName());
+                feCfg.setProperty(TieredFeatureExtractors.CFG_TIERS,
+                        Joiner.on(TieredFeatureExtractors.tierSplitterChar).join(gramTiers));
                 feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_LEFT_CONTEXT_SIZE,
                         String.valueOf(leftContextSize));
                 feCfg.setProperty(SimpleTieredFeatureExtractor.CFG_RIGHT_CONTEXT_SIZE,

@@ -1,5 +1,6 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -9,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifier;
 
 import java.util.List;
 import java.util.Set;
@@ -33,25 +33,25 @@ public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase 
 
     @Test
     public void testCorrectFeatureFlow() throws CleartkProcessingException {
-        TieredSequenceClassifier cl = new TestTieredSequenceClassifier();
+        TieredSequenceClassifier<Annotation> cl = new TestTieredSequenceClassifier();
         // mock
         when(classifier1.classify(argThat(
-                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier0-0"))))))
+                TieredSequenceHandlerTestBase.unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier0-0"))))))
                 .thenReturn(of("First"));
         when(classifier2.classify(argThat(
-                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier1-0"))))))
+                TieredSequenceHandlerTestBase.unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier1-0"))))))
                 .thenReturn(of("Second"));
         when(classifier3.classify(argThat(
-                unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier2-0"))))))
+                TieredSequenceHandlerTestBase.unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier2-0"))))))
                 .thenReturn(of("Third"));
         // invoke
-        List<String[]> out = cl.classify(mock(JCas.class), mock(Annotation.class), of(mock(Token.class)));
+        List<String[]> out = cl.classify(mock(JCas.class), mock(Annotation.class), ImmutableList.of(mock(Token.class)));
         // verify
         assertEquals(1, out.size());
         assertArrayEquals(new String[]{"First", "Second", "Third"}, out.get(0));
     }
 
-    private class TestTieredSequenceClassifier extends TieredSequenceClassifier {
+    private class TestTieredSequenceClassifier extends TieredSequenceClassifier<Annotation> {
         TestTieredSequenceClassifier() {
             this.classifiers = of(classifier1, classifier2, classifier3);
             this.featureExtractor = new TestTieredFeatureExtractor();
