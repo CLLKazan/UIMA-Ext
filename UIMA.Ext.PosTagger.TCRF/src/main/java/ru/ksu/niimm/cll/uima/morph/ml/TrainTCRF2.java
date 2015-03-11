@@ -18,7 +18,7 @@ import java.util.List;
 import static java.lang.String.format;
 import static org.apache.commons.io.filefilter.FileFilterUtils.directoryFileFilter;
 import static ru.kfu.itis.issst.cleartk.crfsuite.CRFSuiteStringOutcomeClassifierBuilder.getTrainingDataFileName;
-import static ru.ksu.niimm.cll.uima.morph.ml.TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG;
+import static ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors.FILENAME_FEATURE_EXTRACTION_CONFIG;
 
 /**
  * @author Rinat Gareev

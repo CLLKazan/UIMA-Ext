@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -8,9 +8,6 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.CleartkProcessingException;
 import org.cleartk.ml.Feature;
-import ru.kfu.itis.issst.uima.ml.FeatureSet;
-import ru.kfu.itis.issst.uima.ml.FeatureSets;
-import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -67,7 +64,7 @@ public abstract class TieredSequenceClassifier<I extends AnnotationFS> implement
                 featureExtractor.onAfterTier(featSets, resultLabels, tier, jCas, spanAnno, seq);
             }
         }
-        return new ArrayList<String[]>(transform(resultLabels, new Function<List<String>, String[]>() {
+        return new ArrayList<>(transform(resultLabels, new Function<List<String>, String[]>() {
             @Override
             public String[] apply(List<String> list) {
                 return list.toArray(new String[list.size()]);

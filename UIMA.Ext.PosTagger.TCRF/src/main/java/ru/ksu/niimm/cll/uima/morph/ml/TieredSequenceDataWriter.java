@@ -11,6 +11,7 @@ import org.cleartk.ml.Instances;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
 import ru.kfu.itis.issst.uima.ml.FeatureSets;
 import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractor;
 
 import java.io.IOException;
 import java.util.List;

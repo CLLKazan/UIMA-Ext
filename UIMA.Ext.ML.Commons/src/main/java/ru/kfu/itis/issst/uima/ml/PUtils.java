@@ -1,4 +1,4 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 /**
  * Package private utils.

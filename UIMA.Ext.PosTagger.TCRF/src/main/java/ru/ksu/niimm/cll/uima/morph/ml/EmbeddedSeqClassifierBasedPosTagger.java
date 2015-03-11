@@ -7,6 +7,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.cll.uima.util.UimaResourceUtils;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 
@@ -55,7 +56,7 @@ public class EmbeddedSeqClassifierBasedPosTagger extends SeqClassifierBasedPosTa
                 throw new IllegalStateException("Both modelBasePath & modelBaseDir are not specified");
             }
             try {
-                modelBaseDir = TieredSequenceClassifiers.resolveModelBaseDir(modelBasePath, null);
+                modelBaseDir = UimaResourceUtils.resolveDirectory(modelBasePath, null);
             } catch (Exception e) {
                 throw new ResourceInitializationException(e);
             }
@@ -66,7 +67,7 @@ public class EmbeddedSeqClassifierBasedPosTagger extends SeqClassifierBasedPosTa
         }
         //
         //noinspection unchecked
-        classifier = (SequenceClassifier<Token, String[]>) TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
+        classifier = TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
     }
 
     @Override

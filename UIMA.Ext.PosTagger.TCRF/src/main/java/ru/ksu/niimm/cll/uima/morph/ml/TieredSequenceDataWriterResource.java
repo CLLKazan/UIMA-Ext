@@ -1,22 +1,21 @@
 package ru.ksu.niimm.cll.uima.morph.ml;
 
 import com.google.common.collect.Lists;
+import org.apache.uima.fit.component.Resource_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
 import org.cleartk.ml.CleartkProcessingException;
-import org.apache.uima.fit.component.Resource_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.util.CacheKey;
-import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.cleartk.crfsuite2.CRFSuiteSerializedDataWriter;
 import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractor;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static java.lang.String.format;
-import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 /**
  * @author Rinat Gareev
@@ -40,8 +38,6 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
 
     public static final String PARAM_OUTPUT_BASE_DIR = "outputBaseDir";
 
-    public static final String FILENAME_FEATURE_EXTRACTION_CONFIG = "fec.properties";
-
     @ConfigurationParameter(name = PARAM_OUTPUT_BASE_DIR, mandatory = true)
     private File outputBaseDir;
     private Properties featureExtractionCfg;
@@ -49,9 +45,6 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
     private TieredFeatureExtractor<Token, String> featureExtractor;
     private List<org.cleartk.ml.SequenceDataWriter<String>> dataWriters;
     // delegate
-    @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-    private CacheKey morphDictCacheKey;
-    private MorphDictionary morphDictionary;
     private TieredSequenceDataWriter<Token> delegate;
 
     @Override
@@ -62,7 +55,7 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
         if (outputBaseDir.exists() && !outputBaseDir.isDirectory()) {
             throw new IllegalStateException(format("%s exists but it is not a directory", outputBaseDir));
         }
-        File feCfgFile = new File(outputBaseDir, FILENAME_FEATURE_EXTRACTION_CONFIG);
+        File feCfgFile = new File(outputBaseDir, TieredFeatureExtractors.FILENAME_FEATURE_EXTRACTION_CONFIG);
         try {
             featureExtractionCfg = IoUtils.readProperties(feCfgFile);
         } catch (IOException e) {
@@ -84,10 +77,7 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
     }
 
     private void initFeatureExtractor() throws ResourceInitializationException {
-        initMorphDictionary();
-        SimpleTieredFeatureExtractor fe = SimpleTieredFeatureExtractor.from(featureExtractionCfg);
-        fe.initialize(morphDictionary);
-        this.featureExtractor = fe;
+        this.featureExtractor = TieredFeatureExtractors.from(featureExtractionCfg);
     }
 
     private void initUnderlyingDataWriters() throws ResourceInitializationException {
@@ -106,17 +96,6 @@ public class TieredSequenceDataWriterResource extends Resource_ImplBase
             dataWriters.add(dw);
         }
         this.dataWriters = dataWriters;
-    }
-
-    private void initMorphDictionary() throws ResourceInitializationException {
-        CachedResourceTuple<MorphDictionary> t;
-        try {
-            t = getMorphDictionaryAPI().getCachedInstance();
-        } catch (Exception e) {
-            throw new ResourceInitializationException(e);
-        }
-        morphDictCacheKey = t.getCacheKey();
-        morphDictionary = t.getResource();
     }
 
     private GramTiers getGramTiers() {

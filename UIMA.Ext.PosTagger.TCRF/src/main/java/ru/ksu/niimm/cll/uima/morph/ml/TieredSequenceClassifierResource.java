@@ -10,7 +10,9 @@ import org.cleartk.ml.CleartkProcessingException;
 import org.apache.uima.fit.component.Resource_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.ExternalResourceFactory;
+import ru.kfu.itis.cll.uima.util.UimaResourceUtils;
 import ru.kfu.itis.issst.uima.ml.SequenceClassifier;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifier;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +64,7 @@ public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Re
                 throw new IllegalStateException("Both modelBasePath & modelBaseDir are not specified");
             }
             try {
-                modelBaseDir = TieredSequenceClassifiers.resolveModelBaseDir(modelBasePath, getResourceManager());
+                modelBaseDir = UimaResourceUtils.resolveDirectory(modelBasePath, getResourceManager());
             } catch (Exception e) {
                 throw new ResourceInitializationException(e);
             }
@@ -72,7 +74,7 @@ public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Re
                     "%s is not a directory", modelBaseDir));
         }
         //noinspection unchecked
-        delegate = (TieredSequenceClassifier<I>) TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
+        delegate = TieredSequenceClassifiers.fromModelBaseDir(modelBaseDir);
         return true;
     }
 

@@ -8,16 +8,16 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.Feature;
 import org.cleartk.ml.feature.extractor.CleartkExtractor;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
 import org.cleartk.ml.feature.extractor.CombinedExtractor1;
 import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-import ru.kfu.itis.issst.uima.ml.DictionaryPossibleTagFeatureExtractor;
-import ru.kfu.itis.issst.uima.ml.FeatureSet;
-import ru.kfu.itis.issst.uima.ml.FeatureSets;
-import ru.kfu.itis.issst.uima.ml.WordAnnotator;
+import ru.kfu.itis.cll.uima.util.CacheKey;
+import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
+import ru.kfu.itis.issst.uima.ml.*;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.util.List;
@@ -27,9 +27,9 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static com.google.common.collect.Lists.transform;
 import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.getIntProperty;
-import static ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils.getStringProperty;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.contextTokenExtractors;
 import static ru.kfu.itis.issst.uima.ml.DefaultFeatureExtractors.currentTokenExtractors;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 /**
  * @author Rinat Gareev
@@ -39,41 +39,41 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
     // constants
     public static final String CFG_LEFT_CONTEXT_SIZE = "leftContextSize";
     public static final String CFG_RIGHT_CONTEXT_SIZE = "rightContextSize";
-    public static final String CFG_GRAM_TIERS = "gramTiers";
-
-    // factory
-    public static SimpleTieredFeatureExtractor from(Properties props) {
-        SimpleTieredFeatureExtractor obj = new SimpleTieredFeatureExtractor();
-        obj.leftContextSize = getIntProperty(props, CFG_LEFT_CONTEXT_SIZE);
-        obj.rightContextSize = getIntProperty(props, CFG_RIGHT_CONTEXT_SIZE);
-        obj.gramTiersDef = getStringProperty(props, CFG_GRAM_TIERS);
-        return obj;
-    }
 
     private Integer leftContextSize;
     private Integer rightContextSize;
-    private String gramTiersDef;
+    private List<String> gramTierDefs;
     private GramTiers gramTiers;
     // aggregate fields
-    // CFE ~ a Common Feature Extractor
+    @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
+    private CacheKey morphDictionaryKey;
     private MorphDictionary morphDictionary;
+    // CFE ~ a Common Feature Extractor
     private FeatureExtractor1 tokenCFE;
     private CleartkExtractor contextCFE;
     private List<DictionaryPossibleTagFeatureExtractor> dictFeatureExtractors;
 
-    private SimpleTieredFeatureExtractor() {
+    public SimpleTieredFeatureExtractor() {
     }
 
-    /**
-     * an UIMA-independent initialization method (e.g., for tests)
-     */
-    public void initialize(MorphDictionary morphDictionary) {
-        this.morphDictionary = morphDictionary;
+    @Override
+    public void initialize(Properties props) throws ResourceInitializationException {
+        leftContextSize = getIntProperty(props, CFG_LEFT_CONTEXT_SIZE);
+        rightContextSize = getIntProperty(props, CFG_RIGHT_CONTEXT_SIZE);
+        gramTierDefs = TieredFeatureExtractors.getTiers(props);
+        // TODO use a dependency injection
+        try {
+            CachedResourceTuple<MorphDictionary> t = getMorphDictionaryAPI().getCachedInstance();
+            morphDictionary = t.getResource();
+            morphDictionaryKey = t.getCacheKey();
+        } catch (Exception e) {
+            throw new ResourceInitializationException(e);
+        }
         initialize();
     }
 
     private void initialize() {
-        gramTiers = GramTiersFactory.parseGramTiers(morphDictionary.getGramModel(), gramTiersDef);
+        gramTiers = GramTiersFactory.parseGramTiers(morphDictionary.getGramModel(), gramTierDefs);
         // TODO:LOW here should be a single feature extraction config like in the Stanford tagger
         if (leftContextSize < 0 || rightContextSize < 0) {
             throw new IllegalStateException("context size < 0");

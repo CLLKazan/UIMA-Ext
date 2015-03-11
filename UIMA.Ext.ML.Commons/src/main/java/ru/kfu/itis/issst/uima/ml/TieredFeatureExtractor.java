@@ -1,23 +1,31 @@
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.uima.ml;
 
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
-import ru.kfu.itis.issst.uima.ml.FeatureSet;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @param <ITEM> sequence item type
- * @param <OUT> output label type of a tier classifier
+ * @param <OUT>  output label type of a tier classifier
  * @author Rinat Gareev
  */
 public interface TieredFeatureExtractor<ITEM extends AnnotationFS, OUT> {
+
     /**
+     * Initialize itself from the given configuration properties.
      *
+     * @param cfg a configuration
+     */
+    void initialize(Properties cfg) throws ResourceInitializationException;
+
+    /**
      * @param featSets
-     * @param labels output labels (one for each token) from each tier before the given one
+     * @param labels   output labels (one for each token) from each tier before the given one
      * @param tier
      * @param jCas
      * @param spanAnno
@@ -29,9 +37,8 @@ public interface TieredFeatureExtractor<ITEM extends AnnotationFS, OUT> {
             throws CleartkExtractorException;
 
     /**
-     *
      * @param featSets
-     * @param labels output labels (one for each token) from each tier including the given one
+     * @param labels   output labels (one for each token) from each tier including the given one
      * @param tier
      * @param jCas
      * @param spanAnno

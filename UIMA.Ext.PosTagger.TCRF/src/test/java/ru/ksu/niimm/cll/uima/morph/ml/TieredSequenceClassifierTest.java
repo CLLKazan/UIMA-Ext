@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceClassifier;
 
 import java.util.List;
 import java.util.Set;

@@ -12,6 +12,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import ru.kfu.itis.issst.uima.ml.FeatureSet;
 import ru.kfu.itis.issst.uima.ml.FeatureSets;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractor;
 
 import java.util.ArrayList;
 import java.util.List;

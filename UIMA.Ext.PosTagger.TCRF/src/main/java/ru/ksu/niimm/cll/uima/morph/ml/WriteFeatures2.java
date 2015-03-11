@@ -9,18 +9,18 @@ import com.beust.jcommander.ParameterException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
 import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
+import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
@@ -30,10 +30,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
-import static ru.ksu.niimm.cll.uima.morph.ml.GramTiersFactory.tierSplitter;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -65,10 +63,9 @@ public class WriteFeatures2 {
 
     public void run() throws Exception {
         File featureExtractionCfg = new File(outputBaseDir,
-                TieredSequenceDataWriterResource.FILENAME_FEATURE_EXTRACTION_CONFIG);
+                TieredFeatureExtractors.FILENAME_FEATURE_EXTRACTION_CONFIG);
         Properties feCfg = IoUtils.readProperties(featureExtractionCfg);
-        String tiersDef = ConfigPropertiesUtils.getStringProperty(feCfg, SimpleTieredFeatureExtractor.CFG_GRAM_TIERS);
-        List<String> tierDefsList = newArrayList(tierSplitter.split(tiersDef));
+        List<String> tierDefsList = TieredFeatureExtractors.getTiers(feCfg);
         if (tierDefsList.isEmpty())
             throw new IllegalStateException("No gram tiers are defined");
         CpeBuilder cpeBuilder = new CpeBuilder();
