@@ -233,7 +233,10 @@ public class InitialTokenizer extends CasAnnotator_ImplBase {
 	private State SPACE = new State() {
 		@Override
 		public boolean startsWith(char ch) {
-			return Character.isWhitespace(ch);
+            // TODO:LOW optimize
+			return Character.isWhitespace(ch)
+                    // catches NBSP
+                    || Character.isSpaceChar(ch);
 		}
 
 		@Override
