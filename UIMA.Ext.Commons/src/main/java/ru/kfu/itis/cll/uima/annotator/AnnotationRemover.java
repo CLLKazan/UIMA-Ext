@@ -33,9 +33,9 @@ public class AnnotationRemover extends CasAnnotator_ImplBase {
 	public static final String PARAM_NAMESPACES_TO_REMOVE = "NamespacesToRemove";
 	public static final String PARAM_TYPES_TO_REMOVE = "TypesToRemove";
 
-	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_REMOVE)
+	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_REMOVE, mandatory = false)
 	private String[] namespacesToRemove;
-	@ConfigurationParameter(name = PARAM_TYPES_TO_REMOVE)
+	@ConfigurationParameter(name = PARAM_TYPES_TO_REMOVE, mandatory = false)
 	private String[] typeNamesToRemove;
 	// derived config
 	private Set<Type> typesToRemove;
