@@ -96,7 +96,7 @@ public class DictionaryPossibleTagFeatureExtractor implements NamedFeatureExtrac
 	@Override
 	public List<Feature> extract(JCas view, Annotation focusAnnotation)
 			throws CleartkExtractorException {
-		Word focusWord = MLPackageUtils.getWordAnno(view, focusAnnotation);
+		Word focusWord = PUtils.getWordAnno(view, focusAnnotation);
 		if (focusWord == null || focusWord.getWordforms() == null) {
 			return ImmutableList.of();
 		}
