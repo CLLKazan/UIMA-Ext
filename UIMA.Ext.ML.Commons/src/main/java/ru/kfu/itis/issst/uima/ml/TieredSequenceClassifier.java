@@ -57,7 +57,7 @@ public abstract class TieredSequenceClassifier<I extends AnnotationFS> implement
             while (labelSeqIter.hasNext()) {
                 String tierLabel = labelSeqIter.next();
                 List<String> resultLabel = resultIter.next();
-                resultLabel.add(PUtils.isNullLabel(tierLabel) ? null : tierLabel);
+                resultLabel.add(MLPackageUtils.isNullLabel(tierLabel) ? null : tierLabel);
             }
             // if not the last tier
             if (tier != tierNum - 1) {

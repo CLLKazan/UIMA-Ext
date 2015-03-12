@@ -5,7 +5,7 @@ package ru.kfu.itis.issst.uima.ml;
  *
  * @author Rinat Gareev
  */
-class PUtils {
+class MLPackageUtils {
     static boolean isNullLabel(String arg) {
         return arg == null || arg.isEmpty() || "null".equalsIgnoreCase(arg);
     }
