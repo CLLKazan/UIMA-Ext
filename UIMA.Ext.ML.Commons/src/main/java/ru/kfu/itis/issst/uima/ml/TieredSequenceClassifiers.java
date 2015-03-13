@@ -1,5 +1,6 @@
 package ru.kfu.itis.issst.uima.ml;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -44,6 +45,7 @@ public class TieredSequenceClassifiers {
                 this.tierIds = ImmutableList.copyOf(tiers);
                 this.classifiers = lClassifiers;
                 this.featureExtractor = lFeatureExtractor;
+                Preconditions.checkState(tierIds.size() == classifiers.size());
             }
         };
     }

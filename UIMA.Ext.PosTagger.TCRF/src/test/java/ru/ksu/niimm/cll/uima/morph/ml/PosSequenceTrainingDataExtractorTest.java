@@ -6,6 +6,9 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
@@ -17,19 +20,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
-import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
-import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceDataWriter;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.test.AnnotationMatchers;
 import ru.kfu.itis.issst.uima.test.TestCasBuilder;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.mockito.Mockito.*;
-import static org.hamcrest.Matchers.*;
 import static ru.kfu.itis.issst.uima.test.AnnotationMatchers.coverTextList;
 import static ru.ksu.niimm.cll.uima.morph.ml.PTestUtils.list;
 
@@ -44,15 +44,15 @@ public class PosSequenceTrainingDataExtractorTest {
             PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 
     @Mock
-    private SequenceDataWriter<Token, String[]> dataWriterMock;
+    private TieredSequenceDataWriter<Token, String> dataWriterMock;
     private AnalysisEngine ae;
 
     @Before
     public void init() throws UIMAException {
         MockitoAnnotations.initMocks(this);
+        when(dataWriterMock.getTierIds()).thenReturn(ImmutableList.of("POST", "NUMBER&CASE", "ANIM"));
         AnalysisEngineDescription aeDesc = AnalysisEngineFactory.createEngineDescription(
-                PosSequenceTrainingDataExtractor.class, tsd,
-                PosSequenceTrainingDataExtractor.PARAM_TIERS, ImmutableList.of("POST", "NUMBER&CASE", "ANIM"));
+                PosSequenceTrainingDataExtractor.class, tsd);
         aeDesc.getAnalysisEngineMetaData().setName("AE");
         ResourceManager resMgr = UIMAFramework.newDefaultResourceManager();
         //
@@ -70,7 +70,7 @@ public class PosSequenceTrainingDataExtractorTest {
                 PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER, "mockedDataWriter");
         resMgr.initializeExternalResources(resMgrCfg, "/", Maps.<String, Object>newHashMap());
         @SuppressWarnings("unchecked")
-        MockedSequenceDataWriter<Token, String[]> dw = (MockedSequenceDataWriter<Token, String[]>) resMgr.getResource(
+        MockedSequenceDataWriter<Token, String> dw = (MockedSequenceDataWriter<Token, String>) resMgr.getResource(
                 "/" + PosSequenceTrainingDataExtractor.RESOURCE_DATA_WRITER);
         dw.setMock(dataWriterMock);
         //

@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
  * @author Rinat Gareev
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TieredSequenceDataWriterTest extends TieredSequenceHandlerTestBase {
+public class AbstractTieredSequenceDataWriterTest extends TieredSequenceHandlerTestBase {
 
     @Mock
     private org.cleartk.ml.SequenceDataWriter<String> dataWriter1;
@@ -35,7 +35,7 @@ public class TieredSequenceDataWriterTest extends TieredSequenceHandlerTestBase 
 
     @Test
     public void testCorrectWorkflow() throws CleartkProcessingException {
-        TieredSequenceDataWriter dw = new TestTieredSequenceDataWriter();
+        AbstractTieredSequenceDataWriter dw = new TestTieredSequenceDataWriter();
         // stub
         // invoke
         dw.write(mock(JCas.class), mock(Annotation.class), of(mock(Token.class), mock(Token.class)),
@@ -61,7 +61,7 @@ public class TieredSequenceDataWriterTest extends TieredSequenceHandlerTestBase 
                         instance((String) null, new Feature("common-feature-1"), new Feature("tier2-1")))));
     }
 
-    private class TestTieredSequenceDataWriter extends TieredSequenceDataWriter {
+    private class TestTieredSequenceDataWriter extends AbstractTieredSequenceDataWriter {
         private TestTieredSequenceDataWriter() {
             this.dataWriters = of(dataWriter1, dataWriter2, dataWriter3);
             this.featureExtractor = new TestTieredFeatureExtractor();

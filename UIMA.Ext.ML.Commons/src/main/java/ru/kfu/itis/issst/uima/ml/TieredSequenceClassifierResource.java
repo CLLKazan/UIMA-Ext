@@ -23,7 +23,7 @@ import static java.lang.String.format;
  * @author Rinat Gareev
  */
 public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Resource_ImplBase
-        implements SequenceClassifier<I, String[]> {
+        implements TieredSequenceClassifier<I, String> {
 
     /**
      * the base path used by engine descriptor that implements UIMA-Ext PoS-tagger API
@@ -85,5 +85,10 @@ public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Re
     @Override
     public void close() throws IOException {
         delegate.close();
+    }
+
+    @Override
+    public List<String> getTierIds() {
+        return delegate.getTierIds();
     }
 }

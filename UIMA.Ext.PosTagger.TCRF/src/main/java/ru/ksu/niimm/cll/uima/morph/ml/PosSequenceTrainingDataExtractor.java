@@ -7,20 +7,19 @@ import com.google.common.base.Joiner;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.descriptor.ExternalResource;
-import org.apache.uima.fit.util.JCasUtil;
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.cll.uima.tokenizer.fstype.W;
 import ru.kfu.itis.cll.uima.cas.FSUtils;
-import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceDataWriter;
 import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
@@ -44,17 +43,14 @@ public class PosSequenceTrainingDataExtractor extends JCasAnnotator_ImplBase {
 
     public static final String RESOURCE_GRAM_MODEL = "gramModel";
     public static final String RESOURCE_DATA_WRITER = "dataWriter";
-    public static final String PARAM_TIERS = "tiers";
 
     // config fields
     @ExternalResource(key = RESOURCE_DATA_WRITER, mandatory = true)
     // String[] array means that for each token we have several (ordered) labels - one for each tier
-    private SequenceDataWriter<Token, String[]> dataWriter;
+    private TieredSequenceDataWriter<Token, String> dataWriter;
     @ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)
     private GramModelHolder gramModelHolder;
     private GramModel gramModel;
-    @ConfigurationParameter(name = PARAM_TIERS, mandatory = true)
-    private List<String> tierDefs;
 
     // derived config fields
     private GramTiers gramTiers;
@@ -69,7 +65,7 @@ public class PosSequenceTrainingDataExtractor extends JCasAnnotator_ImplBase {
         // check grammems
         checkDictGrammems();
         //
-        gramTiers = GramTiersFactory.parseGramTiers(gramModel, tierDefs);
+        gramTiers = GramTiersFactory.parseGramTiers(gramModel, dataWriter.getTierIds());
     }
 
     @Override

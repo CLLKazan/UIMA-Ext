@@ -1,5 +1,7 @@
 package ru.kfu.itis.issst.uima.ml;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.component.Resource_ImplBase;
@@ -28,7 +30,7 @@ import static java.lang.String.format;
  * @author Rinat Gareev
  */
 public class TieredSequenceDataWriterResource<I extends AnnotationFS> extends Resource_ImplBase
-        implements SequenceDataWriter<I, String[]> {
+        implements TieredSequenceDataWriter<I, String> {
 
     public static ExternalResourceDescription createDescription(
             File outputBaseDir, Class<? extends SequenceDataWriterFactory<String>> dataWriterFactoryClass) {
@@ -50,7 +52,7 @@ public class TieredSequenceDataWriterResource<I extends AnnotationFS> extends Re
     private TieredFeatureExtractor<I, String> featureExtractor;
     private List<org.cleartk.ml.SequenceDataWriter<String>> dataWriters;
     // delegate
-    private TieredSequenceDataWriter<I> delegate;
+    private TieredSequenceDataWriter<I, String> delegate;
 
     @Override
     public boolean initialize(ResourceSpecifier aSpecifier, Map<String, Object> aAdditionalParams)
@@ -77,10 +79,12 @@ public class TieredSequenceDataWriterResource<I extends AnnotationFS> extends Re
     private void initialize() throws ResourceInitializationException {
         initFeatureExtractor();
         initUnderlyingDataWriters();
-        delegate = new TieredSequenceDataWriter<I>() {
+        delegate = new AbstractTieredSequenceDataWriter<I>() {
             {
+                this.tierIds = ImmutableList.copyOf(TieredFeatureExtractors.getTiers(featureExtractionCfg));
                 this.dataWriters = TieredSequenceDataWriterResource.this.dataWriters;
                 this.featureExtractor = TieredSequenceDataWriterResource.this.featureExtractor;
+                Preconditions.checkState(tierIds.size() == dataWriters.size());
             }
         };
     }
@@ -125,5 +129,10 @@ public class TieredSequenceDataWriterResource<I extends AnnotationFS> extends Re
     @Override
     public void close() throws IOException {
         delegate.close();
+    }
+
+    @Override
+    public List<String> getTierIds() {
+        return delegate.getTierIds();
     }
 }

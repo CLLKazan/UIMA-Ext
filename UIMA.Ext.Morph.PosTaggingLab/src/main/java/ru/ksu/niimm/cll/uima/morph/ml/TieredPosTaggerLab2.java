@@ -17,10 +17,10 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
 import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
@@ -87,8 +87,7 @@ public class TieredPosTaggerLab2 extends LabLauncherBase {
                 // wrap it into another aggregate to avoid wrapping of delegates into separate
                 // CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
                 return createEngineDescription(WriteFeatures2.createExtractorDescription(
-                        gramTiers, morphDictDesc, trainingBaseDir
-                ));
+                        morphDictDesc, trainingBaseDir));
             }
         };
         // -----------------------------------------------------------------

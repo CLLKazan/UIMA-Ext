@@ -17,11 +17,9 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
-import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.cll.uima.util.Slf4jLoggerImpl;
 import ru.kfu.itis.issst.cleartk.crfsuite2.CRFSuiteSerializedDataWriterFactory;
-import ru.kfu.itis.issst.uima.ml.TieredFeatureExtractors;
 import ru.kfu.itis.issst.uima.ml.TieredSequenceDataWriterResource;
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory;
 import ru.kfu.itis.issst.uima.postagger.PosTaggerAPI;
@@ -29,8 +27,6 @@ import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
 
 import java.io.File;
-import java.util.List;
-import java.util.Properties;
 
 import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
@@ -64,12 +60,6 @@ public class WriteFeatures2 {
     }
 
     public void run() throws Exception {
-        File featureExtractionCfg = new File(outputBaseDir,
-                TieredFeatureExtractors.FILENAME_FEATURE_EXTRACTION_CONFIG);
-        Properties feCfg = IoUtils.readProperties(featureExtractionCfg);
-        List<String> tierDefsList = TieredFeatureExtractors.getTiers(feCfg);
-        if (tierDefsList.isEmpty())
-            throw new IllegalStateException("No gram tiers are defined");
         CpeBuilder cpeBuilder = new CpeBuilder();
         // setup TypeSystem
         TypeSystemDescription inputTS = createTypeSystemDescription(
@@ -86,7 +76,7 @@ public class WriteFeatures2 {
                 .getMorphDictionaryAPI()
                 .getResourceDescriptionForCachedInstance();
         AnalysisEngineDescription tdExtractorDesc =
-                createExtractorDescription(tierDefsList, morphDictDesc, outputBaseDir);
+                createExtractorDescription(morphDictDesc, outputBaseDir);
         //
         cpeBuilder.addAnalysisEngine(tdExtractorDesc);
         // tune
@@ -99,7 +89,6 @@ public class WriteFeatures2 {
     }
 
     public static AnalysisEngineDescription createExtractorDescription(
-            List<String> tierDefsList,
             ExternalResourceDescription morphDictDesc,
             File outputBaseDir)
             throws ResourceInitializationException {
@@ -108,8 +97,7 @@ public class WriteFeatures2 {
                 CRFSuiteSerializedDataWriterFactory.class);
         // setup training data writer
         AnalysisEngineDescription resultDesc = AnalysisEngineFactory.createEngineDescription(
-                PosSequenceTrainingDataExtractor.class,
-                PosSequenceTrainingDataExtractor.PARAM_TIERS, tierDefsList);
+                PosSequenceTrainingDataExtractor.class);
         // add other shared resources (ORDERing is important!)
         morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
         getResourceManagerConfiguration(resultDesc).addExternalResource(morphDictDesc);

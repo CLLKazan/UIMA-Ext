@@ -8,7 +8,7 @@ import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 import org.cleartk.ml.CleartkProcessingException;
-import ru.kfu.itis.issst.uima.ml.SequenceDataWriter;
+import ru.kfu.itis.issst.uima.ml.TieredSequenceDataWriter;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,14 +19,14 @@ import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternal
  * @author Rinat Gareev
  */
 public class MockedSequenceDataWriter<I extends AnnotationFS, OUT>
-        implements SequenceDataWriter<I, OUT>, SharedResourceObject {
+        implements TieredSequenceDataWriter<I, OUT>, SharedResourceObject {
     public static ExternalResourceDescription createDescription() {
         return createExternalResourceDescription(MockedSequenceDataWriter.class, "file:pom.xml");
     }
 
-    private SequenceDataWriter<I, OUT> mock;
+    private TieredSequenceDataWriter<I, OUT> mock;
 
-    public void setMock(SequenceDataWriter<I, OUT> mock) {
+    public void setMock(TieredSequenceDataWriter<I, OUT> mock) {
         this.mock = mock;
     }
 
@@ -35,9 +35,14 @@ public class MockedSequenceDataWriter<I extends AnnotationFS, OUT>
     }
 
     @Override
-    public void write(JCas jCas, Annotation spanAnno, List<? extends I> seq, List<OUT> seqLabels)
+    public void write(JCas jCas, Annotation spanAnno, List<? extends I> seq, List<OUT[]> seqLabels)
             throws CleartkProcessingException {
         mock.write(jCas, spanAnno, seq, seqLabels);
+    }
+
+    @Override
+    public List<String> getTierIds() {
+        return mock.getTierIds();
     }
 
     @Override
