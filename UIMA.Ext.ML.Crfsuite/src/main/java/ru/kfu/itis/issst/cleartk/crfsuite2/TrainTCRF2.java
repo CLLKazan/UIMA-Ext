@@ -1,7 +1,7 @@
 /**
  *
  */
-package ru.ksu.niimm.cll.uima.morph.ml;
+package ru.kfu.itis.issst.cleartk.crfsuite2;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
