@@ -1,5 +1,6 @@
 package ru.kfu.itis.issst.uima.ml;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Factory methods for {@link ru.kfu.itis.issst.uima.ml.TieredSequenceClassifier}.
+ * Factory methods for {@link AbstractTieredSequenceClassifier}.
  *
  * @author Rinat Gareev
  */
@@ -24,21 +25,23 @@ public class TieredSequenceClassifiers {
         return TieredFeatureExtractors.getTiers(featExtractionCfg);
     }
 
-    public static <I extends AnnotationFS> TieredSequenceClassifier<I> fromModelBaseDir(File modelBaseDir)
+    public static <I extends AnnotationFS> TieredSequenceClassifier<I, String> fromModelBaseDir(File modelBaseDir)
             throws ResourceInitializationException {
         final TieredFeatureExtractor<I, String> lFeatureExtractor;
         final List<SequenceClassifier<String>> lClassifiers;
+        final List<String> tiers;
         try {
             Properties featExtractionCfg = TieredFeatureExtractors.parseConfig(modelBaseDir);
-            List<String> tiers = TieredFeatureExtractors.getTiers(featExtractionCfg);
+            tiers = TieredFeatureExtractors.getTiers(featExtractionCfg);
             lFeatureExtractor = TieredFeatureExtractors.from(featExtractionCfg);
             lClassifiers = createUnderlyingClassifiers(modelBaseDir, tiers);
         } catch (Exception e) {
             throw new ResourceInitializationException(e);
         }
-        return new TieredSequenceClassifier<I>() {
+        return new AbstractTieredSequenceClassifier<I>() {
             // initializer
             {
+                this.tierIds = ImmutableList.copyOf(tiers);
                 this.classifiers = lClassifiers;
                 this.featureExtractor = lFeatureExtractor;
             }

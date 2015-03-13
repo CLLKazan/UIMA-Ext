@@ -1,15 +1,15 @@
 package ru.kfu.itis.issst.uima.ml;
 
 import org.apache.uima.cas.text.AnnotationFS;
+import org.apache.uima.fit.component.Resource_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
 import org.cleartk.ml.CleartkProcessingException;
-import org.apache.uima.fit.component.Resource_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
 import ru.kfu.itis.cll.uima.util.UimaResourceUtils;
 
 import java.io.File;
@@ -50,7 +50,7 @@ public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Re
     @ConfigurationParameter(name = PARAM_MODEL_BASE_PATH, mandatory = false)
     private String modelBasePath;
     // aggregate
-    private TieredSequenceClassifier<I> delegate;
+    private TieredSequenceClassifier<I, String> delegate;
 
     @Override
     public boolean initialize(ResourceSpecifier aSpecifier, Map<String, Object> aAdditionalParams)

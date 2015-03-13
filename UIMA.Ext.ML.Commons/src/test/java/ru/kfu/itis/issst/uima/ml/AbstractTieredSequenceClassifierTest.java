@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
  * @author Rinat Gareev
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase {
+public class AbstractTieredSequenceClassifierTest extends TieredSequenceHandlerTestBase {
     @Mock
     private org.cleartk.ml.SequenceClassifier<String> classifier1;
     @Mock
@@ -33,7 +33,7 @@ public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase 
 
     @Test
     public void testCorrectFeatureFlow() throws CleartkProcessingException {
-        TieredSequenceClassifier<Annotation> cl = new TestTieredSequenceClassifier();
+        AbstractTieredSequenceClassifier<Annotation> cl = new TestTieredSequenceClassifier();
         // mock
         when(classifier1.classify(argThat(
                 TieredSequenceHandlerTestBase.unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier0-0"))))))
@@ -51,7 +51,7 @@ public class TieredSequenceClassifierTest extends TieredSequenceHandlerTestBase 
         assertArrayEquals(new String[]{"First", "Second", "Third"}, out.get(0));
     }
 
-    private class TestTieredSequenceClassifier extends TieredSequenceClassifier<Annotation> {
+    private class TestTieredSequenceClassifier extends AbstractTieredSequenceClassifier<Annotation> {
         TestTieredSequenceClassifier() {
             this.classifiers = of(classifier1, classifier2, classifier3);
             this.featureExtractor = new TestTieredFeatureExtractor();
