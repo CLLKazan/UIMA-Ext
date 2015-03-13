@@ -45,11 +45,9 @@ public class TieredFeatureExtractors {
         return Lists.newArrayList(tierSplitter.split(tiersDef));
     }
 
-    public static <I extends AnnotationFS, O> TieredFeatureExtractor<I, O> from(File modelDir)
-            throws IOException {
+    public static Properties parseConfig(File modelDir) throws IOException {
         File feCfgFile = new File(modelDir, FILENAME_FEATURE_EXTRACTION_CONFIG);
-        Properties featExtractionCfg = IoUtils.readProperties(feCfgFile);
-        return from(featExtractionCfg);
+        return IoUtils.readProperties(feCfgFile);
     }
 
     private TieredFeatureExtractors() {

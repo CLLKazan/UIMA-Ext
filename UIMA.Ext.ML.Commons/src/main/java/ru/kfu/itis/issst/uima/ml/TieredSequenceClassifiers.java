@@ -5,7 +5,6 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.SequenceClassifier;
 import org.cleartk.ml.jar.JarClassifierBuilder;
-import ru.kfu.itis.cll.uima.io.IoUtils;
 import ru.kfu.itis.issst.cleartk.JarSequenceClassifierFactory;
 
 import java.io.File;
@@ -20,13 +19,17 @@ import java.util.Properties;
  */
 public class TieredSequenceClassifiers {
 
+    public static List<String> detectTierIds(File modelBaseDir) throws IOException {
+        Properties featExtractionCfg = TieredFeatureExtractors.parseConfig(modelBaseDir);
+        return TieredFeatureExtractors.getTiers(featExtractionCfg);
+    }
+
     public static <I extends AnnotationFS> TieredSequenceClassifier<I> fromModelBaseDir(File modelBaseDir)
             throws ResourceInitializationException {
         final TieredFeatureExtractor<I, String> lFeatureExtractor;
         final List<SequenceClassifier<String>> lClassifiers;
         try {
-            File feCfgFile = new File(modelBaseDir, TieredFeatureExtractors.FILENAME_FEATURE_EXTRACTION_CONFIG);
-            Properties featExtractionCfg = IoUtils.readProperties(feCfgFile);
+            Properties featExtractionCfg = TieredFeatureExtractors.parseConfig(modelBaseDir);
             List<String> tiers = TieredFeatureExtractors.getTiers(featExtractionCfg);
             lFeatureExtractor = TieredFeatureExtractors.from(featExtractionCfg);
             lClassifiers = createUnderlyingClassifiers(modelBaseDir, tiers);
