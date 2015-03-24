@@ -5,7 +5,7 @@ import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.uimafit.util.CasUtil;
+import org.apache.uima.fit.util.CasUtil;
 
 import static ru.kfu.itis.cll.uima.cas.FSUtils.*;
 import ru.kfu.cll.uima.tokenizer.fstype.CAP;

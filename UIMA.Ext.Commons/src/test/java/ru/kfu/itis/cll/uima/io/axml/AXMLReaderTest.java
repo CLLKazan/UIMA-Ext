@@ -8,8 +8,8 @@ import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.junit.Assert.assertEquals;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-import static org.uimafit.util.CasUtil.select;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.util.CasUtil.select;
 
 import java.io.File;
 import java.io.IOException;

@@ -14,8 +14,8 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 import ru.kfu.itis.cll.uima.cas.FSTypeUtils;
 
@@ -33,9 +33,9 @@ public class AnnotationRemover extends CasAnnotator_ImplBase {
 	public static final String PARAM_NAMESPACES_TO_REMOVE = "NamespacesToRemove";
 	public static final String PARAM_TYPES_TO_REMOVE = "TypesToRemove";
 
-	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_REMOVE)
+	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_REMOVE, mandatory = false)
 	private String[] namespacesToRemove;
-	@ConfigurationParameter(name = PARAM_TYPES_TO_REMOVE)
+	@ConfigurationParameter(name = PARAM_TYPES_TO_REMOVE, mandatory = false)
 	private String[] typeNamesToRemove;
 	// derived config
 	private Set<Type> typesToRemove;

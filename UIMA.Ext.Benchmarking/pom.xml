@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>uima-ext-parent</artifactId>
+		<groupId>ru.ksu.niimm.cll.uima</groupId>
+		<version>0.4-SNAPSHOT</version>
+		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
+	</parent>
+	<artifactId>uima-ext-benchmarking</artifactId>
+	<name>UIMA.Ext.Benchmarking</name>
+	<description>UIMA Ext Benchmarking</description>
+
+	<build>
+		<sourceDirectory>src/main/scala</sourceDirectory>
+		<testSourceDirectory>src/test/scala</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+            <!-- enable scalatest -->
+			<plugin>
+				<groupId>org.scalatest</groupId>
+				<artifactId>scalatest-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test</id>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- scala -->
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+		</dependency>
+		<!-- UIMA -->
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-commons</artifactId>
+		</dependency>
+		<!-- utils -->
+		<dependency>
+			<groupId>com.github.scopt</groupId>
+			<artifactId>scopt_2.11</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.scala-logging</groupId>
+			<artifactId>scala-logging_2.11</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tototoshi</groupId>
+			<artifactId>scala-csv_2.11</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<!-- logging impl -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- test -->
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_2.11</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ru.ksu.niimm.cll.uima</groupId>
+			<artifactId>uima-ext-tokenizer-simple</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.tokenizer;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 
 import java.util.BitSet;
@@ -21,8 +21,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 import static ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI.*;
 import ru.kfu.cll.uima.tokenizer.fstype.BREAK;
@@ -51,7 +51,7 @@ public class InitialTokenizer extends CasAnnotator_ImplBase {
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
 		TypeSystemDescription tsDesc = createTypeSystemDescription(TYPESYSTEM_TOKENIZER);
-		return createPrimitiveDescription(InitialTokenizer.class, tsDesc);
+		return createEngineDescription(InitialTokenizer.class, tsDesc);
 	}
 
 	@ConfigurationParameter(name = PARAM_SPAN_TYPE, mandatory = false)
@@ -233,7 +233,10 @@ public class InitialTokenizer extends CasAnnotator_ImplBase {
 	private State SPACE = new State() {
 		@Override
 		public boolean startsWith(char ch) {
-			return Character.isWhitespace(ch);
+            // TODO:LOW optimize
+			return Character.isWhitespace(ch)
+                    // catches NBSP
+                    || Character.isSpaceChar(ch);
 		}
 
 		@Override

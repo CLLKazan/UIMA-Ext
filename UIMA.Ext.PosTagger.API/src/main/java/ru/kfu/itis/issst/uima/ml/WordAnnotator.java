@@ -7,8 +7,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
@@ -33,7 +33,7 @@ public class WordAnnotator extends JCasAnnotator_ImplBase {
 	public static void makeWords(JCas jCas) {
 		for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
 			for (Token tok : JCasUtil.selectCovered(jCas, Token.class, sent)) {
-				if (tok instanceof W || tok instanceof NUM) {
+				if (canCarryWord(tok)) {
 					Word word = new Word(jCas);
 					word.setBegin(tok.getBegin());
 					word.setEnd(tok.getEnd());
@@ -47,4 +47,8 @@ public class WordAnnotator extends JCasAnnotator_ImplBase {
 			}
 		}
 	}
+
+    public static boolean canCarryWord(Token tok) {
+        return tok instanceof W || tok instanceof NUM;
+    }
 }

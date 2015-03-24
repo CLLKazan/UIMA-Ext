@@ -11,12 +11,12 @@ import java.util.List;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.FSCollectionFactory;
 
 import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class GrammemeExtractor implements SimpleFeatureExtractor {
+public class GrammemeExtractor implements FeatureExtractor1 {
 
 	public static final String FEATURE_NAME_PREFIX = "Gram";
 

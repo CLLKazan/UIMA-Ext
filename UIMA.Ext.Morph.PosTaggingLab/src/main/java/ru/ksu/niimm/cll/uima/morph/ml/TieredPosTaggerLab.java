@@ -3,9 +3,27 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
+import com.beust.jcommander.JCommander;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import de.tudarmstadt.ukp.dkpro.lab.Lab;
+import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
+import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
+import de.tudarmstadt.ukp.dkpro.lab.task.*;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
+import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
+import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.fit.factory.ConfigurationParameterFactory;
+import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
+import ru.ksu.niimm.cll.uima.morph.lab.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,38 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.ConfigurationParameterFactory;
-
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.cleartk.GenericJarClassifierFactory;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-
-import com.beust.jcommander.JCommander;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import de.tudarmstadt.ukp.dkpro.lab.Lab;
-import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
-import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
-import de.tudarmstadt.ukp.dkpro.lab.task.Constraint;
-import de.tudarmstadt.ukp.dkpro.lab.task.Dimension;
-import de.tudarmstadt.ukp.dkpro.lab.task.Discriminator;
-import de.tudarmstadt.ukp.dkpro.lab.task.ParameterSpace;
-import de.tudarmstadt.ukp.dkpro.lab.task.Task;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
-import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
-import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -94,14 +83,15 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 				AnalysisEngineDescription trDataWriterDesc = TieredPosSequenceAnnotatorFactory
 						.getTrainingDataWriterDescriptor(posTiers, taggerParams, trainingBaseDir);
 				// prepare aggregate with required resources
-				AnalysisEngineDescription aggrDesc = createAggregateDescription(
-						Arrays.asList(trDataWriterDesc),
-						Arrays.asList("trainin-data-writer"), null, null, null, null);
+				AnalysisEngineDescription aggrDesc = createEngineDescription(
+                        Arrays.asList(trDataWriterDesc),
+                        Arrays.asList("trainin-data-writer"),
+                        null, null, null);
 				// name of the dictionary resource is already set in LabLauncherBase
 				getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
 				// wrap it into another aggregate to avoid wrapping of delegates into separate
 				// CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
-				return createAggregateDescription(aggrDesc);
+				return createEngineDescription(aggrDesc);
 			}
 		};
 		// -----------------------------------------------------------------
@@ -264,14 +254,14 @@ public class TieredPosTaggerLab extends LabLauncherBase {
 			primitiveDescs.add(xmiWriterDesc);
 			primitiveNames.add("xmiWriter");
 			//
-			AnalysisEngineDescription aggrDesc = createAggregateDescription(primitiveDescs,
-					primitiveNames,
-					null, null, null, null);
+			AnalysisEngineDescription aggrDesc = createEngineDescription(
+                    primitiveDescs, primitiveNames,
+                    null, null, null);
 			// add MorphDictionaryHolder resource with the required name
 			getResourceManagerConfiguration(aggrDesc).addExternalResource(morphDictDesc);
 			// wrap it into another aggregate to avoid wrapping of delegates into separate
 			// CPEIntegrateCasProcessors by org.uimafit.factory.CpeBuilder
-			return createAggregateDescription(aggrDesc);
+			return createEngineDescription(aggrDesc);
 		}
 	}
 

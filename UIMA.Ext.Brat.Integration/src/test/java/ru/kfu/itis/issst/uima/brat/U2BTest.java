@@ -7,8 +7,8 @@ import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.XMLInputSource;
 import org.junit.Test;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
@@ -29,7 +29,7 @@ public class U2BTest {
 		TypeSystemDescription tsd = TypeSystemDescriptionFactory
 				.createTypeSystemDescription("desc.types.test-TypeSystem");
 
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createReaderDescription(
 				XmiCollectionReader.class, tsd,
 				XmiCollectionReader.PARAM_INPUTDIR, inputFileXMIDir);
 

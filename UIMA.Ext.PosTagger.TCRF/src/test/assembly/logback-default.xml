@@ -1,0 +1,32 @@
+<configuration>
+	<timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
+	
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-5p %c{2} - %m%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>logs/launch-${bySecond}.log</file>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %c{15} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="org" level="INFO" />
+	<logger name="org.apache" level="INFO" />
+	<logger name="com" level="INFO" />
+	<logger name="ru.ksu" level="INFO" />
+	<logger name="ru.kfu" level="INFO" />
+	<logger name="net" level="INFO" />
+	<logger name="java" level="INFO" />
+	<logger name="javax" level="INFO" />
+	<logger name="de" level="INFO" />
+	
+	<root level="DEBUG">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="FILE"/>
+	</root>
+</configuration>

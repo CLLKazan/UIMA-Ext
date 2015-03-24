@@ -11,7 +11,7 @@ import org.apache.uima.cas.ArrayFS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
-import org.uimafit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.FSCollectionFactory;
 
 import static ru.kfu.itis.cll.uima.eval.matching.MatchingUtils.*;
 

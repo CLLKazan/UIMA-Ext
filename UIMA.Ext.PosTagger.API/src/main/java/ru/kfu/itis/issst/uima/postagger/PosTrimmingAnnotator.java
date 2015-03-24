@@ -3,8 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.postagger;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.createDependency;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createDependency;
 
 import java.util.Collection;
 
@@ -14,14 +14,13 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.InvalidXMLException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.util.FSCollectionFactory;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModelHolder;
 
@@ -45,14 +44,10 @@ public class PosTrimmingAnnotator extends JCasAnnotator_ImplBase {
 	 */
 	public static AnalysisEngineDescription createDescription(String[] targetPosCategories)
 			throws ResourceInitializationException {
-		AnalysisEngineDescription aeDesc = createPrimitiveDescription(PosTrimmingAnnotator.class,
+		AnalysisEngineDescription aeDesc = createEngineDescription(PosTrimmingAnnotator.class,
 				PARAM_TARGET_POS_CATEGORIES, targetPosCategories);
-		try {
-			createDependency(aeDesc, RESOURCE_GRAM_MODEL, GramModelHolder.class);
-		} catch (InvalidXMLException e) {
-			throw new ResourceInitializationException(e);
-		}
-		return aeDesc;
+        createDependency(aeDesc, RESOURCE_GRAM_MODEL, GramModelHolder.class);
+        return aeDesc;
 	}
 
 	@ExternalResource(key = RESOURCE_GRAM_MODEL, mandatory = true)

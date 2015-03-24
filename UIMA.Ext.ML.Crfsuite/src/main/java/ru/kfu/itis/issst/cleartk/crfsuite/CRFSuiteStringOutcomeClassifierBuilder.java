@@ -1,33 +1,25 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.issst.cleartk.crfsuite;
-
-import static org.apache.commons.io.FileUtils.copyFile;
-
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.util.List;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.Logger;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.jar.JarStreams;
-import org.cleartk.classifier.jar.SequenceClassifierBuilder_ImplBase;
-
+import org.cleartk.ml.jar.JarStreams;
+import org.cleartk.ml.jar.SequenceClassifierBuilder_ImplBase;
+import ru.kfu.itis.issst.cleartk.SerializableNameNumber;
+import ru.kfu.itis.issst.cleartk.crfsuite2.SerializedNNBasedCrfSuiteTraining;
 import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTraining;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+
+import static org.apache.commons.io.FileUtils.copyFile;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -37,9 +29,10 @@ import ru.kfu.itis.issst.crfsuite4j.CrfSuiteTraining;
  *         implementation.
  *         </p>
  */
+@SuppressWarnings("JavadocReference")
 public class CRFSuiteStringOutcomeClassifierBuilder
 		extends
-		SequenceClassifierBuilder_ImplBase<CRFSuiteStringOutcomeClassifier, List<NameNumber>, String, String> {
+		SequenceClassifierBuilder_ImplBase<CRFSuiteStringOutcomeClassifier, ArrayList<SerializableNameNumber>, String, String> {
 
 	// config fields
 	// TODO
@@ -67,7 +60,7 @@ public class CRFSuiteStringOutcomeClassifierBuilder
 	}
 
 	/**
-	 * 
+	 *
 	 * @param modelDir
 	 *            The directory where the trained classifier should be stored
 	 * @param trainingDir
@@ -108,6 +101,47 @@ public class CRFSuiteStringOutcomeClassifierBuilder
 			IOUtils.closeQuietly(trainingDataReader);
 		}
 	}
+
+    /**
+     * @param modelDir    The directory where the trained classifier should be stored
+     * @param trainingDir The directory where training data and other classifier
+     *                    information has been written.
+     * @param args        Additional command line arguments for the classifier trainer.
+     * @throws Exception
+     */
+    public void trainClassifierOnSerializedTrainingData(
+            File modelDir, File trainingDir, String... args) throws Exception {
+        if (!modelDir.getAbsoluteFile().equals(trainingDir.getAbsoluteFile())) {
+            // copy encoders description file
+            File srcEncFile = getEncodersFile(trainingDir);
+            File targetEncFile = getEncodersFile(modelDir);
+            copyFile(srcEncFile, targetEncFile);
+        }
+        // validate args
+        CrfSuiteTrainerConfig trainerCfg = CrfSuiteTrainerConfig.fromArgs(args);
+        logger.log(Level.INFO, "Start learning CRFsuite sequential classifier");
+        // configure
+        File modelFile = new File(modelDir, getModelFileName(trainingDataKey));
+        File trainingDataFile = getTrainingDataFile(trainingDir);
+        SerializedNNBasedCrfSuiteTraining training = new SerializedNNBasedCrfSuiteTraining();
+        training.setModelFile(modelFile);
+        training.setTrainingAlgorithm(trainerCfg.getTrainingAlgorithm());
+        training.setParameters(trainerCfg.getParameters());
+        ObjectInputStream in;
+        {
+            FileInputStream is = FileUtils.openInputStream(trainingDataFile);
+            BufferedInputStream bis = new BufferedInputStream(is);
+            in = new ObjectInputStream(bis);
+            training.setIn(in);
+        }
+        try {
+            // run
+            training.run();
+            logger.log(Level.INFO, "Finished learning CRFsuite sequential classifier");
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+    }
 
 	private File modelFile = null;
 

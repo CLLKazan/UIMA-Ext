@@ -28,8 +28,8 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
-import org.uimafit.component.CasCollectionReader_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.component.CasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
@@ -67,17 +67,17 @@ public class JdbcCollectionReader extends CasCollectionReader_ImplBase {
 	private String dbDriverClassName;
 	@ConfigurationParameter(name = PARAM_QUERY, mandatory = true)
 	private String query;
-	@ConfigurationParameter(name = PARAM_COUNT_QUERY)
+	@ConfigurationParameter(name = PARAM_COUNT_QUERY, mandatory = false)
 	private String countQuery;
 	@ConfigurationParameter(name = PARAM_LIMIT_PARAM_INDEX, mandatory = true)
 	private Integer limitParamIndex;
 	@ConfigurationParameter(name = PARAM_OFFSET_PARAM_INDEX, mandatory = true)
 	private Integer offsetParamIndex;
-	@ConfigurationParameter(name = PARAM_DOCUMENT_URL_COLUMN)
+	@ConfigurationParameter(name = PARAM_DOCUMENT_URL_COLUMN, mandatory = false)
 	private String documentUrlColumn;
 	@ConfigurationParameter(name = PARAM_TEXT_COLUMN, mandatory = true)
 	private String textColumn;
-	@ConfigurationParameter(name = PARAM_BATCH_SIZE, defaultValue = "20")
+	@ConfigurationParameter(name = PARAM_BATCH_SIZE, defaultValue = "20", mandatory = false)
 	private Integer batchSize;
 
 	// state fields

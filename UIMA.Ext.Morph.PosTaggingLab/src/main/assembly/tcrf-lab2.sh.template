@@ -1,0 +1,7 @@
+#!/bin/bash
+. setup.sh
+# crfsuite-jni shared library dir
+crfsuite_jni_dir=/home/rgareev/projects/crfsuite4j/crfsuite-jni/bin
+jni_opts="-Djava.library.path=${crfsuite_jni_dir}"
+# invoke
+java "${java_opts}" -cp lib/${project.build.finalName}.jar "${jni_opts}" "${logback_opts}" "${uima_datapath}" "${opencorpora_opts}" ru.ksu.niimm.cll.uima.morph.ml.TieredPosTaggerLab2

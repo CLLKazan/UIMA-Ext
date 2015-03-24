@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI;
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI;
@@ -23,6 +23,6 @@ public class Unitizer {
 
 		AnalysisEngineDescription ssDesc = SentenceSplitterAPI.getAEDescription();
 
-		return AnalysisEngineFactory.createAggregateDescription(tokenizerDesc, ssDesc);
+		return AnalysisEngineFactory.createEngineDescription(tokenizerDesc, ssDesc);
 	}
 }

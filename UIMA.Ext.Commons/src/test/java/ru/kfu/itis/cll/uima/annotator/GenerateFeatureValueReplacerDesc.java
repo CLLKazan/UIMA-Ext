@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -25,7 +25,7 @@ public class GenerateFeatureValueReplacerDesc {
 	 */
 	public static void main(String[] args) throws UIMAException, SAXException, IOException {
 		AnalysisEngineDescription desc = AnalysisEngineFactory
-				.createPrimitiveDescription(FeatureValueReplacer.class);
+				.createEngineDescription(FeatureValueReplacer.class);
 		desc.toXML(new FileOutputStream(
 				"src/main/resources/ru/kfu/itis/cll/uima/annotator/FeatureValueReplacer.xml"));
 	}

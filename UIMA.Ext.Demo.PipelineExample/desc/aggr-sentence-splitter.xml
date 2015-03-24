@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="tokenizer">
+			<!-- from TokenizerAPI -->
+			<import name="ru.kfu.itis.issst.uima.tokenizer.tokenizer-ae" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="sentence-splitter">
+			<!-- from SentenceSplitter API -->
+			<import name="ru.kfu.itis.issst.uima.segmentation.sentence-splitter-ae" />
+		</delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+	<analysisEngineMetaData>
+		<name>Sentence-splitter Pipeline</name>
+		<description />
+		<version>0.4</version>
+		<vendor>CLL Kazan</vendor>
+		<flowConstraints>
+			<fixedFlow>
+				<node>tokenizer</node>
+				<node>sentence-splitter</node>
+			</fixedFlow>
+		</flowConstraints>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+</analysisEngineDescription>

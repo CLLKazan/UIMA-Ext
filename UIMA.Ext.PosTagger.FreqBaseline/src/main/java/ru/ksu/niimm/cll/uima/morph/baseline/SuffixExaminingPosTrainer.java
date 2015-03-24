@@ -11,9 +11,9 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.OperationalProperties;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.itis.cll.uima.wfstore.DefaultWordformStoreBuilder;
 import ru.kfu.itis.cll.uima.wfstore.WordformStore;

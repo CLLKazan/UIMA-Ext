@@ -15,10 +15,10 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.OperationalProperties;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.io.IoUtils;
@@ -38,7 +38,7 @@ public class TableWriter extends JCasAnnotator_ImplBase {
 	private String taggingName;
 	@ConfigurationParameter(name = PARAM_DATA_SOURCE_CONFIG_FILE, mandatory = true)
 	private File dataSourceConfigFile;
-	@ConfigurationParameter(name = PARAM_DISABLE_NEW_TEXT, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_DISABLE_NEW_TEXT, defaultValue = "true", mandatory = false)
 	private boolean disableNewText;
 	// state fields
 	private BasicDataSource ds;

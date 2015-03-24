@@ -15,8 +15,8 @@ import org.apache.uima.resource.ResourceConfigurationException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.core.io.Resource;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import com.google.common.collect.Collections2;
 
@@ -28,7 +28,7 @@ public class XmiCollectionReader extends XmiCollectionReaderBase {
 
 	public static CollectionReaderDescription createDescription(
 			File inputDir, TypeSystemDescription inputTSD) throws ResourceInitializationException {
-		return CollectionReaderFactory.createDescription(XmiCollectionReader.class,
+		return CollectionReaderFactory.createReaderDescription(XmiCollectionReader.class,
 				inputTSD,
 				PARAM_INPUTDIR, inputDir);
 	}

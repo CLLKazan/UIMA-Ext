@@ -2,11 +2,11 @@ package ru.kfu.itis.issst.uima.depparser.mst;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
-import static org.uimafit.factory.ExternalResourceFactory.createDependency;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindResource;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createDependency;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.coveredTextFunction;
 
 import java.io.BufferedInputStream;
@@ -37,8 +37,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.InvalidXMLException;
 import org.opencorpora.cas.Word;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.io.IoUtils;
@@ -55,7 +55,7 @@ public class MSTParsingAnnotator extends JCasAnnotator_ImplBase {
 			throws ResourceInitializationException, InvalidXMLException {
 		TypeSystemDescription tsDesc = createTypeSystemDescription(
 				"ru.kfu.itis.issst.uima.depparser.dependency-ts");
-		AnalysisEngineDescription resultDesc = createPrimitiveDescription(
+		AnalysisEngineDescription resultDesc = createEngineDescription(
 				MSTParsingAnnotator.class, tsDesc);
 		createDependency(resultDesc, RESOURCE_MODEL_FILE,
 				// use default interface

@@ -3,12 +3,12 @@
  */
 package ru.kfu.itis.issst.cleartk.crfsuite;
 
-import java.io.IOException;
-import java.util.List;
+import org.cleartk.ml.SequenceDataWriter;
+import org.cleartk.ml.jar.SequenceDataWriterFactory_ImplBase;
+import ru.kfu.itis.issst.cleartk.SerializableNameNumber;
 
-import org.cleartk.classifier.SequenceDataWriter;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.jar.SequenceDataWriterFactory_ImplBase;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -16,7 +16,7 @@ import org.cleartk.classifier.jar.SequenceDataWriterFactory_ImplBase;
  */
 public class CRFSuiteStringOutcomeDataWriterFactory
 		extends
-		SequenceDataWriterFactory_ImplBase<List<NameNumber>, String, String> {
+		SequenceDataWriterFactory_ImplBase<ArrayList<SerializableNameNumber>, String, String> {
 
 	// public static final String PARAM_DATA_KEY = "dataKey";
 

@@ -3,42 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.resources;
 
-import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
-import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
-import static java.lang.String.format;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static ru.kfu.itis.cll.uima.io.IoUtils.openPrintWriter;
-import static ru.kfu.itis.cll.uima.io.IoUtils.openReader;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-
-import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-
 import com.beust.jcommander.JCommander;
 import com.google.common.collect.Sets;
-
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.reporting.ReportBase;
@@ -49,6 +15,32 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.commons.TrainingDataWriterBase;
+import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
+import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Set;
+
+import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
+import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
+import static java.lang.String.format;
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static ru.kfu.itis.cll.uima.io.IoUtils.openPrintWriter;
+import static ru.kfu.itis.cll.uima.io.IoUtils.openReader;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -176,10 +168,10 @@ public class ResourcesLab extends LabLauncherBase {
 				throws ResourceInitializationException, IOException {
 			File setInfoDir = taskCtx
 					.getStorageLocation(KEY_SPLIT_INFO_DIR, READWRITE);
-			AnalysisEngineDescription tokInfoWriterDesc = createPrimitiveDescription(
+			AnalysisEngineDescription tokInfoWriterDesc = createEngineDescription(
 					TokenInfoWriter.class,
 					TokenInfoWriter.PARAM_OUTPUT_DIR, setInfoDir);
-			return createAggregateDescription(tokInfoWriterDesc);
+			return createEngineDescription(tokInfoWriterDesc);
 		}
 	}
 

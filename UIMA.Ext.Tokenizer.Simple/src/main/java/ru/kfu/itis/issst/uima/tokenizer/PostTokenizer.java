@@ -18,8 +18,8 @@ import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.JCasAnnotator_ImplBase;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.PM;
@@ -43,7 +43,7 @@ public class PostTokenizer extends JCasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription()
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(PostTokenizer.class);
+		return AnalysisEngineFactory.createEngineDescription(PostTokenizer.class);
 	}
 
 	// per-CAS state

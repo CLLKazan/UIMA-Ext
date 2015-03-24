@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.uima.UimaContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.uimafit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

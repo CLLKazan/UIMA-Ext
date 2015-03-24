@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><xmi:XMI xmlns:cas="http:///uima/cas.ecore" xmlns:fstype="http:///ru/kfu/cll/uima/segmentation/fstype.ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:tcas="http:///uima/tcas.ecore" xmlns:commons="http:///ru/kfu/itis/cll/uima/commons.ecore" xmlns:fstype2="http:///ru/kfu/cll/uima/tokenizer/fstype.ecore" xmi:version="2.0">
+    <cas:NULL xmi:id="0"/>
+    <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="Хутор Графский находится в Курском районе Ставропольского края.&#10;Расстояние до краевого центра: 255 км."/>
+    <tcas:DocumentAnnotation xmi:id="8" sofa="1" begin="0" end="102" language="x-unspecified"/>
+    <commons:DocumentMetadata xmi:id="13" sofa="1" begin="0" end="0" sourceUri="file:test1.txt" offsetInSource="0" documentSize="0" startProcessingTime="0"/>
+    <fstype2:CW xmi:id="21" sofa="1" begin="0" end="5"/>
+    <fstype2:CW xmi:id="29" sofa="1" begin="6" end="14"/>
+    <fstype2:CW xmi:id="53" sofa="1" begin="27" end="34"/>
+    <fstype2:CW xmi:id="69" sofa="1" begin="42" end="57"/>
+    <fstype2:CW xmi:id="89" sofa="1" begin="64" end="74"/>
+    <fstype2:SPACE xmi:id="25" sofa="1" begin="5" end="6"/>
+    <fstype2:SPACE xmi:id="33" sofa="1" begin="14" end="15"/>
+    <fstype2:SPACE xmi:id="41" sofa="1" begin="24" end="25"/>
+    <fstype2:SPACE xmi:id="49" sofa="1" begin="26" end="27"/>
+    <fstype2:SPACE xmi:id="57" sofa="1" begin="34" end="35"/>
+    <fstype2:SPACE xmi:id="65" sofa="1" begin="41" end="42"/>
+    <fstype2:SPACE xmi:id="73" sofa="1" begin="57" end="58"/>
+    <fstype2:SPACE xmi:id="93" sofa="1" begin="74" end="75"/>
+    <fstype2:SPACE xmi:id="101" sofa="1" begin="77" end="78"/>
+    <fstype2:SPACE xmi:id="109" sofa="1" begin="86" end="87"/>
+    <fstype2:SPACE xmi:id="121" sofa="1" begin="94" end="95"/>
+    <fstype2:SPACE xmi:id="129" sofa="1" begin="98" end="99"/>
+    <fstype2:SW xmi:id="37" sofa="1" begin="15" end="24"/>
+    <fstype2:SW xmi:id="45" sofa="1" begin="25" end="26"/>
+    <fstype2:SW xmi:id="61" sofa="1" begin="35" end="41"/>
+    <fstype2:SW xmi:id="77" sofa="1" begin="58" end="62"/>
+    <fstype2:SW xmi:id="97" sofa="1" begin="75" end="77"/>
+    <fstype2:SW xmi:id="105" sofa="1" begin="78" end="86"/>
+    <fstype2:SW xmi:id="113" sofa="1" begin="87" end="93"/>
+    <fstype2:SW xmi:id="133" sofa="1" begin="99" end="101"/>
+    <fstype2:PERIOD xmi:id="81" sofa="1" begin="62" end="63"/>
+    <fstype2:PERIOD xmi:id="137" sofa="1" begin="101" end="102"/>
+    <fstype2:BREAK xmi:id="85" sofa="1" begin="63" end="64"/>
+    <fstype2:COLON xmi:id="117" sofa="1" begin="93" end="94"/>
+    <fstype2:NUM xmi:id="125" sofa="1" begin="95" end="98"/>
+    <fstype:Sentence xmi:id="141" sofa="1" begin="0" end="63" firstToken="21" lastToken="81"/>
+    <fstype:Sentence xmi:id="147" sofa="1" begin="64" end="102" firstToken="89" lastToken="137"/>
+    <cas:View sofa="1" members="8 13 21 29 53 69 89 25 33 41 49 57 65 73 93 101 109 121 129 37 45 61 77 97 105 113 133 81 137 85 117 125 141 147"/>
+</xmi:XMI>

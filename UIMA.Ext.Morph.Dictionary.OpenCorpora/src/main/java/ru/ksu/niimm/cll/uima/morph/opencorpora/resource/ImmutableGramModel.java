@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora.resource;
 
@@ -28,7 +28,7 @@ import ru.kfu.itis.issst.uima.morph.model.Grammeme;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- * 
+ *
  */
 public class ImmutableGramModel implements GramModel, Serializable {
 
@@ -151,30 +151,39 @@ public class ImmutableGramModel implements GramModel, Serializable {
 			instance.numToGram = Maps.newTreeMap();
 		}
 
-		public void addGrammeme(Grammeme gram) {
-			/*if (gramSetLocked) {
+        public Builder addGrammeme(Grammeme gram) {
+            /*if (gramSetLocked) {
 				throw new IllegalStateException("Gram set was locked");
 			}*/
-			if (instance.gramMap.put(gram.getId(), gram) != null) {
-				throw new IllegalStateException(String.format(
-						"Duplicate grammem id - %s", gram.getId()));
-			}
-			if (instance.numToGram.put(gram.getNumId(), gram) != null) {
-				throw new IllegalStateException(String.format(
-						"Duplicate grammem num id - %s", gram.getNumId()));
-			}
-		}
+            if (instance.gramMap.put(gram.getId(), gram) != null) {
+                throw new IllegalStateException(String.format(
+                        "Duplicate grammem id - %s", gram.getId()));
+            }
+            if (instance.numToGram.put(gram.getNumId(), gram) != null) {
+                throw new IllegalStateException(String.format(
+                        "Duplicate grammem num id - %s", gram.getNumId()));
+            }
+            return this;
+        }
+
+        public Builder addGrammeme(String id) {
+            return addGrammeme(id, null);
+        }
+
+        public Builder addGrammeme(String id, String parentId) {
+            return addGrammeme(new Grammeme(id, parentId, null, null));
+        }
 
 		public ImmutableGramModel build() {
 			instance.gramMap = copyOf(instance.gramMap);
 			instance.numToGram = ImmutableSortedMap.copyOf(instance.numToGram);
 			log.info("Grammeme set has been locked");
-			// build indices 
+			// build indices
 			instance.gramByParent = HashMultimap.create();
 			for (Grammeme gr : instance.gramMap.values()) {
 				instance.gramByParent.put(gr.getParentId(), gr);
 			}
-			// 
+			//
 			instance.posBits = instance.getGrammemWithChildrenBits("POST", true);
 			isTrue(!instance.posBits.isEmpty());
 			log.info("Grammeme indices have been built");

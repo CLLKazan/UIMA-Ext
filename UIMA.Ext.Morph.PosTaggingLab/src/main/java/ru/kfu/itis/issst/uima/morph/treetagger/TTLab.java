@@ -3,51 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.treetagger;
 
-import static com.google.common.collect.Sets.newTreeSet;
-import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
-import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
-import static org.apache.commons.io.FileUtils.readLines;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static ru.kfu.itis.issst.uima.morph.treetagger.DictionaryToTTLexicon.OPEN_CLASS_TAGS_FILENAME;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.MORPH_DICT_XML;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.annolab.tt4j.ExecutableResolver;
-import org.annolab.tt4j.PlatformDetector;
-import org.apache.commons.io.FileUtils;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-
-import ru.kfu.itis.cll.uima.io.IoUtils;
-import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
-import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabConstants;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-
 import com.beust.jcommander.JCommander;
 import com.google.common.collect.Lists;
-
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
@@ -59,6 +16,33 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
+import org.annolab.tt4j.ExecutableResolver;
+import org.annolab.tt4j.PlatformDetector;
+import org.apache.commons.io.FileUtils;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import ru.kfu.itis.cll.uima.io.IoUtils;
+import ru.kfu.itis.cll.uima.io.StreamGobblerBase;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.commons.TagUtils;
+import ru.kfu.itis.issst.uima.morph.treetagger.LexiconWriter.LexiconEntry;
+import ru.ksu.niimm.cll.uima.morph.lab.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newTreeSet;
+import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
+import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
+import static org.apache.commons.io.FileUtils.readLines;
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static ru.kfu.itis.issst.uima.morph.treetagger.DictionaryToTTLexicon.OPEN_CLASS_TAGS_FILENAME;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -107,10 +91,10 @@ public class TTLab extends LabLauncherBase {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File trainDataDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR, READWRITE);
-				AnalysisEngineDescription ttTrainDataWriterDesc = createPrimitiveDescription(
+				AnalysisEngineDescription ttTrainDataWriterDesc = createEngineDescription(
 						TTTrainingDataWriter.class,
 						TTTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
-				return createAggregateDescription(ttTrainDataWriterDesc);
+				return createEngineDescription(ttTrainDataWriterDesc);
 			}
 		};
 		//
@@ -212,10 +196,10 @@ public class TTLab extends LabLauncherBase {
 				File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
 				//
 				AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-				AnalysisEngineDescription ttDesc = createPrimitiveDescription(MorphTagger.class,
+				AnalysisEngineDescription ttDesc = createEngineDescription(MorphTagger.class,
 						MorphTagger.PARAM_TREETAGGER_MODEL_NAME, modelFile.getPath() + ":UTF-8");
 				AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-				return createAggregateDescription(goldRemoverDesc, ttDesc, xmiWriterDesc);
+				return createEngineDescription(goldRemoverDesc, ttDesc, xmiWriterDesc);
 			}
 		};
 		//

@@ -3,37 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.baseline;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
-import static org.uimafit.factory.ExternalResourceFactory.bindResource;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
-
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.cll.uima.wfstore.SharedDefaultWordformStore;
-import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
-import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
-import ru.kfu.itis.issst.uima.morph.model.MorphConstants;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameters;
-
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
@@ -44,6 +15,25 @@ import de.tudarmstadt.ukp.dkpro.lab.task.Task;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.InvalidXMLException;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.cll.uima.wfstore.SharedDefaultWordformStore;
+import ru.kfu.itis.issst.uima.morph.commons.GramModelBasedTagMapper;
+import ru.kfu.itis.issst.uima.morph.commons.TagAssembler;
+import ru.kfu.itis.issst.uima.morph.model.MorphConstants;
+import ru.ksu.niimm.cll.uima.morph.lab.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.*;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -93,13 +83,13 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READWRITE);
-				AnalysisEngineDescription dabModelLearnerDesc = createPrimitiveDescription(
+				AnalysisEngineDescription dabModelLearnerDesc = createEngineDescription(
 						DictionaryAwareBaselineLearner.class, inputTS,
 						DictionaryAwareBaselineLearner.PARAM_TARGET_POS_CATEGORIES, posCategories,
 						DictionaryAwareBaselineLearner.PARAM_MODEL_OUTPUT_FILE,
 						getDABModelFile(modelDir));
 				/*
-				AnalysisEngineDescription suffixModelTrainerDesc = createPrimitiveDescription(
+				AnalysisEngineDescription suffixModelTrainerDesc = createEngineDescription(
 						SuffixExaminingPosTrainer.class,
 						SuffixExaminingPosTrainer.PARAM_WFSTORE_FILE, getSuffixModelFile(modelDir));
 						*/
@@ -113,7 +103,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 				} catch (InvalidXMLException e) {
 					throw new IllegalStateException(e);
 				}
-				return createAggregateDescription(dabModelLearnerDesc /*, suffixModelTrainerDesc*/);
+				return createEngineDescription(dabModelLearnerDesc /*, suffixModelTrainerDesc*/);
 			}
 		};
 		/* Create an analysis task (use 'testing' FS with XmiCollectionReader on 'Corpus')
@@ -189,7 +179,7 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 			File modelDir = taskCtx.getStorageLocation(KEY_MODEL_DIR, AccessMode.READONLY);
 			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
 			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-			AnalysisEngineDescription dabTaggerDesc = createPrimitiveDescription(
+			AnalysisEngineDescription dabTaggerDesc = createEngineDescription(
 					DictionaryAwareBaselineTagger.class,
 					DictionaryAwareBaselineTagger.PARAM_USE_DEBUG_GRAMMEMS, false,
 					DictionaryAwareBaselineTagger.PARAM_NUM_GRAMMEME, MorphConstants.NUMR);
@@ -209,8 +199,8 @@ public class DictionaryAwareBaselineLab extends LabLauncherBase {
 			AnalysisEngineDescription tagAssemblerDesc = TagAssembler.createDescription();
 			bindExternalResource(tagAssemblerDesc,
 					GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, morphDictDesc);
-			return createAggregateDescription(goldRemoverDesc, dabTaggerDesc, tagAssemblerDesc,
-					xmiWriterDesc);
+			return createEngineDescription(goldRemoverDesc, dabTaggerDesc, tagAssemblerDesc,
+                    xmiWriterDesc);
 		}
 	}
 }

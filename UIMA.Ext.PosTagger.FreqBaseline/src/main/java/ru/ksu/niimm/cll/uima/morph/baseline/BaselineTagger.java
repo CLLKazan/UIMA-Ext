@@ -7,9 +7,9 @@ import static ru.kfu.itis.issst.uima.postagger.MorphCasUtils.addCasWordform;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;
@@ -30,9 +30,9 @@ public class BaselineTagger extends BaselineAnnotator {
 	// config fields
 	@ExternalResource(key = RESOURCE_WFSTORE, mandatory = true)
 	private WordformStore<String> wfStore;
-	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_USE_DEBUG_GRAMMEMS, defaultValue = "false", mandatory = false)
 	private boolean useDebugGrammems;
-	@ConfigurationParameter(name = PARAM_NUM_GRAMMEME)
+	@ConfigurationParameter(name = PARAM_NUM_GRAMMEME, mandatory = false)
 	private String numGrammeme;
 
 	@Override

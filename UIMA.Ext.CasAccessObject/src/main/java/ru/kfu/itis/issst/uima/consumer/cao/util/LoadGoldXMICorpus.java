@@ -5,9 +5,10 @@ package ru.kfu.itis.issst.uima.consumer.cao.util;
 
 import static java.lang.System.err;
 import static java.lang.System.exit;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.CollectionReaderFactory.createDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_ANNO_TYPE;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_FEATURE_PATH;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_PATTERN;
@@ -26,7 +27,7 @@ import org.apache.uima.resource.metadata.ConfigurationParameterSettings;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.XMLInputSource;
 import org.apache.uima.util.XMLParser;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer;
 import ru.kfu.itis.cll.uima.cpe.XmiCollectionReader;
@@ -63,9 +64,9 @@ public class LoadGoldXMICorpus {
 		String[] tsdNames = tsdNamesString.split(";");
 		TypeSystemDescription tsd = createTypeSystemDescription(tsdNames);
 
-		CollectionReaderDescription colReaderDesc = createDescription(XmiCollectionReader.class,
-				tsd,
-				XmiCollectionReader.PARAM_INPUTDIR, dirPath);
+		CollectionReaderDescription colReaderDesc = createReaderDescription(XmiCollectionReader.class,
+                tsd,
+                XmiCollectionReader.PARAM_INPUTDIR, dirPath);
 
 		XMLInputSource caoWriterDescInput = new XMLInputSource(caoWriterDescPath);
 		XMLParser xmlParser = UIMAFramework.getXMLParser();
@@ -77,12 +78,12 @@ public class LoadGoldXMICorpus {
 		String metaAnnoType = (String) caoWriterParams.getParameterValue(PARAM_DOC_METADATA_TYPE);
 		String metaAnnoUriFeaturePath = (String) caoWriterParams
 				.getParameterValue(PARAM_DOC_METADATA_URI_FEATURE);
-		AnalysisEngineDescription uriReplacerDesc = createPrimitiveDescription(
-				FeatureValueReplacer.class, tsd,
-				PARAM_ANNO_TYPE, metaAnnoType,
-				PARAM_FEATURE_PATH, metaAnnoUriFeaturePath,
-				PARAM_PATTERN, "file:.+/([^/]+)$",
-				PARAM_REPLACE_BY, "$1");
+		AnalysisEngineDescription uriReplacerDesc = createEngineDescription(
+                FeatureValueReplacer.class, tsd,
+                PARAM_ANNO_TYPE, metaAnnoType,
+                PARAM_FEATURE_PATH, metaAnnoUriFeaturePath,
+                PARAM_PATTERN, "file:.+/([^/]+)$",
+                PARAM_REPLACE_BY, "$1");
 
 		AnalysisEngineDescription tokenizerDesc = TokenizerAPI.getAEDescription();
 

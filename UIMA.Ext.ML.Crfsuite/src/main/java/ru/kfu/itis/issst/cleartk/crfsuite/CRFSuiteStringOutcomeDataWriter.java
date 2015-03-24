@@ -3,15 +3,15 @@
  */
 package ru.kfu.itis.issst.cleartk.crfsuite;
 
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.encoder.outcome.StringToStringOutcomeEncoder;
+import org.cleartk.ml.jar.SequenceDataWriter_ImplBase;
+import ru.kfu.itis.issst.cleartk.SerializableNameNumber;
+import ru.kfu.itis.issst.cleartk.StringEncoder;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.List;
-
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.encoder.features.NameNumber;
-import org.cleartk.classifier.encoder.features.StringEncoder;
-import org.cleartk.classifier.encoder.outcome.StringToStringOutcomeEncoder;
-import org.cleartk.classifier.jar.SequenceDataWriter_ImplBase;
+import java.util.ArrayList;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -19,7 +19,7 @@ import org.cleartk.classifier.jar.SequenceDataWriter_ImplBase;
  */
 public class CRFSuiteStringOutcomeDataWriter
 		extends
-		SequenceDataWriter_ImplBase<CRFSuiteStringOutcomeClassifierBuilder, List<NameNumber>, String, String> {
+		SequenceDataWriter_ImplBase<CRFSuiteStringOutcomeClassifierBuilder, ArrayList<SerializableNameNumber>, String, String> {
 
 	private static final String FEATURE_SEPARATOR = "\t";
 
@@ -33,10 +33,10 @@ public class CRFSuiteStringOutcomeDataWriter
 	}
 
 	@Override
-	protected void writeEncoded(List<NameNumber> features, String outcome)
+	protected void writeEncoded(ArrayList<SerializableNameNumber> features, String outcome)
 			throws CleartkProcessingException {
 		this.trainingDataWriter.print(outcome);
-		for (NameNumber nameNumber : features) {
+		for (SerializableNameNumber nameNumber : features) {
 			this.trainingDataWriter.print(FEATURE_SEPARATOR);
 			this.trainingDataWriter.print(nameNumber.name);
 		}

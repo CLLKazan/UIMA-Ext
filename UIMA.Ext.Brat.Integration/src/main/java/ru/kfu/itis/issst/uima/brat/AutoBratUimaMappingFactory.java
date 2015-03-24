@@ -23,9 +23,9 @@ import org.nlplab.brat.configuration.BratRelationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.uimafit.component.initialize.ConfigurationParameterInitializer;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.initializable.Initializable;
+import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.initializable.Initializable;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -46,7 +46,7 @@ public class AutoBratUimaMappingFactory extends BratUimaMappingFactoryBase imple
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_SCAN)
+	@ConfigurationParameter(name = PARAM_NAMESPACES_TO_SCAN, mandatory = false)
 	private Set<String> namespacesToScan;
 	//
 	private Type annotationType;

@@ -3,45 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.ExternalResourceFactory.bindExternalResource;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
-import static ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask.getTrainingListFile;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.Set;
-
-import opennlp.tools.util.TrainingParameters;
-
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.collection.CollectionReaderDescription;
-import org.apache.uima.resource.ExternalResourceDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.util.InvalidXMLException;
-import org.uimafit.component.NoOpAnnotator;
-import org.uimafit.factory.CollectionReaderFactory;
-import org.uimafit.factory.ExternalResourceFactory;
-
-import ru.kfu.cll.uima.segmentation.fstype.Sentence;
-import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
-import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
-import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-
 import com.beust.jcommander.JCommander;
-
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
@@ -54,6 +16,40 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.impl.UimaTaskBase;
+import opennlp.tools.util.TrainingParameters;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.component.NoOpAnnotator;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.ExternalResourceFactory;
+import org.apache.uima.resource.ExternalResourceDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import ru.kfu.cll.uima.segmentation.fstype.Sentence;
+import ru.kfu.itis.cll.uima.cpe.AnnotationIteratorOverCollection;
+import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
+import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
+import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
+import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
+import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
+import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.Set;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createAggregateDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.bindExternalResource;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
+import static ru.ksu.niimm.cll.uima.morph.lab.CorpusPartitioningTask.getTrainingListFile;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -124,13 +120,13 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 				trainer.setTrainingParameters(trainParams);
 				// configure sentence stream
 				CollectionReaderDescription colReaderDesc = CollectionReaderFactory
-						.createDescription(
-								XmiFileListReader.class, inputTS,
-								XmiFileListReader.PARAM_BASE_DIR, corpusDir.getPath(),
-								XmiFileListReader.PARAM_LIST_FILE, trainingListFile.getPath());
+						.createReaderDescription(
+                                XmiFileListReader.class, inputTS,
+                                XmiFileListReader.PARAM_BASE_DIR, corpusDir.getPath(),
+                                XmiFileListReader.PARAM_LIST_FILE, trainingListFile.getPath());
 				Iterator<Sentence> sentIter = AnnotationIteratorOverCollection.createIterator(
 						Sentence.class, colReaderDesc,
-						createPrimitiveDescription(NoOpAnnotator.class));
+						createEngineDescription(NoOpAnnotator.class));
 				SpanStreamOverCollection<Sentence> sentStream = new SpanStreamOverCollection<Sentence>(
 						sentIter);
 				trainer.setSentenceStream(sentStream);
@@ -241,21 +237,17 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 			// bind the model to the tagger
 			bindExternalResource(taggerDesc, OpenNLPPosTagger.RESOURCE_POS_MODEL, modelDesc);
 			if (beamSearchValidate) {
-				try {
-					ExternalResourceFactory.createDependency(taggerDesc,
-							DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
-							MorphDictionaryHolder.class);
-					ExternalResourceFactory.bindExternalResource(taggerDesc,
-							DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
-							morphDictDesc);
-				} catch (InvalidXMLException e) {
-					throw new ResourceInitializationException(e);
-				}
-			}
+                ExternalResourceFactory.createDependency(taggerDesc,
+                        DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
+                        MorphDictionaryHolder.class);
+                ExternalResourceFactory.bindExternalResource(taggerDesc,
+                        DictionaryGrammemeLevelTokenSequenceValidator.RESOURCE_MORPH_DICT,
+                        morphDictDesc);
+            }
 			// disable for comparative evaluation of tagging time
 			taggerDesc.getAnalysisEngineMetaData().getOperationalProperties()
 					.setMultipleDeploymentAllowed(false);
-			return createAggregateDescription(
+			return createEngineDescription(
 					goldRemoverDesc, taggerDesc, xmiWriterDesc);
 		}
 	}

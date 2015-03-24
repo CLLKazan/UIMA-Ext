@@ -19,9 +19,9 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
 import ru.kfu.itis.cll.uima.cas.OverlapIndex;
@@ -37,7 +37,7 @@ public class NestedAnnotationRemover extends CasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription(String targetTypeName)
 			throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(NestedAnnotationRemover.class,
+		return AnalysisEngineFactory.createEngineDescription(NestedAnnotationRemover.class,
 				PARAM_TARGET_TYPE, targetTypeName);
 	}
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.cll.uima.io;
 
@@ -22,9 +22,9 @@ import java.util.Properties;
 /**
  * Some more utils. Lower case 'o' is to avoid name conflicts with other
  * IOUtils. Default encoding for overloaded methods is always UTF-8.
- * 
+ *
  * @author Rinat Gareev (Kazan Federal University)
- * 
+ *
  */
 public class IoUtils {
 
@@ -97,6 +97,15 @@ public class IoUtils {
 		}
 		return props;
 	}
+
+    public static void writeProperties(Properties props, File outFile) throws IOException {
+        BufferedWriter ow = openBufferedWriter(outFile);
+        try {
+            props.store(ow, null);
+        } finally {
+            closeQuietly(ow);
+        }
+    }
 
 	private IoUtils() {
 	}

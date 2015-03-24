@@ -22,20 +22,20 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.cleartk.classifier.CleartkProcessingException;
-import org.cleartk.classifier.CleartkSequenceAnnotator;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.Instances;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor;
-import org.cleartk.classifier.feature.extractor.CleartkExtractor.Context;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.CombinedExtractor;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.CleartkProcessingException;
+import org.cleartk.ml.CleartkSequenceAnnotator;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.Instances;
+import org.cleartk.ml.feature.extractor.CleartkExtractor;
+import org.cleartk.ml.feature.extractor.CleartkExtractor.Context;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.CombinedExtractor1;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
-import org.uimafit.util.JCasUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
+import org.apache.uima.fit.util.JCasUtil;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
@@ -81,16 +81,17 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	@ConfigurationParameter(name = PARAM_CURRENT_TIER, mandatory = true)
 	private int currentTier = -1;
 	// feature extraction parameters
-	@ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2")
+	@ConfigurationParameter(name = PARAM_LEFT_CONTEXT_SIZE, defaultValue = "2", mandatory = false)
 	private int leftContextSize = -1;
-	@ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2")
+	@ConfigurationParameter(name = PARAM_RIGHT_CONTEXT_SIZE, defaultValue = "2", mandatory = false)
 	private int rightContextSize = -1;
-	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_GEN_DICTIONARY_FEATURES, defaultValue = "true", mandatory = false)
 	private boolean generateDictionaryFeatures;
-	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_GEN_PUNCTUATION_FEATURES, defaultValue = "false", mandatory = false)
 	private boolean generatePunctuationFeatures;
 	@ConfigurationParameter(name = PARAM_REUSE_EXISTING_WORD_ANNOTATIONS,
-			defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS)
+			defaultValue = DEFAULT_REUSE_EXISTING_WORD_ANNOTATIONS,
+            mandatory = false)
 	private boolean reuseExistingWordAnnotations;
 	// derived
 	private MorphDictionary morphDictionary;
@@ -101,12 +102,12 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	private List<Set<String>> posTiers;
 	private Set<String> prevTierPosCategories;
 	// features
-	private SimpleFeatureExtractor tokenFeatureExtractor;
-	private SimpleFeatureExtractor dictFeatureExtractor;
-	private SimpleFeatureExtractor posExtractor;
+	private FeatureExtractor1 tokenFeatureExtractor;
+	private FeatureExtractor1 dictFeatureExtractor;
+	private FeatureExtractor1 posExtractor;
 	private CleartkExtractor contextFeatureExtractor;
 	// per-CAS
-	private SimpleFeatureExtractor adjacentPunctuationFeatureExtractor;
+	private FeatureExtractor1 adjacentPunctuationFeatureExtractor;
 	//
 	private Map<Token, Word> token2WordIndex;
 
@@ -125,18 +126,17 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 		// check grammems
 		checkDictGrammems();
 
-		tokenFeatureExtractor = new CombinedExtractor(currentTokenExtractors().toArray(
-				new SimpleFeatureExtractor[0]));
+		tokenFeatureExtractor = new CombinedExtractor1(currentTokenExtractors());
 
-		List<SimpleFeatureExtractor> gramExtractors = Lists.newArrayList();
-		List<SimpleFeatureExtractor> contextFeatureExtractors = contextTokenExtractors();
+		List<FeatureExtractor1> gramExtractors = Lists.newArrayList();
+		List<FeatureExtractor1> contextFeatureExtractors = contextTokenExtractors();
 		for (String posCat : prevTierPosCategories) {
 			GrammemeExtractor gramExtractor = new GrammemeExtractor(gramModel, posCat);
 			gramExtractors.add(gramExtractor);
 			contextFeatureExtractors.add(gramExtractor);
 		}
 		// TODO introduce difference between Null and NotApplicable values
-		posExtractor = new CombinedExtractor(gramExtractors.toArray(FE_ARRAY));
+		posExtractor = new CombinedExtractor1(gramExtractors);
 		if (generateDictionaryFeatures) {
 			dictFeatureExtractor = new DictionaryPossibleTagFeatureExtractor(
 					currentPosTier, prevTierPosCategories, morphDictionary);
@@ -156,7 +156,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 			contexts.add(new CleartkExtractor.Following(rightContextSize));
 		}
 		contextFeatureExtractor = new CleartkExtractor(Token.class,
-				new CombinedExtractor(contextFeatureExtractors.toArray(FE_ARRAY)),
+				new CombinedExtractor1(contextFeatureExtractors),
 				contexts.toArray(new Context[contexts.size()]));
 	}
 
@@ -354,7 +354,7 @@ public class TieredPosSequenceAnnotator extends CleartkSequenceAnnotator<String>
 	}
 
 	static final Splitter posCatSplitter = Splitter.on('&').trimResults();
-	private static final SimpleFeatureExtractor[] FE_ARRAY = new SimpleFeatureExtractor[0];
+	private static final FeatureExtractor1[] FE_ARRAY = new FeatureExtractor1[0];
 
 	private void cleanWordforms(JCas jCas) {
 		for (Word w : JCasUtil.select(jCas, Word.class)) {

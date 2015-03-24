@@ -3,8 +3,8 @@
  */
 package ru.ksu.niimm.cll.uima.morph.ml;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils.getResourceManagerConfiguration;
 
 import java.io.File;
@@ -17,7 +17,7 @@ import org.apache.uima.collection.CollectionProcessingEngine;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.cpe.CpeBuilder;
 import ru.kfu.itis.cll.uima.cpe.ReportingStatusCallbackListener;
@@ -79,7 +79,7 @@ public class WriteFeatures {
 				SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
 				PosTaggerAPI.TYPESYSTEM_POSTAGGER);
 		// setup a training set collection reader
-		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createDescription(
+		CollectionReaderDescription colReaderDesc = CollectionReaderFactory.createReaderDescription(
 				XmiCollectionReader.class, inputTS,
 				XmiCollectionReader.PARAM_INPUTDIR, trainingSetXmiDir.getPath());
 		cpeBuilder.setReader(colReaderDesc);
@@ -97,10 +97,10 @@ public class WriteFeatures {
 				.getTrainingDataWriterDescriptor(
 						posTiers, taggerParams, outputBaseDir);
 		// setup a pipeline extracting features
-		AnalysisEngineDescription pipelineDesc = createAggregateDescription(
+		AnalysisEngineDescription pipelineDesc = createEngineDescription(
 				Arrays.asList(trainDataWriterDesc),
 				Arrays.asList("training-data-writer"),
-				null, null, null, null);
+				null, null, null);
 		// add required MorphDictionaryHolder resource with the specified name
 		morphDictDesc.setName(PosTaggerAPI.MORPH_DICTIONARY_RESOURCE_NAME);
 		getResourceManagerConfiguration(pipelineDesc).addExternalResource(morphDictDesc);

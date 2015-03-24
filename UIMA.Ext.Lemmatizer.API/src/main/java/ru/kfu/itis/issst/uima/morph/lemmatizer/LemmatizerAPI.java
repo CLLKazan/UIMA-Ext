@@ -7,7 +7,7 @@ import org.apache.uima.resource.metadata.Import;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.itis.cll.uima.util.PipelineDescriptorUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;

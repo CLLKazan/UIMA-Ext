@@ -1,0 +1,21 @@
+# path to corpus directory (with XMI-files)
+srcCorpusDir=
+# The directory that contains descriptions of a corpus partitioning
+corpusSplitInfoDir=rnc-corpus-split.xmi
+#
+gramTiers=POST&RNC_INIT&Prnt&Apro&Anum,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+posCategories=POST,RNC_INIT,Prnt,Apro,Anum,NMbr,GNdr,CAse,PErs,ASpc,TEns,VOic
+#
+featureMinFreq=5
+# The coefficient for L2 regularization
+c2=1
+#
+featurePossibleTransitions=true
+#
+featurePossibleStates=true
+#
+leftContextSize=1;2;3
+#
+rightContextSize=1;2
+#
+optMaxIterations

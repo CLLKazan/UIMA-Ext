@@ -1,6 +1,6 @@
 package ru.kfu.itis.issst.uima.tokenizer;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class GeneratePostTokenizerDescriptor {
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		String outputPath = "src/main/resources/ru/kfu/itis/issst/uima/tokenizer/PostTokenizer.xml";
 		TypeSystemDescription tsDesc = TokenizerAPI.getTypeSystemDescription();
-		AnalysisEngineDescription desc = createPrimitiveDescription(PostTokenizer.class, tsDesc);
+		AnalysisEngineDescription desc = createEngineDescription(PostTokenizer.class, tsDesc);
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {
 			desc.toXML(out);

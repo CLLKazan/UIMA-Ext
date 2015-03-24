@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.postagger;
 
-import static org.uimafit.factory.ConfigurationParameterFactory.createPrimitiveParameter;
+import static org.apache.uima.fit.factory.ConfigurationParameterFactory.createPrimitiveParameter;
 
 import org.apache.uima.resource.metadata.ConfigurationParameter;
 import org.apache.uima.resource.metadata.Import;
@@ -11,7 +11,7 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.resource.metadata.impl.Import_impl;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.cll.uima.tokenizer.fstype.NUM;
 import ru.kfu.cll.uima.tokenizer.fstype.Token;

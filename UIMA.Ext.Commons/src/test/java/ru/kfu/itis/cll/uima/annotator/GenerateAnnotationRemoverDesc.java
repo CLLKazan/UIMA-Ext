@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -20,7 +20,7 @@ public class GenerateAnnotationRemoverDesc {
 
 	public static void main(String[] args) throws UIMAException, SAXException, IOException {
 		AnalysisEngineDescription desc = AnalysisEngineFactory
-				.createPrimitiveDescription(AnnotationRemover.class);
+				.createEngineDescription(AnnotationRemover.class);
 		FileOutputStream out = new FileOutputStream(
 				"src/main/resources/ru/kfu/itis/cll/uima/annotator/AnnotationRemover.xml");
 		try {

@@ -13,11 +13,11 @@ import org.apache.uima.cas.FSIterator;
 import org.apache.uima.cas.text.AnnotationIndex;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.feature.extractor.CleartkExtractorException;
-import org.cleartk.classifier.feature.extractor.simple.SimpleFeatureExtractor;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import org.cleartk.ml.feature.extractor.FeatureExtractor1;
 import org.opencorpora.cas.Word;
-import org.uimafit.util.ContainmentIndex;
+import org.apache.uima.fit.util.ContainmentIndex;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -33,7 +33,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.WhiteSpace;
  * @author Rinat Gareev (Kazan Federal University)
  * 
  */
-public class AdjacentPunctuationFeatureExtractor implements SimpleFeatureExtractor {
+public class AdjacentPunctuationFeatureExtractor implements FeatureExtractor1 {
 
 	public static final String FEATURE_NAME_BEFORE = "PMBefore";
 	public static final String FEATURE_NAME_AFTER = "PMAfter";

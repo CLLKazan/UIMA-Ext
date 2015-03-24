@@ -3,44 +3,8 @@
  */
 package ru.kfu.itis.issst.uima.morph.stanford;
 
-import static com.google.common.collect.Sets.newTreeSet;
-import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
-import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
-import static org.apache.commons.io.FileUtils.openOutputStream;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.uimafit.factory.AnalysisEngineFactory.createAggregateDescription;
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_CORPUS_SPLIT_INFO_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_FOLD;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_POS_CATEGORIES;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.DISCRIMINATOR_SOURCE_CORPUS_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_CORPUS;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_MODEL_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_OUTPUT_DIR;
-import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.KEY_TRAINING_DIR;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-
-import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
-import ru.ksu.niimm.cll.uima.morph.lab.AnalysisTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.CorpusPreprocessingTask;
-import ru.ksu.niimm.cll.uima.morph.lab.EvaluationTask;
-import ru.ksu.niimm.cll.uima.morph.lab.FeatureExtractionTaskBase;
-import ru.ksu.niimm.cll.uima.morph.lab.LabLauncherBase;
-
 import com.beust.jcommander.JCommander;
 import com.google.common.base.Joiner;
-
 import de.tudarmstadt.ukp.dkpro.lab.Lab;
 import de.tudarmstadt.ukp.dkpro.lab.engine.TaskContext;
 import de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode;
@@ -53,6 +17,27 @@ import de.tudarmstadt.ukp.dkpro.lab.task.impl.BatchTask.ExecutionPolicy;
 import de.tudarmstadt.ukp.dkpro.lab.task.impl.ExecutableTaskBase;
 import de.tudarmstadt.ukp.dkpro.lab.uima.task.UimaTask;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import org.apache.commons.io.FileUtils;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import ru.kfu.itis.cll.uima.util.CorpusUtils.PartitionType;
+import ru.ksu.niimm.cll.uima.morph.lab.*;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newTreeSet;
+import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READONLY;
+import static de.tudarmstadt.ukp.dkpro.lab.storage.StorageService.AccessMode.READWRITE;
+import static org.apache.commons.io.FileUtils.openOutputStream;
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static ru.ksu.niimm.cll.uima.morph.lab.LabConstants.*;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -69,7 +54,8 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 		lab.run();
 	}
 
-	private boolean allowTaggerMultiDeployment = false;
+	@SuppressWarnings("FieldCanBeLocal")
+    private boolean allowTaggerMultiDeployment = false;
 
 	private StanfordPosTaggerLab() {
 	}
@@ -83,10 +69,10 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 			public AnalysisEngineDescription getAnalysisEngineDescription(TaskContext taskCtx)
 					throws ResourceInitializationException, IOException {
 				File trainDataDir = taskCtx.getStorageLocation(KEY_TRAINING_DIR, READWRITE);
-				AnalysisEngineDescription stanfordTrainDataWriterDesc = createPrimitiveDescription(
+				AnalysisEngineDescription stanfordTrainDataWriterDesc = createEngineDescription(
 						StanfordTrainingDataWriter.class,
 						StanfordTrainingDataWriter.PARAM_OUTPUT_DIR, trainDataDir);
-				return createAggregateDescription(stanfordTrainDataWriterDesc);
+				return createEngineDescription(stanfordTrainDataWriterDesc);
 			}
 		};
 		//
@@ -201,14 +187,14 @@ public class StanfordPosTaggerLab extends LabLauncherBase {
 			File outputDir = taskCtx.getStorageLocation(KEY_OUTPUT_DIR, AccessMode.READWRITE);
 			//
 			AnalysisEngineDescription goldRemoverDesc = createGoldRemoverDesc();
-			AnalysisEngineDescription stanfordAnnotatorDesc = createPrimitiveDescription(
+			AnalysisEngineDescription stanfordAnnotatorDesc = createEngineDescription(
 					StanfordPosAnnotator.class,
 					StanfordPosAnnotator.PARAM_MODEL_FILE, modelFile.getPath());
 			stanfordAnnotatorDesc.getAnalysisEngineMetaData().getOperationalProperties()
 					.setMultipleDeploymentAllowed(allowTaggerMultiDeployment);
 			AnalysisEngineDescription xmiWriterDesc = createXmiWriterDesc(outputDir);
-			return createAggregateDescription(
-					goldRemoverDesc, stanfordAnnotatorDesc, xmiWriterDesc);
+			return createEngineDescription(
+                    goldRemoverDesc, stanfordAnnotatorDesc, xmiWriterDesc);
 		}
 	}
 }

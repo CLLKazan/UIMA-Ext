@@ -5,9 +5,9 @@ package ru.kfu.itis.issst.uima.cleartk;
 
 import java.util.List;
 
-import org.cleartk.classifier.Feature;
-import org.cleartk.classifier.encoder.CleartkEncoderException;
-import org.cleartk.classifier.encoder.features.FeatureEncoder;
+import org.cleartk.ml.Feature;
+import org.cleartk.ml.encoder.CleartkEncoderException;
+import org.cleartk.ml.encoder.features.FeatureEncoder;
 
 import com.google.common.collect.ImmutableList;
 

@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.issst.uima.morph.dictionary;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
 
 import java.util.List;
@@ -20,9 +20,9 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.ExternalResource;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
 
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryHolder;
@@ -51,7 +51,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 			Class<? extends AnnotationAdapter> annotationAdapterClass,
 			TypeSystemDescription tsDesc)
 			throws ResourceInitializationException {
-		return createPrimitiveDescription(MorphologyAnnotator.class,
+		return createEngineDescription(MorphologyAnnotator.class,
 				tsDesc,
 				PARAM_ANNOTATION_ADAPTER_CLASS, annotationAdapterClass.getName());
 	}
@@ -62,7 +62,7 @@ public class MorphologyAnnotator extends CasAnnotator_ImplBase {
 	public static final String RESOURCE_KEY_DICTIONARY = "MorphDictionary";
 
 	@ConfigurationParameter(name = PARAM_TOKEN_TYPE,
-			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token")
+			defaultValue = "ru.kfu.cll.uima.tokenizer.fstype.Token", mandatory = false)
 	private String tokenTypeName;
 	@ConfigurationParameter(name = PARAM_ANNOTATION_ADAPTER_CLASS, mandatory = true,
 			defaultValue = "ru.kfu.itis.issst.uima.postagger.DefaultAnnotationAdapter")

@@ -12,7 +12,7 @@ import java.io.IOException;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.cpe.XmiFileListReader;
 
@@ -45,7 +45,7 @@ public abstract class FeatureExtractionTaskBase extends UimaTaskBase {
 			throws ResourceInitializationException, IOException {
 		File corpusDir = taskCtx.getStorageLocation(KEY_CORPUS, AccessMode.READONLY);
 		File trainingListFile = getTrainingListFile(corpusSplitInfoDir, fold);
-		return CollectionReaderFactory.createDescription(XmiFileListReader.class, inputTS,
+		return CollectionReaderFactory.createReaderDescription(XmiFileListReader.class, inputTS,
 				XmiFileListReader.PARAM_BASE_DIR, corpusDir.getPath(),
 				XmiFileListReader.PARAM_LIST_FILE, trainingListFile.getPath());
 	}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+    <primitive>false</primitive>
+    <delegateAnalysisEngineSpecifiers>
+        <delegateAnalysisEngine key="tcrf-tagger-wrapper">
+            <import name="ru.kfu.itis.issst.uima.postagger.postagger-ae"/>
+        </delegateAnalysisEngine>
+    </delegateAnalysisEngineSpecifiers>
+    <analysisEngineMetaData>
+        <name>PoS-Tagger.TCRF</name>
+        <flowConstraints>
+            <fixedFlow>
+                <node>tcrf-tagger-wrapper</node>
+            </fixedFlow>
+        </flowConstraints>
+    </analysisEngineMetaData>
+    <resourceManagerConfiguration>
+        <externalResources>
+            <externalResource>
+                <name>MorphDictionary</name>
+                <description/>
+                <fileResourceSpecifier>
+                    <fileUrl>file:dict.opcorpora.ser</fileUrl>
+                </fileResourceSpecifier>
+                <implementationName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource</implementationName>
+            </externalResource>
+        </externalResources>
+    </resourceManagerConfiguration>
+</analysisEngineDescription>

@@ -3,7 +3,7 @@
  */
 package ru.ksu.niimm.cll.uima.morph.opencorpora;
 
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceDescription;
 
 import java.net.MalformedURLException;
 import java.net.URL;

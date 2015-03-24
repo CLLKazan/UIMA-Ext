@@ -3,8 +3,9 @@
  */
 package ru.kfu.itis.cll.uima.cpe;
 
-import static org.uimafit.factory.CollectionReaderFactory.createDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,9 +25,9 @@ public class GenerateCollectionReaderDescriptor {
 		String outputPath = "src/main/resources/ru/kfu/itis/cll/uima/cpe/FileDirectoryCollectionReader.xml";
 		TypeSystemDescription tsd = createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem");
-		CollectionReaderDescription crDesc = createDescription(
-				FileDirectoryCollectionReader.class,
-				tsd);
+		CollectionReaderDescription crDesc = createReaderDescription(
+                FileDirectoryCollectionReader.class,
+                tsd);
 
 		FileOutputStream out = new FileOutputStream(outputPath);
 		try {

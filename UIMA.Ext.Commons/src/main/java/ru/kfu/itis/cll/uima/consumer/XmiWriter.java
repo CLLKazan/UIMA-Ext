@@ -22,11 +22,11 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceProcessException;
 import org.apache.uima.util.XMLSerializer;
-import org.uimafit.component.CasAnnotator_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.descriptor.OperationalProperties;
-import org.uimafit.descriptor.TypeCapability;
-import org.uimafit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.OperationalProperties;
+import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
@@ -43,7 +43,7 @@ public class XmiWriter extends CasAnnotator_ImplBase {
 
 	public static AnalysisEngineDescription createDescription(
 			File outputDir, boolean writeToRelativePath) throws ResourceInitializationException {
-		return AnalysisEngineFactory.createPrimitiveDescription(XmiWriter.class,
+		return AnalysisEngineFactory.createEngineDescription(XmiWriter.class,
 				PARAM_OUTPUTDIR, outputDir.getPath(),
 				PARAM_WRITE_TO_RELATIVE_PATH, writeToRelativePath);
 	}
@@ -62,9 +62,9 @@ public class XmiWriter extends CasAnnotator_ImplBase {
 
 	@ConfigurationParameter(name = PARAM_OUTPUTDIR, mandatory = true)
 	private File mOutputDir;
-	@ConfigurationParameter(name = PARAM_XML_FORMATTED, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_XML_FORMATTED, defaultValue = "true", mandatory = false)
 	private boolean xmlFormatted;
-	@ConfigurationParameter(name = PARAM_WRITE_TO_RELATIVE_PATH, defaultValue = "false",
+	@ConfigurationParameter(name = PARAM_WRITE_TO_RELATIVE_PATH, defaultValue = "false", mandatory = false,
 			description = "If false this annotator will make an output file "
 					+ "using only the filename part from a document source URI. "
 					+ "If true it will use the path of an URI "

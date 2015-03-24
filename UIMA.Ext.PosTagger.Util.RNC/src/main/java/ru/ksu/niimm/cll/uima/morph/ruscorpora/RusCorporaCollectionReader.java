@@ -28,9 +28,9 @@ import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.opencorpora.cas.Word;
 import org.opencorpora.cas.Wordform;
-import org.uimafit.component.JCasCollectionReader_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.initializable.InitializableFactory;
+import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.initializable.InitializableFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 

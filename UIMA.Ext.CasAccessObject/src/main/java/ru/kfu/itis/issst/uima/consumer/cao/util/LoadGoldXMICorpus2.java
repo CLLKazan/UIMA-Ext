@@ -3,10 +3,11 @@
  */
 package ru.kfu.itis.issst.uima.consumer.cao.util;
 
-import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
-import static org.uimafit.factory.CollectionReaderFactory.createDescription;
-import static org.uimafit.factory.ExternalResourceFactory.createExternalResourceDescription;
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createDescription;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
+import static org.apache.uima.fit.factory.ExternalResourceFactory.createExternalResourceDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_ANNO_TYPE;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_FEATURE_PATH;
 import static ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer.PARAM_PATTERN;
@@ -25,7 +26,7 @@ import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.metadata.ConfigurationParameterSettings;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.uimafit.pipeline.SimplePipeline;
+import org.apache.uima.fit.pipeline.SimplePipeline;
 
 import ru.kfu.cll.uima.segmentation.fstype.Sentence;
 import ru.kfu.itis.cll.uima.annotator.FeatureValueReplacer;
@@ -74,31 +75,31 @@ public class LoadGoldXMICorpus2 {
 		TypeSystemDescription tsd = createTypeSystemDescription(typeSystemDescriptorNames.toArray(
 				new String[typeSystemDescriptorNames.size()]));
 
-		CollectionReaderDescription colReaderDesc = createDescription(XmiCollectionReader.class,
-				tsd,
-				XmiCollectionReader.PARAM_INPUTDIR, corpusDir.getPath());
+		CollectionReaderDescription colReaderDesc = createReaderDescription(XmiCollectionReader.class,
+                tsd,
+                XmiCollectionReader.PARAM_INPUTDIR, corpusDir.getPath());
 
 		ExternalResourceDescription caoDesc = createExternalResourceDescription(
 				MysqlJdbcCasAccessObject.class,
 				dsConfigFile);
 
-		AnalysisEngineDescription caoWriterDesc = createPrimitiveDescription(CAOWriter.class,
-				CAOWriter.RESOURCE_DAO, caoDesc,
-				CAOWriter.PARAM_TYPES_TO_PERSIST, typesToPersist,
-				CAOWriter.PARAM_SPAN_TYPE, Sentence.class.getName(),
-				CAOWriter.PARAM_DOC_METADATA_DOCUMENT_SIZE, "documentSize");
+		AnalysisEngineDescription caoWriterDesc = createEngineDescription(CAOWriter.class,
+                CAOWriter.RESOURCE_DAO, caoDesc,
+                CAOWriter.PARAM_TYPES_TO_PERSIST, typesToPersist,
+                CAOWriter.PARAM_SPAN_TYPE, Sentence.class.getName(),
+                CAOWriter.PARAM_DOC_METADATA_DOCUMENT_SIZE, "documentSize");
 
 		ConfigurationParameterSettings caoWriterParams = caoWriterDesc.getAnalysisEngineMetaData()
 				.getConfigurationParameterSettings();
 		String metaAnnoType = (String) caoWriterParams.getParameterValue(PARAM_DOC_METADATA_TYPE);
 		String metaAnnoUriFeaturePath = (String) caoWriterParams
 				.getParameterValue(PARAM_DOC_METADATA_URI_FEATURE);
-		AnalysisEngineDescription uriReplacerDesc = createPrimitiveDescription(
-				FeatureValueReplacer.class, tsd,
-				PARAM_ANNO_TYPE, metaAnnoType,
-				PARAM_FEATURE_PATH, metaAnnoUriFeaturePath,
-				PARAM_PATTERN, "file:.+/([^/]+)$",
-				PARAM_REPLACE_BY, "$1");
+		AnalysisEngineDescription uriReplacerDesc = createEngineDescription(
+                FeatureValueReplacer.class, tsd,
+                PARAM_ANNO_TYPE, metaAnnoType,
+                PARAM_FEATURE_PATH, metaAnnoUriFeaturePath,
+                PARAM_PATTERN, "file:.+/([^/]+)$",
+                PARAM_REPLACE_BY, "$1");
 
 		SimplePipeline.runPipeline(colReaderDesc,
 				TokenizerAPI.getAEDescription(),

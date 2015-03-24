@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.cll.uima.cpe;
 
-import static org.uimafit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +23,9 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
-import org.uimafit.component.CasCollectionReader_ImplBase;
-import org.uimafit.descriptor.ConfigurationParameter;
-import org.uimafit.factory.CollectionReaderFactory;
+import org.apache.uima.fit.component.CasCollectionReader_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
@@ -41,7 +41,7 @@ public class FileDirectoryCollectionReader extends CasCollectionReader_ImplBase 
 			throws ResourceInitializationException {
 		TypeSystemDescription inputTSD = createTypeSystemDescription(
 				"ru.kfu.itis.cll.uima.commons.Commons-TypeSystem");
-		return CollectionReaderFactory.createDescription(
+		return CollectionReaderFactory.createReaderDescription(
 				FileDirectoryCollectionReader.class,
 				inputTSD,
 				PARAM_DIRECTORY_PATH, inputDir);
@@ -55,11 +55,11 @@ public class FileDirectoryCollectionReader extends CasCollectionReader_ImplBase 
 	// config
 	@ConfigurationParameter(name = PARAM_DIRECTORY_PATH, mandatory = true)
 	private File directory;
-	@ConfigurationParameter(name = PARAM_FILE_EXTENSION, defaultValue = "txt")
+	@ConfigurationParameter(name = PARAM_FILE_EXTENSION, defaultValue = "txt", mandatory = false)
 	private String fileExtension;
-	@ConfigurationParameter(name = PARAM_ENCODING, defaultValue = "utf-8")
+	@ConfigurationParameter(name = PARAM_ENCODING, defaultValue = "utf-8", mandatory = false)
 	private String encoding;
-	@ConfigurationParameter(name = PARAM_SET_RELATIVE_URI, defaultValue = "true")
+	@ConfigurationParameter(name = PARAM_SET_RELATIVE_URI, defaultValue = "true", mandatory = false)
 	private boolean setRelativeURI;
 	// derived
 	private ArrayList<File> files;
