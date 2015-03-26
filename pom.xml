@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ru.ksu.niimm.cll.uima</groupId>
+		<artifactId>uima-ext-parent</artifactId>
+		<version>0.4-SNAPSHOT</version>
+		<relativePath>UIMA.Ext.Parent/pom.xml</relativePath>
+	</parent>
+	<artifactId>uima-ext-root-aggregate</artifactId>
+	<name>UIMA-Ext Aggregate POM</name>
+	<description>UIMA-Ext Aggregate POM</description>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>UIMA.Ext.Commons</module>
+		<module>UIMA.Ext.Tokenizer.API</module>
+		<module>UIMA.Ext.Tokenizer.Simple</module>
+		<module>UIMA.Ext.SentenceSplitter.API</module>
+		<module>UIMA.Ext.SentenceSplitter.Heuristic</module>
+		<module>UIMA.Ext.Evaluation</module>
+		<module>UIMA.Ext.Morph.Dictionary.API</module>
+		<module>UIMA.Ext.Morph.Dictionary.OpenCorpora</module>
+		<module>UIMA.Ext.Morph.Predict.OpenCorpora</module>
+        	<module>UIMA.Ext.ML.Commons</module>
+		<module>UIMA.Ext.PosTagger.API</module>
+		<module>UIMA.Ext.PosTagger.DictBaseline</module>
+		<module>UIMA.Ext.PosTagger.FreqBaseline</module>
+		<module>UIMA.Ext.PosTagger.TreeTagger</module>
+		<module>UIMA.Ext.PosTagger.HunPos</module>
+		<module>UIMA.Ext.PosTagger.Stanford</module>
+		<module>UIMA.Ext.PosTagger.OpenNLP</module>
+		<module>UIMA.Ext.ML.Crfsuite</module>
+		<module>UIMA.Ext.PosTagger.TCRF</module>
+		<module>UIMA.Ext.PosTagger.Util.RNC</module>
+		<module>UIMA.Ext.Morph.PosTaggingLab</module>
+		<module>UIMA.Ext.Lemmatizer.API</module>
+		<module>UIMA.Ext.Lemmatizer.OpenCorpora</module>
+		<module>UIMA.Ext.DependencyParser</module>
+		<module>UIMA.Ext.DependencyParser.MST</module>
+		<module>UIMA.Ext.DependencyParser.Lab</module>
+		<!-- legacy modules <module>UIMA.Ext.PhraseRecognizer</module> <module>UIMA.Ext.ShalTeF</module> -->
+		<module>UIMA.Ext.CasAccessObject</module>
+		<module>UIMA.Ext.Brat.Integration</module>
+		<module>UIMA.Ext.Corpus.Statistics</module>
+		<module>UIMA.Ext.Corpus.Util</module>
+		<module>UIMA.Ext.Benchmarking</module>
+		<module>UIMA.Ext.Demo.PipelineExample</module>
+	</modules>
+</project>
