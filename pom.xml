@@ -15,6 +15,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>UIMA.Ext.Parent</module>
 		<module>UIMA.Ext.Commons</module>
 		<module>UIMA.Ext.Tokenizer.API</module>
 		<module>UIMA.Ext.Tokenizer.Simple</module>
