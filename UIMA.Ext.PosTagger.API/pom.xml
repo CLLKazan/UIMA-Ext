@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>uima-ext-parent</artifactId>
 		<groupId>ru.ksu.niimm.cll.uima</groupId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.4-RC1</version>
 		<relativePath>../UIMA.Ext.Parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>uima-ext-postagger-api</artifactId>
