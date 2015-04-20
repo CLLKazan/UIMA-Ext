@@ -24,7 +24,7 @@
 		<module>UIMA.Ext.Morph.Dictionary.API</module>
 		<module>UIMA.Ext.Morph.Dictionary.OpenCorpora</module>
 		<module>UIMA.Ext.Morph.Predict.OpenCorpora</module>
-        	<module>UIMA.Ext.ML.Commons</module>
+        <module>UIMA.Ext.ML.Commons</module>
 		<module>UIMA.Ext.PosTagger.API</module>
 		<module>UIMA.Ext.PosTagger.DictBaseline</module>
 		<module>UIMA.Ext.PosTagger.FreqBaseline</module>
@@ -35,6 +35,7 @@
 		<module>UIMA.Ext.ML.Crfsuite</module>
 		<module>UIMA.Ext.PosTagger.TCRF</module>
 		<module>UIMA.Ext.PosTagger.Util.RNC</module>
+        <module>UIMA.Ext.PosTagger.Util.OpenCorpora</module>
 		<module>UIMA.Ext.Morph.PosTaggingLab</module>
 		<module>UIMA.Ext.Lemmatizer.API</module>
 		<module>UIMA.Ext.Lemmatizer.OpenCorpora</module>
