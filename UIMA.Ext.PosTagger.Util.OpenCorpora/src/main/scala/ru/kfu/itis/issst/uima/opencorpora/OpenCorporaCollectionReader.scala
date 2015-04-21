@@ -6,15 +6,23 @@ import org.apache.commons.io.{IOUtils, FileUtils}
 import org.apache.uima.UimaContext
 import org.apache.uima.fit.component.JCasCollectionReader_ImplBase
 import org.apache.uima.fit.descriptor.ConfigurationParameter
-import org.apache.uima.fit.factory.AnnotationFactory
+import org.apache.uima.fit.factory.{ExternalResourceFactory, TypeSystemDescriptionFactory, CollectionReaderFactory, AnnotationFactory}
+import org.apache.uima.fit.pipeline.SimplePipeline
 import org.apache.uima.jcas.JCas
 import org.apache.uima.util.{ProgressImpl, Progress}
 import org.opencorpora.cas.{Wordform, Word}
 import ru.kfu.cll.uima.segmentation.fstype.Sentence
 import ru.kfu.cll.uima.tokenizer.fstype._
+import ru.kfu.itis.cll.uima.cas.FSUtils
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata
+import ru.kfu.itis.cll.uima.consumer.XmiWriter
+import ru.kfu.itis.cll.uima.util.DocumentUtils
+import ru.kfu.itis.issst.uima.morph.commons.{GramModelBasedTagMapper, TagAssembler}
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI
 import ru.kfu.itis.issst.uima.opencorpora.OpenCorporaCollectionReader._
 import ru.kfu.itis.issst.uima.postagger.{MorphCasUtils, PosTaggerAPI}
+import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
+import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
 
 import scala.xml.{NodeSeq, Node, XML}
 import scala.collection.JavaConversions._
@@ -24,12 +32,12 @@ import scala.collection.JavaConversions._
  */
 class OpenCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 
-  @ConfigurationParameter
-  var srcXmlFile: File
+  @ConfigurationParameter(name = PARAM_SOURCE_CORPUS_XML)
+  var srcXmlFile: File = _
   // state fields
-  var srcXmlStream: InputStream
-  var docs: NodeSeq
-  var docsIter: Iterator[Node]
+  var srcXmlStream: InputStream = _
+  var docs: NodeSeq = _
+  var docsIter: Iterator[Node] = _
   var readCounter = 0
 
   override def initialize(ctx: UimaContext): Unit = {
@@ -69,10 +77,15 @@ class OpenCorporaCollectionReader extends JCasCollectionReader_ImplBase {
           }
           TokenElem(tokTxt, lemmaOpt, lemmaIdOpt, extractGrams(tok))
         }
-        val tokenProtos = parseToken(tokenElems, 0, sentTxt).
-          map(pr => pr.copy(begin = pr.begin + sentBegin, end = pr.end + sentEnd))
-        makeSentenceAnno(jCas, sentBegin, sentEnd)
-        tokenProtos.foreach(makeTokenAnno(jCas, _))
+        try {
+          val tokenProtos = parseToken(tokenElems, 0, sentTxt).
+            map(pr => pr.copy(begin = pr.begin + sentBegin, end = pr.end + sentEnd))
+          makeSentenceAnno(jCas, sentBegin, sentEnd)
+          tokenProtos.foreach(makeTokenAnno(jCas, _))
+        } catch {
+          case ex: Exception =>
+            getLogger.error(s"Skipped sentence:\n$sentTxt", ex)
+        }
         txtBuilder += ' '
       }
       txtBuilder += '\n'
@@ -92,11 +105,15 @@ class OpenCorporaCollectionReader extends JCasCollectionReader_ImplBase {
       if (lemma.isDefined) wf.setLemma(lemma.get)
       if (lemmaId.isDefined) wf.setLemmaId(lemmaId.get)
       wf.setWord(wordAnno)
-      MorphCasUtils.addGrammemes(jCas, wf, grams)
+      MorphCasUtils.addGrammemes(jCas, wf,
+        removeUnknownGrammems(grams))
+      wordAnno.setWordforms(FSUtils.toFSArray(jCas, wf))
       //
       wordAnno.addToIndexes()
     }
   }
+
+  private def removeUnknownGrammems(grams:Set[String]) = grams -- FILTERED_GRAMS
 
   private def extractLemma(tokElem: Node): Option[(String, Int)] = {
     val lemmaElems = tokElem \\ "l"
@@ -120,23 +137,23 @@ class OpenCorporaCollectionReader extends JCasCollectionReader_ImplBase {
       val token = tokens.head
       val tokTxt = token.txt
       require(!tokTxt.isEmpty)
-      sentTxt.indexOf(token, cursor) match {
+      sentTxt.indexOf(tokTxt, cursor) match {
         case -1 => throw new IllegalStateException(
           s"Can't find '$token' from position $cursor in sentence:\n$sentTxt")
-        case tokRelBegin => {
+        case tokRelBegin =>
           val tokRelEnd = tokRelBegin + tokTxt.length
           // return
           TokenProto(getTokenType(token), tokRelBegin, tokRelEnd, token.grams, token.lemma, token.lemmaId) ::
             parseToken(tokens.tail, tokRelEnd, sentTxt)
-        }
       }
     }
   }
 
-  private def getTokenType(token:TokenElem): Class[_ <: Token] = {
+  private def getTokenType(token: TokenElem): Class[_ <: Token] = {
     import token._
     if (grams.contains("PNCT")) classOf[PM]
-    else if (txt.matches(NUM_PATTERN)) classOf[NUM]
+    else if (grams.contains("NUMB") ||
+      grams.contains("ROMN")) classOf[NUM]
     else if (Character.isUpperCase(txt.head)) classOf[CW]
     else classOf[SW]
   }
@@ -151,6 +168,21 @@ class OpenCorporaCollectionReader extends JCasCollectionReader_ImplBase {
 
 object OpenCorporaCollectionReader {
 
+  def createDescription(srcXmlFile: File) = {
+    val tsd = TypeSystemDescriptionFactory.createTypeSystemDescription(
+      DocumentUtils.TYPESYSTEM_COMMONS,
+      TokenizerAPI.TYPESYSTEM_TOKENIZER,
+      SentenceSplitterAPI.TYPESYSTEM_SENTENCES,
+      PosTaggerAPI.TYPESYSTEM_POSTAGGER
+    )
+    CollectionReaderFactory.createReaderDescription(
+      classOf[OpenCorporaCollectionReader], tsd,
+      PARAM_SOURCE_CORPUS_XML, srcXmlFile.getPath)
+  }
+
+  final val PARAM_SOURCE_CORPUS_XML = "sourceCorpusXml"
+  // FIXME use an according version of dictionary, remove only "UNKN" and "NUMB"
+  val FILTERED_GRAMS = Set("UNKN", "NUMB", "ROMN", "LATN", "Anph", "Adjx", "Impx")
   private val NUM_PATTERN = "\\d+"
 
   private case class TokenElem(txt: String,
@@ -164,4 +196,29 @@ object OpenCorporaCollectionReader {
                                 grams: Set[String] = Set(),
                                 lemma: Option[String] = None,
                                 lemmaId: Option[Int] = None)
+}
+
+object ReadOpenCorporaToXMI {
+  def main(args: Array[String]): Unit = {
+    val (srcXmlPath, outputDirPath) = args match {
+      case Array(sxp, odp) => (sxp, odp)
+      case _ =>
+        println("Usage: <sourceCorpusXml> <outpurDir>")
+        sys.exit(1)
+    }
+    val srcXmlFile = new File(srcXmlPath)
+    if (!srcXmlFile.isFile) {
+      println(s"$srcXmlFile is not an existing file")
+      sys.exit(1)
+    }
+    val readerDesc = createDescription(srcXmlFile)
+    val tagAssemblerDesc = TagAssembler.createDescription();
+    {
+      val gramModelDesc = getMorphDictionaryAPI.getGramModelDescription
+      ExternalResourceFactory.bindExternalResource(tagAssemblerDesc,
+        GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, gramModelDesc)
+    }
+    val xmiWriterDesc = XmiWriter.createDescription(new File(outputDirPath), false)
+    SimplePipeline.runPipeline(readerDesc, tagAssemblerDesc, xmiWriterDesc)
+  }
 }

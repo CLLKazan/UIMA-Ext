@@ -191,6 +191,11 @@
 				<artifactId>uima-ext-postagger-util-rnc</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>ru.ksu.niimm.cll.uima</groupId>
+                <artifactId>uima-ext-postagger-util-opencorpora</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>ru.ksu.niimm.cll.uima</groupId>
 				<artifactId>uima-ext-postagger-freq-baseline</artifactId>

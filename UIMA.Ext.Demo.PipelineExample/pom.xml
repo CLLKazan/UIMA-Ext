@@ -61,6 +61,11 @@
 			<artifactId>uima-ext-postagger-tcrf</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+        <dependency>
+            <groupId>ru.ksu.niimm.cll.uima</groupId>
+            <artifactId>uima-ext-postagger-util-opencorpora</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
 			<artifactId>uima-ext-lemmatizer-api</artifactId>
