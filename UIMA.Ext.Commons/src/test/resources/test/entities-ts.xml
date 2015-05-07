@@ -6,11 +6,23 @@
 			<name>test.Person</name>
 			<description/>
 			<supertypeName>uima.tcas.Annotation</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>mentionType</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
 		</typeDescription>
 		<typeDescription>
 			<name>test.Organization</name>
 			<description/>
 			<supertypeName>uima.tcas.Annotation</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>canonical</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
 		</typeDescription>
 		<typeDescription>
 			<name>test.GPE</name>

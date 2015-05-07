@@ -7,6 +7,7 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import org.apache.uima.cas.ArrayFS;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -232,6 +234,18 @@ public class FSUtils {
 		}
 		return max;
 	}
+
+    public static Function<FeatureStructure, String> stringFeatureFunction(Type fsType, String featName) {
+        final Feature feat = fsType.getFeatureByBaseName(featName);
+        if(feat == null) throw new IllegalStateException(
+                format("%s does not have feature %s", fsType.getName(), featName));
+        return new Function<FeatureStructure, String>() {
+            @Override
+            public String apply(FeatureStructure fs) {
+                return fs.getStringValue(feat);
+            }
+        };
+    }
 
 	private FSUtils() {
 	}

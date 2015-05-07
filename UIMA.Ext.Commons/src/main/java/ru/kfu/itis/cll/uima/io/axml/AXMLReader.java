@@ -10,6 +10,7 @@ import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.xml.sax.InputSource;
@@ -75,7 +76,16 @@ public class AXMLReader {
 				throw new IllegalStateException(String.format("Unknown type: %s", typeName));
 			}
 			AnnotationFS anno = cas.createAnnotation(type, _anno.getBegin(), _anno.getEnd());
-			cas.addFsToIndexes(anno);
+            for (String featName : _anno.getFeatureNames()) {
+                Feature feat = type.getFeatureByBaseName(featName);
+                if (feat == null) throw new IllegalStateException(String.format(
+                        "%s does not have feature %s", type.getName(), featName));
+                String featValStr = _anno.getFeatureStringValue(featName);
+                if (featValStr != null) {
+                    anno.setFeatureValueFromString(feat, featValStr);
+                }
+            }
+            cas.addFsToIndexes(anno);
 		}
 	}
 
