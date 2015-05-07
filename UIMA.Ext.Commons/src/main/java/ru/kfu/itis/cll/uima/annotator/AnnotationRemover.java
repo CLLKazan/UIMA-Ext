@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
@@ -17,6 +18,8 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.component.CasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 
+import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.resource.ResourceInitializationException;
 import ru.kfu.itis.cll.uima.cas.FSTypeUtils;
 
 import com.google.common.base.Joiner;
@@ -29,6 +32,12 @@ import com.google.common.collect.Sets;
  * 
  */
 public class AnnotationRemover extends CasAnnotator_ImplBase {
+
+    public static AnalysisEngineDescription createDescriptionForNS(String... namespacesToRemove)
+            throws ResourceInitializationException {
+        return AnalysisEngineFactory.createEngineDescription(AnnotationRemover.class,
+                PARAM_NAMESPACES_TO_REMOVE, namespacesToRemove);
+    }
 
 	public static final String PARAM_NAMESPACES_TO_REMOVE = "NamespacesToRemove";
 	public static final String PARAM_TYPES_TO_REMOVE = "TypesToRemove";

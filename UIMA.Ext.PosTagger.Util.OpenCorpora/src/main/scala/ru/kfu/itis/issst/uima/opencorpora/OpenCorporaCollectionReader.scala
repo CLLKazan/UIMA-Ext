@@ -13,14 +13,16 @@ import org.apache.uima.util.{ProgressImpl, Progress}
 import org.opencorpora.cas.{Wordform, Word}
 import ru.kfu.cll.uima.segmentation.fstype.Sentence
 import ru.kfu.cll.uima.tokenizer.fstype._
+import ru.kfu.itis.cll.uima.annotator.AnnotationRemover
 import ru.kfu.itis.cll.uima.cas.FSUtils
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata
 import ru.kfu.itis.cll.uima.consumer.XmiWriter
 import ru.kfu.itis.cll.uima.util.DocumentUtils
-import ru.kfu.itis.issst.uima.morph.commons.{GramModelBasedTagMapper, TagAssembler}
+import ru.kfu.itis.issst.uima.morph.commons.{TabSeparatedTaggedDataWriter, GramModelBasedTagMapper, TagAssembler}
 import ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI
+import ru.kfu.itis.issst.uima.morph.dictionary.MorphologyAnnotator
 import ru.kfu.itis.issst.uima.opencorpora.OpenCorporaCollectionReader._
-import ru.kfu.itis.issst.uima.postagger.{MorphCasUtils, PosTaggerAPI}
+import ru.kfu.itis.issst.uima.postagger.{DefaultAnnotationAdapter, MorphCasUtils, PosTaggerAPI}
 import ru.kfu.itis.issst.uima.segmentation.SentenceSplitterAPI
 import ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI
 
@@ -79,7 +81,7 @@ class OpenCorporaCollectionReader extends JCasCollectionReader_ImplBase {
         }
         try {
           val tokenProtos = parseToken(tokenElems, 0, sentTxt).
-            map(pr => pr.copy(begin = pr.begin + sentBegin, end = pr.end + sentEnd))
+            map(pr => pr.copy(begin = pr.begin + sentBegin, end = pr.end + sentBegin))
           makeSentenceAnno(jCas, sentBegin, sentEnd)
           tokenProtos.foreach(makeTokenAnno(jCas, _))
         } catch {
@@ -220,5 +222,39 @@ object ReadOpenCorporaToXMI {
     }
     val xmiWriterDesc = XmiWriter.createDescription(new File(outputDirPath), false)
     SimplePipeline.runPipeline(readerDesc, tagAssemblerDesc, xmiWriterDesc)
+  }
+}
+
+object PrepareTabSeparatedTagData {
+  def main(args: Array[String]): Unit = {
+    val (srcXmlPath, testDirPath, ambDirPath) = args match {
+      case Array(sxp, odp, adp) => (sxp, odp, adp)
+      case _ =>
+        println("Usage: <sourceCorpusXml> <test-outpur-dir> <amb-output-dir>")
+        sys.exit(1)
+    }
+    val srcXmlFile = new File(srcXmlPath)
+    if (!srcXmlFile.isFile) {
+      println(s"$srcXmlFile is not an existing file")
+      sys.exit(1)
+    }
+    val readerDesc = createDescription(srcXmlFile)
+    val tagAssemblerDesc = TagAssembler.createDescription()
+    val morphDictDesc = getMorphDictionaryAPI.getResourceDescriptionForCachedInstance
+    ExternalResourceFactory.bindExternalResource(tagAssemblerDesc,
+      GramModelBasedTagMapper.RESOURCE_GRAM_MODEL, morphDictDesc)
+    val noambWriterDesc = TabSeparatedTaggedDataWriter.createDescription(new File(testDirPath))
+    //
+    val morphRemoverDesc = AnnotationRemover.createDescriptionForNS("org.opencorpora")
+    val dictTagger = MorphologyAnnotator.createDescription(
+      classOf[DefaultAnnotationAdapter],
+      PosTaggerAPI.getTypeSystemDescription)
+    ExternalResourceFactory.bindExternalResource(dictTagger,
+      MorphologyAnnotator.RESOURCE_KEY_DICTIONARY,
+      morphDictDesc)
+    val ambWriterDesc = TabSeparatedTaggedDataWriter.createDescription(new File(ambDirPath))
+    //
+    SimplePipeline.runPipeline(readerDesc, tagAssemblerDesc, noambWriterDesc,
+      morphRemoverDesc, dictTagger, tagAssemblerDesc, ambWriterDesc)
   }
 }
