@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.Type;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
@@ -23,7 +24,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import ru.kfu.itis.cll.uima.cas.AnnotationUtils;
-import ru.kfu.itis.cll.uima.io.axml.AXMLReader;
+import ru.kfu.itis.cll.uima.cas.FSUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -55,6 +56,21 @@ public class AXMLReaderTest {
 				"воспитанной на соцсетях молодежи",
 				"Ее члены"
 				);
+        List<String> expectedPerMentionTypes = asList(
+                "nominal",
+                null,
+                null,
+                null,
+                "pronoun", "pronoun",
+                "named",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 		List<String> expectedOrgs = asList(
 				"сицилийской мафии",
 				"The Telegraph",
@@ -66,6 +82,17 @@ public class AXMLReaderTest {
 				"Преступная организация",
 				"она"
 				);
+        List<String> expectedOrgCanonicals = asList(
+                "сицилийская мафия",
+                null,
+                null,
+                null,
+                null,
+                "органы правопорядка",
+                null,
+                null,
+                null
+        );
 		List<String> expectedGPEs = asList(
 				"Палермо",
 				"Сицилии"
@@ -74,15 +101,26 @@ public class AXMLReaderTest {
 				"в начале XIX века",
 				"к началу XX века"
 				);
-		assertEquals(expectedPersons,
+        Type perType = cas.getTypeSystem().getType("test.Person");
+        Type orgType = cas.getTypeSystem().getType("test.Organization");
+        assertEquals(expectedPersons,
 				transform(
-						newArrayList(select(cas, cas.getTypeSystem().getType("test.Person"))),
+						newArrayList(select(cas, perType)),
 						AnnotationUtils.coveredTextFunction()));
-		assertEquals(
+        assertEquals(expectedPerMentionTypes,
+                transform(
+                        newArrayList(select(cas, perType)),
+                        FSUtils.stringFeatureFunction(perType, "mentionType")));
+        assertEquals(
 				expectedOrgs,
 				transform(
-						newArrayList(select(cas, cas.getTypeSystem().getType("test.Organization"))),
+						newArrayList(select(cas, orgType)),
 						AnnotationUtils.coveredTextFunction()));
+        assertEquals(
+                expectedOrgCanonicals,
+                transform(
+                        newArrayList(select(cas, orgType)),
+                        FSUtils.stringFeatureFunction(orgType, "canonical")));
 		assertEquals(expectedGPEs,
 				transform(
 						newArrayList(select(cas, cas.getTypeSystem().getType("test.GPE"))),
