@@ -33,15 +33,18 @@ class AXMLContentHandler extends DefaultHandler {
 	private static final String E_META = "meta";
 	private static final String E_ALIASES = "aliases";
 	private static final String E_ALIAS = "alias";
+    private static final String E_FEATURE_ALIAS = "featurealias";
 	private static final String E_BODY = "body";
 	private static final String A_KEY = "key";
 	private static final String A_TYPE = "type";
+    private static final String A_NAME = "name";
 
 	// config fields
 	private TypeSystem typeSystem;
 	private Locator locator;
 	// state
 	private Map<String, String> typeAliases;
+    private Map<String, String> featNameAliases;
 	private StringBuilder textBuilder;
 	private boolean readCharacters = false;
 	private boolean readingBody = false;
@@ -101,7 +104,9 @@ class AXMLContentHandler extends DefaultHandler {
 			onAliasesStart();
 		} else if (E_ALIAS.equals(elemName)) {
 			onAliasStart(attributes);
-		} else {
+		} else if (E_FEATURE_ALIAS.equals(elemName)) {
+            onFeatureAliasStart(attributes);
+        } else {
 			throw new SAXParseException(String.format("Unknown element '%s'", elemName),
 					locator);
 		}
@@ -122,7 +127,9 @@ class AXMLContentHandler extends DefaultHandler {
 			onAliasesEnd();
 		} else if (E_ALIAS.equals(elemName)) {
 			onAliasEnd();
-		} else if (E_META.equals(elemName)) {
+		} else if(E_FEATURE_ALIAS.equals(elemName)) {
+            onFeatureAliasEnd();
+        } else if (E_META.equals(elemName)) {
 			onMetaEnd();
 		} else {
 			throw new SAXParseException(String.format("End of unknown element '%s'", elemName),
@@ -179,6 +186,7 @@ class AXMLContentHandler extends DefaultHandler {
 			throw new SAXParseException("Duplicate aliases declaration", locator);
 		}
 		typeAliases = Maps.newHashMap();
+        featNameAliases = Maps.newHashMap();
 	}
 
 	private void onAliasesEnd() {
@@ -196,9 +204,19 @@ class AXMLContentHandler extends DefaultHandler {
 		}
 	}
 
+    private void onFeatureAliasStart(Attributes attrs) throws SAXParseException {
+        String key = requiredAttribute(attrs, A_KEY);
+        String featName = requiredAttribute(attrs, A_NAME);
+        featNameAliases.put(key, featName);
+    }
+
 	private void onAliasEnd() {
 		// no op
 	}
+
+    private void onFeatureAliasEnd() {
+        // no op
+    }
 
 	private void onBodyStart() throws SAXParseException {
 		if (!(typeAliases instanceof ImmutableMap)) {
@@ -228,8 +246,19 @@ class AXMLContentHandler extends DefaultHandler {
 		Annotation newAnno = new Annotation();
 		newAnno.setType(type);
 		newAnno.setBegin(textBuilder.length());
-		openAnnotations.addFirst(newAnno);
-	}
+        // handle features
+        for (int attrIndex = 0; attrIndex < attrs.getLength(); attrIndex++) {
+            final String attrName = attrs.getLocalName(attrIndex);
+            String featName = attrName;
+            if (featNameAliases.containsKey(attrName)) {
+                featName = featNameAliases.get(attrName);
+            }
+            String attrVal = attrs.getValue(attrIndex);
+            newAnno.setFeatureStringValue(featName, attrVal);
+        }
+        //
+        openAnnotations.addFirst(newAnno);
+    }
 
 	private String toTypeName(final String aType) throws SAXParseException {
 		String type = typeAliases.get(aType);
