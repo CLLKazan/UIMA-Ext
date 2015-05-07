@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Set;
 
-import com.beust.jcommander.internal.Sets;
 import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)

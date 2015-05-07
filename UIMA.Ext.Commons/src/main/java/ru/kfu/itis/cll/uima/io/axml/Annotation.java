@@ -3,7 +3,7 @@
  */
 package ru.kfu.itis.cll.uima.io.axml;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 
 import java.util.Collections;
 import java.util.Map;
