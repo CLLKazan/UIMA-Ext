@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.TypeSystem;
 import org.xml.sax.Attributes;
@@ -15,14 +16,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
