@@ -175,7 +175,7 @@ public class XmiFileTreeCorpusDAO implements CorpusDAO {
 		for (File f : new File(corpusPathString)
 				.listFiles((FileFilter) new WildcardFileFilter("*.xml"))) {
 			if (getXMLRootElement(f).equals("typeSystemDescription")) {
-				return createTypeSystemDescriptionFromPath(f.toString());
+				return createTypeSystemDescriptionFromPath(f.toURI().toString());
 			}
 		}
 		throw new FileNotFoundException();
