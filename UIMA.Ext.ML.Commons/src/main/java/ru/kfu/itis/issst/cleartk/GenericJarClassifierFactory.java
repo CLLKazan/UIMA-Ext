@@ -56,21 +56,28 @@ public abstract class GenericJarClassifierFactory<CLASSIFIER_TYPE> implements In
 	}
 
 	public CLASSIFIER_TYPE createClassifier() throws IOException {
-		ResourceManager rm = UIMAFramework.newDefaultResourceManager();
-		if (additionalSearchPaths != null) {
-			List<String> dpElements = Lists.newLinkedList();
-			dpElements.add(rm.getDataPath());
-			dpElements.addAll(Arrays.asList(additionalSearchPaths));
-			rm.setDataPath(dataPathJoiner.join(dpElements));
-		}
-		URL classifierJarURL = rm.resolveRelativePath(classifierJarPath);
-		if (classifierJarURL == null) {
-			throw new IllegalStateException(String.format(
-					"Can't resolve path '%s' using an UIMA default resource manager "
-							+ "and these additional paths: %s",
-					classifierJarPath, Arrays.toString(additionalSearchPaths)));
-		}
-		InputStream stream = classifierJarURL.openStream();
+        URL classifierJarURL;
+        // check whether a given path is absolute
+        File classifierJarFile = new File(classifierJarPath);
+        if (classifierJarFile.isAbsolute() && classifierJarFile.isFile()) {
+            classifierJarURL = classifierJarFile.toURI().toURL();
+        } else {
+            ResourceManager rm = UIMAFramework.newDefaultResourceManager();
+            if (additionalSearchPaths != null) {
+                List<String> dpElements = Lists.newLinkedList();
+                dpElements.add(rm.getDataPath());
+                dpElements.addAll(Arrays.asList(additionalSearchPaths));
+                rm.setDataPath(dataPathJoiner.join(dpElements));
+            }
+            classifierJarURL = rm.resolveRelativePath(classifierJarPath);
+            if (classifierJarURL == null) {
+                throw new IllegalStateException(String.format(
+                        "Can't resolve path '%s' using an UIMA default resource manager "
+                                + "and these additional paths: %s",
+                        classifierJarPath, Arrays.toString(additionalSearchPaths)));
+            }
+        }
+        InputStream stream = classifierJarURL.openStream();
 		try {
 			stream = new BufferedInputStream(stream);
 			JarInputStream modelStream = new JarInputStream(stream);
