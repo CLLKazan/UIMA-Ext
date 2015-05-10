@@ -71,6 +71,9 @@ public class NormalizedTextWriter extends JCasAnnotator_ImplBase {
         } catch (URISyntaxException e) {
             throw new AnalysisEngineProcessException(e);
         }
+        if (docFilename == null) {
+            throw new IllegalStateException("Can't extract a document filename from CAS");
+        }
         String outFilename = FilenameUtils.getBaseName(docFilename)
                 + OUTPUT_FILENAME_SUFFIX + OUTPUT_FILENAME_EXTENSION;
         File outFile = new File(outputDir, outFilename);
