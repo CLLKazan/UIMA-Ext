@@ -101,6 +101,7 @@ public class PosSequenceTrainingDataExtractorTest {
         // invoke
         ae.process(cas);
         // verify
+        verify(dataWriterMock).onCASChange(eq(cas));
         verify(dataWriterMock).write(eq(cas),
                 argThat(AnnotationMatchers.<Annotation>fromTo("Жилино", "области .")),
                 argThat(coverTextList(Token.class, "Жилино", "—", "село", "в", "Шуменской", "области", ".")),
@@ -128,5 +129,6 @@ public class PosSequenceTrainingDataExtractorTest {
                         arrayContaining("_P_", "_P_", "_P_")
                 ))
         );
+        verify(dataWriterMock).onCASChange(null);
     }
 }

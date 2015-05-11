@@ -37,8 +37,10 @@ public class AbstractTieredSequenceDataWriterTest extends TieredSequenceHandlerT
     public void testCorrectWorkflow() throws CleartkProcessingException {
         AbstractTieredSequenceDataWriter dw = new TestTieredSequenceDataWriter();
         // stub
+        JCas jCasMock = mock(JCas.class);
         // invoke
-        dw.write(mock(JCas.class), mock(Annotation.class), of(mock(Token.class), mock(Token.class)),
+        dw.onCASChange(jCasMock);
+        dw.write(jCasMock, mock(Annotation.class), of(mock(Token.class), mock(Token.class)),
                 of(new String[]{"out-first-token", null, null}, new String[]{null, "out-second-token", null}));
         // verify
         verify(dataWriter1).write(
@@ -59,6 +61,7 @@ public class AbstractTieredSequenceDataWriterTest extends TieredSequenceHandlerT
                         instance((String) null, new Feature("common-feature-0"), new Feature("tier2-0")),
                         // second instance
                         instance((String) null, new Feature("common-feature-1"), new Feature("tier2-1")))));
+        dw.onCASChange(null);
     }
 
     private class TestTieredSequenceDataWriter extends AbstractTieredSequenceDataWriter {

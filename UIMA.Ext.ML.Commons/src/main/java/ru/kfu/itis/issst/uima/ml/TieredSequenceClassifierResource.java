@@ -88,6 +88,11 @@ public class TieredSequenceClassifierResource<I extends AnnotationFS> extends Re
     }
 
     @Override
+    public void onCASChange(JCas cas) {
+        delegate.onCASChange(cas);
+    }
+
+    @Override
     public List<String> getTierIds() {
         return delegate.getTierIds();
     }

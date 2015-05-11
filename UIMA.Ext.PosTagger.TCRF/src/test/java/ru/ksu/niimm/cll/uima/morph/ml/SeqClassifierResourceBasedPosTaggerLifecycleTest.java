@@ -70,5 +70,10 @@ public class SeqClassifierResourceBasedPosTaggerLifecycleTest {
         @Override
         public void load(DataResource data) throws ResourceInitializationException {
         }
+
+        @Override
+        public void onCASChange(JCas cas) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

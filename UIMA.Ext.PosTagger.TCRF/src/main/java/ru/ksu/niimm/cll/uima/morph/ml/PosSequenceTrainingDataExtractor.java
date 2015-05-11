@@ -71,12 +71,14 @@ public class PosSequenceTrainingDataExtractor extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
         token2WordIndex = MorphCasUtils.getToken2WordIndex(jCas);
+        dataWriter.onCASChange(jCas);
         try {
             for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
                 process(jCas, sent);
             }
         } finally {
             token2WordIndex.clear();
+            dataWriter.onCASChange(null);
         }
     }
 

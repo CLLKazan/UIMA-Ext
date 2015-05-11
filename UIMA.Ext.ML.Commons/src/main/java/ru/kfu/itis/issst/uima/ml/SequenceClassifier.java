@@ -4,6 +4,7 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.CleartkProcessingException;
+import ru.kfu.itis.issst.uima.ml.fe.IndexesJCas;
 
 import java.io.Closeable;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  * @param <OUT> an outcome type for each element of a sequence
  * @author Rinat Gareev
  */
-public interface SequenceClassifier<I extends AnnotationFS, OUT> extends Closeable {
+public interface SequenceClassifier<I extends AnnotationFS, OUT> extends Closeable, IndexesJCas {
     List<OUT> classify(JCas jCas, Annotation spanAnno, List<? extends I> seq)
             throws CleartkProcessingException;
 }
