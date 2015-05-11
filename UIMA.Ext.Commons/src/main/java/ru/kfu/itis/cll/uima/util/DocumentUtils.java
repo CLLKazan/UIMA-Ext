@@ -121,6 +121,23 @@ public class DocumentUtils {
 		return getDocumentUri(jcas.getCas());
 	}
 
+    /**
+     * @param cas a document CAS
+     * @return filename (i.e., the last path segment) specified in the document URI. Returns null if:
+     * <ul>
+     * <li>the CAS does not contain a doc metadata</li>
+     * <li>OR the source URI does not specify a filepath</li>
+     * </ul>
+     * @throws java.net.URISyntaxException
+     */
+    public static String getDocumentFilename(CAS cas) throws URISyntaxException {
+        String uriStr = getDocumentUri(cas);
+        if (uriStr == null) {
+            return null;
+        }
+        return getFilename(uriStr);
+    }
+
 	public static String getFilename(String uriStr) throws URISyntaxException {
 		URI uri = new URI(uriStr);
 		return FilenameUtils.getName(uri.getPath());

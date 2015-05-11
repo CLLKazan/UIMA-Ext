@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<primitive>false</primitive>
+	<delegateAnalysisEngineSpecifiers>
+		<delegateAnalysisEngine key="tokenizer">
+			<!-- from TokenizerAPI -->
+			<import name="ru.kfu.itis.issst.uima.tokenizer.tokenizer-ae" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="sentence-splitter">
+			<!-- from SentenceSplitter API -->
+			<import name="ru.kfu.itis.issst.uima.segmentation.OneSentencePerLineSplitter" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="pos-tagger">
+			<!-- from PosTaggerAPI -->
+			<import name="ru.kfu.itis.issst.uima.postagger.postagger-ae" />
+		</delegateAnalysisEngine>
+		<delegateAnalysisEngine key="lemmatizer">
+			<!-- from LemmatizerAPI -->
+			<import name="ru.kfu.itis.issst.uima.morph.lemmatizer.lemmatizer-ae" />
+		</delegateAnalysisEngine>
+        <delegateAnalysisEngine key="norm-text-writer">
+            <import name="ru.kfu.itis.issst.uima.morph.lemmatizer.util.NormalizedTextWriter" />
+        </delegateAnalysisEngine>
+	</delegateAnalysisEngineSpecifiers>
+	<analysisEngineMetaData>
+		<name>Dictionary Normalizer Pipeline</name>
+		<description />
+		<version>0.5</version>
+		<vendor>Textocat</vendor>
+        <configurationParameters>
+            <configurationParameter>
+                <name>outputDir</name>
+                <type>String</type>
+                <mandatory>true</mandatory>
+                <overrides>
+                    <parameter>norm-text-writer/outputDir</parameter>
+                </overrides>
+            </configurationParameter>
+        </configurationParameters>
+		<flowConstraints>
+			<fixedFlow>
+				<node>tokenizer</node>
+				<node>sentence-splitter</node>
+				<node>pos-tagger</node>
+				<node>lemmatizer</node>
+                <node>norm-text-writer</node>
+			</fixedFlow>
+		</flowConstraints>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+			<outputsNewCASes>false</outputsNewCASes>
+		</operationalProperties>
+	</analysisEngineMetaData>
+	<resourceManagerConfiguration>
+		<externalResources>
+			<externalResource>
+				<!-- from PosTaggerAPI and LemmatizerAPI -->
+				<name>MorphDictionary</name>
+				<description/>
+				<fileResourceSpecifier>
+					<fileUrl>file:dict.opcorpora.ser</fileUrl>
+				</fileResourceSpecifier>
+				<implementationName>ru.ksu.niimm.cll.uima.morph.opencorpora.resource.CachedSerializedDictionaryResource</implementationName>
+			</externalResource>
+		</externalResources>
+	</resourceManagerConfiguration>
+</analysisEngineDescription>
