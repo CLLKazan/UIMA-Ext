@@ -1,0 +1,18 @@
+<doc>
+    <meta source="Some random comments from Yandex.Market"/>
+    <aliases>
+        <alias key="t" type="ru.kfu.cll.uima.tokenizer.fstype.Token"/>
+        <alias key="p" type="ru.kfu.itis.issst.uima.ml.test.Product"/>
+    </aliases>
+    <body>
+        <t>Не</t>
+        <t>дождался</t>
+        <t>начала</t>
+        <t>продаж</t>
+        <p><t>P70</t></p>
+        <t>,</t>
+        <t>купил</t>
+        <p><t>Lenovo</t> <t>A5000</t></p>
+        <t>....</t>
+    </body>
+</doc>
