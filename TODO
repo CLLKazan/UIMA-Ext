@@ -1,2 +1,12 @@
-move scala-tool-plugin version into Parent pom
-
+Describe maven properties that are required to run tests:
+ <profile>
+     <id>dev-uima-ext</id>
+     <activation>
+         <activeByDefault>true</activeByDefault>
+     </activation>
+     <properties>
+         <crfsuite-jni.bin>path-to/crfsuite4j/crfsuite-jni/bin</crfsuite-jni.bin>
+         <tcrf-postagger.models.home>path-to</tcrf-postagger.models.home>
+         <opencorpora.home>path-to/data/opencorpora</opencorpora.home>
+     </properties>
+ </profile>
