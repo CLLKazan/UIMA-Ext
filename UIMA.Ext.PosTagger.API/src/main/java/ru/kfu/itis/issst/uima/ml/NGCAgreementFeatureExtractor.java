@@ -3,8 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.ml;
 
-import static ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils.toGramBits;
-
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +24,10 @@ import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import ru.kfu.itis.issst.uima.postagger.MorphCasUtils;
 
 /**
- * Number-Gender-Case feature generator.
+ * A feature generator for the Number-Gender-Case agreement .
  * 
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -65,13 +64,11 @@ public class NGCAgreementFeatureExtractor implements FeatureExtractor1 {
 		if (precWf == null) {
 			return ImmutableList.of();
 		}
-		// to Bitset
-		BitSet curTag = toGramBits(gramModel,
-				tagMapper.parseTag(curWf.getPos(), focusWord.getCoveredText()));
-		BitSet precTag = toGramBits(gramModel,
-				tagMapper.parseTag(precWf.getPos(), precWord.getCoveredText()));
-		// generate features
-		List<Feature> result = Lists.newLinkedList();
+        // to Bitset
+        BitSet curTag = MorphCasUtils.toGramBitSet(gramModel, curWf);
+        BitSet precTag = MorphCasUtils.toGramBitSet(gramModel, precWf);
+        // generate features
+        List<Feature> result = Lists.newLinkedList();
 		for (Map.Entry<String, TwoTagPredicate> npEntry : namedPredicates.entrySet()) {
 			TwoTagPredicate predicate = npEntry.getValue();
 			String predicateName = npEntry.getKey();
