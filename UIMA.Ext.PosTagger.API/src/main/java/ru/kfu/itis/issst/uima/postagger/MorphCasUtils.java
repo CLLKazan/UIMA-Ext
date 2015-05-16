@@ -8,6 +8,7 @@ import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 
 import java.util.*;
 
+import com.google.common.base.Splitter;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
@@ -241,7 +242,18 @@ public class MorphCasUtils {
         makeSimplyWords(jCas, JCasUtil.select(jCas, Word.class));
     }
 
-    public static void makeWordsAndTokens(JCas jCas, Iterable<SimplyWord> simpleWords) {
+    /**
+     * Make Word annotation for each given simple word where Word.grammemes feature are filled by splitting
+     * SimpleWord#posTag value by the given separator char.
+     * <p> This method is intended for a quick test data creation.</p>
+     *
+     * @param jCas        -
+     * @param simpleWords -
+     * @param grammemeSep separator of grammatical values in 'posTag' feature of a SimpleWord annotation.
+     * @see ru.kfu.itis.cll.uima.io.axml.AXMLReader
+     */
+    public static void makeWordsAndTokens(JCas jCas, Iterable<SimplyWord> simpleWords, char grammemeSep) {
+        Splitter gramSplitter = Splitter.on(grammemeSep).omitEmptyStrings();
         for (SimplyWord simpleWord : simpleWords) {
             // make token
             Token token = TokenUtils.makeToken(jCas, simpleWord.getCoveredText(),
@@ -254,8 +266,11 @@ public class MorphCasUtils {
             resWord.setToken(token);
             Wordform wf = new Wordform(jCas);
             wf.setWord(resWord);
-            wf.setPos(simpleWord.getPosTag());
-            wf.setGrammems(simpleWord.getGrammems());
+            String posTag = simpleWord.getPosTag();
+            if (posTag != null) {
+                wf.setPos(posTag);
+                wf.setGrammems(FSUtils.toStringArray(jCas, gramSplitter.splitToList(posTag)));
+            }
             wf.setLemma(simpleWord.getLemma());
             wf.setLemmaId(simpleWord.getLemmaId());
             resWord.setWordforms(FSUtils.toFSArray(jCas, wf));
