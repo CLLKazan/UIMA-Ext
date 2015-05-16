@@ -6,10 +6,7 @@ package ru.kfu.itis.issst.uima.postagger;
 import static ru.kfu.itis.cll.uima.cas.AnnotationUtils.toPrettyString;
 import static ru.kfu.itis.cll.uima.util.DocumentUtils.getDocumentUri;
 
-import java.util.BitSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.text.AnnotationFS;
@@ -33,6 +30,7 @@ import ru.kfu.itis.cll.uima.cas.FSUtils;
 import ru.kfu.itis.cll.uima.util.DocumentUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.GramModel;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionaryUtils;
+import ru.kfu.itis.issst.uima.tokenizer.TokenUtils;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
@@ -222,6 +220,48 @@ public class MorphCasUtils {
             return getGrammemes(w);
         }
     };
+
+    public static void makeSimplyWords(JCas jCas, Iterable<Word> aWords) {
+        for (Word srcWord : aWords) {
+            SimplyWord resWord = new SimplyWord(jCas, srcWord.getBegin(), srcWord.getEnd());
+            resWord.setToken(resWord.getToken());
+            FSArray wfs = srcWord.getWordforms();
+            if (wfs != null && wfs.size() > 0) {
+                Wordform wf = (Wordform) wfs.get(0);
+                resWord.setPosTag(wf.getPos());
+                resWord.setGrammems(wf.getGrammems());
+                resWord.setLemma(wf.getLemma());
+                resWord.setLemmaId(wf.getLemmaId());
+            }
+            resWord.addToIndexes();
+        }
+    }
+
+    public static void makeSimplyWords(JCas jCas) {
+        makeSimplyWords(jCas, JCasUtil.select(jCas, Word.class));
+    }
+
+    public static void makeWordsAndTokens(JCas jCas, Iterable<SimplyWord> simpleWords) {
+        for (SimplyWord simpleWord : simpleWords) {
+            // make token
+            Token token = TokenUtils.makeToken(jCas, simpleWord.getCoveredText(),
+                    simpleWord.getBegin(), simpleWord.getEnd());
+            token.addToIndexes();
+            // assign token to the source simple word
+            simpleWord.setToken(token);
+            // make word
+            Word resWord = new Word(jCas, simpleWord.getBegin(), simpleWord.getEnd());
+            resWord.setToken(token);
+            Wordform wf = new Wordform(jCas);
+            wf.setWord(resWord);
+            wf.setPos(simpleWord.getPosTag());
+            wf.setGrammems(simpleWord.getGrammems());
+            wf.setLemma(simpleWord.getLemma());
+            wf.setLemmaId(simpleWord.getLemmaId());
+            resWord.setWordforms(FSUtils.toFSArray(jCas, wf));
+            resWord.addToIndexes();
+        }
+    }
 
     private MorphCasUtils() {
     }
