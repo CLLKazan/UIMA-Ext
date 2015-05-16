@@ -129,6 +129,11 @@
 			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.uima</groupId>
+            <artifactId>uimaj-tools</artifactId>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 	
 	<profiles>
@@ -148,6 +153,7 @@
 								<phase>generate-sources</phase>
 								<configuration>
 									<executable>java</executable>
+                                    <classpathScope>test</classpathScope>
 									<arguments>
 										<argument>-classpath</argument>
 										<classpath />
@@ -158,28 +164,6 @@
 										<argument>-jcasgenoutput</argument>
 										<argument>src/main/jcas</argument>
 									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>remove-imported-jcas</id>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<phase>process-sources</phase>
-								<configuration>
-									<target>
-										<delete includeemptydirs="true" verbose="true">
-											<fileset dir="src/main/jcas">
-												<exclude name="org/opencorpora/cas/**/*.java" />
-											</fileset>
-										</delete>
-									</target>
 								</configuration>
 							</execution>
 						</executions>
