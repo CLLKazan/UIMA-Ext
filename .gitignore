@@ -3,6 +3,7 @@
 .classpath
 .springBeans
 /*/target/
+/target
 /commit.txt
 /*/logs/
 /*/wrk/

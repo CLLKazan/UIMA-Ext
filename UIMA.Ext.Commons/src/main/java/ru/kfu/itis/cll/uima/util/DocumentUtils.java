@@ -138,10 +138,17 @@ public class DocumentUtils {
         return getFilename(uriStr);
     }
 
-	public static String getFilename(String uriStr) throws URISyntaxException {
-		URI uri = new URI(uriStr);
-		return FilenameUtils.getName(uri.getPath());
-	}
+    public static String getFilename(String uriStr) throws URISyntaxException {
+        URI uri = new URI(uriStr);
+        String path;
+        if (uri.isOpaque()) {
+            // TODO this is a hotfix. In future we should avoid setting opaque source URIs in DocumentMetadata
+            path = uri.getSchemeSpecificPart();
+        } else {
+            path = uri.getPath();
+        }
+        return FilenameUtils.getName(path);
+    }
 
 	public static String getFilenameSafe(String uriStr) {
 		String name;
