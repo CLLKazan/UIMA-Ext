@@ -102,7 +102,10 @@ public class SeqClassifierResourceBasedPosTaggerTest {
                 a("NUM", ""), a("N", null), a("_P_", "_P_")));
         // invoke
         ae.process(cas);
-        // verify
+        // verify events
+        verify(classifierMock).onCASChange(notNull(JCas.class));
+        verify(classifierMock).onCASChange(null);
+        // verify the cas content
         List<Word> words = ImmutableList.copyOf(JCasUtil.select(cas.getJCas(), Word.class));
         List<Set<String>> actualTags = Lists.transform(words, MorphCasUtils.GRAMMEMES_FUNCTION);
         assertEquals(
@@ -136,6 +139,11 @@ public class SeqClassifierResourceBasedPosTaggerTest {
 
         @Override
         public void load(DataResource data) throws ResourceInitializationException {
+        }
+
+        @Override
+        public void onCASChange(JCas cas) {
+            delegate.onCASChange(cas);
         }
     }
 }

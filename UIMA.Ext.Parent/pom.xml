@@ -445,6 +445,36 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>generate-annotator-descriptors</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.uima</groupId>
+                        <artifactId>uimafit-maven-plugin</artifactId>
+                        <version>2.1.0</version>
+                        <!-- change to latest version -->
+                        <configuration>
+                            <!-- Skip generation of META-INF/org.apache.uima.fit/components.txt -->
+                            <skipComponentsManifest>true</skipComponentsManifest>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 	</profiles>
 
 	<properties>

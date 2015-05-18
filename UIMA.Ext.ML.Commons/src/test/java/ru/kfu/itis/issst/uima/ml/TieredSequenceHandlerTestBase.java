@@ -19,6 +19,7 @@ import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Rinat Gareev
@@ -66,13 +67,22 @@ public class TieredSequenceHandlerTestBase {
     }
 
     protected class TestTieredFeatureExtractor implements TieredFeatureExtractor<Annotation, String> {
+        // field to verify that 'onCasChange' is actually invoked
+        private JCas jCas;
+
         @Override
         public void initialize(Properties cfg) throws ResourceInitializationException {
         }
 
         @Override
+        public void onCASChange(JCas cas) {
+            this.jCas = cas;
+        }
+
+        @Override
         public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                                  JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {
+            assertEquals(jCas, this.jCas);
             for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
                 FeatureSet tokFeatSet = featSets.get(tokPos);
                 tokFeatSet.add(of(new Feature(format("tier%s-%s", tier, tokPos))),
@@ -83,6 +93,7 @@ public class TieredSequenceHandlerTestBase {
         @Override
         public void onAfterTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                                 JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {
+            assertEquals(jCas, this.jCas);
             for (FeatureSet tokFeatSet : featSets) {
                 tokFeatSet.removeFeaturesBySource(ImmutableSet.of(getTierSpecificFeatureExtractor(tier)));
             }
@@ -91,6 +102,7 @@ public class TieredSequenceHandlerTestBase {
         @Override
         public List<FeatureSet> extractCommonFeatures(
                 JCas jCas, Annotation spanAnno, List<? extends Annotation> tokens) {
+            assertEquals(jCas, this.jCas);
             List<FeatureSet> resultList = Lists.newArrayList();
             for (int tokPos = 0; tokPos < tokens.size(); tokPos++) {
                 FeatureSet fs = FeatureSets.empty();

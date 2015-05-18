@@ -41,6 +41,11 @@ public class MockedSequenceDataWriter<I extends AnnotationFS, OUT>
     }
 
     @Override
+    public void onCASChange(JCas cas) {
+        mock.onCASChange(cas);
+    }
+
+    @Override
     public List<String> getTierIds() {
         return mock.getTierIds();
     }

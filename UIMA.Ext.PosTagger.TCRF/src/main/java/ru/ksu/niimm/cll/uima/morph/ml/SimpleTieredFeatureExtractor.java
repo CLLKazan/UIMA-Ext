@@ -105,6 +105,11 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
     }
 
     @Override
+    public void onCASChange(JCas cas) {
+        // currently there is no a FeatureExtractor that IndexesJCas
+    }
+
+    @Override
     public void onBeforeTier(List<FeatureSet> featSets, List<List<String>> labels, int tier,
                              JCas jCas, Annotation spanAnno, List<? extends Token> tokens)
             throws CleartkExtractorException {

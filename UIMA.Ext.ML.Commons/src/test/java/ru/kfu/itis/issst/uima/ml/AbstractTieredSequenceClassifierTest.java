@@ -45,7 +45,10 @@ public class AbstractTieredSequenceClassifierTest extends TieredSequenceHandlerT
                 TieredSequenceHandlerTestBase.unorderedFeatures(of((Set<String>) Sets.newHashSet("common-feature-0", "tier2-0"))))))
                 .thenReturn(of("Third"));
         // invoke
-        List<String[]> out = cl.classify(mock(JCas.class), mock(Annotation.class), ImmutableList.of(mock(Token.class)));
+        JCas jCasMock = mock(JCas.class);
+        cl.onCASChange(jCasMock);
+        List<String[]> out = cl.classify(jCasMock, mock(Annotation.class), ImmutableList.of(mock(Token.class)));
+        cl.onCASChange(null);
         // verify
         assertEquals(1, out.size());
         assertArrayEquals(new String[]{"First", "Second", "Third"}, out.get(0));

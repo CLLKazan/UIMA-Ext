@@ -1,0 +1,11 @@
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <name>UIMA.Ext.ML.Commons-Testing</name>
+    <description>TS for testing</description>
+    <types>
+        <typeDescription>
+            <name>ru.kfu.itis.issst.uima.ml.test.Product</name>
+            <description/>
+            <supertypeName>uima.tcas.Annotation</supertypeName>
+        </typeDescription>
+    </types>
+</typeSystemDescription>

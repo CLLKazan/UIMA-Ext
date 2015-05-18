@@ -60,12 +60,14 @@ abstract class SeqClassifierBasedPosTaggerBase extends JCasAnnotator_ImplBase {
             WordAnnotator.makeWords(jCas);
         }
         token2WordIndex = MorphCasUtils.getToken2WordIndex(jCas);
+        getClassifier().onCASChange(jCas);
         try {
             for (Sentence sent : JCasUtil.select(jCas, Sentence.class)) {
                 process(jCas, sent);
             }
         } finally {
             token2WordIndex.clear();
+            getClassifier().onCASChange(null);
         }
     }
 

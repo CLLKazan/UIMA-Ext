@@ -63,6 +63,12 @@ public abstract class AbstractTieredSequenceDataWriter<I extends AnnotationFS>
     }
 
     @Override
+    public void onCASChange(JCas cas) {
+        // propagate this event into the feature extractor
+        featureExtractor.onCASChange(cas);
+    }
+
+    @Override
     public List<String> getTierIds() {
         return tierIds;
     }

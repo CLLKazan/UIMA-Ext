@@ -127,6 +127,11 @@ public class TieredSequenceDataWriterResource<I extends AnnotationFS> extends Re
     }
 
     @Override
+    public void onCASChange(JCas cas) {
+        delegate.onCASChange(cas);
+    }
+
+    @Override
     public void close() throws IOException {
         delegate.close();
     }

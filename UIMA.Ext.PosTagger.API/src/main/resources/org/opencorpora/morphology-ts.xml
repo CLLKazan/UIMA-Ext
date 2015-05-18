@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
-	<name>opencorpora-morphology</name>
+	<name>UIMA.Ext PoS-tagger Type System</name>
 	<description />
-	<version>0.1</version>
-	<vendor>OpenCorpora.org &amp; Kazan Federal University</vendor>
+	<version>0.5</version>
+	<vendor>CLLKazan</vendor>
 	<types>
 		<typeDescription>
 			<name>org.opencorpora.cas.Wordform</name>
@@ -60,5 +60,37 @@
 				</featureDescription>
 			</features>
 		</typeDescription>
+        <typeDescription>
+            <name>ru.kfu.itis.issst.uima.postagger.SimplyWord</name>
+            <description />
+            <supertypeName>uima.tcas.Annotation</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>posTag</name>
+                    <description />
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>grammems</name>
+                    <description />
+                    <rangeTypeName>uima.cas.StringArray</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>lemma</name>
+                    <description />
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>lemmaId</name>
+                    <description />
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>token</name>
+                    <description />
+                    <rangeTypeName>uima.tcas.Annotation</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
 	</types>
 </typeSystemDescription>

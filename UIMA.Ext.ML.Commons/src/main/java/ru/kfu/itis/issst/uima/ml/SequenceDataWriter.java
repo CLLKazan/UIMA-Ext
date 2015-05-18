@@ -4,6 +4,7 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.cleartk.ml.CleartkProcessingException;
+import ru.kfu.itis.issst.uima.ml.fe.IndexesJCas;
 
 import java.io.Closeable;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * @author Rinat Gareev
  */
-public interface SequenceDataWriter<I extends AnnotationFS, OUT> extends Closeable {
+public interface SequenceDataWriter<I extends AnnotationFS, OUT> extends Closeable, IndexesJCas {
 
     /**
      * Write training data for the given sequence.

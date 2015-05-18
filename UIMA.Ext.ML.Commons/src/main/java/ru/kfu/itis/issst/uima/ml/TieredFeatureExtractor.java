@@ -5,6 +5,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.cleartk.ml.feature.extractor.CleartkExtractorException;
+import ru.kfu.itis.issst.uima.ml.fe.IndexesJCas;
 
 import java.util.List;
 import java.util.Properties;
@@ -14,7 +15,7 @@ import java.util.Properties;
  * @param <OUT>  output label type of a tier classifier
  * @author Rinat Gareev
  */
-public interface TieredFeatureExtractor<ITEM extends AnnotationFS, OUT> {
+public interface TieredFeatureExtractor<ITEM extends AnnotationFS, OUT> extends IndexesJCas {
 
     /**
      * Initialize itself from the given configuration properties.
