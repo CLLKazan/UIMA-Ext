@@ -17,6 +17,8 @@ import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
 
+import java.net.URISyntaxException;
+
 /**
  * @author Rinat Gareev (Kazan Federal University)
  * 
@@ -77,4 +79,11 @@ public class DocumentUtilsTest {
 		}
 		fail();
 	}
+
+    @Test
+    public void testGetFilename() throws URISyntaxException {
+        assertEquals("1.txt", DocumentUtils.getFilename("file:corpus/1.txt"));
+        assertEquals("1.txt", DocumentUtils.getFilename("corpus/1.txt"));
+        assertEquals("1.txt", DocumentUtils.getFilename("file:/corpus/1.txt"));
+    }
 }
