@@ -225,7 +225,7 @@ public class MorphCasUtils {
     public static void makeSimplyWords(JCas jCas, Iterable<Word> aWords) {
         for (Word srcWord : aWords) {
             SimplyWord resWord = new SimplyWord(jCas, srcWord.getBegin(), srcWord.getEnd());
-            resWord.setToken(resWord.getToken());
+            resWord.setToken(srcWord.getToken());
             FSArray wfs = srcWord.getWordforms();
             if (wfs != null && wfs.size() > 0) {
                 Wordform wf = (Wordform) wfs.get(0);
