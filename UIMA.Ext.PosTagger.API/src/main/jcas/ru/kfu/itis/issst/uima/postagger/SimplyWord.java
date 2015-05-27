@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Sat May 16 17:52:48 MSK 2015 */
+/* First created by JCasGen Wed May 27 17:19:42 MSK 2015 */
 package ru.kfu.itis.issst.uima.postagger;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,7 +12,7 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** 
- * Updated by JCasGen Sat May 16 17:52:48 MSK 2015
+ * Updated by JCasGen Wed May 27 17:19:42 MSK 2015
  * XML source: src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class SimplyWord extends Annotation {

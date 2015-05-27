@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Tue Jul 16 19:01:56 MSD 2013 */
+/* First created by JCasGen Wed May 27 17:19:42 MSK 2015 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas; 
@@ -12,7 +12,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Jul 16 19:01:56 MSD 2013
+ * Updated by JCasGen Wed May 27 17:19:42 MSK 2015
  * XML source: src/main/resources/org/opencorpora/morphology-ts.xml
  * @generated */
 public class Word extends Annotation {
@@ -26,7 +26,9 @@ public class Word extends Annotation {
    */
   @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
-  /** @generated  */
+  /** @generated
+   * @return index of the type  
+   */
   @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
@@ -35,19 +37,28 @@ public class Word extends Annotation {
   protected Word() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
-   * @generated */
+   * @generated
+   * @param addr low level Feature Structure reference
+   * @param type the type of this Feature Structure 
+   */
   public Word(int addr, TOP_Type type) {
     super(addr, type);
     readObject();
   }
   
-  /** @generated */
+  /** @generated
+   * @param jcas JCas to which this Feature Structure belongs 
+   */
   public Word(JCas jcas) {
     super(jcas);
     readObject();   
   } 
 
-  /** @generated */  
+  /** @generated
+   * @param jcas JCas to which this Feature Structure belongs
+   * @param begin offset to the begin spot in the SofA
+   * @param end offset to the end spot in the SofA 
+  */  
   public Word(JCas jcas, int begin, int end) {
     super(jcas);
     setBegin(begin);
@@ -55,10 +66,13 @@ public class Word extends Annotation {
     readObject();
   }   
 
-  /** <!-- begin-user-doc -->
-    * Write your own initialization here
-    * <!-- end-user-doc -->
-  @generated modifiable */
+  /** 
+   * <!-- begin-user-doc -->
+   * Write your own initialization here
+   * <!-- end-user-doc -->
+   *
+   * @generated modifiable 
+   */
   private void readObject() {/*default - does nothing empty block */}
      
  
@@ -67,21 +81,28 @@ public class Word extends Annotation {
   //* Feature: wordforms
 
   /** getter for wordforms - gets 
-   * @generated */
+   * @generated
+   * @return value of the feature 
+   */
   public FSArray getWordforms() {
     if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_wordforms == null)
       jcasType.jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
     return (FSArray)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Word_Type)jcasType).casFeatCode_wordforms)));}
     
   /** setter for wordforms - sets  
-   * @generated */
+   * @generated
+   * @param v value to set into the feature 
+   */
   public void setWordforms(FSArray v) {
     if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_wordforms == null)
       jcasType.jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
     jcasType.ll_cas.ll_setRefValue(addr, ((Word_Type)jcasType).casFeatCode_wordforms, jcasType.ll_cas.ll_getFSRef(v));}    
     
   /** indexed getter for wordforms - gets an indexed value - 
-   * @generated */
+   * @generated
+   * @param i index in the array to get
+   * @return value of the element at index i 
+   */
   public Wordform getWordforms(int i) {
     if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_wordforms == null)
       jcasType.jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
@@ -89,7 +110,10 @@ public class Word extends Annotation {
     return (Wordform)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((Word_Type)jcasType).casFeatCode_wordforms), i)));}
 
   /** indexed setter for wordforms - sets an indexed value - 
-   * @generated */
+   * @generated
+   * @param i index in the array to set
+   * @param v value to set into the array 
+   */
   public void setWordforms(int i, Wordform v) { 
     if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_wordforms == null)
       jcasType.jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
@@ -101,14 +125,18 @@ public class Word extends Annotation {
   //* Feature: token
 
   /** getter for token - gets 
-   * @generated */
+   * @generated
+   * @return value of the feature 
+   */
   public Annotation getToken() {
     if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_token == null)
       jcasType.jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
     return (Annotation)(jcasType.ll_cas.ll_getFSForRef(jcasType.ll_cas.ll_getRefValue(addr, ((Word_Type)jcasType).casFeatCode_token)));}
     
   /** setter for token - sets  
-   * @generated */
+   * @generated
+   * @param v value to set into the feature 
+   */
   public void setToken(Annotation v) {
     if (Word_Type.featOkTst && ((Word_Type)jcasType).casFeat_token == null)
       jcasType.jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");

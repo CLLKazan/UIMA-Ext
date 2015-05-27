@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Tue Jul 16 19:01:56 MSD 2013 */
+/* First created by JCasGen Wed May 27 17:19:42 MSK 2015 */
 package org.opencorpora.cas;
 
 import org.apache.uima.jcas.JCas;
@@ -14,10 +14,12 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Tue Jul 16 19:01:56 MSD 2013
+ * Updated by JCasGen Wed May 27 17:19:42 MSK 2015
  * @generated */
 public class Word_Type extends Annotation_Type {
-  /** @generated */
+  /** @generated 
+   * @return the generator for this type
+   */
   @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
   /** @generated */
@@ -48,19 +50,29 @@ public class Word_Type extends Annotation_Type {
   final Feature casFeat_wordforms;
   /** @generated */
   final int     casFeatCode_wordforms;
-  /** @generated */ 
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @return the feature value 
+   */ 
   public int getWordforms(int addr) {
         if (featOkTst && casFeat_wordforms == null)
       jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
     return ll_cas.ll_getRefValue(addr, casFeatCode_wordforms);
   }
-  /** @generated */    
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @param v value to set 
+   */    
   public void setWordforms(int addr, int v) {
         if (featOkTst && casFeat_wordforms == null)
       jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
     ll_cas.ll_setRefValue(addr, casFeatCode_wordforms, v);}
     
-   /** @generated */
+   /** @generated
+   * @param addr low level Feature Structure reference
+   * @param i index of item in the array
+   * @return value at index i in the array 
+   */
   public int getWordforms(int addr, int i) {
         if (featOkTst && casFeat_wordforms == null)
       jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
@@ -70,7 +82,11 @@ public class Word_Type extends Annotation_Type {
 	return ll_cas.ll_getRefArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_wordforms), i);
   }
    
-  /** @generated */ 
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @param i index of item in the array
+   * @param v value to set
+   */ 
   public void setWordforms(int addr, int i, int v) {
         if (featOkTst && casFeat_wordforms == null)
       jcas.throwFeatMissing("wordforms", "org.opencorpora.cas.Word");
@@ -85,13 +101,19 @@ public class Word_Type extends Annotation_Type {
   final Feature casFeat_token;
   /** @generated */
   final int     casFeatCode_token;
-  /** @generated */ 
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @return the feature value 
+   */ 
   public int getToken(int addr) {
         if (featOkTst && casFeat_token == null)
       jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
     return ll_cas.ll_getRefValue(addr, casFeatCode_token);
   }
-  /** @generated */    
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @param v value to set 
+   */    
   public void setToken(int addr, int v) {
         if (featOkTst && casFeat_token == null)
       jcas.throwFeatMissing("token", "org.opencorpora.cas.Word");
@@ -102,7 +124,10 @@ public class Word_Type extends Annotation_Type {
 
 
   /** initialize variables to correspond with Cas Type and Features
-	* @generated */
+	 * @generated
+	 * @param jcas JCas
+	 * @param casType Type 
+	 */
   public Word_Type(JCas jcas, Type casType) {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
