@@ -48,5 +48,7 @@
 		<module>UIMA.Ext.Corpus.Util</module>
 		<module>UIMA.Ext.Benchmarking</module>
 		<module>UIMA.Ext.Demo.PipelineExample</module>
+		<module>UIMA-AS-ActiveMQ.AlternativePom</module>
+		<module>UIMA.Ext.Demo.AsyncService</module>
 	</modules>
 </project>

@@ -1,0 +1,5 @@
+#!/bin/bash
+. setup.sh
+# invoke
+java "${java_opts}" -cp lib/${project.build.finalName}.jar "${jni_opts}" "${logback_opts}" "${uima_datapath}" org.apache.uima.adapter.jms.service.UIMA_Service \
+-d demo-pipeline-deployment.xml -saxonURL file:$uima_as_home/saxon/saxon8.jar -xslt $uima_as_home/bin/dd2spring.xsl

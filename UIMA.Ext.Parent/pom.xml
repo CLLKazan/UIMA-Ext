@@ -262,6 +262,17 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uima-ext-demo-pipeline-example</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.ksu.niimm.cll.uima</groupId>
+				<artifactId>uimaj-as-activemq</artifactId>
+				<type>pom</type>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.uima</groupId>
 				<artifactId>uimaj-core</artifactId>
 				<version>${uima.version}</version>
@@ -276,6 +287,18 @@
                 <artifactId>uimaj-tools</artifactId>
                 <version>${uima.version}</version>
             </dependency>
+			<dependency>
+				<groupId>org.apache.uima</groupId>
+				<artifactId>uimaj-as-core</artifactId>
+				<version>${uima.version}</version>
+				<exclusions>
+					<exclusion>
+						<!-- Spring ASM in spring-core since 3.1.X -->
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-asm</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
 			<dependency>
 				<groupId>org.apache.uima</groupId>
 				<artifactId>uimafit-core</artifactId>

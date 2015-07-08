@@ -1,0 +1,31 @@
+<analysisEngineDeploymentDescription
+	xmlns="http://uima.apache.org/resourceSpecifier">
+
+	<name>UIMA-Ext-Demo-Deployment</name>
+	<version>0.1</version>
+	<vendor>CLLKazan</vendor>
+
+	<deployment protocol="jms" provider="activemq">
+
+		<!-- 
+		<casPool numberOfCASes="xxx" initialFsHeapSize="nnn"
+			disableJCasCache="[true/false]" />
+		-->
+
+		<service>
+			<!-- NOTE! Do not use 'localhost' in production. Check UIMA AS docs - Section 3.6  -->
+			<inputQueue brokerURL="tcp://localhost:61616" endpoint="top-lemmatizer-queue" />
+
+			<topDescriptor>
+				<import name="ru.kfu.itis.issst.uima.demo.lemmatizer-pipeline" />
+			</topDescriptor>
+
+			<analysisEngine>
+				<scaleout numberOfInstances="2" />
+				<!-- 
+				<asyncPrimitiveErrorConfiguration . />
+				 --> 
+			</analysisEngine>
+		</service>
+	</deployment>
+</analysisEngineDeploymentDescription>
