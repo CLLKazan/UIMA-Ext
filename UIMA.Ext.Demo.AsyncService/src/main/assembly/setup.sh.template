@@ -1,0 +1,22 @@
+#!/bin/bash
+# setup system variables
+
+# path to OpenCorpora (serialized) dictionary and classifier models
+opencorpora_home=~/data/opencorpora
+postagger_model=~/data/postagger-model
+
+# UIMA datapath
+uima_datapath='-Duima.datapath='${opencorpora_home}:${postagger_model}
+
+# crfsuite-jni shared library dir
+crfsuite_jni_dir=~/projects/crfsuite4j/crfsuite-jni/bin
+jni_opts="-Djava.library.path=${crfsuite_jni_dir}"
+
+# Java Heap Opts
+java_opts='-Xmx4000m'
+
+# logging
+logback_opts="-Dlogback.configurationFile=logback.xml"
+
+# UIMA AS distribution
+uima_as_home=~/third-party/apache-uima-as-2.6.0

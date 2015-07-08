@@ -1,0 +1,38 @@
+<configuration>
+	<timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
+	
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-5p %c{2} - %m%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="RFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/current.log</file>
+		<append>true</append>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      		<!-- hourly rollover -->
+			<fileNamePattern>logs/%d{yyyy-MM-dd,aux}/demo-h%d{HH}.log</fileNamePattern>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{15} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="org" level="INFO" />
+	<logger name="org.apache" level="INFO" />
+	<logger name="com" level="INFO" />
+	<logger name="ru.ksu" level="INFO" />
+	<logger name="ru.kfu" level="INFO" />
+	<logger name="net" level="INFO" />
+	<logger name="java" level="INFO" />
+	<logger name="javax" level="INFO" />
+	<logger name="de" level="INFO" />
+	
+	<root level="DEBUG">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="RFILE"/>
+	</root>
+</configuration>
