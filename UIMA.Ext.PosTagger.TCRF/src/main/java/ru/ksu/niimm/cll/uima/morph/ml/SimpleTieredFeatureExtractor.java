@@ -6,6 +6,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -18,6 +19,7 @@ import ru.kfu.cll.uima.tokenizer.fstype.Token;
 import ru.kfu.itis.cll.uima.util.CacheKey;
 import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.issst.uima.ml.*;
+import ru.kfu.itis.issst.uima.morph.commons.PunctuationUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
 import java.util.List;
@@ -124,7 +126,9 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
             // TODO:LOW depends on logic somewhere before (in a containing annotator)
             if (WordAnnotator.canCarryWord(tok)) {
                 List<Set<String>> tokGramsTiered = parseLabelIntoGrams(tokLabel);
-                Set<String> tokGrams = merge(tokGramsTiered);
+                Set<String> tokGrams = mergeTieredGrams(tokGramsTiered);
+                // TODO:HOTFIX
+                tokGrams.remove(PunctuationUtils.OTHER_PUNCTUATION_TAG);
                 tokFeatSet.add(dfe.extract(tok.getCoveredText(), tokGrams), dfe);
             }
         }
@@ -154,12 +158,12 @@ public class SimpleTieredFeatureExtractor implements TieredFeatureExtractor<Toke
         return result;
     }
 
-    private static <T> Set<T> merge(Iterable<? extends Set<T>> sets) {
-        ImmutableSet.Builder<T> builder = ImmutableSet.builder();
-        for (Set<T> set : sets) {
-            builder.addAll(set);
+    private static Set<String> mergeTieredGrams(Iterable<? extends Set<String>> sets) {
+        Set<String> result = Sets.newHashSet();
+        for (Set<String> set : sets) {
+            result.addAll(set);
         }
-        return builder.build();
+        return result;
     }
 
     @Override
