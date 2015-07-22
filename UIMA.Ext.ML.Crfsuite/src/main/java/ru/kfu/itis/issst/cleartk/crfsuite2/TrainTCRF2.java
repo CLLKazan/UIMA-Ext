@@ -47,12 +47,14 @@ public class TrainTCRF2 {
     // optional parameters
     @Parameter(names = "--feature-min-freq")
     private int featureMinFreq = 0;
-    @Parameter(names = "--feature-possible-states")
+    @Parameter(names = "--feature-possible-states", arity = 1)
     private boolean featurePossibleStates = true;
-    @Parameter(names = "--feature-possible-transitions")
+    @Parameter(names = "--feature-possible-transitions", arity = 1)
     private boolean featurePossibleTransitions = true;
     @Parameter(names = "--c2")
-    private int c2 = 1;
+    private double c2 = 1;
+    @Parameter(names = "--c1")
+    private Double c1 = null;
     @Parameter(names = "--optimization-max-iterations")
     private int optMaxIterations = 200;
 
@@ -73,12 +75,15 @@ public class TrainTCRF2 {
             addTrainParam(trainerArgs, "feature.possible_transitions", 1);
         }
         addTrainParam(trainerArgs, "c2", c2);
+        if (c1 != null) {
+            addTrainParam(trainerArgs, "c1", c1);
+        }
         //
         trainModels(trainingBaseDir, modelBaseDir,
                 trainerArgs.toArray(new String[trainerArgs.size()]));
     }
 
-    private void addTrainParam(List<String> params, String name, int value) {
+    private void addTrainParam(List<String> params, String name, Number value) {
         params.add("-p");
         params.add(name + "=" + value);
     }
