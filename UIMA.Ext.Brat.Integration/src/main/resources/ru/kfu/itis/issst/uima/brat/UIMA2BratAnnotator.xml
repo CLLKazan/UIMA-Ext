@@ -45,14 +45,7 @@
                 <mandatory>false</mandatory>
             </configurationParameter>
             <configurationParameter>
-                <name>DocumentMetadataType</name>
-                <description/>
-                <type>String</type>
-                <multiValued>false</multiValued>
-                <mandatory>false</mandatory>
-            </configurationParameter>
-            <configurationParameter>
-                <name>DocumentMetadataUriFeature</name>
+                <name>outputPathFunction</name>
                 <description/>
                 <type>String</type>
                 <multiValued>false</multiValued>
@@ -61,19 +54,14 @@
         </configurationParameters>
         <configurationParameterSettings>
             <nameValuePair>
-                <name>DocumentMetadataType</name>
+                <name>outputPathFunction</name>
                 <value>
-                    <string>ru.kfu.itis.cll.uima.commons.DocumentMetadata</string>
-                </value>
-            </nameValuePair>
-            <nameValuePair>
-                <name>DocumentMetadataUriFeature</name>
-                <value>
-                    <string>sourceUri</string>
+                    <string>ru.kfu.itis.cll.uima.consumer.DefaultSourceURI2OutputFilePathFunction</string>
                 </value>
             </nameValuePair>
         </configurationParameterSettings>
         <typeSystemDescription/>
+        <typePriorities/>
         <fsIndexCollection/>
         <capabilities/>
         <operationalProperties>
