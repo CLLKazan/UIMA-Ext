@@ -41,14 +41,14 @@ public class DefaultSourceURI2OutputFilePathFunctionTest {
     public void testWithScheme() {
         meta.setSourceUri("file:/some/folder/file.txt");
         Path result = func.apply(meta);
-        assertEquals(Paths.get("/some/folder/file.txt.xmi"), result);
+        assertEquals(Paths.get("/some/folder/file.txt"), result);
     }
 
     @Test
     public void testRelative() {
         meta.setSourceUri("someFolder/someFile");
         Path result = func.apply(meta);
-        assertEquals(Paths.get("someFolder/someFile.xmi"), result);
+        assertEquals(Paths.get("someFolder/someFile"), result);
     }
 
     @Test(expected = IllegalArgumentException.class)

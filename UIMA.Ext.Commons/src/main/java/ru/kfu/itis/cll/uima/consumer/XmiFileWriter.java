@@ -9,6 +9,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.initializable.InitializableFactory;
 import org.apache.uima.resource.ResourceInitializationException;
 import ru.kfu.itis.cll.uima.commons.DocumentMetadata;
+import ru.kfu.itis.cll.uima.io.IoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class XmiFileWriter extends XmiWriterBase {
 
     public static final String PARAM_OUTPUT_BASE_PATH = "outputBasePath";
     public static final String PARAM_OUTPUT_PATH_FUNCTION = "outputPathFunction";
+    public static final String XMI_FILE_EXTENSION = "xmi";
 
     // config fields
     @ConfigurationParameter(name = PARAM_OUTPUT_BASE_PATH, mandatory = true)
@@ -62,6 +64,7 @@ public class XmiFileWriter extends XmiWriterBase {
     protected OutputStream getOutputStream(DocumentMetadata meta) throws IOException {
         Path outRelativePath = outPathFunc.apply(meta);
         Path resultPath = outBasePath.resolve(outRelativePath);
+        resultPath = IoUtils.addExtension(resultPath, XMI_FILE_EXTENSION);
         // does not create missing parents
         // return Files.newOutputStream(resultPath);
         return FileUtils.openOutputStream(resultPath.toFile());
