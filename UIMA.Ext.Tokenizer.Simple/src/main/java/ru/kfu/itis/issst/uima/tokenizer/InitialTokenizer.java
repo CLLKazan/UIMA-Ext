@@ -1,50 +1,33 @@
 /**
- * 
+ *
  */
 package ru.kfu.itis.issst.uima.tokenizer;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
-
-import java.util.BitSet;
-
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.cas.Type;
-import org.apache.uima.cas.TypeSystem;
+import org.apache.uima.cas.*;
 import org.apache.uima.cas.text.AnnotationIndex;
+import org.apache.uima.fit.component.CasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.fit.component.CasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import ru.kfu.cll.uima.tokenizer.fstype.*;
 
+import java.util.BitSet;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
+import static ru.kfu.itis.cll.uima.util.AnnotatorUtils.annotationTypeExist;
+import static ru.kfu.itis.issst.uima.tokenizer.TokenUtils.PUNCTUATION_CHARACTER_CATEGORIES;
 import static ru.kfu.itis.issst.uima.tokenizer.TokenizerAPI.*;
-import ru.kfu.cll.uima.tokenizer.fstype.BREAK;
-import ru.kfu.cll.uima.tokenizer.fstype.CAP;
-import ru.kfu.cll.uima.tokenizer.fstype.COLON;
-import ru.kfu.cll.uima.tokenizer.fstype.COMMA;
-import ru.kfu.cll.uima.tokenizer.fstype.CW;
-import ru.kfu.cll.uima.tokenizer.fstype.EXCLAMATION;
-import ru.kfu.cll.uima.tokenizer.fstype.NUM;
-import ru.kfu.cll.uima.tokenizer.fstype.PERIOD;
-import ru.kfu.cll.uima.tokenizer.fstype.PM;
-import ru.kfu.cll.uima.tokenizer.fstype.QUESTION;
-import ru.kfu.cll.uima.tokenizer.fstype.SEMICOLON;
-import ru.kfu.cll.uima.tokenizer.fstype.SPACE;
-import ru.kfu.cll.uima.tokenizer.fstype.SPECIAL;
-import ru.kfu.cll.uima.tokenizer.fstype.SW;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * @author Rinat Gareev (Kazan Federal University)
- * 
+ *
  */
 public class InitialTokenizer extends CasAnnotator_ImplBase {
 
@@ -251,13 +234,9 @@ public class InitialTokenizer extends CasAnnotator_ImplBase {
 	};
 
 	private State PUNCTUATION = new CharacterCategoryState(
-			Character.DASH_PUNCTUATION,
-			Character.START_PUNCTUATION,
-			Character.END_PUNCTUATION,
-			Character.OTHER_PUNCTUATION,
-			Character.INITIAL_QUOTE_PUNCTUATION,
-			Character.FINAL_QUOTE_PUNCTUATION,
-			Character.CONNECTOR_PUNCTUATION) {
+			ArrayUtils.toPrimitive(
+					PUNCTUATION_CHARACTER_CATEGORIES.toArray(
+                            new Byte[PUNCTUATION_CHARACTER_CATEGORIES.size()]))) {
 		@Override
 		public void createAnnotation(JCas cas, int spanBegin, String str, int begin, int end) {
 			char ch = str.charAt(begin);
