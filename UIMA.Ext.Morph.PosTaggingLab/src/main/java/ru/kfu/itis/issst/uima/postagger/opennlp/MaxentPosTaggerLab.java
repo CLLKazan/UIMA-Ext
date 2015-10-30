@@ -143,9 +143,7 @@ public class MaxentPosTaggerLab extends LabLauncherBase {
 								previousTagsInHistory,
 								leftContextSize, rightContextSize,
 								posCategories,
-								morphDict),
-						// no need for a dictionary in training
-						posCategories));
+								morphDict)));
 				// run
 				trainer.train();
 			}

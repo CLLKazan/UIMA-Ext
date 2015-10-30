@@ -3,16 +3,6 @@
  */
 package ru.kfu.itis.issst.uima.postagger.opennlp;
 
-import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.BeamSearchContextGenerator;
 import opennlp.tools.util.InvalidFormatException;
@@ -23,9 +13,13 @@ import ru.kfu.itis.cll.uima.util.CachedResourceTuple;
 import ru.kfu.itis.cll.uima.util.ConfigPropertiesUtils;
 import ru.kfu.itis.issst.uima.morph.dictionary.resource.MorphDictionary;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.Properties;
+
+import static ru.kfu.itis.issst.uima.morph.dictionary.MorphDictionaryAPIFactory.getMorphDictionaryAPI;
 
 /**
  * Custom implementation of {@link BaseToolFactory} for PoS-tagger.
@@ -44,11 +38,9 @@ import com.google.common.collect.ImmutableSet;
  */
 public class POSTaggerFactory extends BaseToolFactory {
 
-	private static final String GRAM_CATEGORIES_MANIFEST_ENTRY_NAME = "gramCategories";
 	private static final String FEATURE_EXTRACTORS_ENTRY_NAME = "feature.extractors";
 
 	private FeatureExtractorsBasedContextGenerator contextGenerator;
-	private ImmutableSet<String> gramCategories;
 
 	/**
 	 * This constructor is required for OpenNLP model deserialization
@@ -56,20 +48,13 @@ public class POSTaggerFactory extends BaseToolFactory {
 	public POSTaggerFactory() {
 	}
 
-	public POSTaggerFactory(FeatureExtractorsBasedContextGenerator contextGenerator,
-			Collection<String> gramCategories) {
+	public POSTaggerFactory(FeatureExtractorsBasedContextGenerator contextGenerator) {
 		this.contextGenerator = contextGenerator;
-		this.gramCategories = ImmutableSet.copyOf(gramCategories);
 	}
 
 	@Override
 	protected void init(ArtifactProvider artifactProvider) {
 		super.init(artifactProvider);
-		String gramCategoriesStr = artifactProvider
-				.getManifestProperty(GRAM_CATEGORIES_MANIFEST_ENTRY_NAME);
-		if (gramCategoriesStr != null) {
-			gramCategories = ImmutableSet.copyOf(gramCatSplitter.split(gramCategoriesStr));
-		}
 	}
 
 	public BeamSearchContextGenerator<Token> getContextGenerator() {
@@ -77,10 +62,6 @@ public class POSTaggerFactory extends BaseToolFactory {
 			contextGenerator = artifactProvider.getArtifact(FEATURE_EXTRACTORS_ENTRY_NAME);
 		}
 		return contextGenerator;
-	}
-
-	public Set<String> getGramCategories() {
-		return gramCategories;
 	}
 
 	@Override
@@ -92,15 +73,8 @@ public class POSTaggerFactory extends BaseToolFactory {
 
 	@Override
 	public Map<String, String> createManifestEntries() {
-		Map<String, String> manifest = super.createManifestEntries();
-		if (gramCategories != null) {
-			manifest.put(GRAM_CATEGORIES_MANIFEST_ENTRY_NAME, gramCatJoiner.join(gramCategories));
-		}
-		return manifest;
+		return super.createManifestEntries();
 	}
-
-	private static final Splitter gramCatSplitter = Splitter.on(',');
-	private static final Joiner gramCatJoiner = Joiner.on(',');
 
 	@Override
 	public void validateArtifactMap() throws InvalidFormatException {
@@ -149,8 +123,7 @@ public class POSTaggerFactory extends BaseToolFactory {
 		private Object dictCacheKey;
 
 		@Override
-		public FeatureExtractorsBasedContextGenerator create(InputStream in) throws IOException,
-				InvalidFormatException {
+		public FeatureExtractorsBasedContextGenerator create(InputStream in) throws IOException {
 			if (dictCacheKey != null) {
 				throw new UnsupportedOperationException();
 			}
