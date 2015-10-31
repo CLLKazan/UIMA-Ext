@@ -58,7 +58,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.ksu.niimm.cll.uima</groupId>
-			<artifactId>uima-ext-postagger-tcrf</artifactId>
+			<artifactId>uima-ext-pos-tagger-opennlp</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
