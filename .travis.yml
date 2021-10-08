@@ -6,4 +6,4 @@ before_script:
   - ci-tools/install_crfsuite-jni.sh
 
 after_success:
-  - mvn deploy --settings ../ci-tools/maven/settings.xml -Dmaven.test.skip=true
+  - mvn -T 1C deploy --settings ../ci-tools/maven/settings.xml -Dmaven.test.skip=true
